@@ -1,0 +1,7 @@
+version: '3.3'
+services:
+# Uncomment lines below to create Infinite loop to keep container live doing nothing
+#   backend:
+#     command: bash -c "while true; do sleep 1; done"
+  backend:
+    command: ./bin/prestart.sh
