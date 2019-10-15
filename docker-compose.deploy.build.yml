@@ -4,10 +4,8 @@ services:
     build:
       context: ./backend
       dockerfile: backend.dockerfile
-      args:
-        env: dev
   frontend:
     build:
       context: ./frontend
       args:
-        FRONTEND_ENV: dev
+        FRONTEND_ENV: ${FRONTEND_ENV-production}

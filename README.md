@@ -2,9 +2,20 @@
 
 ## Requirements
 
-* Docker and Docker Compose
+Follow the instructions to install [Docker](https://docs.docker.com/install/).
 
-## Local Development
+Follow the instructions to install [Docker Compose](https://docs.docker.com/compose/install/).
+
+## Architecture
+
+The workflow-service contains of two parts:
+
+1. Backend
+2. Frontend
+
+The backend is written using Python and the FastAPI ASGI 
+
+## Backend local development
 
 Start the stack with Docker Compose:
 
@@ -38,7 +49,7 @@ A message like this should pop up:
 
 You will have full Jupyter access inside your container that can be used to access your database.
 
-## Migrations
+### Migrations
 
 Automatic migration files can be generated for the database. After a change is made you'll want to create a new revision.
 
@@ -57,6 +68,24 @@ Open the file and ensure the changes are what you expect.
 Do the migration:
 
     docker-compose exec alembic upgrade head
+
+## What's up with all the docker-compose files?
+
+This takes a little getting used to initially but does make the management of the files much easier
+when needing to reuse the same values in other environments. Eventually, it becomes quick to make edits
+to the appropriate parts of the stack without muddling in other details.
+
+This becomes more apparent in the [build and push](./scripts/build-push.sh) and the [deploy.sh](./scripts/deploy.sh) script.
+
+Within these files we're able to pass in several docker-compose files and compile them into one file that is used for various things.
+
+The only thing needed to alter some key values is the passing in of the appropriate environment variables.
+
+## Pushing images to docker hub
+
+Run the script [./scripts/build-push.sh](./scripts/build-push.sh) with the appropriate environment variables:
+
+    TAG=latest FRONTEND_ENV=production ./scripts/build-push.sh
 
 ## Attribution
 

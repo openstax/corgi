@@ -1,6 +1,6 @@
 from typing import List
 
-from db.session import db_session
+from app.db.session import db_session
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
