@@ -1,0 +1,28 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: openstax/cnx-easybake
+
+inputs:
+  - name: book
+  - name: assembled-book
+  - name: cnx-recipes
+outputs:
+  - name: baked-book
+
+run:
+  path: /bin/bash
+  args:
+    - -cxe
+    - |
+      cp -r assembled-book/* baked-book
+      book_dir="baked-book/$(cat book/name)"
+      cnx-easybake "cnx-recipes/recipes/output/$(cat book/recipe).css" "$book_dir/collection.assembled.xhtml" "$book_dir/collection.baked.xhtml"
+      style_file="cnx-recipes/styles/output/$(cat book/name)-pdf.css"
+      if [ -f "$style_file" ]
+      then
+        cp "$style_file" $book_dir
+        sed -i "s%<\\/head>%<link rel=\"stylesheet\" type=\"text/css\" href=\"$(basename $style_file)\" />&%" "$book_dir/collection.baked.xhtml"
+      fi

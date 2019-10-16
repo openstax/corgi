@@ -1,0 +1,148 @@
+---
+resource_types:
+  - name: slack
+    type: docker-image
+    source:
+      repository: karenc/concourse-slack-resource
+
+resources:
+  - name: pdf-spike
+    type: git
+    source:
+      uri: https://github.com/openstax/pdf-spike.git
+
+  - name: cnx-recipes
+    type: git
+    source:
+      uri: https://github.com/openstax/cnx-recipes.git
+
+  - name: ce-bot
+    type: slack
+    source:
+      user_access_token: ((slack-user-token))
+      bot_access_token: ((slack-bot-token))
+      bot_user_id: ((slack-bot-user-id))
+      regexp: '^<@((slack-bot-user-id))>\s+pdf-spike\s+(\S+)\s+(\S+)\s*$'
+    check_every: 10s
+
+  - name: ce-bot-message
+    type: slack
+    source:
+      user_access_token: ((slack-user-token))
+      bot_access_token: ((slack-bot-token))
+      bot_user_id: ((slack-bot-user-id))
+
+  - name: ce-pdf-spike
+    type: s3
+    source:
+      bucket: ce-pdf-spike
+      access_key_id: ((aws-access-key-id))
+      secret_access_key: ((aws-secret-access-key))
+      skip_download: true
+
+jobs:
+  - name: bakery
+    plan:
+      - get: ce-bot
+        trigger: true
+        version: every
+
+      - put: ce-bot-message
+        params:
+          text: "Looking up the book `{{ce-bot/message_text_0}}`..."
+          channel: "{{ce-bot/channel}}"
+          thread_ts: "{{ce-bot/ts}}"
+
+      - get: pdf-spike
+      - get: cnx-recipes
+
+      - task: look up book
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: openstax/nebuchadnezzar
+
+          inputs:
+            - name: ce-bot
+          outputs:
+            - name: book
+
+          run:
+            path: /bin/bash
+            args:
+              - -cxe
+              - |
+                tail ce-bot/*
+                cp ce-bot/message_text_0 book/name
+                cp ce-bot/message_text_1 book/server
+                wget https://raw.githubusercontent.com/openstax/cnx-recipes/master/books.txt
+                . books.txt
+                for book_config in "${BOOK_CONFIGS[@]}"
+                do
+                  read -r book_name recipe_name _ book_colid _ <<< "$book_config"
+                  if [ "$book_name" == "$(cat book/name)" ]
+                  then
+                    echo -n "$recipe_name" >book/recipe
+                    echo -n "$book_colid" >book/collection_id
+                  fi
+                done
+                echo -n latest >book/version
+
+      - put: ce-bot-message
+        params:
+          text: "Fetching book `{{book/name}}` (`{{book/collection_id}}`) from `{{book/server}}`"
+          channel: "{{ce-bot/channel}}"
+          thread_ts: "{{ce-bot/ts}}"
+
+      - task: fetch book
+        file: pdf-spike/bakery/tasks/fetch-book.yml
+
+      - put: ce-bot-message
+        params:
+          text: "Assembling book `{{book/name}}`"
+          channel: "{{ce-bot/channel}}"
+          thread_ts: "{{ce-bot/ts}}"
+
+      - task: assemble-book
+        file: pdf-spike/bakery/tasks/assemble-book.yml
+
+      - put: ce-bot-message
+        params:
+          text: "Baking book `{{book/name}}`"
+          channel: "{{ce-bot/channel}}"
+          thread_ts: "{{ce-bot/ts}}"
+
+      - task: bake-book
+        file: pdf-spike/bakery/tasks/bake-book.yml
+
+      - put: ce-bot-message
+        params:
+          text: "Mathifying book `{{book/name}}`"
+          channel: "{{ce-bot/channel}}"
+          thread_ts: "{{ce-bot/ts}}"
+
+      - task: mathify-book
+        file: pdf-spike/bakery/tasks/mathify-book.yml
+
+      - put: ce-bot-message
+        params:
+          text: "Building pdf for `{{book/name}}`"
+          channel: "{{ce-bot/channel}}"
+          thread_ts: "{{ce-bot/ts}}"
+
+      - task: build-pdf
+        file: pdf-spike/bakery/tasks/build-pdf.yml
+
+      - put: ce-pdf-spike
+        params:
+          file: artifacts/*
+          acl: public-read
+          content_type: application/pdf
+
+      - put: ce-bot-message
+        params:
+          text: "`{{book/name}}` pdf can be downloaded at <https://ce-pdf-spike.s3.amazonaws.com/{{book/name}}.pdf|https://ce-pdf-spike.s3.amazonaws.com/{{book/name}}.pdf>"
+          channel: "{{ce-bot/channel}}"
+          thread_ts: "{{ce-bot/ts}}"

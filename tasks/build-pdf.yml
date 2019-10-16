@@ -1,0 +1,21 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: openstax/princexml
+
+inputs:
+  - name: book
+  - name: mathified-book
+outputs:
+  - name: artifacts
+
+run:
+  user: root
+  path: /bin/bash
+  args:
+    - -cxe
+    - |
+      book_dir="mathified-book/$(cat book/name)"
+      prince -v --output="artifacts/$(cat book/name).pdf" "$book_dir/collection.mathified.xhtml"
