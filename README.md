@@ -13,7 +13,7 @@ The workflow-service contains of two parts:
 1. Backend
 2. Frontend
 
-The backend is written using Python and the FastAPI ASGI 
+The backend is written using Python and the FastAPI ASGI Framework 
 
 ## Backend local development
 

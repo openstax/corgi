@@ -10,4 +10,4 @@ docker-compose \
 -f docker-compose.deploy.images.yml \
 config > docker-stack.yml
 
-docker-compose -f docker-stack.yml build --no-cache
+docker-compose -f docker-stack.yml build

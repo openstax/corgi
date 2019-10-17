@@ -1,22 +1,30 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
 
 class EventBase(BaseModel):
-    book_id: str = None
+    collection_id: str = None
     status_id: int = None
+    pdf_url: Optional[str] = ""
 
 
 class EventCreate(EventBase):
-    book_id: str
+    collection_id: str
     status_id: int
+
+
+class EventUpdate(BaseModel):
+    status_id: int
+    pdf_url: Optional[str]
 
 
 class Event(EventBase):
     id: int
-    book_id: str
+    collection_id: str
     status_id: int
+    pdf_url: Optional[str]
     created_at: datetime
     updated_at: datetime
 

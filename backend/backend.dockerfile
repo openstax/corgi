@@ -1,6 +1,13 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.7
+FROM python:3.7
 
-RUN pip install "fastapi>=0.16.0" uvicorn gunicorn jinja2 psycopg2-binary alembic SQLAlchemy tenacity
+LABEL maintainer="OpenStax Content Engineering"
+
+RUN pip install fastapi uvicorn gunicorn jinja2 psycopg2-binary alembic SQLAlchemy tenacity
+
+COPY ./docker/start.sh /start.sh
+RUN chmod +x /start.sh
+
+COPY ./docker/gunicorn.conf /gunicorn.conf
 
 # For development, Jupyter remote kernel, Hydrogen
 # Using inside the container:
@@ -15,3 +22,5 @@ WORKDIR /app/
 ENV PYTHONPATH=/app
 
 EXPOSE 80
+
+CMD ["/start.sh"]
