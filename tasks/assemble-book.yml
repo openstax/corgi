@@ -16,6 +16,8 @@ run:
   args:
     - -cxe
     - |
+      exec 2> >(tee assembled-book/stderr >&2)
+      rm -f fetched-book/stderr
       cp -r fetched-book/* assembled-book
       cd assembled-book
       book_dir="../assembled-book/$(cat ../book/name)"

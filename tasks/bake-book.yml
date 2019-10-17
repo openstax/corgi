@@ -17,6 +17,8 @@ run:
   args:
     - -cxe
     - |
+      exec 2> >(tee baked-book/stderr >&2)
+      rm -f assembled-book/stderr
       cp -r assembled-book/* baked-book
       book_dir="baked-book/$(cat book/name)"
       cnx-easybake "cnx-recipes/recipes/output/$(cat book/recipe).css" "$book_dir/collection.assembled.xhtml" "$book_dir/collection.baked.xhtml"

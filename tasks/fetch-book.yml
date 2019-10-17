@@ -15,6 +15,7 @@ run:
   args:
     - -cxe
     - |
+      exec 2> >(tee fetched-book/stderr >&2)
       cd fetched-book
       book_dir="$(cat ../book/name)"
       mkdir -p "$book_dir"

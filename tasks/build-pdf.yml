@@ -17,5 +17,7 @@ run:
   args:
     - -cxe
     - |
+      exec 2> >(tee artifacts/stderr >&2)
+      rm -f mathified-book/stderr
       book_dir="mathified-book/$(cat book/name)"
       prince -v --output="artifacts/$(cat book/name).pdf" "$book_dir/collection.mathified.xhtml"

@@ -74,11 +74,14 @@ jobs:
             args:
               - -cxe
               - |
+                exec 2> >(tee book/stderr >&2)
                 tail ce-bot/*
                 cp ce-bot/message_text_0 book/name
                 cp ce-bot/message_text_1 book/server
-                wget https://raw.githubusercontent.com/openstax/cnx-recipes/master/books.txt
+                wget -q https://raw.githubusercontent.com/openstax/cnx-recipes/master/books.txt
+                set +x
                 . books.txt
+                set -x
                 for book_config in "${BOOK_CONFIGS[@]}"
                 do
                   read -r book_name recipe_name _ book_colid _ <<< "$book_config"
@@ -89,6 +92,18 @@ jobs:
                   fi
                 done
                 echo -n latest >book/version
+                if [ ! -f book/collection_id ]
+                then
+                  set +x
+                  echo "Book not found" >book/stderr
+                  exit 1
+                fi
+        on_failure:
+          put: ce-bot-message
+          params:
+            text: "Failed to look up book `{{ce-bot/message_text_0}}`:\n\n```\n{{book/stderr}}```"
+            channel: "{{ce-bot/channel}}"
+            thread_ts: "{{ce-bot/ts}}"
 
       - put: ce-bot-message
         params:
@@ -98,6 +113,12 @@ jobs:
 
       - task: fetch book
         file: pdf-spike/bakery/tasks/fetch-book.yml
+        on_failure:
+          put: ce-bot-message
+          params:
+            text: "Failed to fetch book `{{book/name}}`\n\n```\n{{fetched-book/stderr}}```"
+            channel: "{{ce-bot/channel}}"
+            thread_ts: "{{ce-bot/ts}}"
 
       - put: ce-bot-message
         params:
@@ -107,6 +128,12 @@ jobs:
 
       - task: assemble-book
         file: pdf-spike/bakery/tasks/assemble-book.yml
+        on_failure:
+          put: ce-bot-message
+          params:
+            text: "Failed to assemble book `{{book/name}}`\n\n```\n{{assembled-book/stderr}}```"
+            channel: "{{ce-bot/channel}}"
+            thread_ts: "{{ce-bot/ts}}"
 
       - put: ce-bot-message
         params:
@@ -116,6 +143,12 @@ jobs:
 
       - task: bake-book
         file: pdf-spike/bakery/tasks/bake-book.yml
+        on_failure:
+          put: ce-bot-message
+          params:
+            text: "Failed to bake book `{{book/name}}`\n\n```\n{{baked-book/stderr}}```"
+            channel: "{{ce-bot/channel}}"
+            thread_ts: "{{ce-bot/ts}}"
 
       - put: ce-bot-message
         params:
@@ -125,6 +158,12 @@ jobs:
 
       - task: mathify-book
         file: pdf-spike/bakery/tasks/mathify-book.yml
+        on_failure:
+          put: ce-bot-message
+          params:
+            text: "Failed to mathify book `{{book/name}}`\n\n```\n{{mathified-book/stderr}}```"
+            channel: "{{ce-bot/channel}}"
+            thread_ts: "{{ce-bot/ts}}"
 
       - put: ce-bot-message
         params:
@@ -134,12 +173,24 @@ jobs:
 
       - task: build-pdf
         file: pdf-spike/bakery/tasks/build-pdf.yml
+        on_failure:
+          put: ce-bot-message
+          params:
+            text: "Failed to build pdf for book `{{book/name}}`\n\n```\n{{artifacts/stderr}}```"
+            channel: "{{ce-bot/channel}}"
+            thread_ts: "{{ce-bot/ts}}"
 
       - put: ce-pdf-spike
         params:
-          file: artifacts/*
+          file: artifacts/*.pdf
           acl: public-read
           content_type: application/pdf
+        on_failure:
+          put: ce-bot-message
+          params:
+            text: "Failed to upload pdf for `{{book/name}}` to s3"
+            channel: "{{ce-bot/channel}}"
+            thread_ts: "{{ce-bot/ts}}"
 
       - put: ce-bot-message
         params:

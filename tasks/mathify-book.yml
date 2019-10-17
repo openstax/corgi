@@ -16,6 +16,8 @@ run:
   args:
     - -cxe
     - |
+      exec 2> >(tee mathified-book/stderr >&2)
+      rm -f baked-book/stderr
       cp -r baked-book/* mathified-book
       book_dir=mathified-book/$(cat book/name)
       node /src/typeset/start -i "$book_dir/collection.baked.xhtml" -o "$book_dir/collection.mathified.xhtml" -f svg
