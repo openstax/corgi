@@ -1,4 +1,5 @@
 import colors from 'vuetify/es5/util/colors'
+const localConfig = require('./localConfig')
 
 export default {
   mode: 'universal',
@@ -25,11 +26,13 @@ export default {
   ** Global CSS
   */
   css: [
+    '@/assets/main.scss'
   ],
   /*
   ** Plugins to load before mounting the App
   */
   plugins: [
+    '~/plugins/axios.js'
   ],
   /*
   ** Nuxt.js dev-modules
@@ -51,6 +54,7 @@ export default {
   ** See https://axios.nuxtjs.org/options
   */
   axios: {
+    baseURL: localConfig.apiBaseURL
   },
   /*
   ** vuetify module configuration
@@ -59,7 +63,7 @@ export default {
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
     theme: {
-      dark: true,
+      dark: false,
       themes: {
         dark: {
           primary: colors.blue.darken2,
