@@ -23,11 +23,12 @@
               <v-container>
                 <v-row>
                   <v-col cols="12" sm="6" md="6">
-                    <v-select
-                      :items="['Book1', 'Book2', 'Book3']"
-                      label="Bookname*"
+                    <v-text-field
+                      v-model="collectionId"
+                      label="Collection ID"
+                      hint="e.g. test-20191021-1"
                       required
-                    ></v-select>
+                    ></v-text-field>
                   </v-col>
                 </v-row>
               </v-container>
@@ -36,7 +37,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="dialog = false">Cancel</v-btn>
-              <v-btn color="blue darken-1" text @click="dialog = false">Do it!</v-btn>
+              <v-btn color="blue darken-1" text @click="clickCollection(collectionId)">Do it!</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -73,6 +74,7 @@ export default {
         { text: 'Updated at', value: 'updated_at' }
       ],
       dialog: false,
+      collectionId: '',
       polling: null
     }
   },
@@ -87,6 +89,25 @@ export default {
         this.$store.dispatch('getEvents')
         console.log('get EVENTS now...')
       }, 30000)
+    },
+    clickCollection (collectionId) {
+      this.dialog = false
+      if (collectionId.length >= 0) {
+        console.log('POSTing ' + collectionId + ' now!')
+        this.submitCollection(this.collectionId)
+      }
+    },
+    async submitCollection (collectionId) {
+      try {
+        const data = {
+          collection_id: collectionId,
+          status_id: 1,
+          pdf_url: null
+        }
+        await this.$axios.$post('/api/events/', data)
+      } catch (error) {
+        console.log(error)
+      }
     }
   },
   beforeDestroy () {

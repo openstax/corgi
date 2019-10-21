@@ -22,7 +22,15 @@ class Events(Base):
     def status_name(self):
         return self.status.name
 
+    @status_name.setter
+    def status_name(self, value):
+        self.status = value
 
+    @status_name.expression
+    def status_name(cls):
+        return cls.status
+
+      
 class Status(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     name = sa.Column(sa.String)

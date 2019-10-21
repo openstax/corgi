@@ -4,7 +4,6 @@ from starlette.middleware.cors import CORSMiddleware
 from app.api import api_router
 from app.core import config
 from app.middleware import DBSessionMiddleware
-from core import config
 
 server = FastAPI(title="Workflow Event Service")
 
