@@ -35,7 +35,7 @@ class ServiceBase(object):
 
     def update(self, db_session: BaseSession, obj: BaseSchema, obj_in: BaseModel):
 
-        obj_data = obj.to_schema(self.data_model).dict(skip_defaults=True)
+        obj_data = obj.to_data_model(self.data_model).dict(skip_defaults=True)
         update_data = obj_in.dict(skip_defaults=True)
 
         formatted_data = {

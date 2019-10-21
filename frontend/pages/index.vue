@@ -69,7 +69,7 @@ export default {
         { text: 'Collection ID', value: 'collection_id' },
         { text: 'Start Date and Time', value: 'created_at' },
         { text: 'Download URL', value: 'pdf_url' },
-        { text: 'Status', value: 'status_id' },
+        { text: 'Status', value: 'status_name' },
         { text: 'Updated at', value: 'updated_at' }
       ],
       dialog: false,
