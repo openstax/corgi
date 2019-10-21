@@ -1,0 +1,41 @@
+---
+resource_types:
+  - name: workflow-events
+    type: docker-image
+    source:
+      repository: openstax/workflow-event-resource
+
+resources:
+  - name: workflow-events-queued
+    type: workflow-events
+    source:
+      api_root: https://cc1.cnx.org/api
+      status_id: 1
+
+  - name: event-update
+    type: workflow-events
+    source:
+      api_root: https://cc1.cnx.org/api
+
+jobs:
+  - name: test-queue
+    plan:
+      - get: workflow-events-queued
+        trigger: true
+        version: every
+      - task: show-queued
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: debian
+          inputs:
+            - name: workflow-events-queued
+          run:
+            path: cat
+            args: [workflow-events-queued/event.json]
+      - put: event-update
+        params:
+          id: workflow-events-queued/id
+          status_id: "2"
