@@ -87,6 +87,89 @@ Run the script [./scripts/build-push.sh](./scripts/build-push.sh) with the appro
 
     TAG=latest FRONTEND_ENV=production ./scripts/build-push.sh
 
+## Container Cluster creation and deployment for dev work
+
+A set of 3 servers that have been setup as docker swarm master nodes.
+
+* https://cc1.cnx.org
+* https://cc2.cnx.org
+* https://cc3.cnx.org
+
+### Initial setup of the cluster
+
+Create the networks
+
+```bask
+docker network create --driver overlay pdf-spike-backend
+```
+
+Set some important tags on the nodes
+
+```bash
+docker node update --label-add db=true cc1.cnx.org
+```
+
+Create the db
+
+```bash
+docker service create --name db --constraint-add 'node.labels.db == true' --mount type=volume,source=db-data,target=/var/lib/postgresql/data --network pdf-spike-backend postgres:11
+```
+
+Create the backend
+
+```bash
+docker service create --name pdf-spike-backend --network pdf-spike-backend --label traefik.frontend.rule=PathPrefix:/api,/docs,/redoc --label traefik.enable=true --label traefik.port=80 --replicas openstax/pdf-spike-backend
+```
+
+Create the frontend
+
+```bash
+docker service create --name pdf-spike-frontend --network pdf-spike-backend --label traefik.frontend.rule=PathPrefix:/ --label traefik.enable=true --label traefik.port=80 --replicas 1 openstax/pdf-spike-frontend
+```
+
+
+### Deployment process for dev work
+
+>Note: A lot of the process described below can be accomplished with the 
+>[`docker stack`](https://docs.docker.com/engine/reference/commandline/stack/) 
+>command. This approach isn't being utilized at the moment in order to allow 
+>developers to become more familiar with the underlying `docker service` commands.
+
+
+Currently, we don't use the docker stack command. The individual services for 
+the system are created via exclusive usage of the 
+[docker service create](https://docs.docker.com/engine/reference/commandline/service/) command.
+
+
+Follow the build and push steps defined above except with a tag named after your PR.
+
+**Example**
+
+    TAG=my-changes ./scripts/build-push.sh
+
+When the images have been deployed to hub.docker.com login to one of the container servers.
+
+    ssh cc1.cnx.org
+
+Depending on the frontend or backend image update the appropriate service.
+
+**Backend**
+
+    docker service update pdf-spike-backend --force --image openstax/pdf-spike-backend:my-changes
+
+**Frontend**
+
+    docker service update pdf-spike-frontend --force --image openstax/pdf-spike-frontend:my-changes
+
+To restart a service you can set replicas to 0 and then back to any number.
+
+    docker service update --replicas 0 pdf-spike-frontend
+
+To start it back up
+
+    docker service update --replicas 1 pdf-spike-frontend
+
+
 ## Attribution
 
 A lot of the structure and ideas for this service come from Tiangolo's [full-stack-fastapi-postgres](https://github.com/tiangolo/full-stack-fastapi-postgresql) project. Thanks Tiangolo!
