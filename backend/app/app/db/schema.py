@@ -16,21 +16,9 @@ class Events(Base):
     updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
                            onupdate=datetime.utcnow)
 
-    status = relationship("Status", back_populates="events")
+    status = relationship("Status", back_populates="events", lazy="joined")
 
-    @hybrid_property
-    def status_name(self):
-        return self.status.name
 
-    @status_name.setter
-    def status_name(self, value):
-        self.status = value
-
-    @status_name.expression
-    def status_name(cls):
-        return cls.status
-
-      
 class Status(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     name = sa.Column(sa.String)
