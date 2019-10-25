@@ -14,10 +14,23 @@ class Status(StatusBase):
         orm_mode = True
 
 
+class ContentServerBase(BaseModel):
+    hostname: str
+    host_url: str
+
+
+class ContentServer(ContentServerBase):
+    id: str
+
+    class Config:
+        orm_mode = True
+
+
 class EventBase(BaseModel):
     collection_id: str
     status_id: str
     pdf_url: str = None
+    content_server_id: str
 
 
 class EventCreate(EventBase):
@@ -34,6 +47,7 @@ class Event(EventBase):
     created_at: datetime
     updated_at: datetime
     status: Status
+    content_server: ContentServer
 
     class Config:
         orm_mode = True

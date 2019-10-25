@@ -2,7 +2,7 @@ FROM python:3.7
 
 LABEL maintainer="OpenStax Content Engineering"
 
-RUN pip install fastapi uvicorn gunicorn jinja2 psycopg2-binary alembic SQLAlchemy tenacity
+RUN pip install fastapi uvicorn gunicorn jinja2 psycopg2-binary alembic SQLAlchemy tenacity click
 
 COPY ./docker/start.sh /start.sh
 RUN chmod +x /start.sh

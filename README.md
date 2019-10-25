@@ -29,6 +29,14 @@ To check the logs run:
 
     docker-compose logs
 
+## Clear the database
+
+Start the stack as described above
+
+Run the reset-db command that is contained in the `manage.py` file.
+
+    docker-compose exec backend python manage.py reset-db
+
 ## Live Development with Jupyter Notebooks
 
 Enter the backend Docker container:

@@ -8,4 +8,5 @@ class EventsService(ServiceBase):
     """
     pass
 
+
 event_service = EventsService(EventsSchema, EventModel)

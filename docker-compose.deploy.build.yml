@@ -7,5 +7,3 @@ services:
   frontend:
     build:
       context: ./frontend
-      args:
-        FRONTEND_ENV: ${FRONTEND_ENV-production}
