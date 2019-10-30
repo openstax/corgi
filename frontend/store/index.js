@@ -1,28 +1,52 @@
-import Vuex from 'vuex'
-import mutations from '@/store/mutations.js'
-// import _ from 'lodash'
+import flattenObject from '@/store/utils.js'
 
-const createStore = () => {
-  return new Vuex.Store({
-    state: {
-      events: []
-    },
-    getters: {
-      // no getters yet
-    },
-    mutations,
-    actions: {
-      async nuxtServerInit ({ dispatch }, { req }) {
-        await dispatch('getEvents')
-      },
-      async getEvents ({ commit }) {
-        const data = await this.$axios.$get('/api/events/')
-        // if (data.hasOwnProperty('collection_id')) {
-        commit('REFRESH_EVENTS', data)
-        // }
-      }
-    }
-  })
+export const state = () => ({
+  events: [],
+  content_servers: []
+})
+
+export const mutations = {
+  REFRESH_EVENTS: (state, value) => {
+    state.events = value
+  },
+  REFRESH_CONTENT_SERVERS: (state, value) => {
+    state.content_servers = value
+  }
 }
 
-export default createStore
+export const getters = {
+  content_servers (state) {
+    return state.content_servers
+  },
+  content_servers_items (state) {
+    const data = []
+    state.content_servers.forEach(function (item) {
+      data.push({
+        'text': item.hostname,
+        'value': item.id
+      })
+    })
+    return data
+  }
+}
+
+export const actions = {
+  async nuxtServerInit ({ dispatch }, { req }) {
+    await dispatch('getEvents')
+    await dispatch('getContentServers')
+  },
+  async getEvents ({ commit }) {
+    const response = await this.$axios.$get('/api/events/')
+    const data = []
+    response.forEach(function (item) {
+      data.push(flattenObject(item))
+    })
+    // if (data.hasOwnProperty('collection_id')) {
+    commit('REFRESH_EVENTS', data)
+    // }
+  },
+  async getContentServers ({ commit }) {
+    const response = await this.$axios.$get('/api/content-servers')
+    commit('REFRESH_CONTENT_SERVERS', response)
+  }
+}

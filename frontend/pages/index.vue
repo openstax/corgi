@@ -30,6 +30,14 @@
                       required
                     ></v-text-field>
                   </v-col>
+                  <v-col cols="12" sm="6" md="6">
+                    <v-select
+                      v-model="contentServerId"
+                      :items="content_servers"
+                      label="Content Server"
+                      required
+                    ></v-select>
+                  </v-col>
                 </v-row>
               </v-container>
               <small>*indicates required field</small>
@@ -37,7 +45,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="dialog = false">Cancel</v-btn>
-              <v-btn color="blue darken-1" text @click="clickCollection(collectionId)">Do it!</v-btn>
+              <v-btn color="blue darken-1" text @click="clickCollection(collectionId, contentServerId)">Do it!</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -71,50 +79,56 @@ export default {
         { text: 'Start Date and Time', value: 'created_at' },
         { text: 'Download URL', value: 'pdf_url' },
         { text: 'Status', value: 'status_name' },
+        { text: 'Content Server', value: 'content_server_hostname' },
         { text: 'Updated at', value: 'updated_at' }
       ],
       dialog: false,
       collectionId: '',
-      polling: null
+      polling: null,
+      contentServerId: null
     }
   },
   computed: {
     events () {
       return this.$store.state.events
+    },
+    content_servers () {
+      return this.$store.getters.content_servers_items
     }
   },
   methods: {
+    created () {
+      this.pollData()
+    },
+    beforeDestroy () {
+      clearInterval(this.polling)
+    },
     pollData () {
       this.polling = setInterval(() => {
         this.$store.dispatch('getEvents')
         console.log('get EVENTS now...')
       }, 30000)
     },
-    clickCollection (collectionId) {
+    clickCollection (collectionId, contentServerId) {
       this.dialog = false
       if (collectionId.length >= 0) {
         console.log('POSTing ' + collectionId + ' now!')
-        this.submitCollection(this.collectionId)
+        this.submitCollection(this.collectionId, this.contentServerId)
       }
     },
-    async submitCollection (collectionId) {
+    async submitCollection (collectionId, contentServerId) {
       try {
         const data = {
           collection_id: collectionId,
           status_id: 1,
-          pdf_url: null
+          pdf_url: null,
+          content_server_id: contentServerId
         }
         await this.$axios.$post('/api/events/', data)
       } catch (error) {
         console.log(error)
       }
     }
-  },
-  beforeDestroy () {
-    clearInterval(this.polling)
-  },
-  created () {
-    this.pollData()
   }
 }
 
