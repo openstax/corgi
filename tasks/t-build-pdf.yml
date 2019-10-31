@@ -1,0 +1,22 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: openstax/princexml
+    tag: latest
+inputs:
+  - name: book-title
+  - name: s3
+outputs:
+  - name: artifacts
+
+run:
+  user: root
+  path: /bin/bash
+  args:
+    - -cxe
+    - |
+      exec 2> >(tee s3/book/stderr >&2)
+      rm -f artifacts/stderr
+      prince -v --output="artifacts/$(cat book-title/name).pdf" "s3/book/collection.assembled.xhtml"

@@ -1,0 +1,40 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: openstax/nebuchadnezzar
+    tag: latest
+inputs:
+  - name: ce-bot
+outputs:
+  - name: book-title
+run:
+  path: /bin/bash
+  args:
+    - -cxe
+    - |
+      exec 2> >(tee book-title/stderr >&2)
+      tail ce-bot/*
+      cp ce-bot/message_text_0 book-title/name
+      cp ce-bot/message_text_1 book-title/server
+      wget -q https://raw.githubusercontent.com/openstax/cnx-recipes/master/books.txt
+      set +x
+      . books.txt
+      set -x
+      for book_config in "${BOOK_CONFIGS[@]}"
+      do
+        read -r book_name recipe_name _ book_colid _ <<< "$book_config"
+        if [ "$book_name" == "$(cat book-title/name)" ]
+        then
+          echo -n "$recipe_name" >book-title/recipe
+          echo -n "$book_colid" >book-title/collection_id
+        fi
+      done
+      echo -n latest >book-title/version
+      if [ ! -f book-title/collection_id ]
+      then
+        set +x
+        echo "Book not found" >book-title/stderr
+        exit 1
+      fi

@@ -1,0 +1,219 @@
+---
+resource_types:
+  - name: s3-simple
+    type: docker-image
+    source:
+      repository: 18fgsa/s3-resource-simple
+
+  - name: slack
+    type: docker-image
+    source:
+      repository: karenc/concourse-slack-resource
+
+resources:
+  - name: s3
+    type: s3-simple
+    source:
+      access_key_id: ((aws-access-key-id))
+      secret_access_key: ((aws-secret-access-key))
+      bucket: ((s3bucket))
+      region: ((s3region))
+      options:
+        - "--exclude '*'"
+        - "--include 'book/*'"
+
+  - name: s3-artifacts
+    type: s3
+    source:
+      bucket: ((s3bucket))
+      access_key_id: ((aws-access-key-id))
+      secret_access_key: ((aws-secret-access-key))
+      skip_download: true
+      regexp: artifacts/(.*).pdf
+
+  - name: cnx-recipes
+    type: git
+    source:
+      uri: https://github.com/openstax/cnx-recipes.git
+
+  - name: pdf-spike
+    type: git
+    source:
+      uri: https://github.com/openstax/pdf-spike.git
+
+  - name: ce-bot
+    type: slack
+    source:
+      user_access_token: ((slack-user-token))
+      bot_access_token: ((slack-bot-token))
+      bot_user_id: ((slack-bot-user-id))
+      regexp: '^<@((slack-bot-user-id))>\s+produce-pdf\s+(\S+)\s+(\S+)\s*$'
+    check_every: 10s
+
+  - name: ce-bot-message
+    type: slack
+    source:
+      user_access_token: ((slack-user-token))
+      bot_access_token: ((slack-bot-token))
+      bot_user_id: ((slack-bot-user-id))
+
+jobs:
+  - name: fetch-book
+    plan:
+      - get: ce-bot
+        trigger: true
+        version: every
+      - put: ce-bot-message
+        params:
+          text: "Looking up the book `{{ce-bot/message_text_0}}`..."
+          channel: "{{ce-bot/channel}}"
+          thread_ts: "{{ce-bot/ts}}"
+      - get: pdf-spike
+      - get: cnx-recipes
+      - task: look-up-book
+        file: pdf-spike/bakery/tasks/t-book-lookup.yml
+        on_failure:
+          put: ce-bot-message
+          params:
+            text: "Failed to look up book `{{ce-bot/message_text_0}}`:\n\n```\n{{book-title/stderr}}```"
+            channel: "{{ce-bot/channel}}"
+            thread_ts: "{{ce-bot/ts}}"
+      - put: ce-bot-message
+        params:
+          text: "Fetching book `{{book-title/name}}` (`{{book-title/collection_id}}`) from `{{book-title/server}}`"
+          channel: "{{ce-bot/channel}}"
+          thread_ts: "{{ce-bot/ts}}"
+      - task: fetch-book-via-neb
+        file: pdf-spike/bakery/tasks/t-fetch-book.yml
+        on_failure:
+          put: ce-bot-message
+          params:
+            text: "Failed to fetch book `{{book-title/name}}`\n\n```\n{{book/stderr}}```"
+            channel: "{{ce-bot/channel}}"
+            thread_ts: "{{ce-bot/ts}}"
+        on_success:
+          put: s3
+
+  - name: assemble-book
+    plan:
+      - get: ce-bot
+        passed: [fetch-book]
+        trigger: true
+      - get: pdf-spike
+      - task: look-up-book
+        file: pdf-spike/bakery/tasks/t-book-lookup.yml
+      - put: ce-bot-message
+        params:
+          text: "Assembling book `{{book-title/name}}`"
+          channel: "{{ce-bot/channel}}"
+          thread_ts: "{{ce-bot/ts}}"
+      - get: s3
+      - get: cnx-recipes
+      - task: assemble-book-via-neb
+        file: pdf-spike/bakery/tasks/t-assemble-book.yml
+        on_failure:
+          put: ce-bot-message
+          params:
+            text: "Failed to assemble book `{{book-title/name}}`\n\n```\n{{book/stderr}}```"
+            channel: "{{ce-bot/channel}}"
+            thread_ts: "{{ce-bot/ts}}"
+        on_success:
+          put: s3
+          params:
+            path: book
+
+  - name: bake-book
+    plan:
+      - get: ce-bot
+        passed: [assemble-book]
+        trigger: true
+      - get: pdf-spike
+      - task: look-up-book
+        file: pdf-spike/bakery/tasks/t-book-lookup.yml
+      - put: ce-bot-message
+        params:
+          text: "Baking book `{{book-title/name}}`"
+          channel: "{{ce-bot/channel}}"
+          thread_ts: "{{ce-bot/ts}}"
+      - get: s3
+      - get: cnx-recipes
+      - task: bake-book-via-easy-bake
+        file: pdf-spike/bakery/tasks/t-bake-book.yml
+        on_failure:
+          put: ce-bot-message
+          params:
+            text: "Failed to bake book `{{book-title/name}}`\n\n```\n{{book/stderr}}```"
+            channel: "{{ce-bot/channel}}"
+            thread_ts: "{{ce-bot/ts}}"
+        on_success:
+          put: s3
+          params:
+            path: book
+
+  - name: mathify-book
+    plan:
+      - get: ce-bot
+        passed: [bake-book]
+        trigger: true
+      - get: pdf-spike
+      - task: look-up-book
+        file: pdf-spike/bakery/tasks/t-book-lookup.yml
+      - put: ce-bot-message
+        params:
+          text: "Mathifying book `{{book-title/name}}`"
+          channel: "{{ce-bot/channel}}"
+          thread_ts: "{{ce-bot/ts}}"
+      - get: s3
+      - task: mathify-book-via-mathify
+        file: pdf-spike/bakery/tasks/t-mathify-book.yml
+        on_failure:
+          put: ce-bot-message
+          params:
+            text: "Failed to mathify book `{{book-title/name}}`\n\n```\n{{book/stderr}}```"
+            channel: "{{ce-bot/channel}}"
+            thread_ts: "{{ce-bot/ts}}"
+        on_success:
+          put: s3
+          params:
+            path: book
+
+  - name: generate-pdf
+    plan:
+      - get: ce-bot
+        passed: [mathify-book]
+        trigger: true
+      - get: pdf-spike
+      - task: look-up-book
+        file: pdf-spike/bakery/tasks/t-book-lookup.yml
+      - put: ce-bot-message
+        params:
+          text: "Building pdf for `{{book-title/name}}`"
+          channel: "{{ce-bot/channel}}"
+          thread_ts: "{{ce-bot/ts}}"
+      - get: s3
+      - task: pdf-book-via-princexml
+        file: pdf-spike/bakery/tasks/t-build-pdf.yml
+        on_failure:
+          put: ce-bot-message
+          params:
+            text: "Failed to build pdf for book `{{book-title/name}}`\n\n```\n{{book/stderr}}```"
+            channel: "{{ce-bot/channel}}"
+            thread_ts: "{{ce-bot/ts}}"
+
+      - put: s3-artifacts
+        params:
+          file: artifacts/*.pdf
+          acl: public-read
+          content_type: application/pdf
+        on_failure:
+          put: ce-bot-message
+          params:
+            text: "Failed to upload pdf for `{{book-title/name}}` to s3"
+            channel: "{{ce-bot/channel}}"
+            thread_ts: "{{ce-bot/ts}}"
+        on_success:
+          put: ce-bot-message
+          params:
+            text: "`{{book-title/name}}` pdf can be downloaded at <https://ce-pdf-spike.s3.amazonaws.com/artifacts/{{book-title/name}}.pdf|https://ce-pdf-spike.s3.amazonaws.com/artifacts/{{book-title/name}}.pdf>"
+            channel: "{{ce-bot/channel}}"
+            thread_ts: "{{ce-bot/ts}}"

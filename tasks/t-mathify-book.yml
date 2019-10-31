@@ -1,0 +1,22 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: openstax/mathify
+    tag: latest
+
+inputs:
+  - name: book-title
+  - name: s3
+outputs:
+  - name: book
+
+run:
+  path: /bin/bash
+  args:
+    - -cxe
+    - |
+      exec 2> >(tee book/stderr >&2)
+      rm -f s3/stderr
+      node /src/typeset/start -i "s3/book/collection.baked.xhtml" -o "book/collection.mathified.xhtml" -f svg
