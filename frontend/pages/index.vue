@@ -22,15 +22,23 @@
             <v-card-text>
               <v-container>
                 <v-row>
-                  <v-col cols="12" sm="6" md="6">
+                  <v-col cols="12" sm="4" md="4">
                     <v-text-field
                       v-model="collectionId"
                       label="Collection ID"
-                      hint="e.g. test-20191021-1"
+                      hint="e.g. col12345"
                       required
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12" sm="6" md="6">
+                  <v-col cols="12" sm="4" md="4">
+                    <v-text-field
+                      v-model="version"
+                      label="Version"
+                      hint="19.2"
+                      optional
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="4" md="4">
                     <v-select
                       v-model="contentServerId"
                       :items="content_servers"
@@ -45,7 +53,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="dialog = false">Cancel</v-btn>
-              <v-btn color="blue darken-1" text @click="clickCollection(collectionId, contentServerId)">Do it!</v-btn>
+              <v-btn color="blue darken-1" text @click="clickCollection(collectionId, contentServerId, version)">Do it!</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -76,6 +84,7 @@ export default {
           value: 'id'
         },
         { text: 'Collection ID', value: 'collection_id' },
+        { text: 'Version', value: 'version' },
         { text: 'Start Date and Time', value: 'created_at' },
         { text: 'Download URL', value: 'pdf_url' },
         { text: 'Status', value: 'status_name' },
@@ -109,19 +118,20 @@ export default {
         console.log('get EVENTS now...')
       }, 30000)
     },
-    clickCollection (collectionId, contentServerId) {
+    clickCollection (collectionId, contentServerId, version) {
       this.dialog = false
       if (collectionId.length >= 0) {
         console.log('POSTing ' + collectionId + ' now!')
-        this.submitCollection(this.collectionId, this.contentServerId)
+        this.submitCollection(this.collectionId, this.contentServerId, this.version)
       }
     },
-    async submitCollection (collectionId, contentServerId) {
+    async submitCollection (collectionId, contentServerId, version) {
       try {
         const data = {
           collection_id: collectionId,
           status_id: 1,
           pdf_url: null,
+          version: version || null,
           content_server_id: contentServerId
         }
         await this.$axios.$post('/api/events/', data)

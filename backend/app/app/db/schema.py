@@ -22,6 +22,7 @@ class Events(Base):
     collection_id = sa.Column(sa.String, index=True)
     status_id = sa.Column(sa.Integer, sa.ForeignKey("status.id"), default=1)
     pdf_url = sa.Column(sa.String)
+    version = sa.Column(sa.String)
     content_server_id = sa.Column(sa.Integer, sa.ForeignKey("content_servers.id"))
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow, index=True)
     updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,

@@ -31,6 +31,7 @@ class EventBase(BaseModel):
     status_id: str
     pdf_url: str = None
     content_server_id: str
+    version: str = None
 
 
 class EventCreate(EventBase):
