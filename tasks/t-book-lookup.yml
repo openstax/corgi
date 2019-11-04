@@ -6,7 +6,7 @@ image_resource:
     repository: openstax/nebuchadnezzar
     tag: latest
 inputs:
-  - name: ce-bot
+  - name: workflow-events-queued
 outputs:
   - name: book-title
 run:
@@ -15,9 +15,11 @@ run:
     - -cxe
     - |
       exec 2> >(tee book-title/stderr >&2)
-      tail ce-bot/*
-      cp ce-bot/message_text_0 book-title/name
-      cp ce-bot/message_text_1 book-title/server
+      tail workflow-events-queued/*
+      cp workflow-events-queued/id              book-title/id
+      cp workflow-events-queued/collection_id   book-title/collection_id
+      cp workflow-events-queued/version         book-title/version
+      cp workflow-events-queued/content_server  book-title/server
       wget -q https://raw.githubusercontent.com/openstax/cnx-recipes/master/books.txt
       set +x
       . books.txt
@@ -25,10 +27,10 @@ run:
       for book_config in "${BOOK_CONFIGS[@]}"
       do
         read -r book_name recipe_name _ book_colid _ <<< "$book_config"
-        if [ "$book_name" == "$(cat book-title/name)" ]
+        if [ "$book_colid" == "$(cat book-title/collection_id)" ]
         then
           echo -n "$recipe_name" >book-title/recipe
-          echo -n "$book_colid" >book-title/collection_id
+          echo -n "$book_name" >book-title/name
         fi
       done
       echo -n latest >book-title/version

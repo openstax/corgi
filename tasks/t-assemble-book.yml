@@ -7,7 +7,6 @@ image_resource:
     tag: latest
 
 inputs:
-  - name: book-title
   - name: s3
 outputs:
   - name: book
