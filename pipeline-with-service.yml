@@ -40,7 +40,7 @@ resources:
     type: git
     source:
       uri: https://github.com/openstax/pdf-spike.git
-      branch: event-service-pipeline
+      branch: event-service-pipeline-pdf-url
 
   - name: workflow-events-queued
     type: workflow-events
@@ -52,6 +52,7 @@ resources:
     type: workflow-events
     source:
       api_root: https://cc1.cnx.org/api
+      status_id: 0
 
 jobs:
   - name: fetch-book
@@ -168,3 +169,9 @@ jobs:
           params:
             id: workflow-events-queued/id
             status_id: "4" #Failed
+        on_success:
+          put: event-update
+          params:
+            id: workflow-events-queued/id
+            status_id: "5"
+            pdf_url: artifacts/pdf_url

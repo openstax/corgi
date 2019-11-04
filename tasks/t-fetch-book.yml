@@ -17,5 +17,5 @@ run:
     - -cxe
     - |
       exec 2> >(tee book/stderr >&2)
-      neb get -r -d "./temp" "staging" "$(cat book-title/collection_id)" "$(cat book-title/version)"
+      neb get -r -d "./temp" "$(cat book-title/server | cut -f1 -d".")" "$(cat book-title/collection_id)" "$(cat book-title/version)"
       mv temp/* book

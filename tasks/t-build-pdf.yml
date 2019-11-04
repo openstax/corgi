@@ -20,4 +20,4 @@ run:
       exec 2> >(tee s3/book/stderr >&2)
       rm -f artifacts/stderr
       prince -v --output="artifacts/$(cat book-title/name).pdf" "s3/book/collection.assembled.xhtml"
-      echo -n "https://ce-pdf-spike.s3.amazonaws.com/$(book-title/name).pdf" >artifacts/pdf_url
+      echo -n "https://ce-pdf-spike.s3.amazonaws.com/artifacts/$(cat book-title/name).pdf" >artifacts/pdf_url
