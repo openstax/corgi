@@ -17,6 +17,7 @@ class Status(StatusBase):
 class ContentServerBase(BaseModel):
     hostname: str
     host_url: str
+    name: str
 
 
 class ContentServer(ContentServerBase):

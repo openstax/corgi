@@ -126,7 +126,7 @@ export default {
         { text: 'Start Date and Time', value: 'created_at' },
         { text: 'Download URL', value: 'pdf_url' },
         { text: 'Status', value: 'status_name' },
-        { text: 'Content Server', value: 'content_server_hostname' },
+        { text: 'Content Server', value: 'content_server_name' },
         { text: 'Updated at', value: 'updated_at' }
       ],
       dialog: false,

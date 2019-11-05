@@ -22,7 +22,7 @@ export const getters = {
     const data = []
     state.content_servers.forEach(function (item) {
       data.push({
-        'text': item.hostname,
+        'text': item.name,
         'value': item.id
       })
     })

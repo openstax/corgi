@@ -10,6 +10,7 @@ class ContentServers(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     hostname = sa.Column(sa.String)
     host_url = sa.Column(sa.String)
+    name = sa.Column(sa.String)
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow, index=True)
     updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
                            onupdate=datetime.utcnow)
