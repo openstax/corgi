@@ -64,24 +64,20 @@ jobs:
     #- get: cnx-recipes
       - task: look-up-book
         file: pdf-spike/bakery/tasks/t-book-lookup.yml
-        on_failure:
-          put: event-update
-          params:
-            id: workflow-events-queued/id
-            status_id: "4" #Failed
       - task: fetch-book-via-neb
         file: pdf-spike/bakery/tasks/t-fetch-book.yml
       - put: s3
-        on_failure:
-          put: event-update
-          params:
-            id: workflow-events-queued/id
-            status_id: "4" #Failed
-        on_success:
-          put: event-update
-          params:
-            id: workflow-events-queued/id
-            status_id: "3" #Processing
+
+    on_failure:
+      put: event-update
+      params:
+        id: workflow-events-queued/id
+        status_id: "4" #Failed
+    on_success:
+      put: event-update
+      params:
+        id: workflow-events-queued/id
+        status_id: "3" #Processing
 
   - name: assemble-book
     plan:
@@ -95,15 +91,16 @@ jobs:
     #- get: cnx-recipes
       - task: assemble-book-via-neb
         file: pdf-spike/bakery/tasks/t-assemble-book.yml
-        on_failure:
-          put: event-update
-          params:
-            id: workflow-events-queued/id
-            status_id: "4" #Failed
-        on_success:
-          put: s3
-          params:
-            path: book
+
+    on_failure:
+      put: event-update
+      params:
+        id: workflow-events-queued/id
+        status_id: "4" #Failed
+    on_success:
+      put: s3
+      params:
+        path: book
 
   - name: bake-book
     plan:
@@ -117,15 +114,16 @@ jobs:
       - get: cnx-recipes
       - task: bake-book-via-easy-bake
         file: pdf-spike/bakery/tasks/t-bake-book.yml
-        on_failure:
-          put: event-update
-          params:
-            id: workflow-events-queued/id
-            status_id: "4" #Failed
-        on_success:
-          put: s3
-          params:
-            path: book
+
+    on_failure:
+      put: event-update
+      params:
+        id: workflow-events-queued/id
+        status_id: "4" #Failed
+    on_success:
+      put: s3
+      params:
+        path: book
 
   - name: mathify-book
     plan:
@@ -138,15 +136,16 @@ jobs:
       - get: s3
       - task: mathify-book-via-mathify
         file: pdf-spike/bakery/tasks/t-mathify-book.yml
-        on_failure:
-          put: event-update
-          params:
-            id: workflow-events-queued/id
-            status_id: "4" #Failed
-        on_success:
-          put: s3
-          params:
-            path: book
+
+    on_failure:
+      put: event-update
+      params:
+        id: workflow-events-queued/id
+        status_id: "4" #Failed
+    on_success:
+      put: s3
+      params:
+        path: book
 
   - name: generate-pdf
     plan:
@@ -164,14 +163,15 @@ jobs:
           file: artifacts/*.pdf
           acl: public-read
           content_type: application/pdf
-        on_failure:
-          put: event-update
-          params:
-            id: workflow-events-queued/id
-            status_id: "4" #Failed
-        on_success:
-          put: event-update
-          params:
-            id: workflow-events-queued/id
-            status_id: "5"
-            pdf_url: artifacts/pdf_url
+
+    on_failure:
+      put: event-update
+      params:
+        id: workflow-events-queued/id
+        status_id: "4" #Failed
+    on_success:
+      put: event-update
+      params:
+        id: workflow-events-queued/id
+        status_id: "5"
+        pdf_url: artifacts/pdf_url
