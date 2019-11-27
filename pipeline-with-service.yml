@@ -45,13 +45,13 @@ resources:
   - name: workflow-events-queued
     type: workflow-events
     source:
-      api_root: https://cc1.cnx.org/api
+      api_root: ((pdf-job-queue-url))
       status_id: 1
 
   - name: event-update
     type: workflow-events
     source:
-      api_root: https://cc1.cnx.org/api
+      api_root: ((pdf-job-queue-url))
       status_id: 0
 
 jobs:
