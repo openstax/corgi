@@ -10,4 +10,5 @@ services:
     build:
       context: ./frontend
       args:
-        FRONTEND_ENV: dev
+        API_URL: http://backend
+        API_URL_BROWSER: http://localhost

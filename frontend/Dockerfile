@@ -11,6 +11,11 @@ RUN yarn install
 
 COPY ./ /app/
 
+ARG API_URL=https://cc1.cnx.org
+ARG API_URL_BROWSER=https://cc1.cnx.org
+ENV API_URL=${API_URL}
+ENV API_URL_BROWSER=${API_URL_BROWSER}
+
 RUN yarn build
 
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
