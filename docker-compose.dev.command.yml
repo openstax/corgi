@@ -13,3 +13,5 @@ services:
       --logLevel=DEBUG \
       --accessLog \
       --web
+  concourse:
+    command: quickstart

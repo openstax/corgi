@@ -10,3 +10,6 @@ services:
   pgadmin:
     ports:
       - '5050:5050'
+  concourse:
+    ports:
+      - '8100:8080'
