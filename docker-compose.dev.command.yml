@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.7'
 services:
 # Uncomment lines below to create Infinite loop to keep container live doing nothing
 #   backend:
