@@ -55,18 +55,33 @@ resources:
       status_id: 0
 
 jobs:
-  - name: fetch-book
+  - name: claim-work
     plan:
       - get: workflow-events-queued
         trigger: true
         version: every
+      - put: event-update
+        params:
+          id: workflow-events-queued/id
+          status_id: "2" #Assigned
+
+    on_success:
+      put: event-update
+      params:
+        id: workflow-events-queued/id
+        status_id: "3" #Processing
+
+  - name: fetch-book
+    plan:
+      - get: workflow-events-queued
+        trigger: true
+        passed: [claim-work]
       - get: pdf-spike
     #- get: cnx-recipes
       - task: look-up-book
         file: pdf-spike/bakery/tasks/t-book-lookup.yml
       - task: fetch-book-via-neb
         file: pdf-spike/bakery/tasks/t-fetch-book.yml
-      - put: s3
 
     on_failure:
       put: event-update
@@ -74,10 +89,7 @@ jobs:
         id: workflow-events-queued/id
         status_id: "4" #Failed
     on_success:
-      put: event-update
-      params:
-        id: workflow-events-queued/id
-        status_id: "3" #Processing
+      put: s3
 
   - name: assemble-book
     plan:
