@@ -40,7 +40,6 @@ resources:
     type: git
     source:
       uri: https://github.com/openstax/pdf-spike.git
-      branch: event-service-pipeline-pdf-url
 
   - name: workflow-events-queued
     type: workflow-events
