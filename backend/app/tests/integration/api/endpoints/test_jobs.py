@@ -5,6 +5,7 @@ import requests
 ENDPOINT = "jobs"
 
 
+# FIXME: Database should be populated with test data.
 def test_jobs_get_request(api_url):
     # GIVEN: An api url to the jobs endpoint
     url = f"{api_url}/{ENDPOINT}"
@@ -38,3 +39,4 @@ def test_jobs_post_request_successful(api_url):
     assert response["collection_id"] == "abc123"
     assert response["content_server"]["hostname"] == "content01.cnx.org"
     assert response["status"]["name"] == "queued"
+
