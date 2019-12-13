@@ -15,10 +15,10 @@ class ContentServers(Base):
     updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
                            onupdate=datetime.utcnow)
 
-    events = relationship("Events", back_populates="content_server")
+    jobs = relationship("Jobs", back_populates="content_server")
 
 
-class Events(Base):
+class Jobs(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     collection_id = sa.Column(sa.String, index=True)
     status_id = sa.Column(sa.Integer, sa.ForeignKey("status.id"), default=1)
@@ -29,8 +29,8 @@ class Events(Base):
     updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
                            onupdate=datetime.utcnow)
 
-    status = relationship("Status", back_populates="events", lazy="joined")
-    content_server = relationship("ContentServers", back_populates="events", lazy="joined")
+    status = relationship("Status", back_populates="jobs", lazy="joined")
+    content_server = relationship("ContentServers", back_populates="jobs", lazy="joined")
 
 
 class Status(Base):
@@ -40,4 +40,4 @@ class Status(Base):
     updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
                            onupdate=datetime.utcnow, index=True)
 
-    events = relationship("Events", back_populates="status")
+    jobs = relationship("Jobs", back_populates="status")

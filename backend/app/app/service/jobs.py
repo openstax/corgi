@@ -1,5 +1,5 @@
-from app.db.schema import Jobs as JobsSchema
-from app.data_models.models import Jobs as JobsModel
+from app.db.schema import Jobs as JobSchema
+from app.data_models.models import Job as JobModel
 from app.service.base import ServiceBase
 
 
@@ -9,4 +9,4 @@ class JobsService(ServiceBase):
     pass
 
 
-jobs_service = JobsService(JobsSchema, JobsModel)
+jobs_service = JobsService(JobSchema, JobModel)
