@@ -33,6 +33,15 @@ To check the logs run:
 
     docker-compose logs
 
+## Run integration tests 
+
+The integration tests were written to ensure the backend continued 
+to work while renaming the `/api/events` endpoint to `/api/jobs`
+
+To run the tests execute:
+
+    ./scripts/tests.sh
+
 ## Clear the database
 
 Start the stack as described above
