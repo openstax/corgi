@@ -66,7 +66,7 @@
       </div>
       <v-data-table
         :headers="headers"
-        :items="events"
+        :items="jobs"
         :disable-pagination="true"
         :hide-default-footer="true"
         :sort-by="'updated_at'"
@@ -136,8 +136,8 @@ export default {
     }
   },
   computed: {
-    events () {
-      return this.$store.state.events
+    jobs () {
+      return this.$store.state.jobs
     },
     content_servers () {
       return this.$store.getters.content_servers_items
@@ -152,8 +152,8 @@ export default {
     },
     pollData () {
       this.polling = setInterval(() => {
-        this.$store.dispatch('getEvents')
-        console.log('get EVENTS now...')
+        this.$store.dispatch('getJobs')
+        console.log('get JOBS now...')
       }, 30000)
     },
     showStatus (status) {
@@ -188,7 +188,7 @@ export default {
           version: version || null,
           content_server_id: contentServerId
         }
-        await this.$axios.$post('/api/events/', data)
+        await this.$axios.$post('/api/jobs/', data)
       } catch (error) {
         console.log(error)
       }
