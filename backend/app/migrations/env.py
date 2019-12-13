@@ -30,10 +30,10 @@ target_metadata = Base.metadata
 
 
 def get_url():
-    user = os.getenv("PG_USER", "postgres")
-    password = os.getenv("PG_PASSWORD", "")
-    host = os.getenv("PG_HOST", "db")
-    db = os.getenv("PG_DBNAME", "postgres")
+    user = os.getenv("POSTGRES_USER", "postgres")
+    password = os.getenv("POSTGRES_PASSWORD", "")
+    host = os.getenv("POSTGRES_SERVER", "db")
+    db = os.getenv("POSTGRES_DB", "cops")
     return f"postgresql://{user}:{password}@{host}/{db}"
 
 
