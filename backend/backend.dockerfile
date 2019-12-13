@@ -2,6 +2,9 @@ FROM python:3.7
 
 LABEL maintainer="OpenStax Content Engineering"
 
+RUN curl https://raw.githubusercontent.com/vishnubob/wait-for-it/54d1f0bfeb6557adf8a3204455389d0901652242/wait-for-it.sh \
+  -o /usr/local/bin/wait-for-it && chmod a+x /usr/local/bin/wait-for-it
+
 COPY ./docker/start.sh /start.sh
 RUN chmod +x /start.sh
 

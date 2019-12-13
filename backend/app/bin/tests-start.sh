@@ -1,4 +1,4 @@
 #! /usr/bin/env bash
 set -e
 
-pytest ./tests
+wait-for-it -t 10 backend:80 -- pytest ./tests
