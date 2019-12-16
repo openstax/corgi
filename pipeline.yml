@@ -1,9 +1,9 @@
 ---
 resource_types:
-  - name: slack
+  - name: workflow-events
     type: docker-image
     source:
-      repository: karenc/concourse-slack-resource
+      repository: openstax/workflow-event-resource
 
 resources:
   - name: pdf-spike
@@ -16,21 +16,17 @@ resources:
     source:
       uri: https://github.com/openstax/cnx-recipes.git
 
-  - name: ce-bot
-    type: slack
+  - name: workflow-events-queued
+    type: workflow-events
     source:
-      user_access_token: ((slack-user-token))
-      bot_access_token: ((slack-bot-token))
-      bot_user_id: ((slack-bot-user-id))
-      regexp: '^<@((slack-bot-user-id))>\s+pdf-spike\s+(\S+)\s+(\S+)\s*$'
-    check_every: 10s
+      api_root: ((pdf-job-queue-url))
+      status_id: 1 # Queued
 
-  - name: ce-bot-message
-    type: slack
+  - name: workflow-events-updater
+    type: workflow-events
     source:
-      user_access_token: ((slack-user-token))
-      bot_access_token: ((slack-bot-token))
-      bot_user_id: ((slack-bot-user-id))
+      api_root: ((pdf-job-queue-url))
+      status_id: 0 # Placeholder
 
   - name: ce-pdf-spike
     type: s3
@@ -43,15 +39,14 @@ resources:
 jobs:
   - name: bakery
     plan:
-      - get: ce-bot
+      - get: workflow-events-queued
         trigger: true
         version: every
 
-      - put: ce-bot-message
+      - put: workflow-events-updater
         params:
-          text: "Looking up the book `{{ce-bot/message_text_0}}`..."
-          channel: "{{ce-bot/channel}}"
-          thread_ts: "{{ce-bot/ts}}"
+          id: workflow-events-queued/id
+          status_id: "2" # Assigned
 
       - get: pdf-spike
       - get: cnx-recipes
@@ -65,7 +60,7 @@ jobs:
               repository: openstax/nebuchadnezzar
 
           inputs:
-            - name: ce-bot
+            - name: workflow-events-queued
           outputs:
             - name: book
 
@@ -75,9 +70,11 @@ jobs:
               - -cxe
               - |
                 exec 2> >(tee book/stderr >&2)
-                tail ce-bot/*
-                cp ce-bot/message_text_0 book/name
-                cp ce-bot/message_text_1 book/server
+                tail workflow-events-queued/*
+                cp workflow-events-queued/id book/event_id
+                cp workflow-events-queued/collection_id book/collection_id
+                cp workflow-events-queued/version book/version
+                cp workflow-events-queued/content_server book/server
                 wget -q https://raw.githubusercontent.com/openstax/cnx-recipes/master/books.txt
                 set +x
                 . books.txt
@@ -85,115 +82,83 @@ jobs:
                 for book_config in "${BOOK_CONFIGS[@]}"
                 do
                   read -r book_name recipe_name _ book_colid _ <<< "$book_config"
-                  if [ "$book_name" == "$(cat book/name)" ]
+                  if [ "$book_colid" == "$(cat book/collection_id)" ]
                   then
+                    echo -n "$book_name" >book/name
                     echo -n "$recipe_name" >book/recipe
-                    echo -n "$book_colid" >book/collection_id
                   fi
                 done
-                echo -n latest >book/version
-                if [ ! -f book/collection_id ]
+                echo -n "https://ce-pdf-spike.s3.amazonaws.com/$(cat book/name).pdf" >book/pdf_url
+                if [ ! -f book/name ]
                 then
                   set +x
                   echo "Book not found" >book/stderr
                   exit 1
                 fi
-        on_failure:
-          put: ce-bot-message
+        on_success:
+          put: workflow-events-updater
           params:
-            text: "Failed to look up book `{{ce-bot/message_text_0}}`:\n\n```\n{{book/stderr}}```"
-            channel: "{{ce-bot/channel}}"
-            thread_ts: "{{ce-bot/ts}}"
-
-      - put: ce-bot-message
-        params:
-          text: "Fetching book `{{book/name}}` (`{{book/collection_id}}`) from `{{book/server}}`"
-          channel: "{{ce-bot/channel}}"
-          thread_ts: "{{ce-bot/ts}}"
+            id: workflow-events-queued/id
+            status_id: "3" # Processing
+        on_failure:
+          put: workflow-events-updater
+          params:
+            id: workflow-events-queued/id
+            status_id: "4" # Failed
 
       - task: fetch book
         file: pdf-spike/bakery/tasks/fetch-book.yml
         on_failure:
-          put: ce-bot-message
+          put: workflow-events-updater
           params:
-            text: "Failed to fetch book `{{book/name}}`\n\n```\n{{fetched-book/stderr}}```"
-            channel: "{{ce-bot/channel}}"
-            thread_ts: "{{ce-bot/ts}}"
-
-      - put: ce-bot-message
-        params:
-          text: "Assembling book `{{book/name}}`"
-          channel: "{{ce-bot/channel}}"
-          thread_ts: "{{ce-bot/ts}}"
+            id: workflow-events-queued/id
+            status_id: "4" # Failed
 
       - task: assemble-book
         file: pdf-spike/bakery/tasks/assemble-book.yml
         on_failure:
-          put: ce-bot-message
+          put: workflow-events-updater
           params:
-            text: "Failed to assemble book `{{book/name}}`\n\n```\n{{assembled-book/stderr}}```"
-            channel: "{{ce-bot/channel}}"
-            thread_ts: "{{ce-bot/ts}}"
-
-      - put: ce-bot-message
-        params:
-          text: "Baking book `{{book/name}}`"
-          channel: "{{ce-bot/channel}}"
-          thread_ts: "{{ce-bot/ts}}"
+            id: workflow-events-queued/id
+            status_id: "4" # Failed
 
       - task: bake-book
         file: pdf-spike/bakery/tasks/bake-book.yml
         on_failure:
-          put: ce-bot-message
+          put: workflow-events-updater
           params:
-            text: "Failed to bake book `{{book/name}}`\n\n```\n{{baked-book/stderr}}```"
-            channel: "{{ce-bot/channel}}"
-            thread_ts: "{{ce-bot/ts}}"
-
-      - put: ce-bot-message
-        params:
-          text: "Mathifying book `{{book/name}}`"
-          channel: "{{ce-bot/channel}}"
-          thread_ts: "{{ce-bot/ts}}"
+            id: workflow-events-queued/id
+            status_id: "4" # Failed
 
       - task: mathify-book
         file: pdf-spike/bakery/tasks/mathify-book.yml
         on_failure:
-          put: ce-bot-message
+          put: workflow-events-updater
           params:
-            text: "Failed to mathify book `{{book/name}}`\n\n```\n{{mathified-book/stderr}}```"
-            channel: "{{ce-bot/channel}}"
-            thread_ts: "{{ce-bot/ts}}"
-
-      - put: ce-bot-message
-        params:
-          text: "Building pdf for `{{book/name}}`"
-          channel: "{{ce-bot/channel}}"
-          thread_ts: "{{ce-bot/ts}}"
+            id: workflow-events-queued/id
+            status_id: "4" # Failed
 
       - task: build-pdf
         file: pdf-spike/bakery/tasks/build-pdf.yml
         on_failure:
-          put: ce-bot-message
+          put: workflow-events-updater
           params:
-            text: "Failed to build pdf for book `{{book/name}}`\n\n```\n{{artifacts/stderr}}```"
-            channel: "{{ce-bot/channel}}"
-            thread_ts: "{{ce-bot/ts}}"
+            id: workflow-events-queued/id
+            status_id: "4" # Failed
 
       - put: ce-pdf-spike
         params:
           file: artifacts/*.pdf
           acl: public-read
           content_type: application/pdf
-        on_failure:
-          put: ce-bot-message
+        on_success:
+          put: workflow-events-updater
           params:
-            text: "Failed to upload pdf for `{{book/name}}` to s3"
-            channel: "{{ce-bot/channel}}"
-            thread_ts: "{{ce-bot/ts}}"
-
-      - put: ce-bot-message
-        params:
-          text: "`{{book/name}}` pdf can be downloaded at <https://ce-pdf-spike.s3.amazonaws.com/{{book/name}}.pdf|https://ce-pdf-spike.s3.amazonaws.com/{{book/name}}.pdf>"
-          channel: "{{ce-bot/channel}}"
-          thread_ts: "{{ce-bot/ts}}"
+            id: workflow-events-queued/id
+            status_id: "5" # Completed
+            pdf_url: book/pdf_url
+        on_failure:
+          put: workflow-events-updater
+          params:
+            id: workflow-events-queued/id
+            status_id: "4" # Failed
