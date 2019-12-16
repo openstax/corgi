@@ -11,7 +11,7 @@
       md8
     >
       <div class="text-right">
-        <v-dialog v-model="dialog" persistent max-width="600px">
+        <v-dialog v-model="dialog" persistent max-width="800px">
           <template v-slot:activator="{ on }">
             <v-btn color="primary" class="mb-3" dark v-on="on">
               Create a new PDF job
@@ -24,7 +24,7 @@
             <v-card-text>
               <v-container>
                 <v-row>
-                  <v-col cols="12" sm="4" md="4">
+                  <v-col cols="12" sm="3" md="3">
                     <v-text-field
                       v-model="collectionId"
                       label="Collection ID"
@@ -32,15 +32,23 @@
                       required
                     />
                   </v-col>
-                  <v-col cols="12" sm="4" md="4">
+                  <v-col cols="12" sm="3" md="3">
                     <v-text-field
                       v-model="version"
                       label="Version"
-                      hint="19.2"
+                      hint="e.g. 19.2"
                       optional
                     />
                   </v-col>
-                  <v-col cols="12" sm="4" md="4">
+                  <v-col cols="12" sm="3" md="3">
+                    <v-text-field
+                      v-model="style"
+                      label="Style"
+                      hint="e.g. microbiology"
+                      optional
+                    />
+                  </v-col>
+                  <v-col cols="12" sm="3" md="3">
                     <v-select
                       v-model="contentServerId"
                       :items="content_servers"
@@ -57,7 +65,7 @@
               <v-btn color="blue darken-1" text @click="dialog = false">
                 Cancel
               </v-btn>
-              <v-btn color="blue darken-1" text @click="clickCollection(collectionId, contentServerId, version)">
+              <v-btn color="blue darken-1" text @click="clickCollection(collectionId, contentServerId, version, style)">
                 Do it!
               </v-btn>
             </v-card-actions>
@@ -123,6 +131,7 @@ export default {
         },
         { text: 'Collection ID', value: 'collection_id' },
         { text: 'Version', value: 'version' },
+        { text: 'Style', value: 'style' },
         { text: 'Start Date and Time', value: 'created_at' },
         { text: 'Download URL', value: 'pdf_url' },
         { text: 'Status', value: 'status_name' },
@@ -172,20 +181,21 @@ export default {
         return 'grey'
       }
     },
-    clickCollection (collectionId, contentServerId, version) {
+    clickCollection (collectionId, contentServerId, version, style) {
       this.dialog = false
       if (collectionId.length >= 0) {
         console.log('POSTing ' + collectionId + ' now!')
-        this.submitCollection(this.collectionId, this.contentServerId, this.version)
+        this.submitCollection(collectionId, contentServerId, version, style)
       }
     },
-    async submitCollection (collectionId, contentServerId, version) {
+    async submitCollection (collectionId, contentServerId, version, style) {
       try {
         const data = {
           collection_id: collectionId,
           status_id: 1,
           pdf_url: null,
           version: version || null,
+          style: style,
           content_server_id: contentServerId
         }
         await this.$axios.$post('/api/jobs/', data)

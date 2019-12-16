@@ -33,6 +33,7 @@ class JobBase(BaseModel):
     pdf_url: str = None
     content_server_id: str
     version: str = None
+    style: str = None
 
 
 class JobCreate(JobBase):
