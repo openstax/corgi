@@ -36,7 +36,7 @@ resources:
     source:
       uri: https://github.com/openstax/cnx-recipes.git
 
-  - name: pdf-spike
+  - name: job-instructions
     type: git
     source:
       uri: https://github.com/openstax/pdf-spike.git
@@ -47,7 +47,7 @@ resources:
       api_root: ((pdf-job-queue-url))
       status_id: 1
 
-  - name: event-update
+  - name: event-status-updater
     type: workflow-events
     source:
       api_root: ((pdf-job-queue-url))
@@ -59,13 +59,13 @@ jobs:
       - get: workflow-events-queued
         trigger: true
         version: every
-      - put: event-update
+      - put: event-status-updater
         params:
           id: workflow-events-queued/id
           status_id: "2" #Assigned
 
     on_success:
-      put: event-update
+      put: event-status-updater
       params:
         id: workflow-events-queued/id
         status_id: "3" #Processing
@@ -75,15 +75,14 @@ jobs:
       - get: workflow-events-queued
         trigger: true
         passed: [claim-work]
-      - get: pdf-spike
-    #- get: cnx-recipes
+      - get: job-instructions
       - task: look-up-book
-        file: pdf-spike/bakery/tasks/t-book-lookup.yml
+        file: job-instructions/bakery/tasks/t-book-lookup.yml
       - task: fetch-book-via-neb
-        file: pdf-spike/bakery/tasks/t-fetch-book.yml
+        file: job-instructions/bakery/tasks/t-fetch-book.yml
 
     on_failure:
-      put: event-update
+      put: event-status-updater
       params:
         id: workflow-events-queued/id
         status_id: "4" #Failed
@@ -95,16 +94,16 @@ jobs:
       - get: workflow-events-queued
         trigger: true
         passed: [fetch-book]
-      - get: pdf-spike
+      - get: job-instructions
       - task: look-up-book
-        file: pdf-spike/bakery/tasks/t-book-lookup.yml
+        file: job-instructions/bakery/tasks/t-book-lookup.yml
       - get: s3
     #- get: cnx-recipes
       - task: assemble-book-via-neb
-        file: pdf-spike/bakery/tasks/t-assemble-book.yml
+        file: job-instructions/bakery/tasks/t-assemble-book.yml
 
     on_failure:
-      put: event-update
+      put: event-status-updater
       params:
         id: workflow-events-queued/id
         status_id: "4" #Failed
@@ -118,16 +117,16 @@ jobs:
       - get: workflow-events-queued
         trigger: true
         passed: [assemble-book]
-      - get: pdf-spike
+      - get: job-instructions
       - task: look-up-book
-        file: pdf-spike/bakery/tasks/t-book-lookup.yml
+        file: job-instructions/bakery/tasks/t-book-lookup.yml
       - get: s3
       - get: cnx-recipes
       - task: bake-book-via-easy-bake
-        file: pdf-spike/bakery/tasks/t-bake-book.yml
+        file: job-instructions/bakery/tasks/t-bake-book.yml
 
     on_failure:
-      put: event-update
+      put: event-status-updater
       params:
         id: workflow-events-queued/id
         status_id: "4" #Failed
@@ -141,15 +140,15 @@ jobs:
       - get: workflow-events-queued
         trigger: true
         passed: [bake-book]
-      - get: pdf-spike
+      - get: job-instructions
       - task: look-up-book
-        file: pdf-spike/bakery/tasks/t-book-lookup.yml
+        file: job-instructions/bakery/tasks/t-book-lookup.yml
       - get: s3
       - task: mathify-book-via-mathify
-        file: pdf-spike/bakery/tasks/t-mathify-book.yml
+        file: job-instructions/bakery/tasks/t-mathify-book.yml
 
     on_failure:
-      put: event-update
+      put: event-status-updater
       params:
         id: workflow-events-queued/id
         status_id: "4" #Failed
@@ -163,12 +162,12 @@ jobs:
       - get: workflow-events-queued
         trigger: true
         passed: [mathify-book]
-      - get: pdf-spike
+      - get: job-instructions
       - task: look-up-book
-        file: pdf-spike/bakery/tasks/t-book-lookup.yml
+        file: job-instructions/bakery/tasks/t-book-lookup.yml
       - get: s3
       - task: pdf-book-via-princexml
-        file: pdf-spike/bakery/tasks/t-build-pdf.yml
+        file: job-instructions/bakery/tasks/t-build-pdf.yml
       - put: s3-artifacts
         params:
           file: artifacts/*.pdf
@@ -176,12 +175,12 @@ jobs:
           content_type: application/pdf
 
     on_failure:
-      put: event-update
+      put: event-status-updater
       params:
         id: workflow-events-queued/id
         status_id: "4" #Failed
     on_success:
-      put: event-update
+      put: event-status-updater
       params:
         id: workflow-events-queued/id
         status_id: "5"
