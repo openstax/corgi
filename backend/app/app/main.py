@@ -5,7 +5,7 @@ from app.api import api_router
 from app.core import config
 from app.middleware import DBSessionMiddleware
 
-server = FastAPI(title="Workflow Event Service")
+server = FastAPI(title="COPS - Content Output Producer Service")
 
 # Add API endpoints
 server.include_router(api_router, prefix="/api")

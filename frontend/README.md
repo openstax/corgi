@@ -1,6 +1,6 @@
-# workflow-js
+# output-producer-js
 
-> PDF generator UI
+> COPS UI
 
 ## What you need to build
 

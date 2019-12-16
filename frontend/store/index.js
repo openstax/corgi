@@ -1,13 +1,13 @@
 import flattenObject from '@/store/utils.js'
 
 export const state = () => ({
-  events: [],
+  jobs: [],
   content_servers: []
 })
 
 export const mutations = {
-  REFRESH_EVENTS: (state, value) => {
-    state.events = value
+  REFRESH_JOBS: (state, value) => {
+    state.jobs = value
   },
   REFRESH_CONTENT_SERVERS: (state, value) => {
     state.content_servers = value
@@ -32,17 +32,17 @@ export const getters = {
 
 export const actions = {
   async nuxtServerInit ({ dispatch }, { req }) {
-    await dispatch('getEvents')
+    await dispatch('getJobs')
     await dispatch('getContentServers')
   },
-  async getEvents ({ commit }) {
-    const response = await this.$axios.$get('/api/events/')
+  async getJobs ({ commit }) {
+    const response = await this.$axios.$get('/api/jobs/')
     const data = []
     response.forEach(function (item) {
       data.push(flattenObject(item))
     })
     // if (data.hasOwnProperty('collection_id')) {
-    commit('REFRESH_EVENTS', data)
+    commit('REFRESH_JOBS', data)
     // }
   },
   async getContentServers ({ commit }) {

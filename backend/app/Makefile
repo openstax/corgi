@@ -5,7 +5,8 @@ default: help
 help:
 	@echo "make help		Show this help message"
 	@echo "make clean-pyc	Clean pyc files from every directory"
-	@echo "make venv		Create a virtualenv in .venv directory"
+	@echo "install_main_requirements	Install core app dependencies"
+	@echo "install_dev_requirements	Install developer dependencies"
 
 .PHONY: clean-pyc
 clean-pyc: ## remove Python file artifacts
@@ -14,9 +15,10 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '*~' -exec rm -f {} +
 	find . -name '__pycache__' -exec rm -fr {} +
 
-.PHONY: venv
-venv:
-	python3 -m venv .venv && \
-		source .venv/bin/activate && \
-		pip install -r requirements.txt
+.PHONY: install_main_requirements
+install_main_requirements:
+	pip install --exists-action=w -r requirements/main.txt
 
+.PHONY: install_dev_requirements
+install_dev_requirements:
+	pip install --exists-action=w -r requirements/dev.txt

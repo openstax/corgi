@@ -27,7 +27,7 @@ class ContentServer(ContentServerBase):
         orm_mode = True
 
 
-class EventBase(BaseModel):
+class JobBase(BaseModel):
     collection_id: str
     status_id: str
     pdf_url: str = None
@@ -35,16 +35,16 @@ class EventBase(BaseModel):
     version: str = None
 
 
-class EventCreate(EventBase):
+class JobCreate(JobBase):
     pass
 
 
-class EventUpdate(BaseModel):
+class JobUpdate(BaseModel):
     status_id: str
     pdf_url: str = None
 
 
-class Event(EventBase):
+class Job(JobBase):
     id: str
     created_at: datetime
     updated_at: datetime

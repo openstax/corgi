@@ -7,6 +7,3 @@ python ./bin/db_wait.py
 alembic upgrade head
 
 source ./bin/live-reload.sh
-
-# Create initial data in DB
-#python /app/app/initial_data.py

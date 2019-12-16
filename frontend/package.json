@@ -1,7 +1,7 @@
 {
-  "name": "workflow-js",
+  "name": "output-producer-js",
   "version": "1.0.0",
-  "description": "PDF generator UI",
+  "description": "Output Producer UI",
   "author": "Marvin Reimer",
   "private": true,
   "scripts": {

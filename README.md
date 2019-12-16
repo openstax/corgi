@@ -1,4 +1,6 @@
-# Workflow Service
+# output-producer-service
+
+AKA: COPS, "cops service", "cops backend", etc. The "C" stands for Content.
 
 ## Requirements
 
@@ -8,12 +10,14 @@ Follow the instructions to install [Docker Compose](https://docs.docker.com/comp
 
 ## Architecture
 
-The workflow-service contains of two parts:
+The output-producer-service contains of two parts:
 
 1. Backend
 2. Frontend
 
-The backend is written using Python and the FastAPI ASGI Framework 
+The backend is written using Python and the FastAPI ASGI Framework.
+
+The frontend is written using nuxt.js.
 
 ## Backend local development
 
@@ -28,6 +32,15 @@ http://localhost:5001/docs
 To check the logs run:
 
     docker-compose logs
+
+## Run integration tests 
+
+The integration tests were written to ensure the backend continued 
+to work while renaming the `/api/events` endpoint to `/api/jobs`
+
+To run the tests execute:
+
+    ./scripts/tests.sh
 
 ## Clear the database
 
