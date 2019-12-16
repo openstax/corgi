@@ -143,13 +143,13 @@ export default {
       return this.$store.getters.content_servers_items
     }
   },
+  created () {
+    this.pollData()
+  },
+  beforeDestroy () {
+    clearInterval(this.polling)
+  },
   methods: {
-    created () {
-      this.pollData()
-    },
-    beforeDestroy () {
-      clearInterval(this.polling)
-    },
     pollData () {
       this.polling = setInterval(() => {
         this.$store.dispatch('getJobs')
