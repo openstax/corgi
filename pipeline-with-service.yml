@@ -5,10 +5,10 @@ resource_types:
     source:
       repository: 18fgsa/s3-resource-simple
 
-  - name: workflow-events
+  - name: output-producer
     type: docker-image
     source:
-      repository: openstax/workflow-event-resource
+      repository: openstax/output-producer-resource
 
 resources:
   - name: s3
@@ -41,14 +41,14 @@ resources:
     source:
       uri: https://github.com/openstax/pdf-spike.git
 
-  - name: workflow-events-queued
-    type: workflow-events
+  - name: output-producer-queued
+    type: output-producer
     source:
       api_root: ((pdf-job-queue-url))
       status_id: 1
 
   - name: event-status-updater
-    type: workflow-events
+    type: output-producer
     source:
       api_root: ((pdf-job-queue-url))
       status_id: 0
@@ -56,23 +56,23 @@ resources:
 jobs:
   - name: claim-work
     plan:
-      - get: workflow-events-queued
+      - get: output-producer-queued
         trigger: true
         version: every
       - put: event-status-updater
         params:
-          id: workflow-events-queued/id
+          id: output-producer-queued/id
           status_id: "2" #Assigned
 
     on_success:
       put: event-status-updater
       params:
-        id: workflow-events-queued/id
+        id: output-producer-queued/id
         status_id: "3" #Processing
 
   - name: fetch-book
     plan:
-      - get: workflow-events-queued
+      - get: output-producer-queued
         trigger: true
         passed: [claim-work]
       - get: job-instructions
@@ -84,14 +84,14 @@ jobs:
     on_failure:
       put: event-status-updater
       params:
-        id: workflow-events-queued/id
+        id: output-producer-queued/id
         status_id: "4" #Failed
     on_success:
       put: s3
 
   - name: assemble-book
     plan:
-      - get: workflow-events-queued
+      - get: output-producer-queued
         trigger: true
         passed: [fetch-book]
       - get: job-instructions
@@ -105,7 +105,7 @@ jobs:
     on_failure:
       put: event-status-updater
       params:
-        id: workflow-events-queued/id
+        id: output-producer-queued/id
         status_id: "4" #Failed
     on_success:
       put: s3
@@ -114,7 +114,7 @@ jobs:
 
   - name: bake-book
     plan:
-      - get: workflow-events-queued
+      - get: output-producer-queued
         trigger: true
         passed: [assemble-book]
       - get: job-instructions
@@ -128,7 +128,7 @@ jobs:
     on_failure:
       put: event-status-updater
       params:
-        id: workflow-events-queued/id
+        id: output-producer-queued/id
         status_id: "4" #Failed
     on_success:
       put: s3
@@ -137,7 +137,7 @@ jobs:
 
   - name: mathify-book
     plan:
-      - get: workflow-events-queued
+      - get: output-producer-queued
         trigger: true
         passed: [bake-book]
       - get: job-instructions
@@ -150,7 +150,7 @@ jobs:
     on_failure:
       put: event-status-updater
       params:
-        id: workflow-events-queued/id
+        id: output-producer-queued/id
         status_id: "4" #Failed
     on_success:
       put: s3
@@ -159,7 +159,7 @@ jobs:
 
   - name: generate-pdf
     plan:
-      - get: workflow-events-queued
+      - get: output-producer-queued
         trigger: true
         passed: [mathify-book]
       - get: job-instructions
@@ -177,11 +177,11 @@ jobs:
     on_failure:
       put: event-status-updater
       params:
-        id: workflow-events-queued/id
+        id: output-producer-queued/id
         status_id: "4" #Failed
     on_success:
       put: event-status-updater
       params:
-        id: workflow-events-queued/id
+        id: output-producer-queued/id
         status_id: "5"
         pdf_url: artifacts/pdf_url

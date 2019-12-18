@@ -1,9 +1,9 @@
 ---
 resource_types:
-  - name: workflow-events
+  - name: output-producer
     type: docker-image
     source:
-      repository: openstax/workflow-event-resource
+      repository: openstax/output-producer-resource
 
 resources:
   - name: pdf-spike
@@ -16,14 +16,14 @@ resources:
     source:
       uri: https://github.com/openstax/cnx-recipes.git
 
-  - name: workflow-events-queued
-    type: workflow-events
+  - name: output-producer-queued
+    type: output-producer
     source:
       api_root: ((pdf-job-queue-url))
       status_id: 1 # Queued
 
-  - name: workflow-events-updater
-    type: workflow-events
+  - name: output-producer-updater
+    type: output-producer
     source:
       api_root: ((pdf-job-queue-url))
       status_id: 0 # Placeholder
@@ -39,13 +39,13 @@ resources:
 jobs:
   - name: bakery
     plan:
-      - get: workflow-events-queued
+      - get: output-producer-queued
         trigger: true
         version: every
 
-      - put: workflow-events-updater
+      - put: output-producer-updater
         params:
-          id: workflow-events-queued/id
+          id: output-producer-queued/id
           status_id: "2" # Assigned
 
       - get: pdf-spike
@@ -60,7 +60,7 @@ jobs:
               repository: openstax/nebuchadnezzar
 
           inputs:
-            - name: workflow-events-queued
+            - name: output-producer-queued
           outputs:
             - name: book
 
@@ -70,11 +70,11 @@ jobs:
               - -cxe
               - |
                 exec 2> >(tee book/stderr >&2)
-                tail workflow-events-queued/*
-                cp workflow-events-queued/id book/event_id
-                cp workflow-events-queued/collection_id book/collection_id
-                cp workflow-events-queued/version book/version
-                cp workflow-events-queued/content_server book/server
+                tail output-producer-queued/*
+                cp output-producer-queued/id book/event_id
+                cp output-producer-queued/collection_id book/collection_id
+                cp output-producer-queued/version book/version
+                cp output-producer-queued/content_server book/server
                 wget -q https://raw.githubusercontent.com/openstax/cnx-recipes/master/books.txt
                 set +x
                 . books.txt
@@ -96,54 +96,54 @@ jobs:
                   exit 1
                 fi
         on_success:
-          put: workflow-events-updater
+          put: output-producer-updater
           params:
-            id: workflow-events-queued/id
+            id: output-producer-queued/id
             status_id: "3" # Processing
         on_failure:
-          put: workflow-events-updater
+          put: output-producer-updater
           params:
-            id: workflow-events-queued/id
+            id: output-producer-queued/id
             status_id: "4" # Failed
 
       - task: fetch book
         file: pdf-spike/bakery/tasks/fetch-book.yml
         on_failure:
-          put: workflow-events-updater
+          put: output-producer-updater
           params:
-            id: workflow-events-queued/id
+            id: output-producer-queued/id
             status_id: "4" # Failed
 
       - task: assemble-book
         file: pdf-spike/bakery/tasks/assemble-book.yml
         on_failure:
-          put: workflow-events-updater
+          put: output-producer-updater
           params:
-            id: workflow-events-queued/id
+            id: output-producer-queued/id
             status_id: "4" # Failed
 
       - task: bake-book
         file: pdf-spike/bakery/tasks/bake-book.yml
         on_failure:
-          put: workflow-events-updater
+          put: output-producer-updater
           params:
-            id: workflow-events-queued/id
+            id: output-producer-queued/id
             status_id: "4" # Failed
 
       - task: mathify-book
         file: pdf-spike/bakery/tasks/mathify-book.yml
         on_failure:
-          put: workflow-events-updater
+          put: output-producer-updater
           params:
-            id: workflow-events-queued/id
+            id: output-producer-queued/id
             status_id: "4" # Failed
 
       - task: build-pdf
         file: pdf-spike/bakery/tasks/build-pdf.yml
         on_failure:
-          put: workflow-events-updater
+          put: output-producer-updater
           params:
-            id: workflow-events-queued/id
+            id: output-producer-queued/id
             status_id: "4" # Failed
 
       - put: ce-pdf-spike
@@ -152,13 +152,13 @@ jobs:
           acl: public-read
           content_type: application/pdf
         on_success:
-          put: workflow-events-updater
+          put: output-producer-updater
           params:
-            id: workflow-events-queued/id
+            id: output-producer-queued/id
             status_id: "5" # Completed
             pdf_url: book/pdf_url
         on_failure:
-          put: workflow-events-updater
+          put: output-producer-updater
           params:
-            id: workflow-events-queued/id
+            id: output-producer-queued/id
             status_id: "4" # Failed

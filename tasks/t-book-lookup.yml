@@ -6,7 +6,7 @@ image_resource:
     repository: openstax/nebuchadnezzar
     tag: latest
 inputs:
-  - name: workflow-events-queued
+  - name: output-producer-queued
 outputs:
   - name: book-title
 run:
@@ -15,11 +15,11 @@ run:
     - -cxe
     - |
       exec 2> >(tee book-title/stderr >&2)
-      tail workflow-events-queued/*
-      cp workflow-events-queued/id              book-title/id
-      cp workflow-events-queued/collection_id   book-title/collection_id
-      cp workflow-events-queued/version         book-title/version
-      cp workflow-events-queued/content_server  book-title/server
+      tail output-producer-queued/*
+      cp output-producer-queued/id              book-title/id
+      cp output-producer-queued/collection_id   book-title/collection_id
+      cp output-producer-queued/version         book-title/version
+      cp output-producer-queued/content_server  book-title/server
       wget -q https://raw.githubusercontent.com/openstax/cnx-recipes/master/books.txt
       set +x
       . books.txt
