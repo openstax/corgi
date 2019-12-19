@@ -3,3 +3,6 @@ services:
   backend:
     volumes:
       - ./backend/app:/app
+  docs:
+    volumes:
+      - .:/app
