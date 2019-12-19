@@ -33,7 +33,6 @@ run:
           echo -n "$book_name" >book-title/name
         fi
       done
-      echo -n latest >book-title/version
       if [ ! -f book-title/collection_id ]
       then
         set +x
