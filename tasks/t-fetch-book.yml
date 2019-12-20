@@ -17,5 +17,12 @@ run:
     - -cxe
     - |
       exec 2> >(tee book/stderr >&2)
-      yes | neb get -r -d "./temp" "$(cat book-title/server | cut -f1 -d".")" "$(cat book-title/collection_id)" "$(cat book-title/version)"
+      mkdir -p ~/.config/
+      server="$(cat book-title/server)"
+      cat >~/.config/nebuchadnezzar.ini <<EOF
+      [settings]
+      [environ-$server]
+      url = https://$server
+      EOF
+      yes | neb get -r -d "./temp" "$(cat book-title/server)" "$(cat book-title/collection_id)" "$(cat book-title/version)"
       mv temp/* book
