@@ -14,8 +14,8 @@ resources:
   - name: s3
     type: s3-simple
     source:
-      access_key_id: ((aws-access-key-id))
-      secret_access_key: ((aws-secret-access-key))
+      access_key_id: ((aws-sandbox-secret-key-id))
+      secret_access_key: ((aws-sandbox-secret-access-key))
       bucket: ((s3bucket))
       region: ((s3region))
       options:
@@ -26,8 +26,8 @@ resources:
     type: s3
     source:
       bucket: ((s3bucket))
-      access_key_id: ((aws-access-key-id))
-      secret_access_key: ((aws-secret-access-key))
+      access_key_id: ((aws-sandbox-secret-key-id))
+      secret_access_key: ((aws-sandbox-secret-access-key))
       skip_download: true
       regexp: artifacts/(.*).pdf
 
