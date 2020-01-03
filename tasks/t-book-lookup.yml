@@ -20,6 +20,9 @@ run:
       cp output-producer-queued/collection_id   book-title/collection_id
       cp output-producer-queued/version         book-title/version
       cp output-producer-queued/content_server  book-title/server
+      wget -q -O jq 'https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64' && chmod +x jq
+      server_name="$(cat output-producer-queued/job.json | ./jq -r '.content_server.name')"
+      echo -n "$(cat book-title/collection_id)-$(cat book-title/version)-${server_name}.pdf" >book-title/pdf_filename
       wget -q https://raw.githubusercontent.com/openstax/cnx-recipes/master/books.txt
       set +x
       . books.txt
