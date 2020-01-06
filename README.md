@@ -191,6 +191,13 @@ To start it back up
     docker service update --replicas 1 pdf-spike-frontend
 
 
+## Load testing
+
+Load testing with Locust.io is in the directory `./tests/performance/`
+
+Please look at the [README](./tests/performance/README.md) in this directory on how to run load tests locally and for production systems.
+
+
 ## Attribution
 
 A lot of the structure and ideas for this service come from Tiangolo's [full-stack-fastapi-postgres](https://github.com/tiangolo/full-stack-fastapi-postgresql) project. Thanks Tiangolo!
