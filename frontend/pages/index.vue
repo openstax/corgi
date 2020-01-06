@@ -188,14 +188,14 @@ export default {
         this.submitCollection(collectionId, contentServerId, version, style)
       }
     },
-    async submitCollection (collectionId, contentServerId, version, style) {
+    async submitCollection (collectionId, contentServerId, version, astyle) {
       try {
         const data = {
           collection_id: collectionId,
           status_id: 1,
           pdf_url: null,
           version: version || null,
-          style: style,
+          style: astyle,
           content_server_id: contentServerId
         }
         await this.$axios.$post('/api/jobs/', data)
