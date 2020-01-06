@@ -21,7 +21,7 @@ run:
       rm -f assembled-book/stderr
       cp -r assembled-book/* baked-book
       book_dir="baked-book/$(cat book/name)"
-      cnx-easybake "cnx-recipes/recipes/output/$(cat book/recipe).css" "$book_dir/collection.assembled.xhtml" "$book_dir/collection.baked.xhtml"
+      cnx-easybake "cnx-recipes/recipes/output/$(cat book/style).css" "$book_dir/collection.assembled.xhtml" "$book_dir/collection.baked.xhtml"
       style_file="cnx-recipes/styles/output/$(cat book/style)-pdf.css"
       if [ -f "$style_file" ]
       then

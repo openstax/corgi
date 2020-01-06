@@ -88,7 +88,6 @@ jobs:
                   if [ "$book_colid" == "$(cat book/collection_id)" ]
                   then
                     echo -n "$book_name" >book/name
-                    echo -n "$recipe_name" >book/recipe
                   fi
                 done
                 echo -n "$(cat book/collection_id)-$(cat book/version)-${server_name}-$(cat book/job_id).pdf" >book/pdf_filename
