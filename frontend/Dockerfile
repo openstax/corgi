@@ -11,8 +11,8 @@ RUN yarn install
 
 COPY ./ /app/
 
-ARG API_URL=https://cc1.cnx.org
-ARG API_URL_BROWSER=https://cc1.cnx.org
+ARG API_URL=https://cops.cnx.org
+ARG API_URL_BROWSER=https://cops.cnx.org
 ENV API_URL=${API_URL}
 ENV API_URL_BROWSER=${API_URL_BROWSER}
 

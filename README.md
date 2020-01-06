@@ -110,7 +110,9 @@ Run the script [./scripts/build-push.sh](./scripts/build-push.sh) with the appro
 
 ## Container Cluster creation and deployment for dev work
 
-A set of 3 servers that have been setup as docker swarm master nodes.
+Main URL is **[https://cops.cnx.org](https://cops.cnx.org)** (=cc1/cc2/cc3) for the end user and API endpoint.
+
+Internally a set of 3 servers that have been setup as docker swarm master nodes.
 
 * https://cc1.cnx.org
 * https://cc2.cnx.org
