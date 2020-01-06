@@ -140,6 +140,8 @@ export default {
       ],
       dialog: false,
       collectionId: '',
+      version: '',
+      style: '',
       polling: null,
       contentServerId: null
     }
