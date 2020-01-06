@@ -25,6 +25,8 @@ def init():
     except Exception as e:
         logger.error(e)
         raise e
+    finally:
+        db_session.close()
 
 
 def main():
