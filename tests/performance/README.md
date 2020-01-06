@@ -36,4 +36,4 @@ Start running the load test and see the result in your browser! :)
 
 * Missing optimized Docker or Vagrant VM
 
-This load tests on your local machine are very simple for development purposes. To run a more demanding "smoke" tests 🔥 this load tests need to be run inside an optimized Vagrant VM or Docker with optimized internal network settings and DNS caching (to not load test the DNS query).
+This load tests on your local machine are very simple for development purposes. To run a more demanding "smoke" test 🔥 this load tests need to be run inside an optimized Vagrant VM or Docker with optimized internal network settings and DNS caching (to not load test the DNS query).
