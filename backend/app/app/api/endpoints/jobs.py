@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.get("/", response_model=List[Job])
-async def list_jobs(
+def list_jobs(
         db: Session = Depends(get_db),
         skip: int = 0,
         limit: int = 100,
@@ -22,7 +22,7 @@ async def list_jobs(
 
 
 @router.get("/{id}", response_model=Job)
-async def get_job(
+def get_job(
         *,
         db: Session = Depends(get_db),
         id: int
@@ -35,7 +35,7 @@ async def get_job(
 
 
 @router.post("/", response_model=Job)
-async def create_job(
+def create_job(
         *,
         db: Session = Depends(get_db),
         job_in: JobCreate
@@ -46,7 +46,7 @@ async def create_job(
 
 
 @router.put("/{id}", response_model=Job)
-async def update_job(
+def update_job(
         *,
         db: Session = Depends(get_db),
         id: int,
