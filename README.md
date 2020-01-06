@@ -193,9 +193,9 @@ To start it back up
 
 ## Load testing for the backend
 
-Load testing with Locust.io is in the directory `./backend/tests/performance/`
+Load testing with Locust.io is in the directory `./backend/app/tests/performance/`
 
-Please look at the [README](./backend/tests/performance/README.md) in this directory on how to run load tests locally and for production systems.
+Please look at the [README](./backend/app/tests/performance/README.md) in this directory on how to run load tests locally and for production systems.
 
 
 ## Attribution
