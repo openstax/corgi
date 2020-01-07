@@ -13,7 +13,7 @@
       <div class="text-right">
         <v-dialog v-model="dialog" persistent max-width="800px">
           <template v-slot:activator="{ on }">
-            <v-btn color="primary" class="mb-3" dark v-on="on">
+            <v-btn v-on="on" color="primary" class="mb-3" dark>
               Create a new PDF job
             </v-btn>
           </template>
@@ -62,10 +62,10 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer />
-              <v-btn color="blue darken-1" text @click="dialog = false">
+              <v-btn @click="dialog = false" color="blue darken-1" text>
                 Cancel
               </v-btn>
-              <v-btn color="blue darken-1" text @click="clickCollection(collectionId, contentServerId, version, style)">
+              <v-btn @click="clickCollection(collectionId, contentServerId, version, style)" color="blue darken-1" text>
                 Do it!
               </v-btn>
             </v-card-actions>
@@ -100,7 +100,7 @@
             <v-progress-circular
               v-if="showStatus(item.status_name)"
               :width="3"
-              size=12
+              size="12"
               color="green"
               indeterminate
               class="ml-2"
@@ -140,6 +140,8 @@ export default {
       ],
       dialog: false,
       collectionId: '',
+      version: '',
+      style: '',
       polling: null,
       contentServerId: null
     }
@@ -188,14 +190,14 @@ export default {
         this.submitCollection(collectionId, contentServerId, version, style)
       }
     },
-    async submitCollection (collectionId, contentServerId, version, style) {
+    async submitCollection (collectionId, contentServerId, version, astyle) {
       try {
         const data = {
           collection_id: collectionId,
           status_id: 1,
           pdf_url: null,
           version: version || null,
-          style: style,
+          style: astyle,
           content_server_id: contentServerId
         }
         await this.$axios.$post('/api/jobs/', data)
