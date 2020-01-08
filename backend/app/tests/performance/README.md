@@ -19,10 +19,10 @@ Installation for development purposes:
 
 To run e.g. the backend jobs load test on localhost use:
 ```
-locust -f backendjobs.py --host http://localhost
+locust -f backendjobs.py --host http://localhost:5001
 ```
 
-and open the locust UI in your browser (port 9089):   
+and open the locust UI in your browser:   
 [http://localhost:8089](http://localhost:8089)
 
 To start a very simple load test set  
