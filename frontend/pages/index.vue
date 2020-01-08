@@ -83,7 +83,7 @@
       >
         <template v-slot:item.created_at="{ item }">
           <span>
-            {{ $moment.utc(item.created_at).format('MMM DD YYYY HH:mm:ss z') }}
+            {{ $moment.utc(item.created_at).local().format('lll') }}
           </span>
         </template>
         <template v-slot:item.pdf_url="{ item }">
@@ -109,7 +109,7 @@
         </template>
         <template v-slot:item.updated_at="{ item }">
           <span>
-            {{ $moment.utc(item.updated_at).format('MMM DD YYYY HH:mm:ss z') }}
+            {{ $moment.utc(item.updated_at).local().format('lll') }}
           </span>
         </template>
       </v-data-table>
