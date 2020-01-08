@@ -13,6 +13,11 @@ services:
         constraints:
           - node.role == manager
           - node.labels.${STACK_NAME}.proxy == true
+    volumes:
+      - type: volume
+        source: traefik-public-certificates
+        target: /certificates
 
 volumes:
   app-db-data:
+  traefik-public-certificates:
