@@ -13,8 +13,8 @@
       <div class="text-right">
         <v-dialog v-model="dialog" persistent max-width="800px">
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on" color="primary" class="mb-3" dark>
-              Create a new PDF job
+            <v-btn v-on="on" color="primary" class="mb-3" dark large>
+              <v-icon class="mr-1">mdi-file-document-box-plus-outline</v-icon>Create a new PDF job
             </v-btn>
           </template>
           <v-card>
@@ -67,7 +67,7 @@
                 Cancel
               </v-btn>
               <v-btn @click="clickCollection(collectionId, contentServerId, version, style)" color="blue darken-1" text>
-                Do
+                Create
               </v-btn>
             </v-card-actions>
           </v-card>
