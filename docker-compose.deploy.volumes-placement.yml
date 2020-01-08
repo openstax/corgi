@@ -12,6 +12,7 @@ services:
       placement:
         constraints:
           - node.role == manager
+          - node.labels.${STACK_NAME}.proxy == true
 
 volumes:
   app-db-data:
