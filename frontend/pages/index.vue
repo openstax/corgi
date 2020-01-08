@@ -13,8 +13,15 @@
       <div class="text-right">
         <v-dialog v-model="dialog" persistent max-width="800px">
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on" color="primary" class="mb-3" dark large>
-              <v-icon class="mr-1">mdi-file-document-box-plus-outline</v-icon>Create a new PDF job
+            <v-btn
+              v-on="on"
+              color="primary"
+              class="mb-3"
+              dark
+              large
+              tile
+            >
+              <span>Create a new PDF job</span><v-icon class="ml-2">mdi-file-document-box-plus-outline</v-icon>
             </v-btn>
           </template>
           <v-card>
@@ -102,7 +109,6 @@
               v-if="showStatus(item.status_name)"
               :width="3"
               size="12"
-              color="green"
               indeterminate
               class="ml-2"
             />
