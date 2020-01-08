@@ -26,7 +26,7 @@ services:
         - traefik.port=80
         - traefik.tags=${TRAEFIK_PUBLIC_TAG}
         - traefik.docker.network=${TRAEFIK_PUBLIC_NETWORK}
-#        # Traefik service that listens to HTTP
+        # Traefik service that listens to HTTP
         - traefik.servicehttp.frontend.entryPoints=http
         - traefik.servicehttp.frontend.redirect.entryPoint=https
         # Traefik service that listens to HTTPS
@@ -45,6 +45,7 @@ services:
         - traefik.enable=true
         - traefik.port=80
         - traefik.tags=${TRAEFIK_TAG}
+        - traefik.docker.network=traefik-public
   frontend:
     deploy:
       labels:
@@ -52,3 +53,4 @@ services:
         - traefik.enable=true
         - traefik.port=80
         - traefik.tags=${TRAEFIK_TAG}
+        - traefik.docker.network=traefik-public
