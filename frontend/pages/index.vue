@@ -13,13 +13,20 @@
       <div class="text-right">
         <v-dialog v-model="dialog" persistent max-width="800px">
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on" color="primary" class="mb-3" dark>
-              Create a new PDF job
+            <v-btn
+              v-on="on"
+              color="primary"
+              class="mb-3"
+              dark
+              large
+              tile
+            >
+              <span>Create a new PDF job</span><v-icon class="ml-2">mdi-file-document-box-plus-outline</v-icon>
             </v-btn>
           </template>
           <v-card>
-            <v-card-title>
-              <span class="headline">Create a new PDF</span>
+            <v-card-title class="headline grey lighten-2" primary-title>
+              <v-icon class="mr-1" large>mdi-file-document-box-plus-outline</v-icon><span>Create a new PDF</span>
             </v-card-title>
             <v-card-text>
               <v-container>
@@ -60,13 +67,14 @@
               </v-container>
               <small>*indicates required field</small>
             </v-card-text>
+            <v-divider/>
             <v-card-actions>
               <v-spacer />
               <v-btn @click="dialog = false" color="blue darken-1" text>
                 Cancel
               </v-btn>
               <v-btn @click="clickCollection(collectionId, contentServerId, version, style)" color="blue darken-1" text>
-                Do it!
+                Create
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -96,12 +104,14 @@
         </template>
         <template v-slot:item.status_name="{ item }">
           <v-chip :color="getStatusColor(item.status_name)" dark>
-            {{ item.status_name }}
+            <span :class="{ 'font-weight-bold' : showStatus(item.status_name)}">
+              {{ item.status_name }}
+            </span>
             <v-progress-circular
               v-if="showStatus(item.status_name)"
               :width="3"
               size="12"
-              color="green"
+              color="white"
               indeterminate
               class="ml-2"
             />
