@@ -104,11 +104,14 @@
         </template>
         <template v-slot:item.status_name="{ item }">
           <v-chip :color="getStatusColor(item.status_name)" dark>
-            {{ item.status_name }}
+            <span :class="{ 'font-weight-bold' : showStatus(item.status_name)}">
+              {{ item.status_name }}
+            </span>
             <v-progress-circular
               v-if="showStatus(item.status_name)"
               :width="3"
               size="12"
+              color="white"
               indeterminate
               class="ml-2"
             />
