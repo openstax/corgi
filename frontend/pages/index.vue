@@ -18,8 +18,8 @@
             </v-btn>
           </template>
           <v-card>
-            <v-card-title>
-              <span class="headline">Create a new PDF</span>
+            <v-card-title class="headline grey lighten-2" primary-title>
+              <v-icon class="mr-1" large>mdi-file-document-box-plus-outline</v-icon><span>Create a new PDF</span>
             </v-card-title>
             <v-card-text>
               <v-container>
@@ -60,13 +60,14 @@
               </v-container>
               <small>*indicates required field</small>
             </v-card-text>
+            <v-divider/>
             <v-card-actions>
               <v-spacer />
               <v-btn @click="dialog = false" color="blue darken-1" text>
                 Cancel
               </v-btn>
               <v-btn @click="clickCollection(collectionId, contentServerId, version, style)" color="blue darken-1" text>
-                Do it!
+                Do
               </v-btn>
             </v-card-actions>
           </v-card>
