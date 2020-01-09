@@ -47,15 +47,16 @@
                         :rules="versionRules"
                         label="Version"
                         hint="e.g. 19.2"
-                        required
+                        optional
                       />
                     </v-col>
                     <v-col cols="12" sm="3" md="3">
-                      <v-text-field
+                      <v-combobox
                         v-model="style"
                         :rules="[v => !!v || 'Style is required']"
-                        label="Style"
+                        :items="styleItems"
                         hint="e.g. microbiology"
+                        label="Style"
                         required
                       />
                     </v-col>
@@ -71,6 +72,7 @@
                   </v-row>
                 </v-form>
               </v-container>
+            <small>Hint: You can also edit the style field yourself</small>
             </v-card-text>
             <v-divider/>
             <v-card-actions>
@@ -166,6 +168,35 @@ export default {
       ],
       versionRules: [
         v => /^\d*\.?\d*$/.test(v) || 'Version needs to be valid'
+      ],
+      styleItems: [
+        'chemistry',
+        'anatomy',
+        'biology',
+        'ap-biology',
+        'microbiology',
+        'physics',
+        'ap-physics',
+        'u-physics',
+        'pl-u-physics',
+        'hs-physics',
+        'entrepreneurship',
+        'college-success',
+        'ap-history',
+        'psychology',
+        'dev-math',
+        'statistics',
+        'astronomy',
+        'principles-management',
+        'accounting',
+        'business-ethics',
+        'intro-business',
+        'economics',
+        'sociology',
+        'history',
+        'american-government',
+        'calculus',
+        'precalculus'
       ]
     }
   },
