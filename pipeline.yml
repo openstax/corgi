@@ -8,10 +8,10 @@ resource_types:
 
 
 resources:
-  - name: pdf-spike
+  - name: opsx-pipelines
     type: git
     source:
-      uri: https://github.com/openstax/pdf-spike.git
+      uri: https://github.com/openstax/concourse-pipelines.git
 
   - name: cnx-recipes
     type: git
@@ -50,7 +50,7 @@ jobs:
           id: output-producer-queued/id
           status_id: "2" # Assigned
 
-      - get: pdf-spike
+      - get: opsx-pipelines
       - get: cnx-recipes
 
       - task: look up book
@@ -112,7 +112,7 @@ jobs:
             status_id: "4" # Failed
 
       - task: fetch book
-        file: pdf-spike/bakery/tasks/fetch-book.yml
+        file: opsx-pipelines/bakery/tasks/fetch-book.yml
         on_failure:
           put: output-producer-updater
           params:
@@ -120,7 +120,7 @@ jobs:
             status_id: "4" # Failed
 
       - task: assemble-book
-        file: pdf-spike/bakery/tasks/assemble-book.yml
+        file: opsx-pipelines/bakery/tasks/assemble-book.yml
         on_failure:
           put: output-producer-updater
           params:
@@ -128,7 +128,7 @@ jobs:
             status_id: "4" # Failed
 
       - task: bake-book
-        file: pdf-spike/bakery/tasks/bake-book.yml
+        file: opsx-pipelines/bakery/tasks/bake-book.yml
         on_failure:
           put: output-producer-updater
           params:
@@ -136,7 +136,7 @@ jobs:
             status_id: "4" # Failed
 
       - task: mathify-book
-        file: pdf-spike/bakery/tasks/mathify-book.yml
+        file: opsx-pipelines/bakery/tasks/mathify-book.yml
         on_failure:
           put: output-producer-updater
           params:
@@ -144,7 +144,7 @@ jobs:
             status_id: "4" # Failed
 
       - task: build-pdf
-        file: pdf-spike/bakery/tasks/build-pdf.yml
+        file: opsx-pipelines/bakery/tasks/build-pdf.yml
         on_failure:
           put: output-producer-updater
           params:
