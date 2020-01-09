@@ -23,7 +23,7 @@ First Steps
    :hidden:
 
    intro/overview
-   glossary
+
 
 :doc:`intro/overview`
     Understand what COPS is and what it can do.
@@ -32,13 +32,15 @@ First Steps
 The Front-end (UI)
 ==================
 
-
-The Backend
-===========
-
-
 Extras
 ======
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Extras
+   :hidden:
+
+   glossary
 
 :doc:`glossary`
     A glossary of terms used throughout the documentation.
