@@ -191,12 +191,12 @@ export default {
         'microbiology',
         'physics',
         'pl-u-physics',
-        'precalculus'
+        'precalculus',
         'principles-management',
         'psychology',
         'sociology',
         'statistics',
-        'u-physics',
+        'u-physics'
       ]
     }
   },
