@@ -30,47 +30,52 @@
             </v-card-title>
             <v-card-text>
               <v-container>
-                <v-row>
-                  <v-col cols="12" sm="3" md="3">
-                    <v-text-field
-                      v-model="collectionId"
-                      label="Collection ID"
-                      hint="e.g. col12345"
-                      required
-                    />
-                  </v-col>
-                  <v-col cols="12" sm="3" md="3">
-                    <v-text-field
-                      v-model="version"
-                      label="Version"
-                      hint="e.g. 19.2"
-                      optional
-                    />
-                  </v-col>
-                  <v-col cols="12" sm="3" md="3">
-                    <v-text-field
-                      v-model="style"
-                      label="Style"
-                      hint="e.g. microbiology"
-                      optional
-                    />
-                  </v-col>
-                  <v-col cols="12" sm="3" md="3">
-                    <v-select
-                      v-model="contentServerId"
-                      :items="content_servers"
-                      label="Content Server"
-                      required
-                    />
-                  </v-col>
-                </v-row>
+                <v-form ref="form" v-model="valid" lazy-validation>
+                  <v-row>
+                    <v-col cols="12" sm="3" md="3">
+                      <v-text-field
+                        v-model="collectionId"
+                        :rules="collectionRules"
+                        label="Collection ID"
+                        hint="e.g. col12345"
+                        required
+                      />
+                    </v-col>
+                    <v-col cols="12" sm="3" md="3">
+                      <v-text-field
+                        v-model="version"
+                        :rules="versionRules"
+                        label="Version"
+                        hint="e.g. 19.2"
+                        required
+                      />
+                    </v-col>
+                    <v-col cols="12" sm="3" md="3">
+                      <v-text-field
+                        v-model="style"
+                        :rules="[v => !!v || 'Style is required']"
+                        label="Style"
+                        hint="e.g. microbiology"
+                        required
+                      />
+                    </v-col>
+                    <v-col cols="12" sm="3" md="3">
+                      <v-select
+                        v-model="contentServerId"
+                        :items="content_servers"
+                        :rules="[v => !!v || 'You need to select a server']"
+                        label="Content Server"
+                        required
+                      />
+                    </v-col>
+                  </v-row>
+                </v-form>
               </v-container>
-              <small>*indicates required field</small>
             </v-card-text>
             <v-divider/>
             <v-card-actions>
               <v-spacer />
-              <v-btn @click="dialog = false" color="blue darken-1" text>
+              <v-btn @click="closeDialog()" color="blue darken-1" text>
                 Cancel
               </v-btn>
               <v-btn @click="clickCollection(collectionId, contentServerId, version, style)" color="blue darken-1" text>
@@ -153,7 +158,15 @@ export default {
       version: '',
       style: '',
       polling: null,
-      contentServerId: null
+      contentServerId: null,
+      valid: false,
+      collectionRules: [
+        v => !!v || 'Collection is required',
+        v => /^col\d*$/.test(v) || 'Collection needs to be valid col123'
+      ],
+      versionRules: [
+        v => /^\d*\.?\d*$/.test(v) || 'Version needs to be valid'
+      ]
     }
   },
   computed: {
@@ -193,11 +206,16 @@ export default {
         return 'grey'
       }
     },
-    clickCollection (collectionId, contentServerId, version, style) {
+    closeDialog () {
       this.dialog = false
-      if (collectionId.length >= 0) {
+      this.$refs.form.resetValidation()
+      this.$refs.form.reset()
+    },
+    clickCollection (collectionId, contentServerId, version, style) {
+      if (this.$refs.form.validate()) {
         console.log('POSTing ' + collectionId + ' now!')
         this.submitCollection(collectionId, contentServerId, version, style)
+        this.closeDialog()
       }
     },
     async submitCollection (collectionId, contentServerId, version, astyle) {
