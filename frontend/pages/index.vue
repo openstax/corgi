@@ -172,8 +172,8 @@ export default {
       browserReady: false,
       valid: false,
       collectionRules: [
-        v => !!v || 'Collection is required',
-        v => /^col\d*$/.test(v) || 'Collection needs to be valid e.g. col12345'
+        v => !!v || 'Collection ID is required',
+        v => /^col\d*$/.test(v) || 'A valid collection ID is required, e.g. col12345'
       ],
       styleItems: [
         'accounting',
