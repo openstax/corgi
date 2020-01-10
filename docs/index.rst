@@ -41,6 +41,20 @@ The Backend
 
    backend/architecture
 
+Deployment
+==========
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Deployment
+   :hidden:
+
+   deployment/updating_the_stack
+
+
+:doc:`deployment/updating_the_stack`
+    How to update the stack with the latest changes
+
 Extras
 ======
 
