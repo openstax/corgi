@@ -3,3 +3,10 @@ services:
   concourse:
     image: concourse/concourse
     privileged: true
+  pgadmin:
+    image: dpage/pgadmin4
+    depends_on:
+      - db
+    env_file:
+      - env-pgadmin.env
+

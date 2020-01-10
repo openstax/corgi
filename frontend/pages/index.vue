@@ -21,12 +21,18 @@
               large
               tile
             >
-              <span>Create a new PDF job</span><v-icon class="ml-2">mdi-file-document-box-plus-outline</v-icon>
+              <span>Create a new PDF job</span>
+              <v-icon class="ml-2">
+                mdi-file-document-box-plus-outline
+              </v-icon>
             </v-btn>
           </template>
           <v-card>
             <v-card-title class="headline grey lighten-2" primary-title>
-              <v-icon class="mr-1" large>mdi-file-document-box-plus-outline</v-icon><span>Create a new PDF</span>
+              <v-icon class="mr-1" large>
+                mdi-file-document-box-plus-outline
+              </v-icon>
+              <span>Create a new PDF</span>
             </v-card-title>
             <v-card-text>
               <v-container>
@@ -72,9 +78,11 @@
                   </v-row>
                 </v-form>
               </v-container>
-            <small>Hint: You can also edit the style field yourself</small>
+              <small>
+                Hint: You can also edit the style field yourself
+              </small>
             </v-card-text>
-            <v-divider/>
+            <v-divider />
             <v-card-actions>
               <v-spacer />
               <v-btn @click="closeDialog()" color="blue darken-1" text>
@@ -88,6 +96,7 @@
         </v-dialog>
       </div>
       <v-data-table
+        v-if="browserReady"
         :headers="headers"
         :items="jobs"
         :disable-pagination="true"
@@ -161,6 +170,7 @@ export default {
       style: '',
       polling: null,
       contentServerId: null,
+      browserReady: false,
       valid: false,
       collectionRules: [
         v => !!v || 'Collection is required',
@@ -210,6 +220,9 @@ export default {
   },
   created () {
     this.pollData()
+  },
+  mounted () {
+    this.browserReady = true
   },
   beforeDestroy () {
     clearInterval(this.polling)

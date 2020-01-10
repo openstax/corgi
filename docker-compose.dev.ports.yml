@@ -13,3 +13,6 @@ services:
   concourse:
     ports:
       - '8100:8080'
+  docs:
+    ports:
+      - '8000:8000'
