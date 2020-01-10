@@ -7,7 +7,7 @@ export default {
   ** Headers of the page
   */
   head: {
-    titleTemplate: 'COPS - Content Output Producers',
+    titleTemplate: 'COPS - Content Output Producer Service',
     title: process.env.npm_package_name || '',
     meta: [
       { charset: 'utf-8' },
