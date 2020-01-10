@@ -50,7 +50,6 @@
                     <v-col cols="12" sm="3" md="3">
                       <v-text-field
                         v-model="version"
-                        :rules="versionRules"
                         label="Version"
                         hint="e.g. 19.2"
                         optional
@@ -70,7 +69,7 @@
                       <v-select
                         v-model="contentServerId"
                         :items="content_servers"
-                        :rules="[v => !!v || 'You need to select a server']"
+                        :rules="[v => !!v || 'Please select a server']"
                         label="Content Server"
                         required
                       />
@@ -174,10 +173,7 @@ export default {
       valid: false,
       collectionRules: [
         v => !!v || 'Collection is required',
-        v => /^col\d*$/.test(v) || 'Collection needs to be valid col123'
-      ],
-      versionRules: [
-        v => /^\d*\.?\d*$/.test(v) || 'Version needs to be valid'
+        v => /^col\d*$/.test(v) || 'Collection needs to be valid e.g. col12345'
       ],
       styleItems: [
         'accounting',
