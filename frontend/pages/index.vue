@@ -21,12 +21,18 @@
               large
               tile
             >
-              <span>Create a new PDF job</span><v-icon class="ml-2">mdi-file-document-box-plus-outline</v-icon>
+              <span>Create a new PDF job</span>
+              <v-icon class="ml-2">
+                mdi-file-document-box-plus-outline
+              </v-icon>
             </v-btn>
           </template>
           <v-card>
             <v-card-title class="headline grey lighten-2" primary-title>
-              <v-icon class="mr-1" large>mdi-file-document-box-plus-outline</v-icon><span>Create a new PDF</span>
+              <v-icon class="mr-1" large>
+                mdi-file-document-box-plus-outline
+              </v-icon>
+              <span>Create a new PDF</span>
             </v-card-title>
             <v-card-text>
               <v-container>
@@ -67,7 +73,7 @@
               </v-container>
               <small>*indicates required field</small>
             </v-card-text>
-            <v-divider/>
+            <v-divider />
             <v-card-actions>
               <v-spacer />
               <v-btn @click="dialog = false" color="blue darken-1" text>
@@ -81,6 +87,7 @@
         </v-dialog>
       </div>
       <v-data-table
+        v-if="browserReady"
         :headers="headers"
         :items="jobs"
         :disable-pagination="true"
@@ -153,7 +160,8 @@ export default {
       version: '',
       style: '',
       polling: null,
-      contentServerId: null
+      contentServerId: null,
+      browserReady: false
     }
   },
   computed: {
@@ -166,6 +174,9 @@ export default {
   },
   created () {
     this.pollData()
+  },
+  mounted () {
+    this.browserReady = true
   },
   beforeDestroy () {
     clearInterval(this.polling)
