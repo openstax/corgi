@@ -32,6 +32,15 @@ First Steps
 The Front-end (UI)
 ==================
 
+The Backend
+===========
+
+.. toctree::
+   :caption: The Backend API
+   :hidden:
+
+   backend/architecture
+
 Extras
 ======
 
