@@ -56,7 +56,7 @@ Configure docker in that terminal to use the remote host established before:
 
 .. code-block:: bash
 
-   export DOCKER_HOST="http://localhost:2377"
+   export DOCKER_HOST="localhost:2377"
 
 Any docker commands you run in this window will be like running them on
 the remote host. This window should only be used to run the deploy script.
