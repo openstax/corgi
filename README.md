@@ -33,6 +33,23 @@ To check the logs run:
 
     docker-compose logs
 
+## View the Docs
+
+If you are currently running the entire stack you should be able to see the
+documentation by visiting [http://localhost:8000](http://localhost:8000).
+
+The documentation is built using [Sphinx-docs](https://www.sphinx-doc.org/en/master/)
+and lives in the [./docs](./docs) directory.
+
+The documentation is configured to watch for changes and re-build the documentation.
+This allows developers the ability to preview their documentation changes as they 
+make them.
+
+If you would like to run the documentation without the entire stack running you 
+can do so by running:
+
+    docker-compose up docs
+
 ## Run integration tests 
 
 The integration tests were written to ensure the backend continued 
