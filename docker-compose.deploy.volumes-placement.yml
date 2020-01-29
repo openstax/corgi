@@ -2,12 +2,12 @@ version: '3.7'
 services:
   db:
     volumes:
-      - ${STACK_NAME}-db-data:/var/lib/postgresql/data/pgdata
+      - app-db-data:/var/lib/postgresql/data/pgdata
     deploy:
       placement:
         constraints:
           - node.role == manager
-          - node.labels.db-data == true
+          - node.labels.app-db-data == true
   proxy:
     deploy:
       placement:
