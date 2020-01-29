@@ -25,7 +25,7 @@ First Steps
    intro/overview
 
 
-:doc:`intro/overview`
+:ref:`intro-overview`
     Understand what COPS is and what it can do.
 
 
@@ -41,18 +41,21 @@ The Backend
 
    backend/architecture
 
-Deployment
+:ref:`backend-architecture`
+    Developer documentation for the COPS backend architecture
+
+Operations
 ==========
 
 .. toctree::
    :maxdepth: 2
-   :caption: Deployment
+   :caption: Operations
    :hidden:
 
-   deployment/updating_the_stack
+   operations/setting_up_the_swarm
+   operations/updating_the_stack
 
-
-:doc:`deployment/updating_the_stack`
+:ref:`operations-updating-the-stack`
     How to update the stack with the latest changes
 
 Extras
