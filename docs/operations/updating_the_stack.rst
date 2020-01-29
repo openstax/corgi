@@ -1,23 +1,19 @@
 .. _operations-updating-the-stack:
 
-==================
-Updating the Stack
-==================
+================================
+Deploying and updating the stack
+================================
 
-The entire COPS system is deployed using Docker swarm. Docker swarm provides a
-``docker stack`` command that will deploy a set of services based on a docker-compose
-file. Refer to :ref:`operations-setting-up-the-swarm` to do the initial setup of
-the servers with swarm.
+The entire COPS system is deployed using Docker swarm. Docker swarm provides a ``docker stack`` command that will deploy and update a set of services based on a docker-compose file. Refer to :ref:`operations-setting-up-the-swarm` to do the initial setup of the servers with swarm.
 
-The stack can also be updated when there are changes. The deployment process
-is currently done manually but is fairly straightforward.
+The deployment process is currently done manually (hopefully will be automated in the future) but is fairly straightforward.
 
 The steps at a high level are:
 
-1. Establish an SSH tunnel from your local computer to one of the swarm management
-nodes.
-2. Run the ``./script/build-push.sh`` script to build and push images to dockerhub.
-3. Run the ``./script/deploy.sh`` script to update the stack.
+1. Establish an SSH tunnel from ``bastion2.cnx.org`` to the AWS server.
+2. Establish an SSH tunnel from your local computer to ``bastion2.cnx.org``.
+3. Run the ``./script/build-push.sh`` script to build and push images to dockerhub.
+4. Run the ``./script/deploy.sh`` script to deploy or update the stack.
 
 The more granular details of the deployment are explained below.
 
@@ -35,63 +31,87 @@ Install the docker-auto-labels package:
 
    pip install docker-auto-labels
 
+Setup the SSH tunnel from bastion2 to AWS
+=========================================
 
-Setup the SSH tunnel
-====================
+* Open a fresh terminal window. Keep it open until the end of the deployment process.
 
-Open a fresh terminal window. Keep it open until the end of the deployment process.
+* SSH into ``bastion2.cnx.org``
 
-Run the following command to establish an SSH tunnel to a manager node:
+* Run the following command to establish an SSH tunnel to a manager node in AWS:
 
 .. code-block:: bash
 
-   ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -NL localhost:2377:/var/run/docker.sock <user>@cc1.cnx.org
+   ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -NL localhost:2377:/var/run/docker.sock ubuntu@cc1.cnx.org -i ~/.ssh/cops.pem
 
 This command doesn't produce any output unless there is an error. No other commands
 will be typed into this window.
 
-Setup terminal window for communicating with docker swarm manager node
-======================================================================
+Setup SSH Tunnel from localhost to bastion2
+===========================================
 
-Open another fresh terminal window. Keep it open until the end of the process.
+* Open a fresh terminal window. Keep it open until the end of the deployment process.
 
-Configure docker in that terminal to use the remote host established before:
+* Run the following command to create an SSH tunnel from localhost to the tunnel created in the previous command:
 
 .. code-block:: bash
 
-   export DOCKER_HOST="localhost:2377"
+   ssh -NL 9999:localhost:2377 bastion2.cnx.org
 
-Any docker commands you run in this window will be like running them on
-the remote host. This window should only be used to run the deploy script.
+Setup terminal window for communicating with docker swarm manager node
+======================================================================
+
+* Open another fresh terminal window. Keep it open until the end of the process.
+
+* Configure docker in that terminal to use the remote host established before:
+
+.. code-block:: bash
+
+   export DOCKER_HOST="localhost:9999"
+
+.. note:: All docker commands you run in this window will be like running them on the remote host. This window should only be used to run the deploy script.
+
+* Set an environment variable for the ``DOMAIN`` you'd like to deploy to:
+
+.. code-block:: bash
+
+   export DOMAIN="cops.openstax.org"
+   export DOMAIN="cops-staging.openstax.org"
+
+* Set an environment variable for the ``STACK_NAME`` you'll be deploying or updating:
+
+.. code-block:: bash
+
+   export STACK_NAME="cops_prod"
+   export STACK_NAME="cops_staging"
 
 Build and push new docker images
 ================================
 
-Open another fresh terminal window. Keep it open until the end of the deployment process.
+* Open another fresh terminal window. Keep it open until the end of the deployment process.
 
-Ensure you have master checked out and the latest codez:
+* Ensure you have master checked out and the latest codez:
 
 .. code-block:: bash
 
    git checkout master && git pull origin master
 
-Tag and upload images to dockerhub. This script builds the images with ``no-cache``
-so may take several minutes.
+* Tag and upload images to dockerhub. This script builds the images with ``no-cache`` so may take several minutes.
 
 .. code-block:: bash
 
    TAG=latest ./scripts/build-push.sh
 
-Update the stack
-================
+Deploy and Update the stack
+===========================
 
-Change to the terminal window where you set the ``DOCKER_HOST`` environmental variable.
+* Change to the terminal window where you set the ``DOCKER_HOST`` environmental variable.
 
-Run the deployment script to update the production stack:
+* Run the deployment script to update the stack:
 
 .. code-block:: bash
 
-   DOMAIN=cops.cnx.org TRAEFIK_TAG=traefik-public STACK_NAME=cops_prod TAG=latest ./scripts/deploy.sh
+   DOMAIN=$DOMAIN TRAEFIK_TAG=traefik-public STACK_NAME=$STACK_NAME TAG=latest ./scripts/deploy.sh
 
 Cleanup
 =======
