@@ -53,7 +53,7 @@ const resources = [
     name: 'output-producer',
     type: 'output-producer',
     source: {
-      api_root: '((pdf-job-queue-url))',
+      api_root: 'https://cops.cnx.org/api',
       status_id: 1
     }
   },
