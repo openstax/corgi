@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "build": "node ./pipeline.js",
+    "lint": "standard ./pipeline.js ./tasks/*"
+  },
+  "dependencies": {
+    "dedent": "^0.7.0",
+    "js-yaml": "^3.13.1"
+  },
+  "devDependencies": {
+    "standard": "^14.3.1"
+  }
+}
