@@ -21,4 +21,5 @@ Glossary
    Module
       The basic building block of a :ref:`Collection`. This could be considered
       the equivalent of a page in a book but a more accurate description would be
-      the what is represented as everything contained in a web page.
+      the representation of everything that would show up on a web page for that 
+      part of the book.

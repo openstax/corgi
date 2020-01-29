@@ -1,4 +1,4 @@
-.. _deployment-updating-the-stack:
+.. _operations-updating-the-stack:
 
 ==================
 Updating the Stack
@@ -6,7 +6,10 @@ Updating the Stack
 
 The entire COPS system is deployed using Docker swarm. Docker swarm provides a
 ``docker stack`` command that will deploy a set of services based on a docker-compose
-file. The stack can also be updated when there are changes. The deployment process
+file. Refer to :ref:`operations-setting-up-the-swarm` to do the initial setup of
+the servers with swarm.
+
+The stack can also be updated when there are changes. The deployment process
 is currently done manually but is fairly straightforward.
 
 The steps at a high level are:
