@@ -2,21 +2,18 @@ version: '3.7'
 services:
   db:
     volumes:
-      - app-db-data:/var/lib/postgresql/data/pgdata
+      - ${STACK_NAME}-db-data:/var/lib/postgresql/data/pgdata
     deploy:
       placement:
         constraints:
-          - node.labels.${STACK_NAME}.app-db-data == true
+          - node.role == manager
+          - node.labels.db-data == true
   proxy:
     deploy:
       placement:
         constraints:
           - node.role == manager
-          - node.labels.${STACK_NAME}.proxy == true
-    volumes:
-      - type: volume
-        source: traefik-public-certificates
-        target: /certificates
+          - node.labels.proxy == true
 
 volumes:
   app-db-data:
