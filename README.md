@@ -8,7 +8,7 @@
 ### Generate a pipeline file
 - Run `yarn build [path/to/output]`
   
-  Note: Directory for output path must exist. If no path argument is given, the pipeline will output to stdout.
+  Note: Directory for output path must exist. If no path argument is given, the pipeline will output to `pipeline.yml` in the current working directory.
 
 ### Development
 - There is no test suite in this repo, but a `yarn lint` command is provided to lint your work. This project uses `standard` to lint.

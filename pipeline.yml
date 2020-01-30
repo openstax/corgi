@@ -21,7 +21,7 @@ resources:
   - name: output-producer
     type: output-producer
     source:
-      api_root: ((pdf-job-queue-url))
+      api_root: 'https://cops.cnx.org/api'
       status_id: 1
   - name: s3
     type: s3
@@ -259,7 +259,7 @@ jobs:
 
                 book_dir="mathified-book/$(cat book/name)"
 
-                prince -v --output="artifacts/$(cat book/pdf_filename).pdf"
+                prince -v --output="artifacts/$(cat book/pdf_filename)"
                 "$book_dir/collection.mathified.xhtml"
       - put: s3
         params:
@@ -277,14 +277,8 @@ jobs:
       params:
         id: output-producer/id
         status_id: 4
-    on_error:
-      put: output-producer
-      params:
-        id: output-producer/id
-        status_id: 4
     on_abort:
       put: output-producer
       params:
         id: output-producer/id
         status_id: 4
-
