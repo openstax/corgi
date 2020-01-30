@@ -7,3 +7,6 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+        API_URL: https://${DOMAIN}
+        API_URL_BROWSER: https://${DOMAIN}
