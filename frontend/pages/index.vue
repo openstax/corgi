@@ -94,14 +94,41 @@
           </v-card>
         </v-dialog>
       </div>
+      <div class="d-md-flex">
+        <v-btn
+          @click="toPage(Math.max(0, current_page - 1))"
+          class="ma-1"
+        >
+          Previous Page
+        </v-btn>
+        <v-btn
+          @click="toPage(current_page + 1)"
+          class="ma-1"
+        >
+          Next Page
+        </v-btn>
+        <v-text-field
+          class="ma-1"
+          style="max-width: 100px"
+          label="Jump To"
+          outlined
+          dense
+          hide-details
+          v-model="goto_page"
+        />
+        <v-btn
+          @click="toPage(Math.max(0, parseInt(goto_page) || 0))"
+          class="ma-1"
+        >
+          Go
+        </v-btn>
+      </div>
       <v-data-table
         v-if="browserReady"
         :headers="headers"
         :items="jobs"
         :disable-pagination="true"
         :hide-default-footer="true"
-        :sort-by="'updated_at'"
-        :sort-desc="true"
         class="elevation-1"
       >
         <template v-slot:item.created_at="{ item }">
@@ -170,6 +197,8 @@ export default {
       polling: null,
       contentServerId: null,
       browserReady: false,
+      current_page: 0,
+      goto_page: '',
       valid: false,
       collectionRules: [
         v => !!v || 'Collection ID is required',
@@ -215,6 +244,7 @@ export default {
     }
   },
   created () {
+    this.getJobsImmediate()
     this.pollData()
   },
   mounted () {
@@ -224,10 +254,13 @@ export default {
     clearInterval(this.polling)
   },
   methods: {
+    getJobsImmediate () {
+      this.$store.dispatch('getJobsForPage', { page: this.current_page })
+      console.log('get JOBS now...')
+    },
     pollData () {
       this.polling = setInterval(() => {
-        this.$store.dispatch('getJobs')
-        console.log('get JOBS now...')
+        this.getJobsImmediate()
       }, 30000)
     },
     showStatus (status) {
@@ -250,6 +283,10 @@ export default {
       this.dialog = false
       this.$refs.form.resetValidation()
       this.$refs.form.reset()
+    },
+    toPage (number) {
+      this.current_page = number
+      this.getJobsImmediate()
     },
     clickCollection (collectionId, contentServerId, version, style) {
       if (this.$refs.form.validate()) {

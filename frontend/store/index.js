@@ -35,8 +35,8 @@ export const actions = {
     await dispatch('getJobs')
     await dispatch('getContentServers')
   },
-  async getJobs ({ commit }) {
-    const response = await this.$axios.$get('/api/jobs/')
+  async getJobsForPage ({ commit }, { page }) {
+    const response = await this.$axios.$get(`/api/jobs/pages/${page}`)
     const data = []
     response.forEach(function (item) {
       data.push(flattenObject(item))
