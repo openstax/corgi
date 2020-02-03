@@ -31,8 +31,7 @@ const task = {
             cp "$style_file" $book_dir
             sed -i "s%<\\/head>%<link rel=\"stylesheet\" type=\"text/css\" href=\"$(basename $style_file)\" />&%" "$book_dir/collection.baked.xhtml"
           else
-            echo "Style Not Found" >baked-book/stderr
-            exit  1
+            echo "Warning: Style Not Found" >baked-book/stderr
           fi
         `
       ]
