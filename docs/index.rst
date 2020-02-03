@@ -58,6 +58,20 @@ Operations
 :ref:`operations-updating-the-stack`
     How to update the stack with the latest changes
 
+Quality Assurance
+=================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Quality Assurance
+   :hidden:
+
+   qa/setup_local_qa_cops_test
+
+
+:doc:`qa/setup_local_qa_cops_test`
+    How to setup local qa cops test environs
+
 Extras
 ======
 
