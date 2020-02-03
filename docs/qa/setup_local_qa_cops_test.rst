@@ -118,7 +118,7 @@ Setting up local pipeline to monitor jobs on production cops (temporary solution
 
 .. code-block:: bash
 
-   cd /Users/om9/Documents/Projects/concourse-pipelines/bakery
+   cd .../Projects/concourse-pipelines/bakery
 
 2. in an editor, open pipeline.yml
 
@@ -156,22 +156,22 @@ Setting up local pipeline to monitor jobs on production cops (temporary solution
 
 .. code-block:: bash
 
-   fly -t otto-pipeline-stuff set-pipeline -p pdf-producer -c pipeline.yml
+   fly -t local-pipeline-stuff set-pipeline -p pdf-producer -c pipeline.yml
 
 and if needed, run:
 
 .. code-block:: bash
 
-   fly -t otto-pipeline-stuff unpause-pipeline -p pdf-producer
+   fly -t local-pipeline-stuff unpause-pipeline -p pdf-producer
 
 6. if pipeline does not work, run:
 
 .. code-block:: bash
 
-   fly -t otto-pipeline-stuff destroy-pipeline -p pdf-producer
+   fly -t local-pipeline-stuff destroy-pipeline -p pdf-producer
 
 and then run:
 
 .. code-block:: bash
 
-   fly -t otto-pipeline-stuff set-pipeline -p pdf-producer -c pipeline.yml
+   fly -t local-pipeline-stuff set-pipeline -p pdf-producer -c pipeline.yml
