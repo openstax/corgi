@@ -31,7 +31,6 @@ services:
         - traefik.enable=true
         - traefik.port=80
         - traefik.tags=${TRAEFIK_TAG}
-        - traefik.docker.network=traefik-public
   frontend:
     deploy:
       labels:
@@ -39,4 +38,3 @@ services:
         - traefik.enable=true
         - traefik.port=80
         - traefik.tags=${TRAEFIK_TAG}
-        - traefik.docker.network=traefik-public
