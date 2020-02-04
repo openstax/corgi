@@ -3,6 +3,11 @@
 # Exit in case of error
 set -e
 
+[ "${DOMAIN}" = '' ] && echo "ERROR: Remember to set DOMAIN=cops-staging.openstax.org" && exit 1
+[ "${TRAEFIK_TAG}" = '' ] && echo "ERROR: Remember to set TRAEFIK_TAG=traefik-staging" && exit 1
+[ "${STACK_NAME}" = '' ] && echo "ERROR: Remember to set STACK_NAME=cops-stag" && exit 1
+[ "${TAG}" = '' ] && echo "WARNING: Using TAG=latest" && sleep 5
+
 DOMAIN=${DOMAIN} \
 TRAEFIK_TAG=${TRAEFIK_TAG} \
 STACK_NAME=${STACK_NAME} \
