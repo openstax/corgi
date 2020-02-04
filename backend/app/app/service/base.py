@@ -25,6 +25,9 @@ class ServiceBase(object):
         return db_session.query(self.schema_model).offset(skip).limit(limit).filter_by(
             **kwargs).all()
 
+    def get_items_order_by(self, db_session: BaseSession, *, skip=0, limit=100, order_by=[]):
+        return db_session.query(self.schema_model).order_by(*order_by).offset(skip).limit(limit).all()
+
     def create(self, db_session: BaseSession, obj_in: BaseModel) -> BaseSchema:
         obj_data = jsonable_encoder(obj_in)
 

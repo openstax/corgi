@@ -14,10 +14,25 @@ router = APIRouter()
 def list_jobs(
         db: Session = Depends(get_db),
         skip: int = 0,
-        limit: int = 100,
+        limit: int = 50,
 ):
-    """List jobs"""
-    jobs = jobs_service.get_items(db, skip=skip, limit=limit)
+    """List jobs - page 0"""
+    return list_job_page(db, 0, limit)
+
+
+@router.get("/pages/{page}", response_model=List[Job])
+def list_job_page(
+        db: Session = Depends(get_db),
+        page: int = 0,
+        limit: int = 50,
+):
+    """List jobs by page"""
+    skip = page * limit
+    order_by = jobs_service.schema_model.created_at.desc()
+    jobs = jobs_service.get_items_order_by(db,
+                                           skip=skip,
+                                           limit=limit,
+                                           order_by=[order_by])
     return jobs
 
 
