@@ -21,7 +21,7 @@ Install docker-auto-labels
 ==========================
 
 The docker-auto-labels package is used to ensure the proper labels are applied to the
-docker swarm nodes. For example, the database should only be running on ``cc1.cnx.org``.
+docker swarm nodes. For example, the database should only be running on ``server1.cops-mvp.openstax.org``.
 This is done by applying a label to that node and adding a constraint to the
 docker-compose file.
 
@@ -83,7 +83,21 @@ Setup terminal window for communicating with docker swarm manager node
 .. code-block:: bash
 
    export STACK_NAME="cops_prod"
-   export STACK_NAME="cops_staging"
+   export STACK_NAME="cops_stag"
+
+* Set an environment variable for the ``TRAEFIK_TAG`` for the specific environment. The ``TRAEFIK_TAG`` is used by Traefik to route requests to the proper service. This is useful for separating out production and staging containers.
+
+.. code-block:: bash
+
+   export TRAEFIK_TAG="traefik-public" 
+   export TRAEFIK_TAG="traefik-staging"
+
+* Set an environment variable for ``TAG`` which represents the tag for the docker image you'll be pushing to repository.
+
+.. code-block:: bash
+
+    export TAG="latest"
+    export TAG="1.1.0"
 
 Build and push new docker images
 ================================
@@ -96,11 +110,11 @@ Build and push new docker images
 
    git checkout master && git pull origin master
 
-* Tag and upload images to dockerhub. This script builds the images with ``no-cache`` so may take several minutes.
+* Tag and upload images to dockerhub. This script builds the images with ``--no-cache`` so may take several minutes.
 
 .. code-block:: bash
 
-   TAG=latest ./scripts/build-push.sh
+   TAG=$TAG ./scripts/build-push.sh
 
 Deploy and Update the stack
 ===========================
@@ -111,7 +125,7 @@ Deploy and Update the stack
 
 .. code-block:: bash
 
-   DOMAIN=$DOMAIN TRAEFIK_TAG=traefik-public STACK_NAME=$STACK_NAME TAG=latest ./scripts/deploy.sh
+   DOMAIN=$DOMAIN TRAEFIK_TAG=$TRAEFIK_TAG STACK_NAME=$STACK_NAME TAG=$TAG ./scripts/deploy.sh
 
 Cleanup
 =======
