@@ -7,7 +7,7 @@ services:
       placement:
         constraints:
           - node.role == manager
-          - node.labels.app-db-data == true
+          - node.labels.${STACK_NAME}.app-db-data == true
   proxy:
     deploy:
       placement:
@@ -17,4 +17,3 @@ services:
 
 volumes:
   app-db-data:
-  traefik-public-certificates:
