@@ -32,11 +32,11 @@ export const getters = {
 
 export const actions = {
   async nuxtServerInit ({ dispatch }, { req }) {
-    await dispatch('getJobs')
+    await dispatch('getJobsForPage', { page: 0, limit: 50 })
     await dispatch('getContentServers')
   },
-  async getJobsForPage ({ commit }, { page }) {
-    const response = await this.$axios.$get(`/api/jobs/pages/${page}`)
+  async getJobsForPage ({ commit }, { page, limit }) {
+    const response = await this.$axios.$get(`/api/jobs/pages/${page}?limit=${limit}`)
     const data = []
     response.forEach(function (item) {
       data.push(flattenObject(item))

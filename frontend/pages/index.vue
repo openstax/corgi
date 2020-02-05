@@ -110,14 +110,23 @@
         <v-text-field
           class="ma-1"
           style="max-width: 100px"
-          label="Jump To"
+          label="Page"
           outlined
           dense
           hide-details
           v-model="goto_page"
         />
+        <v-text-field
+          class="ma-1"
+          style="max-width: 100px"
+          label="Jobs"
+          outlined
+          dense
+          hide-details
+          v-model="goto_page_limit"
+        />
         <v-btn
-          @click="toPage(Math.max(0, parseInt(goto_page) || 0))"
+          @click="doPageGo()"
           class="ma-1"
         >
           Go
@@ -198,7 +207,9 @@ export default {
       contentServerId: null,
       browserReady: false,
       current_page: 0,
-      goto_page: '',
+      goto_page: '0',
+      page_limit: 50,
+      goto_page_limit: '50',
       valid: false,
       collectionRules: [
         v => !!v || 'Collection ID is required',
@@ -255,7 +266,7 @@ export default {
   },
   methods: {
     getJobsImmediate () {
-      this.$store.dispatch('getJobsForPage', { page: this.current_page })
+      this.$store.dispatch('getJobsForPage', { page: this.current_page, limit: this.page_limit })
       console.log('get JOBS now...')
     },
     pollData () {
@@ -284,8 +295,15 @@ export default {
       this.$refs.form.resetValidation()
       this.$refs.form.reset()
     },
+    doPageGo() {
+      this.current_page = Math.max(0, parseInt(this.goto_page) || 0)
+      this.page_limit = Math.max(0, parseInt(this.goto_page_limit) || 0)
+      this.toPage(this.current_page)
+    },
     toPage (number) {
       this.current_page = number
+      this.goto_page = `${this.current_page}`
+      this.goto_page_limit = `${this.page_limit}`
       this.getJobsImmediate()
     },
     clickCollection (collectionId, contentServerId, version, style) {
