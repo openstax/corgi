@@ -108,22 +108,22 @@
           Next Page
         </v-btn>
         <v-text-field
+          v-model="goto_page"
           class="ma-1"
           style="max-width: 100px"
           label="Page"
           outlined
           dense
           hide-details
-          v-model="goto_page"
         />
         <v-text-field
+          v-model="goto_page_limit"
           class="ma-1"
           style="max-width: 100px"
           label="Jobs"
           outlined
           dense
           hide-details
-          v-model="goto_page_limit"
         />
         <v-btn
           @click="doPageGo()"
@@ -295,7 +295,7 @@ export default {
       this.$refs.form.resetValidation()
       this.$refs.form.reset()
     },
-    doPageGo() {
+    doPageGo () {
       this.current_page = Math.max(0, parseInt(this.goto_page) || 0)
       this.page_limit = Math.max(0, parseInt(this.goto_page_limit) || 0)
       this.toPage(this.current_page)
