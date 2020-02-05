@@ -21,12 +21,12 @@ resources:
   - name: output-producer
     type: output-producer
     source:
-      api_root: 'https://cops.openstax.org/api'
+      api_root: 'https://cops-staging.openstax.org/api'
       status_id: 1
   - name: s3
     type: s3
     source:
-      bucket: ce-pdf-spike
+      bucket: ce-cops-staging
       access_key_id: ((aws-sandbox-secret-key-id))
       secret_access_key: ((aws-sandbox-secret-access-key))
       skip_download: true

@@ -1,6 +1,8 @@
 const fs = require('fs')
 const yaml = require('js-yaml')
 
+const env = require(`./env/${process.env.ENV}.json`)
+
 const taskLookUpBook = require('./tasks/look-up-book')
 const taskFetchBook = require('./tasks/fetch-book')
 const taskAssembleBook = require('./tasks/assemble-book')
@@ -53,7 +55,7 @@ const resources = [
     name: 'output-producer',
     type: 'output-producer',
     source: {
-      api_root: 'https://cops.cnx.org/api',
+      api_root: env.COPS_TARGET,
       status_id: 1
     }
   },
@@ -61,9 +63,13 @@ const resources = [
     name: 's3',
     type: 's3',
     source: {
-      bucket: 'ce-pdf-spike',
-      access_key_id: '((aws-sandbox-secret-key-id))',
-      secret_access_key: '((aws-sandbox-secret-access-key))',
+      bucket: env.S3_BUCKET,
+      access_key_id: env.ENV_NAME === 'local'
+        ? env.S3_ACCESS_KEY_ID
+        : '((aws-sandbox-secret-key-id))',
+      secret_access_key: env.ENV_NAME === 'local'
+        ? env.S3_SECRET_ACCESS_KEY
+        : '((aws-sandbox-secret-access-key))',
       skip_download: true
     }
   }

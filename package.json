@@ -1,6 +1,8 @@
 {
   "scripts": {
-    "build": "node ./pipeline.js",
+    "build:prod": "ENV=prod node ./pipeline.js pipeline.yml",
+    "build:staging": "ENV=staging node ./pipeline.js pipeline.staging.yml",
+    "build:local": "ENV=local node ./pipeline.js pipeline.local.yml",
     "lint": "standard ./pipeline.js ./tasks/*"
   },
   "dependencies": {

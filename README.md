@@ -5,9 +5,13 @@
 - Ensure `bakery/` is your working directory.
 - Run `yarn install` or `yarn`.
 
-### Generate a pipeline file
-- Run `yarn build [path/to/output]`
-  
+### Generate a pipeline file for a particular environment
+- Run `yarn build:<env>`
+
+  Available environments: `local`, `staging`, `prod`
+
+  Example: `yarn build:staging`
+
   Note: Directory for output path must exist. If no path argument is given, the pipeline will output to `pipeline.yml` in the current working directory.
 
 ### Development
