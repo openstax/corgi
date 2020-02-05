@@ -99,7 +99,7 @@ jobs:
                 book/version)-${server_name}-$(cat book/job_id).pdf"
                 >book/pdf_filename
 
-                echo -n "https://ce-pdf-spike.s3.amazonaws.com/$(cat
+                echo -n "https://ce-cops-staging.s3.amazonaws.com/$(cat
                 book/pdf_filename)" >book/pdf_url
 
                 if [ ! -f book/name ]

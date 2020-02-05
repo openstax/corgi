@@ -1,23 +1,24 @@
 const dedent = require('dedent')
 
-const task = {
-  task: 'look up book',
-  config: {
-    platform: 'linux',
-    image_resource: {
-      type: 'docker-image',
-      source: {
-        repository: 'openstax/nebuchadnezzar'
-      }
-    },
-    inputs: [{ name: 'output-producer' }, { name: 'cnx-recipes' }],
-    outputs: [{ name: 'book' }],
-    run: {
-      path: '/bin/bash',
-      args: [
-        '-cxe',
-        /* eslint-disable no-template-curly-in-string */
-        dedent`
+const task = ({ bucketName }) => {
+  return {
+    task: 'look up book',
+    config: {
+      platform: 'linux',
+      image_resource: {
+        type: 'docker-image',
+        source: {
+          repository: 'openstax/nebuchadnezzar'
+        }
+      },
+      inputs: [{ name: 'output-producer' }, { name: 'cnx-recipes' }],
+      outputs: [{ name: 'book' }],
+      run: {
+        path: '/bin/bash',
+        args: [
+          '-cxe',
+          /* eslint-disable no-template-curly-in-string */
+          dedent`
           exec 2> >(tee book/stderr >&2)
           tail output-producer/*
           cp output-producer/id book/job_id
@@ -39,7 +40,7 @@ const task = {
             fi
           done
           echo -n "$(cat book/collection_id)-$(cat book/version)-${'${server_name}'}-$(cat book/job_id).pdf" >book/pdf_filename
-          echo -n "https://ce-pdf-spike.s3.amazonaws.com/$(cat book/pdf_filename)" >book/pdf_url
+          echo -n "https://${bucketName}.s3.amazonaws.com/$(cat book/pdf_filename)" >book/pdf_url
           if [ ! -f book/name ]
           then
             set +x
@@ -48,7 +49,8 @@ const task = {
           fi
         `
         /* eslint-enable */
-      ]
+        ]
+      }
     }
   }
 }

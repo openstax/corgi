@@ -26,7 +26,7 @@ resources:
   - name: s3
     type: s3
     source:
-      bucket: ''
+      bucket: my-bucket
       access_key_id: ''
       secret_access_key: ''
       skip_download: true
@@ -99,7 +99,7 @@ jobs:
                 book/version)-${server_name}-$(cat book/job_id).pdf"
                 >book/pdf_filename
 
-                echo -n "https://ce-pdf-spike.s3.amazonaws.com/$(cat
+                echo -n "https://my-bucket.s3.amazonaws.com/$(cat
                 book/pdf_filename)" >book/pdf_url
 
                 if [ ! -f book/name ]

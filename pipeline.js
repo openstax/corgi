@@ -81,7 +81,7 @@ const bakeryJob = {
     { get: 'output-producer', trigger: true, version: 'every' },
     reportToOutputProducer(Status.ASSIGNED),
     { get: 'cnx-recipes' },
-    taskLookUpBook,
+    taskLookUpBook({ bucketName: env.S3_BUCKET }),
     reportToOutputProducer(Status.PROCESSING),
     taskFetchBook,
     taskAssembleBook,
