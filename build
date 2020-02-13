@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+CALLER=$0 node -r ./.pnp.js build.js $@

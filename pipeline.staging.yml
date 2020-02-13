@@ -1,4 +1,3 @@
-
 ########## This is a generated file ##########
 # To generate a pipeline.yml file you
 # can run 'yarn build [path/to/output-file]'
@@ -281,3 +280,4 @@ jobs:
       params:
         id: output-producer/id
         status_id: 4
+

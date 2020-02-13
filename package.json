@@ -1,15 +1,16 @@
 {
   "scripts": {
-    "build:prod": "ENV=prod node ./pipeline.js pipeline.yml",
-    "build:staging": "ENV=staging node ./pipeline.js pipeline.staging.yml",
-    "build:local": "ENV=local node ./pipeline.js pipeline.local.yml",
-    "lint": "standard ./pipeline.js ./tasks/*"
+    "lint": "standard ./src/**/**.js"
   },
   "dependencies": {
     "dedent": "^0.7.0",
-    "js-yaml": "^3.13.1"
+    "js-yaml": "^3.13.1",
+    "yargs": "^15.1.0"
   },
   "devDependencies": {
     "standard": "^14.3.1"
+  },
+  "installConfig": {
+    "pnp": true
   }
 }
