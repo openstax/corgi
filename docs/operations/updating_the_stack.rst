@@ -42,7 +42,7 @@ Setup the SSH tunnel from bastion2 to AWS
 
 .. code-block:: bash
 
-   ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -NL localhost:2377:/var/run/docker.sock ubuntu@cc1.cnx.org -i ~/.ssh/cops.pem
+   ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -NL localhost:2377:/var/run/docker.sock ubuntu@server1.cops-mvp.openstax.org -i ~/.ssh/cops.pem
 
 This command doesn't produce any output unless there is an error. No other commands
 will be typed into this window.
