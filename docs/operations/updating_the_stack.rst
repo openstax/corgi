@@ -114,7 +114,7 @@ Build and push new docker images
 
 .. code-block:: bash
 
-   TAG=$TAG ./scripts/build-push.sh
+   DOMAIN=$DOMAIN TAG=$TAG ./scripts/build-push.sh
 
 Deploy and Update the stack
 ===========================
