@@ -9,16 +9,11 @@ services:
     command: bash -c "while true; do sleep 1; done"
     env_file:
       - env-backend.env
-    environment:
+    environment: &testenv
       - SERVER_NAME=backend
-      - PG_HOST=db
-      - PG_USER=postgres
-      - PG_PASSWORD=
-      - PG_DBNAME=tests
+      - POSTGRES_SERVER=db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=
+      - POSTGRES_DB=tests
   backend:
-    environment:
-      - SERVER_NAME=backend
-      - PG_HOST=db
-      - PG_USER=postgres
-      - PG_PASSWORD=
-      - PG_DBNAME=tests
+    environment: *testenv
