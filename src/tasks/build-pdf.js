@@ -23,7 +23,7 @@ const task = () => {
           '-cxe',
           dedent`
           exec 2> >(tee artifacts/stderr >&2)
-          book_dir="mathified-book/$(cat book/name)"
+          book_dir="mathified-book/$(cat book/collection_id)"
           prince -v --output="artifacts/$(cat book/pdf_filename)" "$book_dir/collection.mathified.xhtml"
         `
         ]

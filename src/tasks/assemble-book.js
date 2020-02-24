@@ -24,7 +24,7 @@ const task = () => {
           exec 2> >(tee assembled-book/stderr >&2)
           cp -r fetched-book/* assembled-book
           cd assembled-book
-          book_dir="../assembled-book/$(cat ../book/name)"
+          book_dir="../assembled-book/$(cat ../book/collection_id)"
           neb assemble "$book_dir/raw" "$book_dir"
         `
         ]

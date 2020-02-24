@@ -24,7 +24,7 @@ const task = () => {
           dedent`
           exec 2> >(tee baked-book/stderr >&2)
           cp -r assembled-book/* baked-book
-          book_dir="baked-book/$(cat book/name)"
+          book_dir="baked-book/$(cat book/collection_id)"
           cnx-easybake -q "cnx-recipes/recipes/output/$(cat book/style).css" "$book_dir/collection.assembled.xhtml" "$book_dir/collection.baked.xhtml"
           style_file="cnx-recipes/styles/output/$(cat book/style)-pdf.css"
           if [ -f "$style_file" ]

@@ -23,7 +23,7 @@ const task = () => {
           dedent`
           exec 2> >(tee mathified-book/stderr >&2)
           cp -r baked-book/* mathified-book
-          book_dir=mathified-book/$(cat book/name)
+          book_dir=mathified-book/$(cat book/collection_id)
           node /src/typeset/start -i "$book_dir/collection.baked.xhtml" -o "$book_dir/collection.mathified.xhtml" -f svg  
         `
         ]

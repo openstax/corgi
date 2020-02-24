@@ -20,7 +20,7 @@ const task = () => {
           dedent`
           exec 2> >(tee fetched-book/stderr >&2)
           cd fetched-book
-          book_dir="$(cat ../book/name)"
+          book_dir="$(cat ../book/collection_id)"
           mkdir -p "$book_dir" ~/.config/
           server="$(cat ../book/server)"
           cat >~/.config/nebuchadnezzar.ini <<EOF
