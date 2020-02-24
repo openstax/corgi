@@ -16,3 +16,10 @@ jobs:
           name: Run integration tests
           command: |
             ./scripts/tests.sh
+      
+      - store_artifacts:
+          path: /tmp/test-results/junit.xml
+          destination: test-reports
+      
+      - store_test_results:
+          path: /tmp/test_results
