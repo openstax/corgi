@@ -7,6 +7,8 @@ services:
       args:
         env: dev
     command: bash -c "while true; do sleep 1; done"
+    volumes:
+      - ~/test-results:/test-results
     env_file:
       - env-backend.env
     environment: &testenv
@@ -15,5 +17,6 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=
       - POSTGRES_DB=tests
+      - TEST_RESULT_PATH=/test-results
   backend:
     environment: *testenv
