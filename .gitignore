@@ -1,1 +1,7 @@
 docker-stack.yml
+
+# Vagrant
+.vagrant/
+
+# Ansible
+*.retry
