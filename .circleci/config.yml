@@ -5,12 +5,12 @@ jobs:
       image: ubuntu-1604:201903-01
     
     environment:
-      TEST_RESULT_PATH: /test-results
+      TEST_RESULT_PATH: ~/test-results
       
     steps:
       - checkout
     
-      - run: mkdir -p $TEST_RESULTS
+      - run: mkdir -p $TEST_RESULT_PATH
       
       - run: 
           name: Run integration tests
