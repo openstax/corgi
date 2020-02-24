@@ -5,3 +5,7 @@ docker-stack.yml
 
 # Ansible
 *.retry
+
+# Test artifacts
+
+junit.xml
