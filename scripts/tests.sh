@@ -8,6 +8,8 @@ if [ $(uname -s) = "Linux" ]; then
     sudo find . -type d -name __pycache__ -exec rm -r {} \+
 fi
 
+TEST_RESULT_PATH=${TEST_RESULT_PATH:-.}
+
 docker-compose \
     -f docker-compose.tests.yml \
     -f docker-compose.shared.admin.yml \
