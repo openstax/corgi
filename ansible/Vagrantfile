@@ -3,7 +3,6 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.box = "bento/ubuntu-18.04"
     config.ssh.insert_key = false
-    config.vm.network :private_network, ip: "192.168.33.33"
 
     config.vm.hostname = "cops"
     config.vm.provider :virtualbox do |v|
