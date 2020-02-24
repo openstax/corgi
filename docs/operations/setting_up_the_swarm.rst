@@ -194,11 +194,12 @@ There are two places you can run this playbook.
    to cops servers in the correct directory.
 2. From ``bastion2`` directly.
 
-See this `guide <https://www.tecmint.com/access-linux-server-using-a-jump-host>`_ 
-to learn how to configure a :term:`JumpHost`.
+See this `guide <https://github.com/openstax/cnx/wiki/Configure-bastion2.cnx.org-as-a-JumpHost>`_ 
+in the `ConEng wiki <https://github.com/openstax/cnx/wiki>`_ to learn how to configure a :term:`JumpHost`.
 
 If you are running from ``bastion2`` you will need to clone down the 
-output-producer-service repository into your home directory and execute the commands.
+`output-producer-service repository <https://github.com/openstax/output-producer-service>`_ 
+into your home directory and execute the commands.
 
 Running the playbook
 --------------------
