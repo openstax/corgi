@@ -13,9 +13,17 @@ class UserBehavior(TaskSet):
         """ login user """
         pass
 
-    @task
-    def getjobs(self):
+    @task(1)
+    def get_jobs(self):
         self.client.get("/api/jobs/")
+
+    @task(1)
+    def get_status(self):
+        self.client.get("/api/status/")
+
+    @task(1)
+    def get_content_servers(self):
+        self.client.get("/api/content-servers/")
 
 class WebsiteUser(HttpLocust):
     task_set = UserBehavior
