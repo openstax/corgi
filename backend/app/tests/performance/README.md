@@ -5,35 +5,24 @@ Load tests for COPS.
 
 **Warning:** Be very careful before testing any production URLs! Speak with your team before doing so.
 
-## Installation
+## Setup
 
-<!-- TODO: Docker or Vagrant install -->
-
-Installation for development purposes:
-
-* Use Python3.
-* Create and activate a virtualenv.
-* Install requirements with `pip install -r requirements.txt`.
+There is a `docker-compose.loadtests.yml` file which can be used to bring up the load testing environment in a stack configuration. You can simply add the file to your invocation of `docker-compose`, and the configuration will add `locust` and `dnsmasq` services to your environment.
 
 ## How to run load tests
 
-To run e.g. the backend jobs load test on localhost use:
-```
-locust -f backendjobs.py --host http://localhost:5001
-```
+[Locust](https://locust.io/) provides a UI that can be used to run backend load tests and view results. The interface can be reached using port `8089` in your browser: [http://localhost:8089](http://localhost:8089)
 
-and open the locust UI in your browser:   
-[http://localhost:8089](http://localhost:8089)
+By default the load test will target the local Docker host service via `http://backend`, but you can modify this URL to target other environments such as staging.
 
-To start a very simple load test set  
-**users** to `100`  
-and  
+To start a very simple load test set
+**users** to `100`
+and
 **hatch** rate to `10`
 
 Start running the load test and see the result in your browser! :)
 
 ## Known issues
 
-* Missing optimized Docker or Vagrant VM
-
-This load tests on your local machine are very simple for development purposes. To run a more demanding "smoke" test 🔥 this load tests need to be run inside an optimized Vagrant VM or Docker with optimized internal network settings and DNS caching (to not load test the DNS query).
+* Load testing non-`GET` requests
+* Distributed load testing
