@@ -1,0 +1,26 @@
+version: 2.0
+jobs:
+  build:
+    machine:
+      image: ubuntu-1604:201903-01
+
+    environment:
+      TEST_RESULTS_DIR: /tmp/test-results
+      TEST_RESULTS: /tmp/test-results/junit.xml
+
+    steps:
+      - checkout
+
+      - run: mkdir -p $TEST_RESULTS_DIR
+
+      - run:
+          name: Run integration tests
+          command: |
+            ./scripts/tests.ci.sh
+
+      - store_artifacts:
+          path: /tmp/test-results/junit.xml
+          destination: test-reports
+
+      - store_test_results:
+          path: /tmp/test-results
