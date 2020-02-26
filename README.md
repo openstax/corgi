@@ -57,7 +57,7 @@ to work while renaming the `/api/events` endpoint to `/api/jobs`
 
 To run the tests execute:
 
-    ./scripts/tests.sh
+    ./scripts/tests.local.sh
 
 ## Clear the database
 
