@@ -1,0 +1,7 @@
+{
+  "ENV_NAME": "local",
+  "COPS_TARGET": "http://backend/api",
+  "S3_BUCKET": "my-bucket",
+  "S3_ACCESS_KEY_ID": "",
+  "S3_SECRET_ACCESS_KEY": ""
+}
