@@ -10,28 +10,19 @@ Objective
 Get familiar with Concourse by setting up the bakery-pipeline locally.
 This is the pipeline which is used under the hood for `Content Output Producer (COPS) <https://cops.openstax.org/>`_
 
-Retrieve Project & Config File
-------------------------------
+Generate a pipeline configuration file
+--------------------------------------
 
-1. Clone repository containing the pipeline configuration file to your local directory:
-
-.. code-block:: bash
-
-   $ git clone git@github.com:openstax/concourse-pipelines.git
-
-2. Change to bakery directory to retrieve the correct pipeline (there are several other pipelines in this repository):
+There is a bakery directory with a ``pipeline.local.yml`` which can be used to configure your local Concourse. Alternatively, if you want to customize some settings (e.g. provide AWS credentials), you can update the corresponding settings in ``bakery/env/local.json`` and generate an updated pipeline configuration:
 
 .. code-block:: bash
 
    $ cd bakery
+   $ ./build pipeline local > pipeline.local.yml
 
-3. Check to see if the pipeline.yml exists in the this directory:
+More details on generating pipeline configurations can be found in ``bakery/README.md``
 
-.. code-block:: bash
-
-   $ ls
-
-You should see pipeline.yml listed. This file is used to configure the pipeline.
+Once generated, you can use the environment specific configuration file as your ``pipeline.yml`` in the subsequent steps.
 
 Setup local concourse server
 ----------------------------

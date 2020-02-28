@@ -54,4 +54,4 @@ Example: `fly -t dev sp -p bakery -c <(./build pipeline staging)`
 
 ### Development
 - There is no test suite in this repo, but a `yarn lint` command is provided to lint your work. This project uses `standard` to lint.
-- Recommended way to verify your work is to go to the `output-producer-service` repository, start the `docker-compose` services in dev mode, and set-pipeline on the included concourse instance with a generated file by this repository.
+- Recommended way to verify your work is to start the `docker-compose` services in dev mode, and set-pipeline on the included concourse instance with a generated file.
