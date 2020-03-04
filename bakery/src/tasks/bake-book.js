@@ -14,6 +14,7 @@ const task = () => {
       inputs: [
         { name: 'book' },
         { name: 'assembled-book' },
+        { name: 'assembled-book-metadata' },
         { name: 'cnx-recipes' }
       ],
       outputs: [{ name: 'baked-book' }],
@@ -24,7 +25,9 @@ const task = () => {
           dedent`
           exec 2> >(tee baked-book/stderr >&2)
           cp -r assembled-book/* baked-book
-          book_dir="baked-book/$(cat book/collection_id)"
+          collection_id="$(cat book/collection_id)"
+          book_dir="baked-book/$collection_id"
+          cp "assembled-book-metadata/$collection_id/collection.assembled-metadata.json" "baked-book/$collection_id/collection.baked-metadata.json"
           cnx-easybake -q "cnx-recipes/recipes/output/$(cat book/style).css" "$book_dir/collection.assembled.xhtml" "$book_dir/collection.baked.xhtml"
           style_file="cnx-recipes/styles/output/$(cat book/style)-pdf.css"
           if [ -f "$style_file" ]
