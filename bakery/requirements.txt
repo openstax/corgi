@@ -1,0 +1,4 @@
+PyICU==1.9.8
+cnx-epub==0.21.0
+cnx-common==1.2.2
+cnx-easybake==1.2.7
