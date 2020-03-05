@@ -1,6 +1,6 @@
 version: 2.0
 jobs:
-  build:
+  integration-test:
     machine:
       image: ubuntu-1604:201903-01
 
@@ -24,3 +24,35 @@ jobs:
 
       - store_test_results:
           path: /tmp/test-results
+
+  bakery-test:
+    docker:
+      - image: openstax/cops-bakery-scripts
+
+    steps:
+      - checkout
+
+      - run:
+          name: Setup test environment
+          command: |
+            mkdir -p /tmp/test-reports
+            pip install pytest
+
+      - run:
+          name: Run bakery scripts tests
+          command: |
+            pytest bakery -vvv --junitxml=/tmp/test-reports/junit.xml
+
+      - store_artifacts:
+          path: /tmp/test-reports/junit.xml
+          destination: test-reports
+
+      - store_test_results:
+          path: /tmp/test-reports
+
+workflows:
+  version: 2
+  run-tests:
+    jobs:
+      - integration-test
+      - bakery-test
