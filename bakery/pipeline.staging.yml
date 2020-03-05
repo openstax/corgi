@@ -147,6 +147,40 @@ jobs:
                 cd assembled-book
                 book_dir="../assembled-book/$(cat ../book/collection_id)"
                 neb assemble "$book_dir/raw" "$book_dir"
+      - task: assemble book metadata
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: openstax/output-producer-bakery
+          inputs:
+            - name: book
+            - name: assembled-book
+          outputs:
+            - name: assembled-book-metadata
+          run:
+            path: /bin/bash
+            args:
+              - '-cxe'
+              - >-
+                exec 2> >(tee assembled-book-metadata/stderr >&2)
+
+                collection_id="$(cat book/collection_id)"
+
+                book_dir="assembled-book/$collection_id"
+
+                target_dir="assembled-book-metadata/$collection_id"
+
+                mkdir "$target_dir"
+
+                cp "$book_dir/collection.assembled.xhtml"
+                "$target_dir/collection.assembled.xhtml"
+
+                cd "$target_dir"
+
+                python /code/scripts/assemble-book-metadata.py
+                collection.assembled.xhtml collection.assembled-metadata.json
       - task: bake book
         config:
           platform: linux
@@ -157,6 +191,7 @@ jobs:
           inputs:
             - name: book
             - name: assembled-book
+            - name: assembled-book-metadata
             - name: cnx-recipes
           outputs:
             - name: baked-book
@@ -169,7 +204,13 @@ jobs:
 
                 cp -r assembled-book/* baked-book
 
-                book_dir="baked-book/$(cat book/collection_id)"
+                collection_id="$(cat book/collection_id)"
+
+                book_dir="baked-book/$collection_id"
+
+                cp
+                "assembled-book-metadata/$collection_id/collection.assembled-metadata.json"
+                "baked-book/$collection_id/collection.baked-metadata.json"
 
                 cnx-easybake -q "cnx-recipes/recipes/output/$(cat
                 book/style).css" "$book_dir/collection.assembled.xhtml"
@@ -185,6 +226,52 @@ jobs:
                 else
                   echo "Warning: Style Not Found" >baked-book/stderr
                 fi
+      - task: disassemble book
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: openstax/output-producer-bakery
+          inputs:
+            - name: book
+            - name: baked-book
+          outputs:
+            - name: disassembled-book
+          run:
+            path: /bin/bash
+            args:
+              - '-cxe'
+              - |-
+                exec 2> >(tee disassembled-book/stderr >&2)
+                cp -r baked-book/* disassembled-book
+                book_dir="disassembled-book/$(cat book/collection_id)"
+                mkdir "$book_dir/disassembled"
+                python /code/scripts/disassemble-book.py "$book_dir"
+      - task: jsonify book
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: openstax/output-producer-bakery
+          inputs:
+            - name: book
+            - name: disassembled-book
+          outputs:
+            - name: jsonified-book
+          run:
+            path: /bin/bash
+            args:
+              - '-cxe'
+              - |-
+                exec 2> >(tee jsonified-book/stderr >&2)
+                cp -r disassembled-book/* jsonified-book
+                collection_id="$(cat book/collection_id)"
+                book_dir="jsonified-book/$collection_id/disassembled"
+                target_dir="jsonified-book/$collection_id/jsonified"
+                mkdir "$target_dir"
+                python /code/scripts/jsonify-book.py "$book_dir" "$target_dir"
       - task: mathify book
         config:
           platform: linux
