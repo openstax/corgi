@@ -8,7 +8,7 @@ const task = () => {
       image_resource: {
         type: 'docker-image',
         source: {
-          repository: 'openstax/output-producer-bakery'
+          repository: 'openstax/cops-bakery-scripts'
         }
       },
       inputs: [
