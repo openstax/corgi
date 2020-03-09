@@ -53,5 +53,6 @@ Use process substitution!
 Example: `fly -t dev sp -p bakery -c <(./build pipeline staging)`
 
 ### Development
-- There is no test suite in this repo, but a `yarn lint` command is provided to lint your work. This project uses `standard` to lint.
+- There is no test suite in this repo for tasks, but a `yarn lint` command is provided to lint your work. This project uses `standard` to lint.
 - Recommended way to verify your work is to start the `docker-compose` services in dev mode, and set-pipeline on the included concourse instance with a generated file.
+- There are basic tests for the Python scripts used in some of the bakery tasks in `bakery/src/tests` which can be run using `pytest bakery`
