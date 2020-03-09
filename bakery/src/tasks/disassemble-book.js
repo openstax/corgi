@@ -13,7 +13,8 @@ const task = () => {
       },
       inputs: [
         { name: 'book' },
-        { name: 'baked-book' }
+        { name: 'baked-book' },
+        { name: 'baked-book-metadata'}
       ],
       outputs: [{ name: 'disassembled-book' }],
       run: {
@@ -22,8 +23,10 @@ const task = () => {
           '-cxe',
           dedent`
           exec 2> >(tee disassembled-book/stderr >&2)
+          collection_id="$(cat book/collection_id)"
           cp -r baked-book/* disassembled-book
-          book_dir="disassembled-book/$(cat book/collection_id)"
+          cp "baked-book-metadata/$collection_id/collection.baked-metadata.json" "disassembled-book/$collection_id/collection.baked-metadata.json"
+          book_dir="disassembled-book/$collection_id"
           mkdir "$book_dir/disassembled"
           python /code/scripts/disassemble-book.py "$book_dir"
         `
