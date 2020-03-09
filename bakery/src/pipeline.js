@@ -39,10 +39,7 @@ module.exports.handler = argv => {
   const taskLookUpBook = require('./tasks/look-up-book')
   const taskFetchBook = require('./tasks/fetch-book')
   const taskAssembleBook = require('./tasks/assemble-book')
-  const taskAssembleBookMetadata = require('./tasks/assemble-book-metadata')
   const taskBakeBook = require('./tasks/bake-book')
-  const taskDisassembleBook = require('./tasks/disassemble-book')
-  const taskJsonifyBook = require('./tasks/jsonify-book')
   const taskMathifyBook = require('./tasks/mathify-book')
   const taskBuildPdf = require('./tasks/build-pdf')
 
@@ -119,10 +116,7 @@ module.exports.handler = argv => {
       reportToOutputProducer(Status.PROCESSING),
       taskFetchBook(),
       taskAssembleBook(),
-      taskAssembleBookMetadata(),
       taskBakeBook(),
-      taskDisassembleBook(),
-      taskJsonifyBook(),
       taskMathifyBook(),
       taskBuildPdf(),
       {
