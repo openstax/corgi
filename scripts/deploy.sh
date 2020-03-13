@@ -23,6 +23,7 @@ docker-compose \
 -f docker-compose.deploy.networks.yml \
 -f docker-compose.deploy.volumes-placement.yml \
 -f docker-compose.deploy.settings.yml \
+-f docker-compose.deploy.logging.yml \
 config > docker-stack.yml
 
 docker-auto-labels docker-stack.yml
