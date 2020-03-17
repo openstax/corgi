@@ -3,11 +3,11 @@ const path = require('path')
 const yaml = require('js-yaml')
 
 const envDir = path.resolve(__dirname, '../env')
-const commandUsage = 'pipeline <env> [options]...'
+const commandUsage = 'pdf-pipeline <env> [options]...'
 
 module.exports.command = commandUsage
 module.exports.aliases = ['p']
-module.exports.describe = 'builds the full bakery pipeline'
+module.exports.describe = 'builds the full bakery pipeline to produce pdf files'
 module.exports.builder = yargs => {
   yargs.usage(`Usage: ${process.env.CALLER || 'build.js'} ${commandUsage}`)
   yargs.positional('env', {
