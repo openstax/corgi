@@ -1,6 +1,6 @@
 const dedent = require('dedent')
 
-const task = ({ bucketName }) => {
+const task = () => {
   return {
     task: 'look up book',
     config: {
@@ -28,8 +28,6 @@ const task = ({ bucketName }) => {
           cp output-producer/content_server book/server
           wget -q -O jq 'https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64' && chmod +x jq
           server_name="$(cat output-producer/job.json | ./jq -r '.content_server.name')"
-          echo -n "$(cat book/collection_id)-$(cat book/version)-${'${server_name}'}-$(cat book/job_id).pdf" >book/pdf_filename
-          echo -n "https://${bucketName}.s3.amazonaws.com/$(cat book/pdf_filename)" >book/pdf_url
         `
         /* eslint-enable */
         ]
