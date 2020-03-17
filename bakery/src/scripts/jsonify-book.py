@@ -22,3 +22,6 @@ for path in files:
 
     with open(f"{out_dir}/{path}.json", 'w') as outfile:
         json.dump(json_data, outfile)
+
+    with open(f"{out_dir}/{path}.xhtml", 'w') as outfile:
+        outfile.write(json_data["content"])
