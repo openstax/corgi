@@ -63,6 +63,7 @@ def test_disassemble_book(tmp_path):
     disassemble_book_script = os.path.join(SCRIPT_DIR, "disassemble-book.py")
     input_baked_xhtml = os.path.join(TEST_DATA_DIR, "collection.baked.xhtml")
     input_baked_metadata = os.path.join(TEST_DATA_DIR, "collection.baked-metadata.json")
+    input_baked_collection_id = os.path.join(TEST_DATA_DIR, "collection_id")
 
     input_dir = tmp_path / "book"
     input_dir.mkdir()
@@ -71,6 +72,7 @@ def test_disassemble_book(tmp_path):
     input_baked_xhtml_file.write_bytes(open(input_baked_xhtml, "rb").read())
     input_baked_metadata_file = input_dir / "collection.baked-metadata.json"
     input_baked_metadata_file.write_text(open(input_baked_metadata, "r").read())
+    collection_id = open(input_baked_collection_id, "r").read()
 
     disassembled_output = input_dir / "disassembled"
     disassembled_output.mkdir()
@@ -79,16 +81,17 @@ def test_disassemble_book(tmp_path):
         [
             "python",
             disassemble_book_script,
-            input_dir
+            input_dir,
+            collection_id
         ],
         cwd=HERE,
         check=True
     )
 
-    xhtml_output_files = glob(f"{disassembled_output}/m42*.xhtml")
-    assert len(xhtml_output_files) == 2
+    xhtml_output_files = glob(f"{disassembled_output}/*.xhtml")
+    assert len(xhtml_output_files) == 3
     json_output_files = glob(f"{disassembled_output}/*-metadata.json")
-    assert len(json_output_files) == 2
+    assert len(json_output_files) == 3
 
     # Check for expected files and metadata that should be generated in this step
     json_output_m42119 = disassembled_output / "m42119@1.6-metadata.json"
@@ -116,6 +119,7 @@ def test_disassemble_book_empy_baked_metadata(tmp_path):
     """
     disassemble_book_script = os.path.join(SCRIPT_DIR, "disassemble-book.py")
     input_baked_xhtml = os.path.join(TEST_DATA_DIR, "collection.baked.xhtml")
+    input_baked_collection_id = os.path.join(TEST_DATA_DIR, "collection_id")
 
     input_dir = tmp_path / "book"
     input_dir.mkdir()
@@ -123,6 +127,7 @@ def test_disassemble_book_empy_baked_metadata(tmp_path):
     input_baked_xhtml_file = input_dir / "collection.baked.xhtml"
     input_baked_xhtml_file.write_bytes(open(input_baked_xhtml, "rb").read())
     input_baked_metadata_file = input_dir / "collection.baked-metadata.json"
+    collection_id = open(input_baked_collection_id, "r").read()
     input_baked_metadata_file.write_text(json.dumps({}))
 
     disassembled_output = input_dir / "disassembled"
@@ -132,7 +137,8 @@ def test_disassemble_book_empy_baked_metadata(tmp_path):
         [
             "python",
             disassemble_book_script,
-            input_dir
+            input_dir,
+            collection_id
         ],
         cwd=HERE,
         check=True
@@ -168,3 +174,29 @@ def test_assemble_book(tmp_path):
     assert assembled_metadata["m42119@1.6"]["abstract"] is None
     assert "Explain the difference between a model and a theory" in \
         assembled_metadata["m42092@1.10"]["abstract"]
+
+def test_bake_book(tmp_path):
+    """Test basic input / output for bake-book script"""
+    bake_book_script = os.path.join(SCRIPT_DIR, "bake-book-metadata.py")
+    input_raw_metadata = os.path.join(TEST_DATA_DIR, "collection.assembled-metadata.json")
+    input_baked_xhtml = os.path.join(TEST_DATA_DIR, "collection.baked.xhtml")
+    output_baked_book_metadata = tmp_path / "collection.toc-metadata.json"
+    input_baked_collection_id = os.path.join(TEST_DATA_DIR, "collection_id")
+    collection_id = open(input_baked_collection_id, "r").read().strip()
+
+    subprocess.run(
+        [
+            "python",
+            bake_book_script,
+            input_raw_metadata,
+            input_baked_xhtml,
+            output_baked_book_metadata
+        ],
+        cwd=HERE,
+        check=True
+    )
+
+    baked_metadata = json.loads(output_baked_book_metadata.read_text())
+    assert baked_metadata[collection_id]["legacy_id"] is not None
+    assert "College Physics" in \
+        baked_metadata[collection_id]["title"]
