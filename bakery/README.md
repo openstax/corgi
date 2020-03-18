@@ -36,7 +36,7 @@ The choices for `<env>` are the basenames of the `.json` files in the `env/` dir
 
 Examples:
 - `./build pdf-pipeline prod` -> Build the pipeline with prod environment variables and output on stdout.
-- `./build pdf-pipeline staging -o pipeline.staging.yml` -> Build the pipeline with staging environment variables and output to file `pipeline.staging.yml`, overwriting the file if it exists.
+- `./build pdf-pipeline staging -o pdf-pipeline.staging.yml` -> Build the pipeline with staging environment variables and output to file `pdf-pipeline.staging.yml`, overwriting the file if it exists.
 
 ### Generate a standalone task file suitable for `fly execute`
 Run `./build task <taskname> [options]...`
