@@ -190,13 +190,14 @@ def test_bake_book(tmp_path):
             bake_book_script,
             input_raw_metadata,
             input_baked_xhtml,
-            output_baked_book_metadata
+            output_baked_book_metadata,
+            collection_id
         ],
         cwd=HERE,
         check=True
     )
 
     baked_metadata = json.loads(output_baked_book_metadata.read_text())
-    assert baked_metadata[collection_id]["legacy_id"] is not None
+    assert baked_metadata[collection_id]["legacy_id"] == 'col11406'
     assert "College Physics" in \
         baked_metadata[collection_id]["title"]

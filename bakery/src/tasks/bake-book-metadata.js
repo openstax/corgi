@@ -30,7 +30,7 @@ const task = () => {
           cp "$book_dir/collection.baked.xhtml" "$target_dir/collection.baked.xhtml"
           cp "assembled-book-metadata/$collection_id/collection.assembled-metadata.json" "$target_dir/collection.assembled-metadata.json"
           cd "$target_dir"
-          python /code/scripts/bake-book-metadata.py collection.assembled-metadata.json collection.baked.xhtml collection.baked-metadata.json
+          python /code/scripts/bake-book-metadata.py collection.assembled-metadata.json collection.baked.xhtml collection.baked-metadata.json "$collection_id"
           `
         ]
       }
