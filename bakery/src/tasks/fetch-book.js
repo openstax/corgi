@@ -28,7 +28,7 @@ const task = () => {
           [environ-$server]
           url = https://$server
           EOF
-          yes | neb get -r -d "$book_dir/raw" "$(cat ../book/server)" "$(cat ../book/collection_id)" "$(cat ../book/version)"
+          yes | neb get -r -m -d "$book_dir/raw" "$(cat ../book/server)" "$(cat ../book/collection_id)" "$(cat ../book/version)"
         `
         ]
       }
