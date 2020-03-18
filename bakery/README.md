@@ -12,7 +12,6 @@ This project uses Yarn PnP.
 
 Commands:
   build.js pdf-pipeline <env> [options]... builds the full bakery pipeline to produce a pdf                         [aliases: p]
-  build.js distribution-pipeline <env> [options]... builds the full bakery pipeline to produce distribution files   [aliases: d]
   build.js task <taskname> [options]...  builds a bakery pipeline task runnable with fly execute                    [aliases: t]
 
 Options:
