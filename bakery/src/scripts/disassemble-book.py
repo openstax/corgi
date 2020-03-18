@@ -48,6 +48,7 @@ def main():
     """Main function"""
     in_dir = Path(sys.argv[1]).resolve(strict=True)
     out_dir = (in_dir / "disassembled").resolve(strict=True)
+    collection_id = sys.argv[2]
     baked_file = (in_dir / "collection.baked.xhtml").resolve(strict=True)
     baked_metdata_file = (in_dir / "collection.baked-metadata.json").resolve(strict=True)
 
@@ -73,6 +74,10 @@ def main():
 
     with open(baked_metdata_file, "r") as baked_json:
         baked_metadata = json.load(baked_json)
+        book_toc_metadata = baked_metadata.get(collection_id)
+
+    with open(f"{out_dir}/collection.toc-metadata.json", "w") as toc_json:
+        json.dump(book_toc_metadata, toc_json)
 
     for doc in flatten_to(binder, lambda d: isinstance(d, Document)):
         with open(f"{out_dir / doc.ident_hash}.xhtml", "wb") as out:

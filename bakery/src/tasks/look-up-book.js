@@ -28,6 +28,7 @@ const task = () => {
           cp output-producer/content_server book/server
           wget -q -O jq 'https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64' && chmod +x jq
           server_name="$(cat output-producer/job.json | ./jq -r '.content_server.name')"
+          echo "$server_name" >book/server_name
         `
         /* eslint-enable */
         ]

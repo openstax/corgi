@@ -43,6 +43,7 @@ module.exports.handler = argv => {
   const taskBakeBook = require('./tasks/bake-book')
   const taskBakeBookMeta = require('./tasks/bake-book-metadata')
   const taskDisassembleBook = require('./tasks/disassemble-book')
+  const taskJsonifyBook = require('./tasks/jsonify-book')
 
   // FIXME: This mapping should be in the COPS resource
   const Status = Object.freeze({
@@ -99,18 +100,17 @@ module.exports.handler = argv => {
       { get: 'output-producer', trigger: true, version: 'every' },
       reportToOutputProducer(Status.ASSIGNED),
       { get: 'cnx-recipes' },
-      taskLookUpBook({ bucketName: env.S3_BUCKET }),
+      taskLookUpBook(),
       reportToOutputProducer(Status.PROCESSING),
       taskFetchBook(),
       taskAssembleBook(),
       taskAssembleBookMeta(),
       taskBakeBook(),
       taskBakeBookMeta(),
-      taskDisassembleBook()
+      taskDisassembleBook(),
+      taskJsonifyBook()
     ],
-    on_success: reportToOutputProducer(Status.SUCCEEDED, {
-      pdf_url: 'book/distribution_message'
-    }),
+    on_success: reportToOutputProducer(Status.SUCCEEDED),
     on_failure: reportToOutputProducer(Status.FAILED),
     // TODO: Uncomment this when upgrading to concourse >=5.0.1
     // on_error: reportToOutputProducer(Status.FAILED),

@@ -13,6 +13,7 @@ const task = () => {
       },
       inputs: [
         { name: 'book' },
+        { name: 'baked-book' },
         { name: 'assembled-book-metadata' }
       ],
       outputs: [{ name: 'baked-book-metadata' }],
@@ -25,11 +26,11 @@ const task = () => {
           collection_id="$(cat book/collection_id)"
           book_dir="baked-book/$collection_id"
           target_dir="baked-book-metadata/$collection_id"
-          mkdir "$target_dir" 
-          cp "$book_dir/collection.baked.xhtml" "$target_dir/collection.baked.xhtml" 
-          cp "assembled-book-metadata/$collection_id/collection.assembled-metadata.json" "$target_dir/collection.baked-metadata.json"
+          mkdir "$target_dir"
+          cp "$book_dir/collection.baked.xhtml" "$target_dir/collection.baked.xhtml"
+          cp "assembled-book-metadata/$collection_id/collection.assembled-metadata.json" "$target_dir/collection.assembled-metadata.json"
           cd "$target_dir"
-          python /code/scripts/bake-book-metadata.py collection.baked.xhtml collection.baked-metadata.json
+          python /code/scripts/bake-book-metadata.py collection.assembled-metadata.json collection.baked.xhtml collection.baked-metadata.json
           `
         ]
       }
