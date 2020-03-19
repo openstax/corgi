@@ -3,11 +3,11 @@ const path = require('path')
 const yaml = require('js-yaml')
 
 const envDir = path.resolve(__dirname, '../env')
-const commandUsage = 'pipeline <env> [options]...'
+const commandUsage = 'pdf-pipeline <env> [options]...'
 
 module.exports.command = commandUsage
 module.exports.aliases = ['p']
-module.exports.describe = 'builds the full bakery pipeline'
+module.exports.describe = 'builds the full bakery pipeline to produce a pdf'
 module.exports.builder = yargs => {
   yargs.usage(`Usage: ${process.env.CALLER || 'build.js'} ${commandUsage}`)
   yargs.positional('env', {
@@ -112,13 +112,13 @@ module.exports.handler = argv => {
       { get: 'output-producer', trigger: true, version: 'every' },
       reportToOutputProducer(Status.ASSIGNED),
       { get: 'cnx-recipes' },
-      taskLookUpBook({ bucketName: env.S3_BUCKET }),
+      taskLookUpBook(),
       reportToOutputProducer(Status.PROCESSING),
       taskFetchBook(),
       taskAssembleBook(),
       taskBakeBook(),
       taskMathifyBook(),
-      taskBuildPdf(),
+      taskBuildPdf({ bucketName: env.S3_BUCKET }),
       {
         put: 's3',
         params: {
@@ -129,7 +129,7 @@ module.exports.handler = argv => {
       }
     ],
     on_success: reportToOutputProducer(Status.SUCCEEDED, {
-      pdf_url: 'book/pdf_url'
+      pdf_url: 'artifacts/pdf_url'
     }),
     on_failure: reportToOutputProducer(Status.FAILED),
     // TODO: Uncomment this when upgrading to concourse >=5.0.1

@@ -1,4 +1,11 @@
 {
+    "col11406": {
+        "title" : "College Physics",
+        "legacy_id" : "col11406",
+        "license" : {
+            "url": "http://creativecommons.org/licenses/by/4.0/"
+        }
+    },
     "m42119@1.6": {
         "abstract": null
     },

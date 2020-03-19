@@ -1,6 +1,6 @@
 const dedent = require('dedent')
 
-const task = () => {
+const task = ({ bucketName }) => {
   return {
     task: 'build pdf',
     config: {
@@ -24,7 +24,9 @@ const task = () => {
           dedent`
           exec 2> >(tee artifacts/stderr >&2)
           book_dir="mathified-book/$(cat book/collection_id)"
-          prince -v --output="artifacts/$(cat book/pdf_filename)" "$book_dir/collection.mathified.xhtml"
+          pdf_filename="$(cat book/collection_id)-$(cat book/version)-$(cat book/server_name)-$(cat book/job_id).pdf"
+          echo -n "https://${bucketName}.s3.amazonaws.com/$pdf_filename)" >artifacts/pdf_url
+          prince -v --output="artifacts/$pdf_filename" "$book_dir/collection.mathified.xhtml"
         `
         ]
       }
