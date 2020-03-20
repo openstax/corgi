@@ -14,7 +14,7 @@ const task = () => {
       inputs: [
         { name: 'book' },
         { name: 'baked-book' },
-        { name: 'baked-book-metadata'}
+        { name: 'baked-book-metadata' }
       ],
       outputs: [{ name: 'disassembled-book' }],
       run: {
