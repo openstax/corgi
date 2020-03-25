@@ -6,3 +6,6 @@ services:
   docs:
     volumes:
       - .:/app
+  backend-tests:
+    volumes:
+      - ./backend/app:/app

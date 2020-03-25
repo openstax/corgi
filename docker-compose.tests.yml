@@ -3,7 +3,7 @@ services:
   backend-tests:
     build:
       context: ./backend
-      dockerfile: backend.dockerfile
+      dockerfile: backend.tests.dockerfile
       args:
         env: dev
     volumes:
