@@ -7,6 +7,7 @@ ENDPOINT = "jobs"
 
 
 # FIXME: Database should be populated with test data.
+@pytest.mark.integration
 @pytest.mark.nondestructive
 def test_jobs_get_request(api_url):
     # GIVEN: An api url to the jobs endpoint
@@ -19,6 +20,7 @@ def test_jobs_get_request(api_url):
     assert response.json() == []
 
 
+@pytest.mark.integration
 def test_jobs_post_request_successful(api_url):
     # GIVEN: An api url to the jobs endpoint
     # AND: Data for job is ready to be submitted.

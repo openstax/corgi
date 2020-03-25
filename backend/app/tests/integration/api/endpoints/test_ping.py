@@ -1,8 +1,10 @@
+import pytest
 import requests
 
 ENDPOINT = "ping"
 
-
+@pytest.mark.integration
+@pytest.mark.nondestructive
 def test_ping_get_request(api_url):
     # GIVEN: An api url to the ping endpoint
     url = f"{api_url}/{ENDPOINT}"
