@@ -1,11 +1,13 @@
 import json
 
+import pytest
 import requests
 
 ENDPOINT = "jobs"
 
 
 # FIXME: Database should be populated with test data.
+@pytest.mark.nondestructive
 def test_jobs_get_request(api_url):
     # GIVEN: An api url to the jobs endpoint
     url = f"{api_url}/{ENDPOINT}"
