@@ -4,6 +4,7 @@ backcall==0.1.0
 bleach==3.1.1
 certifi==2019.11.28
 chardet==3.0.4
+chromedriver-binary==79.0.3945.36.0
 decorator==4.4.1
 defusedxml==0.6.0
 entrypoints==0.3
@@ -38,8 +39,10 @@ ptyprocess==0.6.0
 py==1.8.0
 Pygments==2.5.2
 pyparsing==2.4.5
+pypom==2.2.0
 pyrsistent==0.15.6
 pytest==5.3.1
+pytest-selenium==1.17.0
 python-dateutil==2.8.1
 pyzmq==18.1.1
 requests==2.22.0
