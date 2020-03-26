@@ -34,11 +34,13 @@ class Home(Page):
 
     class CreatePDFModal(Region):
         _modal_cancel_button_locator = (
-            By.CSS_SELECTOR, '#app > div.v-dialog__content.v-dialog__content--active > div > div > div.v-card__actions > button:nth-child(2) > span'
+            By.CSS_SELECTOR, '#app > div.v-dialog__content.v-dialog__content--active > div > div > '
+                             'div.v-card__actions > button:nth-child(2) > span '
         )
         _modal_create_job_button_locator = (
             By.CSS_SELECTOR,
-            '#app > div.v-dialog__content.v-dialog__content--active > div > div > div.v-card__actions > button:nth-child(3) > span'
+            '#app > div.v-dialog__content.v-dialog__content--active > div > div > div.v-card__actions > '
+            'button:nth-child(3) > span '
         )
 
         def click_cancel_button(self):
