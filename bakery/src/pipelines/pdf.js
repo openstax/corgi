@@ -2,47 +2,15 @@ const fs = require('fs')
 const path = require('path')
 const yaml = require('js-yaml')
 
-const envDir = path.resolve(__dirname, '../env')
-const commandUsage = 'pdf-pipeline <env> [options]...'
 
-module.exports.command = commandUsage
-module.exports.aliases = ['p']
-module.exports.describe = 'builds the full bakery pipeline to produce a pdf'
-module.exports.builder = yargs => {
-  yargs.usage(`Usage: ${process.env.CALLER || 'build.js'} ${commandUsage}`)
-  yargs.positional('env', {
-    describe: 'name of environment',
-    choices: fs.readdirSync(envDir).map(file => path.basename(file, '.json')),
-    type: 'string'
-  }).option('output', {
-    alias: ['o'],
-    describe: 'path to output file',
-    defaultDescription: 'stdout',
-    normalize: true,
-    requiresArg: true,
-    type: 'string'
-  })
-}
-module.exports.handler = argv => {
-  const env = (() => {
-    const envFilePath = path.resolve(envDir, `${argv.env}.json`)
-    try {
-      return require(envFilePath)
-    } catch {
-      throw new Error(`Could not find environment file: ${envFilePath}`)
-    }
-  })()
-  const outputFile = argv.output == null
-    ? undefined
-    : path.resolve(argv.output)
-
-  const taskLookUpBook = require('./tasks/look-up-book')
-  const taskFetchBook = require('./tasks/fetch-book')
-  const taskAssembleBook = require('./tasks/assemble-book')
-  const taskBakeBook = require('./tasks/bake-book')
-  const taskMathifyBook = require('./tasks/mathify-book')
-  const taskBuildPdf = require('./tasks/build-pdf')
-
+const pipeline = (env) => {
+  const taskLookUpBook = require('../tasks/look-up-book')
+  const taskFetchBook = require('../tasks/fetch-book')
+  const taskAssembleBook = require('../tasks/assemble-book')
+  const taskBakeBook = require('../tasks/bake-book')
+  const taskMathifyBook = require('../tasks/mathify-book')
+  const taskBuildPdf = require('../tasks/build-pdf')
+  
   // FIXME: This mapping should be in the COPS resource
   const Status = Object.freeze({
     QUEUED: 1,
@@ -137,18 +105,13 @@ module.exports.handler = argv => {
     on_abort: reportToOutputProducer(Status.FAILED)
   }
 
-  const config = {
-    resource_types: resourceTypes,
-    resources: resources,
-    jobs: [bakeryJob]
-  }
-
-  const forward = fs.readFileSync(path.resolve(__dirname, 'forward.yml'), { encoding: 'utf8' })
-  const output = forward + yaml.safeDump(config)
-
-  if (outputFile) {
-    fs.writeFileSync(outputFile, output)
-  } else {
-    console.log(output)
+  return {
+    config:{
+      resource_types: resourceTypes,
+      resources: resources,
+      jobs: [bakeryJob]
+    }
   }
 }
+
+module.exports = pipeline
