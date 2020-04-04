@@ -23,6 +23,10 @@ class Home(Page):
     def create_pdf_modal_is_open(self):
         return self.is_element_displayed(*self._pdf_job_form_modal_locator)
 
+    @property
+    def create_pdf_modal_is_closed(self):
+        return self.is_element_displayed(*self._create_new_pdf_button_locator)
+
     def click_create_new_pdf_button(self):
         self.find_element(*self._create_new_pdf_button_locator).click()
         self.wait.until(lambda _: self.create_pdf_modal_is_open)
