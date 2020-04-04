@@ -31,3 +31,21 @@ def test_create_pdf_job_modal_form_opens_and_closes(selenium, base_url):
 
     modal.click_cancel_button()
     assert home.create_pdf_modal_is_closed
+
+
+@pytest.mark.ui
+@pytest.mark.nondestructive
+def test_create_pdf_job_modal_form_remains_open_when_data_fields_empty(selenium, base_url):
+    # GIVEN: Selenium driver and the base url
+
+    # WHEN: The Home page is fully loaded
+    # AND: The create new pdf button is clicked
+    home = Home(selenium, base_url).open()
+    modal = home.click_create_new_pdf_button()
+
+    # THEN: The create new pdf modal opens
+    # AND:  The modal stays open when data fields are empty and create button is clicked
+    assert home.create_pdf_modal_is_open
+
+    modal.click_create_job_button()
+    assert home.create_pdf_modal_is_open
