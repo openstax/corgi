@@ -23,5 +23,5 @@ docker-compose -f docker-stack.yml exec backend-tests wait-for-it -t 10 db:5432
 docker-compose -f docker-stack.yml exec db psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS tests"
 docker-compose -f docker-stack.yml exec db psql -h db -d postgres -U postgres -c "CREATE DATABASE tests ENCODING 'UTF8'"
 docker-compose -f docker-stack.yml exec backend-tests wait-for-it -t 10 backend:80
-docker-compose -f docker-stack.yml exec -T backend-tests pytest ./tests -vvv --junitxml="${TEST_RESULTS}"
+docker-compose -f docker-stack.yml exec -T backend-tests pytest ./tests -vvv -m "ui or integration" --junitxml="${TEST_RESULTS}" --driver Chrome --base-url http://frontend --headless
 docker-compose -f docker-stack.yml down -v --remove-orphans
