@@ -8,6 +8,7 @@ services:
         env: dev
     volumes:
       - /tmp/test-results:/tmp/test-results
+      - ./backend/app:/app
     ports:
       - '5900'
     command: bash -c "while true; do sleep 1; done"
