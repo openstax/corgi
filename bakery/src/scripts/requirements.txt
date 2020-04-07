@@ -3,3 +3,4 @@ cnx-epub==0.21.0
 cnx-common==1.2.2
 cnx-easybake==1.2.7
 awscli==1.18.18
+python-magic==0.4.15
