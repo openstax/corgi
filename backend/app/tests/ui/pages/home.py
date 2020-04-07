@@ -29,4 +29,10 @@ class Home(Page):
         return self.CreatePDFModal(self, self.find_element(*self._pdf_job_form_modal_locator))
 
     class CreatePDFModal(Region):
-        pass
+        _modal_cancel_button_locator = (
+            By.CSS_SELECTOR, '#app > div.v-dialog__content.v-dialog__content--active > div > div > div.v-card__actions > button:nth-child(2) > span'
+        )
+
+        def click_cancel_button(self):
+            self.find_element(*self._modal_cancel_button_locator).click()
+            return self
