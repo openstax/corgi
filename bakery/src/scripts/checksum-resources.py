@@ -82,7 +82,7 @@ def generate_checksum_resources_from_xhtml(filename, output_dir):
         img_filename = node.attrib['href']
 
         # fix a @href links to module_name directories
-        # they are pointing relatively ./image.jpg but need to point to ./m123/image.jpg
+        # they are pointing relatively to ./image.jpg but need to point to ./m123/image.jpg
         img_filename = os.path.join(source_path, module_name, img_filename)
 
         sha1 = get_checksum(img_filename)
