@@ -9,11 +9,11 @@ echo "Test results will be saved in: ${TEST_RESULTS}"
 
 DOMAIN=backend \
 docker-compose \
-    -f docker-compose.tests.yml \
     -f docker-compose.shared.base-images.yml \
     -f docker-compose.shared.depends.yml \
     -f docker-compose.shared.env.yml \
     -f docker-compose.deploy.build.yml \
+    -f docker-compose.tests.yml \
     config > docker-stack.yml
 
 docker-compose -f docker-stack.yml build

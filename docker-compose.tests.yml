@@ -19,3 +19,8 @@ services:
       - POSTGRES_DB=tests
   backend:
     environment: *testenv
+  frontend:
+    build:
+      args:
+        API_URL: http://${DOMAIN}
+        API_URL_BROWSER: http://${DOMAIN}
