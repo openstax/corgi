@@ -3,11 +3,13 @@ services:
   backend-tests:
     build:
       context: ./backend
-      dockerfile: backend.dockerfile
+      dockerfile: tests.dockerfile
       args:
         env: dev
     volumes:
       - /tmp/test-results:/tmp/test-results
+    ports:
+      - '5900'
     command: bash -c "while true; do sleep 1; done"
     env_file:
       - env-backend.env
