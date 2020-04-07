@@ -7,7 +7,6 @@ from pathlib import Path
 from lxml import etree
 
 BUF_SIZE = 65536  # read files in 64kb chunks, faster.
-OUTPUT_DIR = 'checksum'
 RESOURCES_DIR = 'resources'
 
 # https://stackoverflow.com/a/22058673/756056
@@ -109,7 +108,7 @@ def mkdir_resources(path):
 def main():
     """Main function"""
     in_dir = Path(sys.argv[1]).resolve(strict=True)
-    out_dir = (in_dir / OUTPUT_DIR).resolve(strict=False)
+    out_dir = in_dir # overwrite baked book xhtml files
     mkdir_resources(out_dir)
     for xhtml_file in Path(in_dir).glob('*.xhtml'):
         generate_checksum_resources_from_xhtml(str(xhtml_file), out_dir)
