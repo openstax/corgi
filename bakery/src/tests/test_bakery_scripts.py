@@ -198,6 +198,9 @@ def test_bake_book(tmp_path):
     )
 
     baked_metadata = json.loads(output_baked_book_metadata.read_text())
+
+    assert isinstance(baked_metadata[collection_id]["tree"], dict) is True
+    assert 'contents' in baked_metadata[collection_id]["tree"].keys()
     assert baked_metadata[collection_id]["legacy_id"] == 'col11406'
     assert "College Physics" in \
         baked_metadata[collection_id]["title"]
