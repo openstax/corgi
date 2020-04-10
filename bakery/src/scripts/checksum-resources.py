@@ -69,7 +69,7 @@ def generate_checksum_resources_from_xhtml(filename, output_dir):
         mime_type = get_mime_type(img_filename)
 
         if sha1:    # file exists
-            node.attrib['src'] = RESOURCES_DIR + '/' + sha1
+            node.attrib['src'] = '../' + RESOURCES_DIR + '/' + sha1
 
             create_symlink(img_filename, output_dir, sha1)
             create_mime_json(output_dir, sha1, mime_type)
@@ -88,7 +88,7 @@ def generate_checksum_resources_from_xhtml(filename, output_dir):
         mime_type = get_mime_type(img_filename)
 
         if sha1:    # file exists
-            node.attrib['href'] = RESOURCES_DIR + '/' + sha1
+            node.attrib['href'] = '../' + RESOURCES_DIR + '/' + sha1
 
             create_symlink(img_filename, output_dir, sha1)
             create_mime_json(output_dir, sha1, mime_type)
