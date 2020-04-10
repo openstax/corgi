@@ -1,5 +1,5 @@
 require('yargs')
-  .command(require('./src/pdf-pipeline'))
+  .command(require('./src/pipeline'))
   .command(require('./src/task'))
   .demandCommand(1, 'command required')
   .usage(`Usage: ${process.env.CALLER || 'build.js'} <command>`)
