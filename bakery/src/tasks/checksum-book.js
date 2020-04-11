@@ -8,8 +8,9 @@ const task = () => {
       image_resource: {
         type: 'docker-image',
         source: {
-          repository: 'openstax/cops-bakery-scripts'
-        }
+          repository: 'openstax/cops-bakery-scripts',
+          tag: 'dev-marvin'
+        },
       },
       inputs: [
         { name: 'book' },
@@ -26,7 +27,7 @@ const task = () => {
           cp -r baked-book/* checksum-book
           book_dir="checksum-book/$collection_id"
           mkdir "$book_dir/baked"
-          cp baked-book/* "$book_dir/baked"
+          find "baked-book/$collection_id/" -maxdepth 1 -type f -exec cp {} $book_dir/baked \;
           python /code/scripts/checksum-resources.py "$book_dir"
         `
         ]

@@ -97,7 +97,7 @@ def generate_checksum_resources_from_xhtml(filename, output_dir):
     output_file = os.path.join(output_dir, basename)
     # note: non self closing tags in xhtml are probably not respected here
     with open(output_file, 'wb') as f:
-        doc.write(f, encoding="utf-8", xml_declaration=False)
+        doc.write(f, encoding="ASCII", xml_declaration=False)
 
 
 def mkdir_resources(path):
