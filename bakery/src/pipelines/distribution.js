@@ -2,13 +2,14 @@ const fs = require('fs')
 const path = require('path')
 const yaml = require('js-yaml')
 
-const pipeline = (env) => {  
+const pipeline = (env) => {
   const taksLookUpFeed = require('../tasks/look-up-feed')
   const taskFetchBook = require('../tasks/fetch-book')
   const taskAssembleBook = require('../tasks/assemble-book')
   const taskAssembleBookMeta = require('../tasks/assemble-book-metadata')
   const taskBakeBook = require('../tasks/bake-book')
   const taskBakeBookMeta = require('../tasks/bake-book-metadata')
+  const taskChecksumBook = require('../tasks/checksum-book')
   const taskDisassembleBook = require('../tasks/disassemble-book')
   const taskJsonifyBook = require('../tasks/jsonify-book')
   const taskUploadBook = require('../tasks/upload-book')
@@ -33,7 +34,7 @@ const pipeline = (env) => {
         versioned_file: env.ENV_NAME === 'local' ? env.VERSIONED_FILE : '((versioned-feed-file))',
         access_key_id: awsAccessKeyId,
         secret_access_key: awsSecretAccessKey
-      }  
+      }
     }
   ]
 
@@ -48,6 +49,7 @@ const pipeline = (env) => {
       taskAssembleBookMeta(),
       taskBakeBook(),
       taskBakeBookMeta(),
+      taskChecksumBook(),
       taskDisassembleBook(),
       taskJsonifyBook(),
       taskUploadBook({
@@ -57,7 +59,7 @@ const pipeline = (env) => {
       })
     ]
   }
-  
+
   return {
     config: {
       resources: resources,
