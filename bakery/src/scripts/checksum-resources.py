@@ -10,9 +10,10 @@ BUF_SIZE = 65536  # read files in 64kb chunks, faster.
 RESOURCES_DIR = 'resources'
 
 # https://stackoverflow.com/a/22058673/756056
-def get_checksum(filename):
+def get_checksums(filename):
     """ generate SHA1 checksum from file """
     sha1 = hashlib.sha1()
+    md5 = hashlib.md5()
     try:
         with open(filename, 'rb') as f:
             while True:
@@ -20,9 +21,10 @@ def get_checksum(filename):
                 if not data:
                     break
                 sha1.update(data)
-        return sha1.hexdigest()
+                md5.update(data)
+        return sha1.hexdigest(), md5.hexdigest()
     except IOError:     # file does not exist
-        return None
+        return None, None
 
 
 def get_mime_type(filename):
@@ -47,10 +49,11 @@ def create_symlink(img_filename, output_dir, sha1):
         pass
 
 
-def create_mime_json(output_dir, sha1, mime_type):
+def create_json_metadata(output_dir, sha1, mime_type, md5):
     """ Create json with MIME type of a (symlinked) resource file """
     data = {}
     data['Content-Type'] = mime_type
+    data['md5'] = md5
     json_filename = os.path.join(output_dir, RESOURCES_DIR, sha1+'.json')
     with open(json_filename, 'w') as outfile:
         json.dump(data, outfile)
@@ -68,14 +71,14 @@ def generate_checksum_resources_from_xhtml(filename, output_dir):
         img_filename = node.attrib['src']
         img_filename = os.path.join(source_path, img_filename)
 
-        sha1 = get_checksum(img_filename)
+        sha1, md5 = get_checksums(img_filename)
         mime_type = get_mime_type(img_filename)
 
         if sha1:    # file exists
             node.attrib['src'] = '../' + RESOURCES_DIR + '/' + sha1
 
             create_symlink(img_filename, output_dir, sha1)
-            create_mime_json(output_dir, sha1, mime_type)
+            create_json_metadata(output_dir, sha1, mime_type, md5)
             # print('{}, {}, {}'.format(img_filename, sha1, mime_type)) # debug
 
     # get all a @href resources
@@ -87,14 +90,14 @@ def generate_checksum_resources_from_xhtml(filename, output_dir):
         # they are pointing relatively to ./image.jpg but need to point to ./m123/image.jpg
         img_filename = os.path.join(source_path, module_name, img_filename)
 
-        sha1 = get_checksum(img_filename)
+        sha1, md5 = get_checksums(img_filename)
         mime_type = get_mime_type(img_filename)
 
         if sha1:    # file exists
             node.attrib['href'] = '../' + RESOURCES_DIR + '/' + sha1
 
             create_symlink(img_filename, output_dir, sha1)
-            create_mime_json(output_dir, sha1, mime_type)
+            create_json_metadata(output_dir, sha1, mime_type, md5)
             # print('{}, {}, {}'.format(img_filename, sha1, mime_type)) # debug
 
     output_file = os.path.join(output_dir, basename)
