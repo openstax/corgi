@@ -37,9 +37,12 @@ def get_mime_type(filename):
 def create_symlink(img_filename, output_dir, sha1):
     """ Create symlinks for resources to raw files """
     raw_img_filename = os.path.realpath(img_filename)
-    dest_img_filename = os.path.join(output_dir, RESOURCES_DIR, sha1)
+    dest_path = os.path.join(output_dir, RESOURCES_DIR)
+    dest_img_filename = os.path.join(dest_path, sha1)
+    rel_raw_img_filename = os.path.relpath(raw_img_filename, dest_path)
     try:
-        os.symlink(raw_img_filename, dest_img_filename)
+        # set a relative symlink to raw file
+        os.symlink(rel_raw_img_filename, dest_img_filename)
     except FileExistsError:     # ignore symlink file existing
         pass
 
