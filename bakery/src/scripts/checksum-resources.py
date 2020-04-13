@@ -6,14 +6,14 @@ import json
 from pathlib import Path
 from lxml import etree
 
-BUF_SIZE = 65536  # read files in 64kb chunks, faster.
+BUF_SIZE = 8 * 1024 * 1024  # same as boto3 default chunk size. Don't modify.
 RESOURCES_DIR = 'resources'
 
 # https://stackoverflow.com/a/22058673/756056
 def get_checksums(filename):
-    """ generate SHA1 checksum from file """
+    """ generate SHA1 and S3 MD5 etag checksums from file """
     sha1 = hashlib.sha1()
-    md5 = hashlib.md5()
+    md5s = []
     try:
         with open(filename, 'rb') as f:
             while True:
@@ -21,8 +21,18 @@ def get_checksums(filename):
                 if not data:
                     break
                 sha1.update(data)
-                md5.update(data)
-        return sha1.hexdigest(), md5.hexdigest()
+                md5s.append(hashlib.md5(data))
+        # chunked calculation for AWS S3 MD5 etag
+        # https://stackoverflow.com/a/43819225/756056
+        if len(md5s) < 1:
+            s3_md5 = '"{}"'.format(hashlib.md5().hexdigest())
+        elif len(md5s) == 1:
+            s3_md5 = '"{}"'.format(md5s[0].hexdigest())
+        else:
+            digests = b''.join(m.digest() for m in md5s)
+            digests_md5 = hashlib.md5(digests)
+            s3_md5 = '"{}-{}"'.format(digests_md5.hexdigest(), len(md5s))
+        return sha1.hexdigest(), s3_md5
     except IOError:     # file does not exist
         return None, None
 
@@ -49,11 +59,11 @@ def create_symlink(img_filename, output_dir, sha1):
         pass
 
 
-def create_json_metadata(output_dir, sha1, mime_type, md5):
+def create_json_metadata(output_dir, sha1, mime_type, s3_md5):
     """ Create json with MIME type of a (symlinked) resource file """
     data = {}
-    data['Content-Type'] = mime_type
-    data['md5'] = md5
+    data['content_type'] = mime_type
+    data['s3_md5'] = s3_md5
     json_filename = os.path.join(output_dir, RESOURCES_DIR, sha1+'.json')
     with open(json_filename, 'w') as outfile:
         json.dump(data, outfile)
@@ -71,14 +81,14 @@ def generate_checksum_resources_from_xhtml(filename, output_dir):
         img_filename = node.attrib['src']
         img_filename = os.path.join(source_path, img_filename)
 
-        sha1, md5 = get_checksums(img_filename)
+        sha1, s3_md5 = get_checksums(img_filename)
         mime_type = get_mime_type(img_filename)
 
         if sha1:    # file exists
             node.attrib['src'] = '../' + RESOURCES_DIR + '/' + sha1
 
             create_symlink(img_filename, output_dir, sha1)
-            create_json_metadata(output_dir, sha1, mime_type, md5)
+            create_json_metadata(output_dir, sha1, mime_type, s3_md5)
             # print('{}, {}, {}'.format(img_filename, sha1, mime_type)) # debug
 
     # get all a @href resources
@@ -90,14 +100,14 @@ def generate_checksum_resources_from_xhtml(filename, output_dir):
         # they are pointing relatively to ./image.jpg but need to point to ./m123/image.jpg
         img_filename = os.path.join(source_path, module_name, img_filename)
 
-        sha1, md5 = get_checksums(img_filename)
+        sha1, s3_md5 = get_checksums(img_filename)
         mime_type = get_mime_type(img_filename)
 
         if sha1:    # file exists
             node.attrib['href'] = '../' + RESOURCES_DIR + '/' + sha1
 
             create_symlink(img_filename, output_dir, sha1)
-            create_json_metadata(output_dir, sha1, mime_type, md5)
+            create_json_metadata(output_dir, sha1, mime_type, s3_md5)
             # print('{}, {}, {}'.format(img_filename, sha1, mime_type)) # debug
 
     output_file = os.path.join(output_dir, basename)
