@@ -1,5 +1,6 @@
 import sys
 import json
+import utils
 from pathlib import Path
 
 from lxml import etree
@@ -8,18 +9,7 @@ from lxml.builder import ElementMaker, E
 from cnxepub.collation import reconstitute
 from cnxepub.html_parsers import HTML_DOCUMENT_NAMESPACES
 from cnxepub.formatters import DocumentContentFormatter
-from cnxepub.models import flatten_to, Document, model_to_tree
-from cnxcommon.urlslug import generate_slug
-
-# Based upon amend_tree_with_slugs from cnx-publishing
-# (https://github.com/openstax/cnx-publishing/blob/master/cnxpublishing/utils.py#L64)
-def amend_tree_with_slugs(tree, title_seq=[]):
-    """Recursively walk through tree and add slug fields"""
-    title_seq = title_seq + [tree['title']]
-    tree['slug'] = generate_slug(*title_seq)
-    if 'contents' in tree:
-        for node in tree['contents']:
-            amend_tree_with_slugs(node, title_seq)
+from cnxepub.models import flatten_to, Document
 
 def extract_slugs_from_tree(tree, data):
     """Given a tree with slugs create a flattened structure where slug data
@@ -38,8 +28,7 @@ def extract_slugs_from_binder(binder):
 
     # NOTE: The returned tree has 'id' values which are based upon ident_hash
     # fields in the provided model
-    tree = model_to_tree(binder)
-    amend_tree_with_slugs(tree)
+    tree = utils.model_to_tree(binder)
     slugs = {}
     extract_slugs_from_tree(tree, slugs)
     return slugs

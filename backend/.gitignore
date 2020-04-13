@@ -9,3 +9,6 @@ __pycache__/
 # JupyterLab
 .ipynb_checkpoints/
 *.ipynb
+
+# Pytest report files
+report.html
