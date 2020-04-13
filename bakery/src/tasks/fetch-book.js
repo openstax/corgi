@@ -13,6 +13,7 @@ const task = () => {
       },
       inputs: [{ name: 'book' }],
       outputs: [{ name: 'fetched-book' }],
+      params: { COLUMNS: 80 },
       run: {
         path: '/bin/bash',
         args: [
