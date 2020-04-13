@@ -37,7 +37,7 @@ const pipeline = (env) => {
       type: 'docker-image',
       source: {
         repository: 'openstax/output-producer-resource',
-        tag: '1.1.1'
+        tag: '1.1.2'
       }
     }
   ]
