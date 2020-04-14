@@ -37,7 +37,7 @@ services:
       - PGDATA=/database
 
   concourse:
-    image: concourse/concourse:4.2.2
+    image: concourse/concourse:6.0
     command: quickstart
     privileged: true
     depends_on: [concourse-db]
