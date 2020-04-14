@@ -1,9 +1,8 @@
 ## Bakery Concourse Pipeline Generator
 
 ### Setup
-- Install NodeJS and `yarn` on your machine.
-
-This project uses Yarn PnP.
+- Install NodeJS + npm on your machine
+- `npm install`
 
 ### Usage
 `build` is an executable that provides a small cli to build your concourse pipeline/task files. This is the help message returned by calling it with `./build --help`:

@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const yaml = require('js-yaml')
 
-const pipeline = (env) => {  
+const pipeline = (env) => {
   const taksLookUpFeed = require('../tasks/look-up-feed')
   const taskFetchBook = require('../tasks/fetch-book')
   const taskAssembleBook = require('../tasks/assemble-book')
@@ -33,7 +33,7 @@ const pipeline = (env) => {
         versioned_file: env.ENV_NAME === 'local' ? env.VERSIONED_FILE : '((versioned-feed-file))',
         access_key_id: awsAccessKeyId,
         secret_access_key: awsSecretAccessKey
-      }  
+      }
     }
   ]
 
@@ -51,13 +51,13 @@ const pipeline = (env) => {
       taskDisassembleBook(),
       taskJsonifyBook(),
       taskUploadBook({
-          bucketName: bucket,
-          awsAccessKeyId: awsAccessKeyId,
-          awsSecretAccessKey: awsSecretAccessKey
+        bucketName: bucket,
+        awsAccessKeyId: awsAccessKeyId,
+        awsSecretAccessKey: awsSecretAccessKey
       })
     ]
   }
-  
+
   return {
     config: {
       resources: resources,
