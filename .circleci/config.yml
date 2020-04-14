@@ -26,7 +26,7 @@ jobs:
       - store_test_results:
           path: /tmp/test-results
 
-  bakery-test:
+  bakery-scripts-test:
     docker:
       - image: openstax/cops-bakery-scripts
 
@@ -51,9 +51,23 @@ jobs:
       - store_test_results:
           path: /tmp/test-reports
 
+  lint-bakery:
+    docker:
+      - image: circleci/node:12-buster
+
+    steps:
+      - checkout
+      - run:
+          name: install
+          command: |
+            cd ./bakery
+            npm install
+            npm run lint
+
 workflows:
   version: 2
   run-tests:
     jobs:
       - integration-test
-      - bakery-test
+      - bakery-scripts-test
+      - lint-bakery
