@@ -53,7 +53,7 @@ services:
 `
 
 const flyExecute = async cmdArgs => {
-  const tmpComposeYml = tmp.fileSync();
+  const tmpComposeYml = tmp.fileSync()
   fs.writeFileSync(tmpComposeYml.name, composeYml)
 
   const children = []
@@ -83,7 +83,7 @@ const flyExecute = async cmdArgs => {
     let success = false
     while (!success) {
       try {
-        console.log("logging in")
+        console.log('logging in')
         const login = spawn('fly', [
           'login',
           '-k',
@@ -104,7 +104,7 @@ const flyExecute = async cmdArgs => {
       }
     }
 
-    console.log("syncing")
+    console.log('syncing')
     const sync = spawn('fly', [
       'sync',
       '-t', 'bakery-cli'
@@ -112,7 +112,7 @@ const flyExecute = async cmdArgs => {
     children.push(sync)
     await completion(sync)
 
-    console.log("executing")
+    console.log('executing')
     const execute = spawn('fly', [
       'execute',
       '-t', 'bakery-cli',
@@ -133,7 +133,7 @@ const flyExecute = async cmdArgs => {
       console.log(err)
     }
   } finally {
-    console.log("cleaning up")
+    console.log('cleaning up')
     const cleanUp = spawn('docker-compose', [
       '-f', tmpComposeYml.name,
       'stop'
@@ -148,12 +148,12 @@ require('yargs')
     const commandUsage = 'fetch <server> <collid> <version>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
-        
+
       const taskContent = execFileSync(buildExec, ['task', 'fetch-book'])
-      const tmpTaskFile = tmp.fileSync();
+      const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
-      const tmpBookDir = tmp.dirSync();
+      const tmpBookDir = tmp.dirSync()
       fs.writeFileSync(path.resolve(tmpBookDir.name, 'server'), argv.server)
       fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
       fs.writeFileSync(path.resolve(tmpBookDir.name, 'version'), argv.version)
@@ -192,12 +192,12 @@ require('yargs')
     const commandUsage = 'assemble <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
-        
+
       const taskContent = execFileSync(buildExec, ['task', 'assemble-book'])
-      const tmpTaskFile = tmp.fileSync();
+      const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
-      
-      const tmpBookDir = tmp.dirSync();
+
+      const tmpBookDir = tmp.dirSync()
       fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
 
       const dataDir = path.resolve(argv.data, argv.collid)
@@ -229,19 +229,19 @@ require('yargs')
     const commandUsage = 'bake <collid> <recipefile> <stylefile>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
-        
+
       const taskContent = execFileSync(buildExec, ['task', 'bake-book'])
-      const tmpTaskFile = tmp.fileSync();
+      const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
       const styleName = 'stylesheet'
-      const tmpBookDir = tmp.dirSync();
+      const tmpBookDir = tmp.dirSync()
       fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
       fs.writeFileSync(path.resolve(tmpBookDir.name, 'style'), styleName)
 
-      const tmpRecipesDir = tmp.dirSync();
-      fs.mkdirSync(path.resolve(tmpRecipesDir.name, "recipes/output/"), { recursive: true })
-      fs.mkdirSync(path.resolve(tmpRecipesDir.name, "styles/output/"), { recursive: true })
+      const tmpRecipesDir = tmp.dirSync()
+      fs.mkdirSync(path.resolve(tmpRecipesDir.name, 'recipes/output/'), { recursive: true })
+      fs.mkdirSync(path.resolve(tmpRecipesDir.name, 'styles/output/'), { recursive: true })
       fs.copyFileSync(path.resolve(argv.recipefile), path.resolve(tmpRecipesDir.name, `recipes/output/${styleName}.css`))
       fs.copyFileSync(path.resolve(argv.stylefile), path.resolve(tmpRecipesDir.name, `styles/output/${styleName}-pdf.css`))
 
@@ -281,12 +281,12 @@ require('yargs')
     const commandUsage = 'mathify <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
-        
+
       const taskContent = execFileSync(buildExec, ['task', 'mathify-book'])
-      const tmpTaskFile = tmp.fileSync();
+      const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
-      
-      const tmpBookDir = tmp.dirSync();
+
+      const tmpBookDir = tmp.dirSync()
       fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
 
       const dataDir = path.resolve(argv.data, argv.collid)
@@ -318,12 +318,12 @@ require('yargs')
     const commandUsage = 'build-pdf <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
-        
+
       const taskContent = execFileSync(buildExec, ['task', 'build-pdf', '-a', '{bucketName: none}'])
-      const tmpTaskFile = tmp.fileSync();
+      const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
-      
-      const tmpBookDir = tmp.dirSync();
+
+      const tmpBookDir = tmp.dirSync()
       fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
       fs.writeFileSync(path.resolve(tmpBookDir.name, 'pdf_filename'), 'collection.pdf')
 
@@ -356,9 +356,9 @@ require('yargs')
     const commandUsage = 'assemble-meta <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
-        
+
       const taskContent = execFileSync(buildExec, ['task', 'assemble-book-metadata'])
-      const tmpTaskFile = tmp.fileSync();
+      const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
       const dataDir = path.resolve(argv.data, argv.collid)
@@ -389,12 +389,12 @@ require('yargs')
     const commandUsage = 'bake-meta <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
-        
+
       const taskContent = execFileSync(buildExec, ['task', 'bake-book-metadata'])
-      const tmpTaskFile = tmp.fileSync();
+      const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
-      const tmpBookDir = tmp.dirSync();
+      const tmpBookDir = tmp.dirSync()
       fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
 
       const dataDir = path.resolve(argv.data, argv.collid)
@@ -427,12 +427,12 @@ require('yargs')
     const commandUsage = 'disassemble <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
-        
+
       const taskContent = execFileSync(buildExec, ['task', 'disassemble-book'])
-      const tmpTaskFile = tmp.fileSync();
+      const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
-      const tmpBookDir = tmp.dirSync();
+      const tmpBookDir = tmp.dirSync()
       fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
 
       const dataDir = path.resolve(argv.data, argv.collid)
@@ -465,12 +465,12 @@ require('yargs')
     const commandUsage = 'jsonify <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
-        
+
       const taskContent = execFileSync(buildExec, ['task', 'jsonify-book'])
-      const tmpTaskFile = tmp.fileSync();
+      const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
-      const tmpBookDir = tmp.dirSync();
+      const tmpBookDir = tmp.dirSync()
       fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
 
       const dataDir = path.resolve(argv.data, argv.collid)
@@ -512,7 +512,6 @@ require('yargs')
     type: 'string'
   })
   .demandCommand(1, 'command required')
-  // .usage(`Usage: ${process.env.CALLER || 'execute.js'} <command>`)
   .help()
   .wrap(process.env.COLUMNS)
   .version(false)
@@ -523,4 +522,3 @@ require('yargs')
     console.error(`\nError: ${msg}`)
     process.exit(1)
   })
-  .argv
