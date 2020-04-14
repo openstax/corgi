@@ -59,11 +59,13 @@ def create_symlink(img_filename, output_dir, sha1):
         pass
 
 
-def create_json_metadata(output_dir, sha1, mime_type, s3_md5):
+def create_json_metadata(output_dir, sha1, mime_type, s3_md5, original_name):
     """ Create json with MIME type of a (symlinked) resource file """
     data = {}
-    data['content_type'] = mime_type
+    data['original_name'] = original_name
+    data['mime_type'] = mime_type
     data['s3_md5'] = s3_md5
+    data['sha1'] = sha1
     json_filename = os.path.join(output_dir, RESOURCES_DIR, sha1+'.json')
     with open(json_filename, 'w') as outfile:
         json.dump(data, outfile)
@@ -80,6 +82,7 @@ def generate_checksum_resources_from_xhtml(filename, output_dir):
                           namespaces={'x': 'http://www.w3.org/1999/xhtml'}):
         img_filename = node.attrib['src']
         img_filename = os.path.join(source_path, img_filename)
+        img_basename = os.path.basename(img_filename)
 
         sha1, s3_md5 = get_checksums(img_filename)
         mime_type = get_mime_type(img_filename)
@@ -88,7 +91,7 @@ def generate_checksum_resources_from_xhtml(filename, output_dir):
             node.attrib['src'] = '../' + RESOURCES_DIR + '/' + sha1
 
             create_symlink(img_filename, output_dir, sha1)
-            create_json_metadata(output_dir, sha1, mime_type, s3_md5)
+            create_json_metadata(output_dir, sha1, mime_type, s3_md5, img_basename)
             # print('{}, {}, {}'.format(img_filename, sha1, mime_type)) # debug
 
     # get all a @href resources
@@ -99,6 +102,7 @@ def generate_checksum_resources_from_xhtml(filename, output_dir):
         # fix a @href links to module_name directories
         # they are pointing relatively to ./image.jpg but need to point to ./m123/image.jpg
         img_filename = os.path.join(source_path, module_name, img_filename)
+        img_basename = os.path.basename(img_filename)
 
         sha1, s3_md5 = get_checksums(img_filename)
         mime_type = get_mime_type(img_filename)
@@ -107,7 +111,7 @@ def generate_checksum_resources_from_xhtml(filename, output_dir):
             node.attrib['href'] = '../' + RESOURCES_DIR + '/' + sha1
 
             create_symlink(img_filename, output_dir, sha1)
-            create_json_metadata(output_dir, sha1, mime_type, s3_md5)
+            create_json_metadata(output_dir, sha1, mime_type, s3_md5, img_basename)
             # print('{}, {}, {}'.format(img_filename, sha1, mime_type)) # debug
 
     output_file = os.path.join(output_dir, basename)
