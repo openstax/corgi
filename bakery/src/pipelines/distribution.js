@@ -1,7 +1,3 @@
-const fs = require('fs')
-const path = require('path')
-const yaml = require('js-yaml')
-
 const pipeline = (env) => {
   const taksLookUpFeed = require('../tasks/look-up-feed')
   const taskFetchBook = require('../tasks/fetch-book')
