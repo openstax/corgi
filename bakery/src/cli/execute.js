@@ -143,7 +143,7 @@ const flyExecute = async cmdArgs => {
   }
 }
 
-require('yargs')
+const yargs = require('yargs')
   .command((() => {
     const commandUsage = 'fetch <server> <collid> <version>'
     const handler = async argv => {
@@ -522,3 +522,5 @@ require('yargs')
     console.error(`\nError: ${msg}`)
     process.exit(1)
   })
+
+yargs.argv // eslint-disable-line
