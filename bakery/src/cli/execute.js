@@ -361,10 +361,14 @@ const yargs = require('yargs')
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
+
       const dataDir = path.resolve(argv.data, argv.collid)
 
       flyExecute([
         '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'assembled-book'),
         output(dataDir, 'assembled-book-metadata')
       ])
@@ -477,6 +481,7 @@ const yargs = require('yargs')
 
       flyExecute([
         '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'disassembled-book'),
         output(dataDir, 'jsonified-book')
       ])
