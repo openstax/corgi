@@ -10,7 +10,7 @@ const task = () => {
         source: {
           repository: 'openstax/cops-bakery-scripts',
           tag: 'dev-marvin'
-        },
+        }
       },
       inputs: [
         { name: 'book' },
