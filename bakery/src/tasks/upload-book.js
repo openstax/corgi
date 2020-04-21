@@ -29,6 +29,7 @@ const task = ({ awsAccessKeyId, awsSecretAccessKey, bucketName }) => {
           collection_id="$(cat book/collection_id)"
           book_dir="jsonified-book/$collection_id/jsonified"
           book_metadata="jsonified-book/$collection_id/raw/metadata.json"
+          resources_dir="jsonified-book/$collection_id/resources"
           target_dir="upload-book/contents"
           mkdir "$target_dir"
           book_uuid="$(cat $book_metadata | jq -r '.id')"
@@ -38,6 +39,7 @@ const task = ({ awsAccessKeyId, awsSecretAccessKey, bucketName }) => {
           for jsonfile in "$book_dir/"*@*.json; do cp "$jsonfile" "$target_dir/$book_uuid@$book_version:$(basename $jsonfile)"; done;
           for xhtmlfile in "$book_dir/"*@*.xhtml; do cp "$xhtmlfile" "$target_dir/$book_uuid@$book_version:$(basename $xhtmlfile)"; done;
           aws s3 cp --recursive "$target_dir" s3://${bucketName}/contents
+          python /code/scripts/copy-resources-s3.py "$resources_dir" ${bucketName} resources
         `
         ]
       }
