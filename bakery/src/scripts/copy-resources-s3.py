@@ -33,7 +33,7 @@ def upload(in_dir, bucket, bucket_folder):
         aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
     )
 
-    sha1_filepattern = '?' * 40 # sha1 hexdigest as 40 characters
+    sha1_filepattern = '?' * 40  # sha1 hexdigest as 40 characters
 
     for resource in Path(in_dir).glob(sha1_filepattern):
         input_file = str(resource)
@@ -47,7 +47,7 @@ def upload(in_dir, bucket, bucket_folder):
                 data = json.load(json_file)
                 # if file not existing (compare special AWS md5) then upload it
                 if data['s3_md5'] != s3_md5sum(s3_client, bucket, output_s3):
-                    # TODO: multithreaded non blocking upload could increase speed here
+                    # TODO: multithreaded upload (with e.g. python threads) could increase speed here
                     print('Uploading ' + output_s3_metadata)
                     # first upload metadata
                     s3_client.upload_file(
@@ -80,6 +80,7 @@ def main():
     bucket = sys.argv[2]
     bucket_folder = sys.argv[3]
     upload(in_dir, bucket, bucket_folder)
+
 
 if __name__ == "__main__":
     main()
