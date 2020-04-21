@@ -53,9 +53,9 @@ const pipeline = (env) => {
       taskDisassembleBook(),
       taskJsonifyBook(),
       taskUploadBook({
-          bucketName: bucket,
-          awsAccessKeyId: awsAccessKeyId,
-          awsSecretAccessKey: awsSecretAccessKey
+        bucketName: bucket,
+        awsAccessKeyId: awsAccessKeyId,
+        awsSecretAccessKey: awsSecretAccessKey
       })
     ]
   }

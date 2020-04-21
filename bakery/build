@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-CALLER=$0 node -r ./.pnp.js build.js "$@"
+dir=$(dirname "$0")
+CALLER=$0 node "${dir}/build.js" "$@"

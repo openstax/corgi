@@ -1,8 +1,3 @@
-const fs = require('fs')
-const path = require('path')
-const yaml = require('js-yaml')
-
-
 const pipeline = (env) => {
   const taskLookUpBook = require('../tasks/look-up-book')
   const taskFetchBook = require('../tasks/fetch-book')
@@ -10,7 +5,7 @@ const pipeline = (env) => {
   const taskBakeBook = require('../tasks/bake-book')
   const taskMathifyBook = require('../tasks/mathify-book')
   const taskBuildPdf = require('../tasks/build-pdf')
-  
+
   // FIXME: This mapping should be in the COPS resource
   const Status = Object.freeze({
     QUEUED: 1,
@@ -37,7 +32,7 @@ const pipeline = (env) => {
       type: 'docker-image',
       source: {
         repository: 'openstax/output-producer-resource',
-        tag: '1.1.1'
+        tag: '1.1.2'
       }
     }
   ]
@@ -106,7 +101,7 @@ const pipeline = (env) => {
   }
 
   return {
-    config:{
+    config: {
       resource_types: resourceTypes,
       resources: resources,
       jobs: [bakeryJob]

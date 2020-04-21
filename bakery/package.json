@@ -5,6 +5,8 @@
   "dependencies": {
     "dedent": "^0.7.0",
     "js-yaml": "^3.13.1",
+    "sleep": "^6.1.0",
+    "tmp": "^0.1.0",
     "yargs": "^15.1.0"
   },
   "devDependencies": {
