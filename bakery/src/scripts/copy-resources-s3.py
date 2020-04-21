@@ -3,7 +3,6 @@ import botocore
 import json
 import os
 import sys
-from urllib.parse import urljoin
 from pathlib import Path
 
 
@@ -49,7 +48,7 @@ def upload(in_dir, bucket, bucket_folder):
                 if data['s3_md5'] != s3_md5sum(s3_client, bucket, output_s3):
                     # TODO: multithreaded upload (with e.g. python threads) could increase speed here
                     print('Uploading ' + output_s3_metadata)
-                    # first upload metadata
+                    # upload metadata first (because this is not checked)
                     s3_client.upload_file(
                         Filename=input_metadata_file,
                         Bucket=bucket,
@@ -59,7 +58,7 @@ def upload(in_dir, bucket, bucket_folder):
                         }
                     )
                     print('Uploading ' + output_s3)
-                    # upload resource file
+                    # upload resource file last (existence/md5 is checked)
                     s3_client.upload_file(
                         Filename=input_file,
                         Bucket=bucket,
