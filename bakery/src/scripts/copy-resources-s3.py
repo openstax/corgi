@@ -47,6 +47,7 @@ def upload(in_dir, bucket, bucket_folder):
                 data = json.load(json_file)
                 # if file not existing (compare special AWS md5) then upload it
                 if data['s3_md5'] != s3_md5sum(s3_client, bucket, output_s3):
+                    # TODO: multithreaded non blocking upload could increase speed here
                     print('Uploading ' + output_s3_metadata)
                     # first upload metadata
                     s3_client.upload_file(
