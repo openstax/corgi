@@ -8,7 +8,8 @@ const task = ({ awsAccessKeyId, awsSecretAccessKey, bucketName }) => {
       image_resource: {
         type: 'docker-image',
         source: {
-          repository: 'openstax/cops-bakery-scripts'
+          repository: 'openstax/cops-bakery-scripts',
+          tag: 'dev-marvin'
         }
       },
       params: {
