@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - checkout
-      # Permissions errors occurred with 0775 due to 
+      # Permissions errors occurred with 0775 due to
       # docker user not having permissions over this folder.
       - run: mkdir -p -m=0777 $TEST_RESULTS_DIR
 
@@ -25,6 +25,41 @@ jobs:
 
       - store_test_results:
           path: /tmp/test-results
+
+  cli-functional-test:
+    machine:
+      image: ubuntu-1604:201903-01
+
+    steps:
+      - checkout
+      - run:
+          name: Install node
+          command: |
+            export NVM_DIR=/opt/circleci/.nvm
+            [ -s "${NVM_DIR}/nvm.sh" ] && \. "${NVM_DIR}/nvm.sh"
+            nvm install v12.16.1
+            nvm alias default v12.16.1
+            echo 'export NVM_DIR=/opt/circleci/.nvm' >> $BASH_ENV
+            echo "[ -s \"${NVM_DIR}/nvm.sh\" ] && . \"${NVM_DIR}/nvm.sh\"" >> $BASH_ENV
+
+      - run:
+          name: Setup fly
+          command: |
+            mkdir -p ~/.local/bin
+            curl -L https://github.com/concourse/concourse/releases/download/v6.0.0/fly-6.0.0-linux-amd64.tgz -o fly.tgz
+            tar -xvzf fly.tgz
+            chmod +x fly
+            mv fly ~/.local/bin
+            echo 'export PATH=${HOME}/.local/bin:${PATH}' >> $BASH_ENV
+
+      - run:
+          name: Run tests
+          command: |
+            node --version
+            fly --version
+            cd ./bakery
+            npm install
+            npm run test
 
   bakery-scripts-test:
     docker:
@@ -69,5 +104,6 @@ workflows:
   run-tests:
     jobs:
       - integration-test
+      - cli-functional-test
       - bakery-scripts-test
       - lint-bakery

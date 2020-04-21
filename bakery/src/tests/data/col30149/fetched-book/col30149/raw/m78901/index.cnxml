@@ -1,0 +1,250 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml" xmlns:bib="http://bibtexml.sf.net/" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:q="http://cnx.rice.edu/qml/1.0" xmlns:data="http://www.w3.org/TR/html5/dom.html#custom-data-attribute" id="new" cnxml-version="0.7" module-id="new">
+
+<title>Warranties and Sales Contracts</title>
+<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">
+  <!-- WARNING! The 'metadata' section is read only. Do not edit below.
+       Changes to the metadata section in the source will not be saved. -->
+  <md:repository>https://legacy.cnx.org/content</md:repository>
+  <md:content-url>https://legacy.cnx.org/content/m78901/latest/</md:content-url>
+  <md:content-id>m78901</md:content-id>
+  <md:title>Warranties and Sales Contracts</md:title>
+  <md:version>1.5</md:version>
+  <md:created>2019/09/06 13:30:48 -0500</md:created>
+  <md:revised>2019/09/09 08:36:56.124 GMT-5</md:revised>
+  <md:actors>
+    <md:person userid="OSCRiceUniversity">
+      <md:firstname>Rice</md:firstname>
+      <md:surname>University</md:surname>
+      <md:fullname>Rice University</md:fullname>
+      <md:email>info@openstaxcollege.org</md:email>
+    </md:person>
+    <md:organization userid="OpenStaxCollege">
+      <md:shortname>OpenStax</md:shortname>
+      <md:fullname>OpenStax</md:fullname>
+      <md:email>info@openstax.org</md:email>
+    </md:organization>
+    <md:person userid="cnxbusinesslaw">
+      <md:firstname>OpenStax</md:firstname>
+      <md:surname>Business Law</md:surname>
+      <md:fullname>OpenStax Business Law</md:fullname>
+      <md:email>info@openstax.org</md:email>
+    </md:person>
+  </md:actors>
+  <md:roles>
+    <md:role type="author">OpenStaxCollege</md:role>
+    <md:role type="maintainer">OpenStaxCollege cnxbusinesslaw</md:role>
+    <md:role type="licensor">OSCRiceUniversity</md:role>
+  </md:roles>
+  <md:license url="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution License 4.0</md:license>
+  <!-- For information on license requirements for use or modification, see license url in the
+       above <md:license> element.
+       For information on formatting required attribution, see the URL:
+         CONTENT_URL/content_info#cnx_cite_header
+       where CONTENT_URL is the value provided above in the <md:content-url> element.
+  -->
+  <md:subjectlist>
+    <md:subject>Business</md:subject>
+    <md:subject>Business</md:subject>
+  </md:subjectlist>
+  <md:abstract/>
+  <md:language>en</md:language>
+  <!-- WARNING! The 'metadata' section is read only. Do not edit above.
+       Changes to the metadata section in the source will not be saved. -->
+</metadata>
+
+<content>
+<figure id="fs-idm378392560"><media id="fs-idm367586208" alt="A photo shows a closeup of a person signing a contract."><image src="Figure_08_02.jpg" mime-type="image/jpg"/></media>
+<caption>The law provides remedies for breach of sales contracts. (Credit: rawpixel/ pexels/ License: CC0)</caption></figure><section id="fs-idm380220880">
+<title class="Heading-2">Warranties</title>
+<para id="fs-idm367052560">A <term>warranty</term> is a guarantee on the good that comes as part of the sales contract, but contract law treats warranties as an additional form of contract that binds the selling party to undertake a certain action. Typically, the selling party has an obligation to provide a product that achieves a specified task, or to deliver a service that meets certain minimal standards. Warranties are offered for a range of different goods and services, from manufactured goods to real estate to plumbing services. The warranty assures the buyer that the good or service is free from defects, and it is a legally binding commitment. In the event that the product or service fails to meet the standards set out in the warranty, then the contract provides a specific remedy, such as a replacement or repair.</para>
+<para id="fs-idm380091088">According to UCC 1-203, the performance and execution of all contracts must be undertaken in good faith. <term>Good faith</term> means honesty in fact and the observance of reasonable commercial standards of fair dealing. If the parties in the contract are merchants, the UCC also requires that the contract be undertaken in accordance with <term>commercial reasonableness.</term> This requirement means that the transaction should be undertaken in a sensible and prudent way.</para>
+</section>
+<section id="fs-idm368624944">
+<title class="Heading-2">Express and Implied Warranties</title>
+<para id="fs-idm380452352">Warranties can be express, implied, or both. Both express and implied warranties provide legal relief for the purchaser in the event of a breach of contract.</para>
+<para id="fs-idm379164928">An <term>express warranty</term> is one in which the seller explicitly guarantees the quality of the good or service sold. Typically, the vendor provides a statement, or other binding document, as part of the sales contract. What this means in practice is that the buyer has engaged in the contract on the reasonable assumption that the quality, nature, character, purpose, performance, state, use, or capacity of the goods or services are the same as those stated by the seller. Therefore, the sales contract is based, in part, on the understanding that the goods or services being supplied by the seller will conform to the description, or any sample, that has been provided.</para>
+<para id="fs-idm375709920">There are myriad ways in which the seller can make statements as to the characteristics of the goods.</para>
+<para id="fs-idm382625936">Here are a few examples of express warranties:</para>
+<para id="fs-idm378236592">“Wrinkle-free shirt”</para>
+<para id="fs-idm375744832">“Lifetime guarantee”</para>
+<para id="fs-idm375715216">“Made in the USA”</para>
+<para id="fs-idm380096496">“This orange juice is not from concentrate”</para>
+<para id="fs-idm383027504">“24k gold”</para>
+<para id="fs-idm376761072">There is not a specific way that words must be formed to make an express warranty valid. Importantly, the sales contract does not need to explicitly state that a warranty is being intended. It is enough that the seller asserts facts about the goods that then become part of the contract between the parties. However, the courts do apply a <term>reasonableness test of reliance</term> upon warranties. Puffery, or language used to bolster sales, is lawful, and the consumer is required to apply reason when evaluating such statements. For example, buyers are expected to use reason when judging seller claims such as “this sandwich is the best in the world.” Obvious sales talk cannot ordinarily be treated as a legally binding warranty.</para>
+<para id="fs-idm375558112">A <term>breach</term> of the warranty occurs when the express warranty has been found to be false. In such circumstances, the warrantor is legally liable just as though the truth of the warranty had been guaranteed. The courts do not accept as a defense:</para>
+<list id="fs-idm378301600">
+  <item>Seller claims the warranty was true.</item>
+  <item>Seller claims due care was exercised in the production or handling of the product.</item>
+  <item>Seller claims there is not any reason to believe that the warranty was false.</item>
+</list>
+</section>
+<section id="fs-idm378242512">
+<title>Implied Warranties</title>
+<para id="fs-idm379512736">In certain circumstances where no express warranty was made, the law <term>implies</term> a warranty. This statement means that the warranty automatically arises from the fact that a sale was made. With regard to implied warranties, the law distinguishes between casual sellers and merchant sellers, with the latter held to a higher standard, given that they are in the business of buying or selling the good or service rendered. For example, unless otherwise agreed, goods sold by merchants carry an implied warranty against claims by any third party by way of trademark infringement, patent infringement, or any other intellectual property law infringement. This type of warranty is known as the <term>warranty against infringement.</term> Another implied warranty provided by merchant sellers is the <term>warranty of fitness for normal use</term>, which means that the goods must be fit for the ordinary purposes for which they are sold.</para>
+<para id="fs-idm378409200">It is important to note that if express warranties are made, this does not preclude implied warranties. If an express warranty is made, it should be consistent with implied warranties, and can be treated as cumulative, if such a construction is reasonable. If the express and implied warranties cannot be construed as <term>consistent</term> and <term>cumulative</term>, the express warranty generally prevails over the implied warranty, except in the case of the implied <term>warranty of merchantability</term>, or fitness for purpose.</para>
+</section>
+<section id="fs-idm379961616">
+<title>Breaches of Warranty</title>
+<para id="fs-idm382804928">If the buyer believes that there has been a breach of the implied warranty of merchantability, it is their responsibility to demonstrate that the good was defective, that this defect made the good not fit for purpose, and that this defect caused the plaintiff harm. Typical examples of defects are:</para>
+<list id="fs-idm371112704">
+  <item>Design defects</item>
+  <item>Manufacturing defects</item>
+  <item>Inadequate instructions on the use of the good</item>
+  <item>Inadequate warning against the dangers involved in using the good.</item>
+</list>
+</section>
+<section id="fs-idm382889408">
+<title>Specific Examples of Goods Under the Warranty of Merchantability</title>
+<table id="table005" summary="">
+  <tgroup cols="4">
+  <tbody>
+    <row>
+      <entry>
+        Type
+      </entry>
+      <entry>
+        Description
+      </entry>
+    </row>
+    <row>
+      <entry>
+        Second-hand goods
+      </entry>
+      <entry>
+        The UCC treats warranties arising for used goods in the same way as warranties arising for new goods, but second-hand products tend to be held to a lower standard on the warranty of merchantability.
+      </entry>
+    </row>
+    <row>
+      <entry>
+        Buyer-designed goods
+      </entry>
+      <entry>
+        The same warranties arise for mass manufactured goods as for goods that have been specified or made to order for the buyer. However, in this case, no warranty of fitness for purpose can arise since the buyer is using his or her own decisions, skill, and judgment when making the purchase.
+      </entry>
+    </row>
+    <row>
+      <entry>
+        Food and drink
+      </entry>
+      <entry>
+        The sale of food or drink carries the implied warranty of being fit for human consumption.
+      </entry>
+    </row>
+  </tbody>
+  </tgroup>
+</table>
+<para id="fs-idm375088528">The buyer might intend to use the goods purchased for a different purpose than that for which it was sold. In this case, the implied warranty holds only if the buyer relies on the seller’s skill or judgment to select the product, the buyer informs the seller at the time of purchase of his or her intention for the use of the good, and the buyer relies on the seller’s judgment and skill in making the final choice. If the seller is not made aware of the buyer’s true intention, or does not offer his or her skill and judgment in aiding the sale, then warranty of fitness for a particular purpose does not arise. For this reason, it is common for vendors to include provisions in the average terms and conditions of sale with regard to the true and intended purpose of use.</para>
+</section>
+<section id="fs-idm381406800">
+<title class="Heading-2">Warranty of Title</title>
+<para id="fs-idm378600768">By the mere act of selling, the vendor implies a warranty that the title is good and that the transfer of title is lawful. In addition, the act of the sale creates a warranty that the goods shall be delivered free from any lien of which the buyer was unaware. In some circumstances, the warranty of title can be excluded from the contract documents. For instance, when the seller makes the sale in a representative capacity (e.g. as an executor of an estate), then a warranty of title will not arise.</para>
+</section>
+<section id="fs-idm383109664">
+<title>Remedies to Buyers under the UCC</title>
+<table id="table006" summary="">
+  <tgroup cols="5">
+  <tbody>
+    <row>
+      <entry>
+        Remedy
+      </entry>
+      <entry>
+        Description
+      </entry>
+    </row>
+    <row>
+      <entry>
+        Cancel the contract
+      </entry>
+      <entry>
+        The UCC allows buyers to cancel the contract for nonconforming goods and to seek remedies that give them the benefit of the bargain.
+      </entry>
+    </row>
+    <row>
+      <entry>
+        Obtain cover
+      </entry>
+      <entry>
+        Buyers are allowed to substitute goods for those due under the sales contract. However, substitutes must be reasonable, acquired without delay, and obtained in good faith.
+      </entry>
+    </row>
+    <row>
+      <entry>
+        Obtain specific performance
+      </entry>
+      <entry>
+        If the goods are unique or a legal remedy is inadequate, the seller may be required to deliver the goods as identified in the contract.
+      </entry>
+    </row>
+    <row>
+      <entry>
+        Sue
+      </entry>
+      <entry>
+        Buyers are entitled to consequential and incidental damages if there is a breach of contract. They may also be able to obtain liquidated damages (damages before the breach occurs) or punitive damages.
+      </entry>
+    </row>
+  </tbody>
+  </tgroup>
+</table>
+</section>
+<section id="fs-idm375844304" class="references">
+<title>Sources</title>
+<para id="fs-idm378444080">Kubasek, N., Browne, M. N., Dhooge, L. J., Herron, D. J., Williamson, C., &amp; Barkacs, L. L. (2015). <emphasis effect="italics">Dynamic business law</emphasis>. McGraw-Hill Education.</para>
+</section>
+<section class="assessment-questions" id="fs-136373">
+
+
+<exercise id="fs-21231125">
+  <problem id="fa-2121425">
+    <para id="fa-2121652">What is a warranty in a sales contract?</para>
+  </problem>
+</exercise>
+
+<exercise id="fs-212316125">
+  <problem id="fa-21621425">
+    <para id="fa-21261652">Describe the difference between an express and implied warranty.</para>
+  </problem>
+  <solution id="fa-212761582">
+      <para id="fs-123162513143">An express warranty is one in which the seller explicitly guarantees the quality of the good or service sold. Typically, the vendor provides a statement, or other binding document, as part of the sales contract. In certain circumstances where no express warranty was made, the law implies a warranty. This statement means that the warranty automatically arises from the fact that a sale was made.</para>
+  </solution>
+</exercise>
+
+
+<exercise id="fs-212323156">
+<problem id="fa-212423156">
+<para id="fa-212623156">Examples of a defect in a breach of the implied warranty of merchantability, include all of the following except:</para>
+<list list-type="enumerated" number-style="lower-alpha" id="fa-212523156">
+<item>Design defect.</item>
+<item>Manufacturing defect.</item>
+<item>Inadequate instructions.</item>
+<item>Product defect.</item>
+</list>
+</problem>
+</exercise>
+
+<exercise id="fs-2123253156">
+<problem id="fa-2512423156">
+<para id="fa-2125623156">The following are possible remedies to buyers under the UCC:</para>
+<list list-type="enumerated" number-style="lower-alpha" id="fa-2512523156">
+<item>Cancel the contract.</item>
+<item>Obtain Cover.</item>
+<item>Sue.</item>
+<item>All of the above.</item>
+</list>
+</problem>
+<solution id="fa-21275823156">
+<para id="fa-21288523156">d</para>
+</solution>
+</exercise>
+
+<exercise id="fs-21236125">
+  <problem id="fa-2162425">
+    <para id="fa-212152">What is a breach of warranty?</para>
+  </problem>
+</exercise>
+
+
+</section>
+</content>
+</document>

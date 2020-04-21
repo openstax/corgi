@@ -1,0 +1,233 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml" xmlns:bib="http://bibtexml.sf.net/" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:q="http://cnx.rice.edu/qml/1.0" xmlns:data="http://www.w3.org/TR/html5/dom.html#custom-data-attribute" id="new" cnxml-version="0.7" module-id="new">
+
+<title>Intentional Torts and Negligence</title>
+<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">
+  <!-- WARNING! The 'metadata' section is read only. Do not edit below.
+       Changes to the metadata section in the source will not be saved. -->
+  <md:repository>https://legacy.cnx.org/content</md:repository>
+  <md:content-url>https://legacy.cnx.org/content/m78893/latest/</md:content-url>
+  <md:content-id>m78893</md:content-id>
+  <md:title>Intentional Torts and Negligence</md:title>
+  <md:version>1.6</md:version>
+  <md:created>2019/09/06 13:19:28 -0500</md:created>
+  <md:revised>2019/09/09 08:34:59.928 GMT-5</md:revised>
+  <md:actors>
+    <md:person userid="OSCRiceUniversity">
+      <md:firstname>Rice</md:firstname>
+      <md:surname>University</md:surname>
+      <md:fullname>Rice University</md:fullname>
+      <md:email>info@openstaxcollege.org</md:email>
+    </md:person>
+    <md:organization userid="OpenStaxCollege">
+      <md:shortname>OpenStax</md:shortname>
+      <md:fullname>OpenStax</md:fullname>
+      <md:email>info@openstax.org</md:email>
+    </md:organization>
+    <md:person userid="cnxbusinesslaw">
+      <md:firstname>OpenStax</md:firstname>
+      <md:surname>Business Law</md:surname>
+      <md:fullname>OpenStax Business Law</md:fullname>
+      <md:email>info@openstax.org</md:email>
+    </md:person>
+  </md:actors>
+  <md:roles>
+    <md:role type="author">OpenStaxCollege</md:role>
+    <md:role type="maintainer">OpenStaxCollege cnxbusinesslaw</md:role>
+    <md:role type="licensor">OSCRiceUniversity</md:role>
+  </md:roles>
+  <md:license url="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution License 4.0</md:license>
+  <!-- For information on license requirements for use or modification, see license url in the
+       above <md:license> element.
+       For information on formatting required attribution, see the URL:
+         CONTENT_URL/content_info#cnx_cite_header
+       where CONTENT_URL is the value provided above in the <md:content-url> element.
+  -->
+  <md:subjectlist>
+    <md:subject>Business</md:subject>
+    <md:subject>Business</md:subject>
+  </md:subjectlist>
+  <md:abstract/>
+  <md:language>en</md:language>
+  <!-- WARNING! The 'metadata' section is read only. Do not edit above.
+       Changes to the metadata section in the source will not be saved. -->
+</metadata>
+
+<content>
+			<para id="fs-idm375559984">Civil suits arise from damages suffered by one or more persons or entities at the hands of another person or entity. The damage can happen in a variety of circumstances, and may be intentional or unintentional. Unlike criminal cases, civil suits seek to provide some form of remedy for the loss suffered by an injured party. Civil suits are decided by judges and juries based on the specific situation, especially when violation of <term>statutes</term>, or laws, is not in question.</para>
+			<figure id="fs-idm382198288"><media id="fs-idm381531664" alt="An photo shows an empty courtroom."><image src="Figure_06_01.jpg" mime-type="image/jpg"/></media>
+			<caption>Civil suits are decided in court by judges and juries. (Credit: Coffee/ pixabay/ License: CC0)</caption></figure><section id="fs-idm378429792">
+			<title class="Heading-2">Torts</title>
+			<para id="fs-idm375821776">Civil suits involve different causes of action, and they are included in one general classification: <term>torts</term>. The word “tort” means “wrong” in French. Thus, torts are wrongs committed against others who suffer some form of damage as a result. While these damages could also be the result of criminal action, the criminal element of the matter is not tried in a civil lawsuit. The standard of proof is lower for civil suits, and a finding of liability in a tort case does not necessarily translate to guilt in a criminal case.</para>
+			<para id="fs-idm383045536">The actor of the wrongs has historically been called a <term>tortfeasor</term>. When a wrong is committed by a tortfeasor, damage is done to another. <term>Tort law</term> seeks to address this damage based on the circumstances of the issue, which is based on <term>fault</term>. Civil lawsuits are used by the injured parties to seek redress for the loss associated with the tort. Unlike criminal proceedings, redress is often provided in the form of money as opposed to incarceration. As such, the burden of proof of fault is lower. The <term>offender</term>, or tortfeasor, who commits the act is the accused in a civil suit. The <term>plaintiff</term>, who is the injured party, files the lawsuit on which the civil court will make a decision. The offender ultimately becomes the <term>defendant</term>, who must respond to the accusations of the plaintiff in a civil suit.</para>
+			<para id="fs-idm380620720">During tort litigation, the judge and jury have certain separate functions (Kionka, 2013):</para>
+			<table id="table003" summary="" class="top-titled"><tgroup cols="5">
+    <colspec colnum="1" colname="c1"/>
+    <colspec colnum="2" colname="c2"/>
+    <colspec colnum="3" colname="c3"/>
+    <colspec colnum="4" colname="c4"/>
+    <colspec colnum="5" colname="c5"/>
+<thead>
+<row>
+						<entry namest="c1" nameend="c2" align="center">
+							Functions During a Tort Litigation
+						</entry>
+					</row>
+					<row>
+						<entry>
+							The Judge Decides Issues of Law
+						</entry>
+						<entry>
+							The Jury Decides Questions of Fact
+						</entry>
+					</row>
+</thead>
+				<tbody>
+
+					<row>
+						<entry>
+							The duty of the defendant to the plaintiff, if any
+						</entry>
+						<entry>
+							What happened
+						</entry>
+					</row>
+					<row>
+						<entry>
+							The elements of the defense
+						</entry>
+						<entry>
+							Legal consequences of what happened
+						</entry>
+					</row>
+					<row>
+						<entry>
+							Application of legal rules
+						</entry>
+						<entry>
+							The damages suffered by the plaintiff
+						</entry>
+					</row>
+				</tbody>
+				</tgroup>
+			</table></section>
+			<section id="fs-idm382668528">
+			<title class="Heading-2">Harm</title>
+			<para id="fs-idm382721280">Two types of torts are intentional torts and negligence. <term>Intentional torts</term> occur as the result of a conscious and purposeful act. <term>Negligence</term> occurs when an individual does not exercise duty of care. Torts are acts or omissions that result in injury or <term>harm </term>to an individual in such a way that it leads to a civil wrong that occurs as liability (WEX, n.d.). In tort law, harm can be defined as a loss or disadvantage suffered as a result of the actions or omissions of another (WEX, n.d.). This loss can be physical harm, such as slipping and falling on a wet floor, or personal property harm, such as allowing water to ruin furniture. The damage is the result of what someone else did, or did not do, either intentionally or based on a lack of reasonable care.</para>
+			<para id="fs-idm375996128">There are two basic elements to torts: damages and compensation (Laws, tort.laws.com). Tort law acts to compensate persons who have suffered damages at the hands of another (Baime, 2018). Tort law determines the legal responsibility of the defendant and the value of the harm. Different types of torts look at different types of circumstances.</para></section>
+		<section id="fs-idm382578336">
+			<title class="Heading-2">Intentional Torts</title>
+			<para id="fs-idm382635920">Intentional torts are committed by an offender who understands that he or she is committing a tort. Intent does not always equate to directly causing an end result. In some cases, the intent may be something else, such as the possession of knowledge that some harm may occur. The harm may result from intentional action, or due to some circumstance that the offender feels will be excusable (Kionka, 2013).</para>
+			<para id="fs-idm375104864">Some circumstances that could allow the defendant to argue that the action is excusable would include: permission by the injured party, or defense of property, self, or another person (Kionka, 2013). If the injured party agrees to allow the defendant to juggle knives and one slips and causes harm, the action might be excusable to some extent. If a defendant caused harm to the plaintiff’s car while trying to avoid being hit by the car, it would likely be excusable.</para>
+			<para id="fs-idm375698560">Different types of intentional torts are based on different circumstances and face different <term>remedies</term>, or means of recovering losses (Baime, 2018):</para>
+			<list id="fs-idm375903856">
+				<item><term>Assault</term> is an intentional tort that occurs when an individual has a reasonable apprehension of an intentional act that is designed to cause harm to himself or herself, or to another person.</item>
+				<item><term>Malicious prosecution</term> occurs when an individual files groundless complaints to initiate a criminal matter against another.</item>
+				<item><term>Defamation</term> occurs when an individual intentionally creates and promotes malicious falsehoods about another. Defamation can occur in two ways: slander and libel. <term>Slander</term> is, in effect, when falsehoods are spoken. <term>Libel</term> occurs when falsehoods are expressed in written or other recorded forums.</item>
+				<item><term>Invasion of privacy </term>involves unwanted production of negative public information. Different standards apply to invasion of privacy based on the status of the individual as a public figure.</item>
+			</list>
+		</section>
+		<section id="fs-idm382198848">
+			<title class="Heading-2">Negligence</title>
+			<para id="fs-idm378232128">Negligence is another type of tort that has two meanings. It is the name of a <term>cause of action</term> in a tort, and it is a form of conduct that does not meet the <term>reasonable standard of care</term> (Kionka, 2013). The cause of action is the reason for the damage, and the standard of care is based on the care that a reasonable person would need in a given situation. Negligence is decided by determining the duty of the defendant, whether or not the defendant committed a breach of that duty, the cause of the injury, and the injury itself.</para>
+			<para id="fs-idm376334752">For an action to be deemed negligent, there must be a legal <term>duty of care</term>, or responsibility to act, based on the reasonable standard in a situation (Baime, 2018). An individual can be considered negligent if he agreed to watch a child, but did not do so, and then harm came to the child. An individual would not be considered negligent if he did not know that he was supposed to watch the child, or did not agree to watch the child.</para>
+			<figure id="fs-idm376419088"><media id="fs-idm374158176" alt="A photo shows a young woman looking at a cell phone."><image src="Figure_06_02.jpg" mime-type="image/jpg"/></media>
+			<caption>If an individual agrees to watch a child and the child is injured while that person pays attention to her cell phone, it would be considered negligence. (Credit: JESHOOTScom/ pixabay/ License: CC0)</caption></figure><para id="fs-idm378421648">A <term>reasonable person</term> is defined as someone who must exercise reasonable care based on what he or she knows about the situation, how much experience he or she has with the situation, and how he or she perceives the situation (Kionka, 2013). In some cases, this knowledge could be based on common knowledge of community matters, such as knowing that a bridge is closed for repairs.</para>
+			<para id="fs-idm382544224">In some cases, the duty of care is based on a <term>special relationship</term>, which is a relationship based on an implied duty of care. This implied duty of care often comes about as a <term>duty to aid</term>, or a duty to protect another, e.g., a nurse caring for patients in a hospital, or a lifeguard being responsible for swimmers in the guarded area (Baime, 2018). A passerby does not have a duty to aid, but if the individual tries to help, then he or she is responsible for acting responsibly.</para>
+			<para id="fs-idm376782384">The elements of a negligence cause of action are (Kionka, 2013):</para>
+			<list id="fs-idm380982736">
+				<item>A duty by the defendant to either act or refrain from acting</item>
+				<item>A breach of that duty, based on a failure to conform to the standard of care by the defendant</item>
+				<item>A causal connection between the defendant’s action or inaction, and the injury to the plaintiff</item>
+				<item>Measurable harm that can be remedied in monetary damages</item>
+			</list>
+			</section>
+			<section id="fs-idm381737504" class="Heading-2 ParaOverride-4"><title>Foreseeability</title>
+			<para id="fs-idm375833888">Negligence case decisions are influenced by whether or not a defendant could have predicted that an action or inaction could have resulted in the tort, or <term>foreseeability </term>(Baime, 2018). Responsibility is often based on whether or not the harm caused by an action or inaction was <term>reasonably foreseeable</term>, which means that the result was fairly obvious before it occurred (Baime, 2018). A person assisting an inebriated individual into her car could be considered negligent due to the likelihood that harm would come to her while she is driving in an intoxicated state. This situation is an example of the <term>foreseeable probability of harm</term>.</para>
+</section>
+			<section id="fs-idm382681744" class="Heading-2 ParaOverride-4"><title>Conclusion</title>
+			<para id="fs-idm376747808">Intentional torts and negligence arise based on intentional and unintentional acts committed by individuals. Damages are decided in civil courts by first determining fault and harm, and then by assigning a remedy. Sometimes, the damage can be excused if the circumstances indicate that the defendant acted with permission, or in his or her own defense. The main standard used to make a decision is the reasonable standard of care: what would a reasonable person do?</para>
+</section>
+			<section id="fs-idm376331056" class="references"><title>Sources</title><para id="fs-idm382633984">Baime. E. (2018). Fundamentals of tort law. Retrieved from: https://nationalparalegal.edu/FundamentalsTortLaw.aspx.</para>
+			<para id="fs-idm383136864">Cornell Law School. (n.d.). Tort. Retrieved from: https://www.law.cornell.edu/wex/tort.</para>
+			<para id="fs-idm374988752">Kionka, E. J. (2013). Torts (5<span class="Super _idGenCharOverride-1">th</span> ed.). St. Paul, MN: West Academic Publishing. Retrieved from: https://lscontent.westlaw.com/images/content/Torts5th.pdf.</para>
+			</section>
+
+
+      <section class="assessment-questions" id="fs-136373">
+
+
+        <exercise id="fs-2123234">
+          <problem id="fa-2124234">
+            <para id="fa-2126234">Define Torts.</para>
+          </problem>
+          <solution id="fa-21278234">
+              <para id="fs-12312314345">Torts are wrongs committed against others who suffer some form of damage as a result.</para>
+          </solution>
+        </exercise>
+
+        <exercise id="fs-2123231561">
+        <problem id="fa-2124231561">
+        <para id="fa-2126231561">An example of an intentional tort is:</para>
+        <list list-type="enumerated" number-style="lower-alpha" id="fa-2125231561">
+        <item>Defamation.</item>
+        <item>Assault.</item>
+        <item>Malicious prosecution.</item>
+        <item>All of the above.</item>
+        </list>
+        </problem>
+        </exercise>
+
+        <exercise id="fs-212323156">
+        <problem id="fa-212423156">
+        <para id="fa-212623156">When an individual creates and promotes malicious falsehoods about another that individual may be liable for:</para>
+        <list list-type="enumerated" number-style="lower-alpha" id="fa-212523156">
+        <item>Libel.</item>
+        <item>Slander.</item>
+        <item>Defamation.</item>
+        <item>All of the above.</item>
+        </list>
+        </problem>
+        <solution id="fa-2127823156">
+        <para id="fa-2128823156">d</para>
+        </solution>
+        </exercise>
+
+        <exercise id="fs-212323">
+          <problem id="fa-212423">
+            <para id="fa-212623">Describe Negligence.</para>
+          </problem>
+        </exercise>
+
+        <exercise id="fs-21232315">
+        <problem id="fa-21242315">
+        <para id="fa-21262315">All of the following are elements of negligence except:</para>
+        <list list-type="enumerated" number-style="lower-alpha" id="fa-21252315">
+        <item>A reasonable person.</item>
+        <item>A duty by the defendant to either act or refrain from acting.</item>
+        <item>A breach of a duty owed by defendant.</item>
+        <item>Measurable harm.</item>
+        </list>
+        </problem>
+        <solution id="fa-212782315">
+        <para id="fa-212882315">a</para>
+        </solution>
+        </exercise>
+
+
+        <exercise id="fs-2123231">
+        <problem id="fa-2124231">
+        <para id="fa-2126231">Which of the following is a special relationship giving rise to a duty to act to aid or protect one in peril?</para>
+        <list list-type="enumerated" number-style="lower-alpha" id="fa-2125231">
+        <item>Hotel and guest.</item>
+        <item>Cousin to cousin.</item>
+        <item>School principal and student.</item>
+        <item>Hotel and guest, and school principal and student.</item>
+        </list>
+        </problem>
+        </exercise>
+
+</section>
+    </content>
+
+
+</document>
