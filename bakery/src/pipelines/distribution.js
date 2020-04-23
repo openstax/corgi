@@ -5,13 +5,14 @@ const pipeline = (env) => {
   const taskAssembleBookMeta = require('../tasks/assemble-book-metadata')
   const taskBakeBook = require('../tasks/bake-book')
   const taskBakeBookMeta = require('../tasks/bake-book-metadata')
+  const taskChecksumBook = require('../tasks/checksum-book')
   const taskDisassembleBook = require('../tasks/disassemble-book')
   const taskJsonifyBook = require('../tasks/jsonify-book')
   const taskUploadBook = require('../tasks/upload-book')
 
-  const bucket = env.ENV_NAME === 'local' ? env.S3_DIST_BUCKET : '((aws-s3-distribution-bucket))'
-  const awsAccessKeyId = env.ENV_NAME === 'local' ? env.S3_ACCESS_KEY_ID : '((aws-sandbox-secret-key-id))'
-  const awsSecretAccessKey = env.ENV_NAME === 'local' ? env.S3_SECRET_ACCESS_KEY : '((aws-sandbox-secret-access-key))'
+  const bucket = env.S3_DIST_BUCKET
+  const awsAccessKeyId = '((aws-sandbox-secret-key-id))'
+  const awsSecretAccessKey = '((aws-sandbox-secret-access-key))'
 
   const resources = [
     {
@@ -26,7 +27,7 @@ const pipeline = (env) => {
       type: 's3',
       source: {
         bucket: bucket,
-        versioned_file: env.ENV_NAME === 'local' ? env.VERSIONED_FILE : '((versioned-feed-file))',
+        versioned_file: '((versioned-feed-file))',
         access_key_id: awsAccessKeyId,
         secret_access_key: awsSecretAccessKey
       }
@@ -44,6 +45,7 @@ const pipeline = (env) => {
       taskAssembleBookMeta(),
       taskBakeBook(),
       taskBakeBookMeta(),
+      taskChecksumBook(),
       taskDisassembleBook(),
       taskJsonifyBook(),
       taskUploadBook({

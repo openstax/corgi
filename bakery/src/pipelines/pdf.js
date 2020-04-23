@@ -57,13 +57,9 @@ const pipeline = (env) => {
       name: 's3',
       type: 's3',
       source: {
-        bucket: env.S3_BUCKET,
-        access_key_id: env.ENV_NAME === 'local'
-          ? env.S3_ACCESS_KEY_ID
-          : '((aws-sandbox-secret-key-id))',
-        secret_access_key: env.ENV_NAME === 'local'
-          ? env.S3_SECRET_ACCESS_KEY
-          : '((aws-sandbox-secret-access-key))',
+        bucket: env.S3_PDF_BUCKET,
+        access_key_id: '((aws-sandbox-secret-key-id))',
+        secret_access_key: '((aws-sandbox-secret-access-key))',
         skip_download: true
       }
     }
@@ -81,7 +77,7 @@ const pipeline = (env) => {
       taskAssembleBook(),
       taskBakeBook(),
       taskMathifyBook(),
-      taskBuildPdf({ bucketName: env.S3_BUCKET }),
+      taskBuildPdf({ bucketName: env.S3_PDF_BUCKET }),
       {
         put: 's3',
         params: {

@@ -4,7 +4,7 @@ const yaml = require('js-yaml')
 
 const pipelineDir = path.resolve(__dirname, './pipelines')
 const envDir = path.resolve(__dirname, '../env')
-const commandUsage = 'pipeline <pipelinetype> [options] <env> [options]...'	
+const commandUsage = 'pipeline <pipelinetype> <env> [options]...'	
 
 module.exports.command = commandUsage
 module.exports.aliases = ['p']
@@ -12,11 +12,11 @@ module.exports.describe = 'builds a pipeline runnable with fly command'
 module.exports.builder = yargs => {	
   yargs.usage(`Usage: ${process.env.CALLER || 'build.js'} ${commandUsage}`)	
   yargs.positional('env', {
-    describe: 'name of environment',
+    describe: 'pipeline environment',
     choices: fs.readdirSync(envDir).map(file => path.basename(file, '.json')),
     type: 'string'
   }).positional('pipelinetype', {	
-    describe: 'type of pipeline',	
+    describe: 'pipeline type',	
     choices: fs.readdirSync(pipelineDir).map(file => path.basename(file, '.js')),	
     type: 'string'	
   }).option('output', {	
@@ -26,11 +26,6 @@ module.exports.builder = yargs => {
     normalize: true,	
     requiresArg: true,	
     type: 'string'	
-  }).option('pipelinetypeargs', {
-    alias: ['a'],
-    describe: 'args for pipeline type',
-    requiresArg: true,
-    type: 'string'
   })
 }
 module.exports.handler = argv => {
