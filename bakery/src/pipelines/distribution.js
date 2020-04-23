@@ -1,5 +1,5 @@
 const pipeline = (env) => {
-  const taksLookUpFeed = require('../tasks/look-up-feed')
+  const taskLookUpFeed = require('../tasks/look-up-feed')
   const taskFetchBook = require('../tasks/fetch-book')
   const taskAssembleBook = require('../tasks/assemble-book')
   const taskAssembleBookMeta = require('../tasks/assemble-book-metadata')
@@ -38,7 +38,7 @@ const pipeline = (env) => {
     plan: [
       { get: 's3-feed', trigger: true, version: 'every' },
       { get: 'cnx-recipes' },
-      taksLookUpFeed(),
+      taskLookUpFeed(),
       taskFetchBook(),
       taskAssembleBook(),
       taskAssembleBookMeta(),
