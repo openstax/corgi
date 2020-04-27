@@ -54,7 +54,7 @@ services:
       - CONCOURSE_MAIN_TEAM_LOCAL_USER=admin
 `
 
-const flyExecute = async cmdArgs => {
+const flyExecute = async (cmdArgs, { image }) => {
   const tmpComposeYml = tmp.fileSync()
   fs.writeFileSync(tmpComposeYml.name, composeYml)
 
@@ -118,13 +118,16 @@ const flyExecute = async cmdArgs => {
     console.log('waiting for concourse to settle')
     await sleep(2000)
 
-    console.log(`executing with args: ${cmdArgs}`)
-    const execute = spawn('fly', [
+    const imageArg = image == null ? [] : [`--image=${image}`]
+    const flyArgs = [
       'execute',
       '-t', 'bakery-cli',
       '--include-ignored',
+      ...imageArg,
       ...cmdArgs
-    ], {
+    ]
+    console.log(`executing fly with args: ${flyArgs}`)
+    const execute = spawn('fly', flyArgs, {
       stdio: 'inherit',
       env: {
         ...process.env,
@@ -175,7 +178,7 @@ const yargs = require('yargs')
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         output(dataDir, 'fetched-book')
-      ])
+      ], { image: argv.image })
     }
     return {
       command: commandUsage,
@@ -218,7 +221,7 @@ const yargs = require('yargs')
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'fetched-book'),
         output(dataDir, 'assembled-book')
-      ])
+      ], { image: argv.image })
     }
     return {
       command: commandUsage,
@@ -264,7 +267,7 @@ const yargs = require('yargs')
         input(dataDir, 'assembled-book'),
         `--input=cnx-recipes=${tmpRecipesDir.name}`,
         output(dataDir, 'baked-book')
-      ])
+      ], { image: argv.image })
     }
     return {
       command: commandUsage,
@@ -307,7 +310,7 @@ const yargs = require('yargs')
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'baked-book'),
         output(dataDir, 'mathified-book')
-      ])
+      ], { image: argv.image })
     }
     return {
       command: commandUsage,
@@ -345,7 +348,7 @@ const yargs = require('yargs')
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'mathified-book'),
         output(dataDir, 'artifacts')
-      ])
+      ], { image: argv.image })
     }
     return {
       command: commandUsage,
@@ -382,7 +385,7 @@ const yargs = require('yargs')
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'assembled-book'),
         output(dataDir, 'assembled-book-metadata')
-      ])
+      ], { image: argv.image })
     }
     return {
       command: commandUsage,
@@ -420,7 +423,7 @@ const yargs = require('yargs')
         input(dataDir, 'baked-book'),
         input(dataDir, 'assembled-book-metadata'),
         output(dataDir, 'baked-book-metadata')
-      ])
+      ], { image: argv.image })
     }
     return {
       command: commandUsage,
@@ -458,7 +461,7 @@ const yargs = require('yargs')
         input(dataDir, 'baked-book'),
         input(dataDir, 'baked-book-metadata'),
         output(dataDir, 'disassembled-book')
-      ])
+      ], { image: argv.image })
     }
     return {
       command: commandUsage,
@@ -495,7 +498,7 @@ const yargs = require('yargs')
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'disassembled-book'),
         output(dataDir, 'jsonified-book')
-      ])
+      ], { image: argv.image })
     }
     return {
       command: commandUsage,
@@ -525,6 +528,11 @@ const yargs = require('yargs')
     demandOption: true,
     describe: 'path to data directory',
     normalize: true,
+    type: 'string'
+  })
+  .option('i', {
+    alias: 'image',
+    describe: 'name of image to use instead of default',
     type: 'string'
   })
   .demandCommand(1, 'command required')
