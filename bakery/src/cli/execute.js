@@ -54,7 +54,7 @@ services:
       - CONCOURSE_MAIN_TEAM_LOCAL_USER=admin
 `
 
-const flyExecute = async (cmdArgs, { image }) => {
+const flyExecute = async (cmdArgs, { image, persist }) => {
   const tmpComposeYml = tmp.fileSync()
   fs.writeFileSync(tmpComposeYml.name, composeYml)
 
@@ -144,13 +144,17 @@ const flyExecute = async (cmdArgs, { image }) => {
     }
     error = err
   } finally {
-    console.log('cleaning up')
-    const cleanUp = spawn('docker-compose', [
-      '-f', tmpComposeYml.name,
-      'stop'
-    ], { stdio: 'inherit' })
-    children.push(cleanUp)
-    await completion(cleanUp)
+    if (error != null || !persist) {
+      console.log('cleaning up')
+      const cleanUp = spawn('docker-compose', [
+        '-f', tmpComposeYml.name,
+        'stop'
+      ], { stdio: 'inherit' })
+      children.push(cleanUp)
+      await completion(cleanUp)
+    } else {
+      console.log('persisting containers')
+    }
   }
   if (error != null) {
     throw error
@@ -533,6 +537,11 @@ const yargs = require('yargs')
   .option('i', {
     alias: 'image',
     describe: 'name of image to use instead of default',
+    type: 'string'
+  })
+  .option('p', {
+    alias: 'persist',
+    describe: 'persist containers after running cli command',
     type: 'string'
   })
   .demandCommand(1, 'command required')
