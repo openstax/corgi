@@ -1,10 +1,12 @@
 const path = require('path')
 const fs = require('fs')
 const { execFileSync, spawn } = require('child_process')
+const waitPort = require('wait-port')
 
-const sleep = require('sleep')
 const tmp = require('tmp')
 tmp.setGracefulCleanup()
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 const completion = subprocess => {
   const error = new Error()
@@ -78,31 +80,32 @@ const flyExecute = async cmdArgs => {
   children.push(startup)
   await completion(startup)
 
+  let error
   try {
-    let retries = 0
-    let success = false
-    while (!success) {
-      try {
-        console.log('logging in')
-        const login = spawn('fly', [
-          'login',
-          '-k',
-          '-t', 'bakery-cli',
-          '-c', 'http://127.0.0.1:8080',
-          '-u', 'admin',
-          '-p', 'admin'
-        ], { stdio: 'inherit' })
-        children.push(login)
-        await completion(login)
-        success = true
-      } catch {
-        if (retries > 10) {
-          throw new Error('Timeout trying to login into concourse')
-        }
-        sleep.sleep(3)
-        retries += 1
-      }
-    }
+    console.log('waiting for concourse to wake up')
+    await waitPort({
+      protocol: 'http',
+      host: 'localhost',
+      port: 8080,
+      path: '/api/v1/info',
+      timeout: 120000,
+      output: 'silent'
+    })
+
+    console.log('waiting for concourse to settle')
+    await sleep(2000)
+
+    console.log('logging in')
+    const login = spawn('fly', [
+      'login',
+      '-k',
+      '-t', 'bakery-cli',
+      '-c', 'http://127.0.0.1:8080',
+      '-u', 'admin',
+      '-p', 'admin'
+    ], { stdio: 'inherit' })
+    children.push(login)
+    await completion(login)
 
     console.log('syncing')
     const sync = spawn('fly', [
@@ -112,10 +115,14 @@ const flyExecute = async cmdArgs => {
     children.push(sync)
     await completion(sync)
 
-    console.log('executing')
+    console.log('waiting for concourse to settle')
+    await sleep(2000)
+
+    console.log(`executing with args: ${cmdArgs}`)
     const execute = spawn('fly', [
       'execute',
       '-t', 'bakery-cli',
+      '--include-ignored',
       ...cmdArgs
     ], {
       stdio: 'inherit',
@@ -132,6 +139,7 @@ const flyExecute = async cmdArgs => {
     } else {
       console.log(err)
     }
+    error = err
   } finally {
     console.log('cleaning up')
     const cleanUp = spawn('docker-compose', [
@@ -140,6 +148,9 @@ const flyExecute = async cmdArgs => {
     ], { stdio: 'inherit' })
     children.push(cleanUp)
     await completion(cleanUp)
+  }
+  if (error != null) {
+    throw error
   }
 }
 
@@ -160,7 +171,7 @@ const yargs = require('yargs')
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      flyExecute([
+      await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         output(dataDir, 'fetched-book')
@@ -202,7 +213,7 @@ const yargs = require('yargs')
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      flyExecute([
+      await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'fetched-book'),
@@ -247,7 +258,7 @@ const yargs = require('yargs')
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      flyExecute([
+      await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'assembled-book'),
@@ -291,7 +302,7 @@ const yargs = require('yargs')
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      flyExecute([
+      await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'baked-book'),
@@ -329,7 +340,7 @@ const yargs = require('yargs')
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      flyExecute([
+      await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'mathified-book'),
@@ -366,7 +377,7 @@ const yargs = require('yargs')
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      flyExecute([
+      await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'assembled-book'),
@@ -403,7 +414,7 @@ const yargs = require('yargs')
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      flyExecute([
+      await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'baked-book'),
@@ -441,7 +452,7 @@ const yargs = require('yargs')
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      flyExecute([
+      await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'baked-book'),
@@ -479,7 +490,7 @@ const yargs = require('yargs')
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      flyExecute([
+      await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'disassembled-book'),

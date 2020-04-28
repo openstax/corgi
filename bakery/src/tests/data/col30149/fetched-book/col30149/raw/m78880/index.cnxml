@@ -1,0 +1,147 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml" xmlns:bib="http://bibtexml.sf.net/" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:q="http://cnx.rice.edu/qml/1.0" xmlns:data="http://www.w3.org/TR/html5/dom.html#custom-data-attribute" id="new" cnxml-version="0.7" module-id="new">
+
+<title>Negotiation</title>
+<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">
+  <!-- WARNING! The 'metadata' section is read only. Do not edit below.
+       Changes to the metadata section in the source will not be saved. -->
+  <md:repository>https://legacy.cnx.org/content</md:repository>
+  <md:content-url>https://legacy.cnx.org/content/m78880/latest/</md:content-url>
+  <md:content-id>m78880</md:content-id>
+  <md:title>Negotiation</md:title>
+  <md:version>1.8</md:version>
+  <md:created>2019/09/06 08:41:57 -0500</md:created>
+  <md:revised>2019/09/09 08:31:36.315 GMT-5</md:revised>
+  <md:actors>
+    <md:person userid="OSCRiceUniversity">
+      <md:firstname>Rice</md:firstname>
+      <md:surname>University</md:surname>
+      <md:fullname>Rice University</md:fullname>
+      <md:email>info@openstaxcollege.org</md:email>
+    </md:person>
+    <md:organization userid="OpenStaxCollege">
+      <md:shortname>OpenStax</md:shortname>
+      <md:fullname>OpenStax</md:fullname>
+      <md:email>info@openstax.org</md:email>
+    </md:organization>
+    <md:person userid="cnxbusinesslaw">
+      <md:firstname>OpenStax</md:firstname>
+      <md:surname>Business Law</md:surname>
+      <md:fullname>OpenStax Business Law</md:fullname>
+      <md:email>info@openstax.org</md:email>
+    </md:person>
+  </md:actors>
+  <md:roles>
+    <md:role type="author">OpenStaxCollege</md:role>
+    <md:role type="maintainer">OpenStaxCollege cnxbusinesslaw</md:role>
+    <md:role type="licensor">OSCRiceUniversity</md:role>
+  </md:roles>
+  <md:license url="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution License 4.0</md:license>
+  <!-- For information on license requirements for use or modification, see license url in the
+       above <md:license> element.
+       For information on formatting required attribution, see the URL:
+         CONTENT_URL/content_info#cnx_cite_header
+       where CONTENT_URL is the value provided above in the <md:content-url> element.
+  -->
+  <md:subjectlist>
+    <md:subject>Business</md:subject>
+    <md:subject>Business</md:subject>
+  </md:subjectlist>
+  <md:abstract/>
+  <md:language>en</md:language>
+  <!-- WARNING! The 'metadata' section is read only. Do not edit above.
+       Changes to the metadata section in the source will not be saved. -->
+</metadata>
+
+<content>
+			<para id="fs-idm339989072">We frequently engage in negotiations as we go about our daily activities, often without being consciously aware that we are doing so. Negotiation can be simple, e.g., two friends deciding on a place to eat dinner, or complex, e.g., governments of several nations trying to establish import and export quotas across multiple industries. When a formal proceeding is started in the court system, <term>alternative dispute resolution</term> (<term>ADR</term>), or ways of solving an issue with the intent to avoid <term>litigation</term>, may be employed. Negotiation is often the first step used in ADR. While there are other forms of alternative dispute resolution, negotiation is considered to be the simplest because it does not require outside parties. An article in the <term>Organization Behavior and Human Decision Processes</term> defined <term>negotiation</term> as the “process by which parties with nonidentical preferences allocate resources through interpersonal activity and joint decision making.” Analyzing the various components of this definition is helpful in understanding the theories and practices involved in negotiation as a form of dispute settlement.</para>
+			<section id="fs-idm355093968">
+			<title class="Heading-2">Negotiation Types and Objectives</title>
+			<para id="fs-idm330346880">Per the above definition, negotiation becomes necessary when two parties hold “non-identical” preferences. This statement seems fairly obvious, since 100% agreement would indicate that there is not any need for negotiation. From this basic starting point, there are several ways of thinking about negotiation, including how many parties are involved. For example, if two small business owners find themselves in a disagreement over property lines, they will frequently engage in <term>dyadic negotiation</term>. Put simply, dyadic negotiation involves two individuals interacting with one another in an attempt to resolve a dispute. If a third neighbor overhears the dispute and believes one or both of them are wrong with regard to the property line, then <term>group negotiation</term> could ensue. Group negotiation involves more than two individuals or parties, and by its very nature, it is often more complex, time-consuming, and challenging to resolve. </para>
+			<para id="fs-idm346180112">While dyadic and group negotiations may involve different dynamics, one of the most important aspects of any negotiation, regardless of the quantity of negotiators, is the objective. Negotiation experts recognize two major goals of negotiation: relational and outcome. <term>Relational goals</term> are focused on building, maintaining, or repairing a partnership, connection, or rapport with another party. <term>Outcome goals</term>, on the other hand, concentrate on achieving certain end results. The goal of any negotiation is influenced by numerous factors, such as whether or not there will be contact with the other party in the future. For example, when a business negotiates with a supply company that it intends to do business with in the foreseeable future, it will try to focus on “win-win” solutions that provide the most value for each party. In contrast, if an interaction is of a one-time nature, that same company might approach a supplier with a “win-lose” mentality, viewing its objective as maximizing its own value at the expense of the other party’s value. This approach is referred to as <term>zero-sum negotiation</term>, and it is considered to be a “hard” negotiating style. Zero-sum negotiation is based on the notion that there is a “fixed pie,” and the larger the slice that one party receives, the smaller the slice the other party will receive. Win-win approaches to negotiation are sometimes referred to as <term>integrative</term>, while win-lose approaches are called <term>distributive</term>.</para>
+			<figure id="fs-idm357090960"><media id="fs-idm331592960" alt="One chess piece stands upright next to another that lies on its side."><image src="Figure_02_01.jpg" mime-type="image/png"/></media>
+			<caption>Certain negotiation styles adopt a mindset in which the extent of one’s win is proportional to the other’s loss. (Credit: Sebastian Voortman/ pexels/ License: CC0)</caption></figure></section>
+		<section id="fs-idm344167088">
+			<title class="Heading-2">Negotiation Style</title>
+			<para id="fs-idm333640912">Everyone has a different way of approaching negotiation, depending on the circumstance and the person’s personality. However, the <term>Thomas-Kilmann Conflict Mode Instrument (TKI) </term>is a questionnaire that provides a systematic framework for categorizing five broad negotiation styles. It is closely associated with work done by conflict resolution experts Dean Pruitt and Jeffrey Rubin. These styles are often considered in terms of the level of self-interest, instead of how other negotiators feel. These five general negotiation styles include:</para>
+			<list id="fs-idm330239712">
+				<item><term>Forcing</term>. If a party has high concern for itself, and low concern for the other party, it may adopt a competitive approach that only takes into account the outcomes it desires. This negotiation style is most prone to zero-sum thinking. For example, a car dealership that tries to give each customer as little as possible for his or her trade-in vehicle would be applying a forcing negotiation approach. While the party using the forcing approach is only considering its own self-interests, this negotiating style often undermines the party’s long-term success. For example, in the car dealership example, if a customer feels she has not received a fair trade-in value after the sale, she may leave negative reviews and will not refer her friends and family to that dealership and will not return to it when the time comes to buy another car.</item>
+				<item><term>Collaborating</term>. If a party has high concern and care for both itself and the other party, it will often employ a collaborative negotiation that seeks to maximum the gain for both. In this negotiating style, parties recognize that acting in their mutual interests may create greater value and synergies.</item>
+				<item><term>Compromising</term>. A compromising approach to negotiation will take place when parties share some concerns for both themselves and the other party. While it is not always possible to collaborate, parties can often find certain points that are more important to one versus the other, and in that way, find ways to isolate what is most important to each party.</item>
+				<item><term>Avoiding</term>. When a party has low concern for itself and for the other party, it will often try to avoid negotiation completely. </item>
+				<item><term>Yielding</term>. Finally, when a party has low self-concern for itself and high concern for the other party, it will yield to demands that may not be in its own best interest. As with avoidance techniques, it is important to ask why the party has low self-concern. It may be due to an unfair power differential between the two parties that has caused the weaker party to feel it is futile to represent its own interests. This example illustrates why negotiation is often fraught with ethical issues.</item>
+			</list>
+			<figure id="fs-idm334660000"><media id="fs-idm334659872" alt="A conceptual graph is depicted in order to demonstrate the principles associated with concern for self compared to concern for others.  The horizontal axis, labeled “Concern For Self,” proceeds from Low concern for self near the origin to high concern for self.  The vertical axis, labelled “Concern for Others,” proceeds from Low to High.    Within the graph are five circles indicating the concepts important in negotiation.  Closest to the origin is “Avoiding,” indicating that it involves low concern for self and low concern for others.  In the center of the graph is “Compromising,” indicating that it represents a relatively mid-range concern for self and others.  On the bottom right is “Feeling,” indicating that it involves high concern for self but low concern for others.  At the top left is “Yielding,” indicating that it involves low concern for self but high concern for others.  And at the top right is “Collaborating,” indicating that it involves high concern for self and others.   "><image src="Figure_02_02n.jpg" mime-type="image/png"/></media>
+			<caption>Concern for self vs. others leads to the differences in negotiating styles. (Modification of art by BNED/Rubin Credit: CC BY NC SA)</caption></figure></section>
+			<section id="fs-idm347606224">
+			<title class="Heading-2">Negotiation Styles in Practice</title>
+			<para id="fs-idm335136352">Apple’s response to its treatment of warranties in China, i.e., giving one-year warranties instead of two-year warranties as required by law, serves as an example of how negotiation may be used. While Apple products continued to be successful and popular in China, the issue rankled its customers, and Chinese celebrities joined the movement to address the concern. Chinese consumers felt that Apple was arrogant and didn’t value its customers or the customers’ feedback. In response, Tim Cook issued a public apology in which he expressed regret over the misunderstanding, saying, “We are aware that insufficient communications during this process has led to the perception that Apple is arrogant and disregards, or pays little attention to, consumer feedback. We express our sincere apologies for any concern or misunderstanding arising therefrom.” Apple then listed four ways it intended to resolve the matter. By exhibiting humility and concern for its customers, Apple was able to diffuse a contentious situation that might have resulted in costly litigation.</para>
+		</section>
+		<section id="fs-idm339970240">
+			<title class="Heading-2">Negotiation Laws</title>
+			<para id="fs-idm333094832">Negotiations are covered by a medley of federal and state laws, such as the <term>Federal Arbitration Act</term> and <term>Uniform Arbitration Act</term>. The Federal Arbitration Act (FAA) is a national policy that favors arbitration and enforces situations in which parties have contractually agreed to participate in arbitration. Parties who have decided to be subject to binding arbitration relinquish their constitutional right to settle their dispute in court. It is the FAA that allows parties to confirm their awards, as will be discussed in the following chapters. When considering negotiation laws, it is important to keep in mind that each state has laws with their own definitions and nuances. While the purpose of the Uniform Arbitration Act in the United States was to provide a uniform approach to the way states handle arbitration, it has only been adopted in some form by about 35 states.</para>
+		</section>
+		<section id="fs-idm330954800" class="references"><title>Sources</title><para id="fs-idm340674016">He, L. (April 2013). Tim Cook’s apology letter to Apple customer in China. Forbes. Retrieved from: https://www.forbes.com/sites/laurahe/2013/04/03/tim-cooks-apology-letter-to-customers-in-china/#510458b51ea3. </para><para id="fs-idm331342880">Kilmann, R. H., &amp; Thomas, K. W. (1977). Developing a forced-choice measure of conflict-handling behavior: The “MODE” instrument. <emphasis effect="italics">Educational and psychological measurement</emphasis>, 37(2), 309–325.</para><para id="fs-idm340970480">Top 10 International Business Negotiation Case Studies. Program on Negotiation. Harvard Law School. Retrieved from: https://www.pon.harvard.edu/daily/international-negotiation-daily/top-negotiation-case-studies-in-international-negotiations-from-business-and-global-politics/.</para><para id="fs-idm336808768">Pinkley, R. L., Neale, M. A., &amp; Bennett, R. J. (1994). The impact of alternatives to settlement in dyadic negotiation. <emphasis effect="italics">Organizational Behavior and Human Decision Processes</emphasis>, 57(1), 97–116.</para><para id="fs-idm354550688">Pruitt, D. G. (1983). Strategic choice in negotiation. <emphasis effect="italics">American Behavioral Scientist</emphasis>, 27(2), 167–194.</para><para id="fs-idm346150704">Pruitt, D. G., &amp; J. Z. Rubin. (1986). Social conflict: Escalation, stalemate, and settlement. New York: Random House.</para><para id="fs-idm334706496">Uniform Trusts Act. Cornell University Law School. Retrieved from: https://www.law.cornell.edu/uniform/vol7#arbit.</para></section>
+
+<section id="eip-45" class="assessment-questions">
+
+  <exercise id="fs-idm362137536">
+  <problem id="fs-idm367054512">
+  <para id="fs-idm544568848">A process in which a third party selected by the disputants helps the parties to voluntarily resolve their disagreement is known as:</para>
+  <list id="fs-idm355960560" list-type="enumerated" number-style="lower-alpha">
+  <item>Mediation.</item>
+  <item>Discovery.</item>
+  <item>Arbitration.</item>
+  <item>Settlement.</item>
+  </list>
+  </problem>
+  <solution id="fs-idm356581216">
+  <para id="fs-idm367572528">a</para>
+  </solution>
+  </exercise>
+
+  <exercise id="fs-idm348689424">
+  <problem id="fs-idm360480128">
+  <para id="fs-idm368589536">What’s the first step in Alternative Dispute Resolution?</para>
+  <list id="fs-idm343726928" list-type="enumerated" number-style="lower-alpha">
+  <item>Conciliation.</item>
+  <item>Mediation.</item>
+  <item>Negotiation.</item>
+  <item>Arbitration.</item>
+  </list>
+  </problem>
+  </exercise>
+
+
+  <exercise id="fs-idm390747376">
+  <problem id="fs-idm389987200">
+  <para id="fs-idm387956480">What’s the definition of negotiation?</para>
+  </problem>
+  <solution id="fs-idm356312144">
+  <para id="fs-idm400252816">The process by which parties with nonidentical preferences allocate resources through interpersonal activity and joint decision making.</para>
+  </solution>
+  </exercise>
+
+
+  <exercise id="fs-idm357500432">
+  <problem id="fs-idm388528208">
+  <para id="fs-idm350034720">How does the process of negotiation work?</para>
+  </problem>
+  </exercise>
+
+
+  <exercise id="fs-idm539867056">
+  <problem id="fs-idm538299120">
+  <para id="fs-idm356897072">Explain the Thomas-Kilmann Conflict Mode Instrument.</para>
+  </problem>
+  <solution id="fs-idm376249008">
+  <para id="fs-idm369568896">The Thomas-Kilmann Conflict Mode Instrument (TKI) is a questionnaire that provides a systematic framework for categorizing five broad negotiation styles. It is closely associated with work done by conflict resolution experts Dean Pruitt and Jeffrey Rubin. These styles are often considered in terms of the level of self-interest, instead of how other negotiators feel. These five general negotiation styles include:</para>
+  <para id="fs-idm350320800">Forcing. If a party has high concern for itself, and low concern for the other party, it may adopt a competitive approach that only takes into account the outcomes it desires. This negotiation style is most prone to zero-sum thinking. For example, a car dealership that tries to give each customer as little as possible for his or her trade-in vehicle would be applying a forcing negotiation approach. While the party using the forcing approach is only considering its own selfinterests, this negotiating style often undermines the party’s long-term success. For example, in the car dealership example, if a customer feels she has not received a fair trade-in value after the sale, she may leave negative reviews and will not refer her friends and family to that dealership and will not return to it when the time comes to buy another car.
+  Collaborating.</para>
+  <para id="fs-idm393026816">Collaborating. If a party has high concern and care for both itself and the other party, it will often employ a collaborative negotiation that seeks to maximum the gain for both. In this negotiating style, parties recognize that acting in their mutual interests may create greater value and synergies.</para>
+  <para id="fs-idm369132720">Compromising. A compromising approach to negotiation will take place when parties share some concerns for both themselves and the other party. While it is not always possible to collaborate, parties can often find certain points that are more important to one versus the other, and in that way, find ways to isolate what is most important to each party.</para>
+  </solution>
+  </exercise>
+
+</section></content>
+
+</document>
