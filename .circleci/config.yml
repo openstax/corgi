@@ -2,7 +2,7 @@ version: 2.0
 jobs:
   integration-test:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-1604:202004-01
 
     environment:
       TEST_RESULTS_DIR: /tmp/test-results
@@ -28,7 +28,7 @@ jobs:
 
   cli-functional-test:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-1604:202004-01
 
     steps:
       - checkout
