@@ -30,8 +30,8 @@ const extractImageDetails = imageArg => {
   if (imageArg == null) {
     return null
   }
-  let imageArgStripped = stripLocalPrefix(imageArg)
-  let tagNameSeparatorIndex = imageArgStripped.lastIndexOf(':')
+  const imageArgStripped = stripLocalPrefix(imageArg)
+  const tagNameSeparatorIndex = imageArgStripped.lastIndexOf(':')
   let imageName, imageTag
   if (tagNameSeparatorIndex === -1) {
     imageName = imageArgStripped
@@ -123,7 +123,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
         output: 'silent'
       })
       const imageStripped = stripLocalPrefix(image)
-      if (imageStripped == image) {
+      if (imageStripped === image) {
         throw new Error(`Specified image ${image} does not have prefix 'localhost.localdomain:5000'. Not safe to automatically push!`)
       }
       console.log(`uploading image: ${image}`)

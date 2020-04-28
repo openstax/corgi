@@ -5,8 +5,8 @@ const { constructImageSource } = require('../task-util/task-util')
 const task = ({ imageRegistry, imageName, imageTag }) => {
   // By default, use the cops-bakery-scripts image on Docker Hub
   // if details given, find alternative image
-  const imageSource = (constructImageSource({ imageRegistry, imageName, imageTag })
-    || { repository: 'openstax/cops-bakery-scripts' }
+  const imageSource = (constructImageSource({ imageRegistry, imageName, imageTag }) ||
+    { repository: 'openstax/cops-bakery-scripts' }
   )
   return {
     task: 'bake book metadata',
