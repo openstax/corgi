@@ -1,15 +1,18 @@
 const dedent = require('dedent')
 
-const task = () => {
+const { constructImageSource } = require('../task-util/task-util')
+
+const task = ({ imageRegistry, imageName, imageTag }) => {
+  const imageSource = (constructImageSource({ imageRegistry, imageName, imageTag })
+    || { repository: 'openstax/cops-bakery-scripts' }
+  )
   return {
     task: 'assemble book metadata',
     config: {
       platform: 'linux',
       image_resource: {
         type: 'docker-image',
-        source: {
-          repository: 'openstax/cops-bakery-scripts'
-        }
+        source: imageSource
       },
       inputs: [
         { name: 'book' },
