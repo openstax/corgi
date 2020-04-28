@@ -22,6 +22,31 @@ const completion = subprocess => {
   })
 }
 
+const stripLocalPrefix = imageArg => {
+  return imageArg.replace(/^(localhost.localdomain:5000)\//, '')
+}
+
+const extractImageDetails = imageArg => {
+  if (imageArg == null) {
+    return null
+  }
+  const imageArgStripped = stripLocalPrefix(imageArg)
+  const tagNameSeparatorIndex = imageArgStripped.lastIndexOf(':')
+  let imageName, imageTag
+  if (tagNameSeparatorIndex === -1) {
+    imageName = imageArgStripped
+    imageTag = 'latest'
+  } else {
+    imageName = imageArgStripped.slice(0, tagNameSeparatorIndex + 1)
+    imageTag = imageArgStripped.slice(tagNameSeparatorIndex)
+  }
+  return {
+    imageRegistry: 'registry:5000',
+    imageName,
+    imageTag
+  }
+}
+
 const input = (dataDir, name) => `--input=${name}=${dataDir}/${name}`
 const output = (dataDir, name) => `--output=${name}=${dataDir}/${name}`
 
@@ -52,9 +77,14 @@ services:
       - CONCOURSE_EXTERNAL_URL
       - CONCOURSE_ADD_LOCAL_USER=admin:admin
       - CONCOURSE_MAIN_TEAM_LOCAL_USER=admin
+
+  registry:
+    image: registry:2
+    ports: ["5000:5000"]
+    restart: always
 `
 
-const flyExecute = async cmdArgs => {
+const flyExecute = async (cmdArgs, { image, persist }) => {
   const tmpComposeYml = tmp.fileSync()
   fs.writeFileSync(tmpComposeYml.name, composeYml)
 
@@ -82,18 +112,37 @@ const flyExecute = async cmdArgs => {
 
   let error
   try {
+    if (image != null) {
+      console.log('waiting for registry to wake up')
+      await waitPort({
+        protocol: 'http',
+        host: 'localhost',
+        port: 5000,
+        path: '/v2/_catalog',
+        timeout: 30000,
+        output: 'silent'
+      })
+      const imageStripped = stripLocalPrefix(image)
+      if (imageStripped === image) {
+        throw new Error(`Specified image ${image} does not have prefix 'localhost.localdomain:5000'. Not safe to automatically push!`)
+      }
+      console.log(`uploading image: ${image}`)
+      const pushImage = spawn('docker', [
+        'push',
+        image
+      ], { stdio: 'inherit' })
+      await completion(pushImage)
+    }
+
     console.log('waiting for concourse to wake up')
     await waitPort({
       protocol: 'http',
       host: 'localhost',
       port: 8080,
       path: '/api/v1/info',
-      timeout: 120000,
+      timeout: 90000,
       output: 'silent'
     })
-
-    console.log('waiting for concourse to settle')
-    await sleep(2000)
 
     console.log('logging in')
     const login = spawn('fly', [
@@ -116,15 +165,16 @@ const flyExecute = async cmdArgs => {
     await completion(sync)
 
     console.log('waiting for concourse to settle')
-    await sleep(2000)
+    await sleep(5000)
 
-    console.log(`executing with args: ${cmdArgs}`)
-    const execute = spawn('fly', [
+    const flyArgs = [
       'execute',
       '-t', 'bakery-cli',
       '--include-ignored',
       ...cmdArgs
-    ], {
+    ]
+    console.log(`executing fly with args: ${flyArgs}`)
+    const execute = spawn('fly', flyArgs, {
       stdio: 'inherit',
       env: {
         ...process.env,
@@ -141,13 +191,17 @@ const flyExecute = async cmdArgs => {
     }
     error = err
   } finally {
-    console.log('cleaning up')
-    const cleanUp = spawn('docker-compose', [
-      '-f', tmpComposeYml.name,
-      'stop'
-    ], { stdio: 'inherit' })
-    children.push(cleanUp)
-    await completion(cleanUp)
+    if (error != null || !persist) {
+      console.log('cleaning up')
+      const cleanUp = spawn('docker-compose', [
+        '-f', tmpComposeYml.name,
+        'stop'
+      ], { stdio: 'inherit' })
+      children.push(cleanUp)
+      await completion(cleanUp)
+    } else {
+      console.log('persisting containers')
+    }
   }
   if (error != null) {
     throw error
@@ -175,7 +229,7 @@ const yargs = require('yargs')
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         output(dataDir, 'fetched-book')
-      ])
+      ], { image: argv.image, persist: argv.persist })
     }
     return {
       command: commandUsage,
@@ -218,7 +272,7 @@ const yargs = require('yargs')
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'fetched-book'),
         output(dataDir, 'assembled-book')
-      ])
+      ], { image: argv.image, persist: argv.persist })
     }
     return {
       command: commandUsage,
@@ -264,7 +318,7 @@ const yargs = require('yargs')
         input(dataDir, 'assembled-book'),
         `--input=cnx-recipes=${tmpRecipesDir.name}`,
         output(dataDir, 'baked-book')
-      ])
+      ], { image: argv.image, persist: argv.persist })
     }
     return {
       command: commandUsage,
@@ -307,7 +361,7 @@ const yargs = require('yargs')
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'baked-book'),
         output(dataDir, 'mathified-book')
-      ])
+      ], { image: argv.image, persist: argv.persist })
     }
     return {
       command: commandUsage,
@@ -345,7 +399,7 @@ const yargs = require('yargs')
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'mathified-book'),
         output(dataDir, 'artifacts')
-      ])
+      ], { image: argv.image, persist: argv.persist })
     }
     return {
       command: commandUsage,
@@ -368,7 +422,11 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'assemble-book-metadata'])
+      const imageDetails = extractImageDetails(argv.image)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'assemble-book-metadata', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -382,7 +440,7 @@ const yargs = require('yargs')
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'assembled-book'),
         output(dataDir, 'assembled-book-metadata')
-      ])
+      ], { image: argv.image, persist: argv.persist })
     }
     return {
       command: commandUsage,
@@ -405,7 +463,11 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'bake-book-metadata'])
+      const imageDetails = extractImageDetails(argv.image)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'bake-book-metadata', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -420,7 +482,7 @@ const yargs = require('yargs')
         input(dataDir, 'baked-book'),
         input(dataDir, 'assembled-book-metadata'),
         output(dataDir, 'baked-book-metadata')
-      ])
+      ], { image: argv.image, persist: argv.persist })
     }
     return {
       command: commandUsage,
@@ -443,7 +505,11 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'disassemble-book'])
+      const imageDetails = extractImageDetails(argv.image)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'disassemble-book', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -458,7 +524,7 @@ const yargs = require('yargs')
         input(dataDir, 'baked-book'),
         input(dataDir, 'baked-book-metadata'),
         output(dataDir, 'disassembled-book')
-      ])
+      ], { image: argv.image, persist: argv.persist })
     }
     return {
       command: commandUsage,
@@ -481,7 +547,11 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'jsonify-book'])
+      const imageDetails = extractImageDetails(argv.image)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'jsonify-book', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -495,7 +565,7 @@ const yargs = require('yargs')
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'disassembled-book'),
         output(dataDir, 'jsonified-book')
-      ])
+      ], { image: argv.image, persist: argv.persist })
     }
     return {
       command: commandUsage,
@@ -526,6 +596,17 @@ const yargs = require('yargs')
     describe: 'path to data directory',
     normalize: true,
     type: 'string'
+  })
+  .option('i', {
+    alias: 'image',
+    describe: 'name of image to use instead of default',
+    type: 'string'
+  })
+  .option('p', {
+    alias: 'persist',
+    describe: 'persist containers after running cli command',
+    boolean: true,
+    default: false
   })
   .demandCommand(1, 'command required')
   .help()
