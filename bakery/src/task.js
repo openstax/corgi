@@ -31,11 +31,7 @@ module.exports.builder = yargs => {
 module.exports.handler = argv => {
   const task = (() => {
     const taskFilePath = path.resolve(taskDir, `${argv.taskname}.js`)
-    try {
-      return require(taskFilePath)
-    } catch {
-      throw new Error(`Could not find task file: ${taskFilePath}`)
-    }
+    return require(taskFilePath)
   })()
   const outputFile = argv.output == null
     ? undefined

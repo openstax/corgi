@@ -9,7 +9,7 @@ from lxml.builder import ElementMaker, E
 from cnxepub.collation import reconstitute
 from cnxepub.html_parsers import HTML_DOCUMENT_NAMESPACES
 from cnxepub.formatters import DocumentContentFormatter
-from cnxepub.models import flatten_to, Document
+from cnxepub.models import flatten_to_documents, Document, content_to_etree
 
 def extract_slugs_from_tree(tree, data):
     """Given a tree with slugs create a flattened structure where slug data
@@ -37,7 +37,7 @@ def main():
     """Main function"""
     in_dir = Path(sys.argv[1]).resolve(strict=True)
     out_dir = (in_dir / "disassembled").resolve(strict=True)
-    collection_id = sys.argv[2]
+    collection_uuid, collection_version = sys.argv[2:4]
     baked_file = (in_dir / "collection.baked.xhtml").resolve(strict=True)
     baked_metdata_file = (in_dir / "collection.baked-metadata.json").resolve(strict=True)
 
@@ -51,6 +51,10 @@ def main():
         # without diverging
         slugs = extract_slugs_from_binder(binder)
 
+    with open(baked_metdata_file, "r") as baked_json:
+        baked_metadata = json.load(baked_json)
+        book_toc_metadata = baked_metadata.get(binder.id)
+
     nav = html_root.xpath("//xhtml:nav", namespaces=HTML_DOCUMENT_NAMESPACES)[0]
 
     toc_maker = ElementMaker(namespace=None,
@@ -58,21 +62,23 @@ def main():
     toc = toc_maker.html(E.head(E.title("Table of Contents")),
                          E.body(nav))
 
-    with open(f"{out_dir}/collection.toc.xhtml", "wb") as out:
-        out.write(etree.tostring(toc, encoding="utf8", pretty_print=True))
+    nav_links = toc.xpath("//xhtml:a", namespaces=HTML_DOCUMENT_NAMESPACES)
 
-    with open(baked_metdata_file, "r") as baked_json:
-        baked_metadata = json.load(baked_json)
-        book_toc_metadata = baked_metadata.get(collection_id)
+    for doc in flatten_to_documents(binder):
+        id_with_context = f'{collection_uuid}@{collection_version}:{doc.ident_hash}'
 
-    with open(f"{out_dir}/collection.toc-metadata.json", "w") as toc_json:
-        json.dump(book_toc_metadata, toc_json)
+        module_etree = content_to_etree(doc.content)
+        for link in nav_links:
+            link_href = link.attrib['href']
+            if not link_href.startswith('#'):
+                continue
+            if module_etree.xpath(f"/xhtml:body/xhtml:div[@id='{link_href[1:]}']", namespaces=HTML_DOCUMENT_NAMESPACES):
+                link.attrib['href'] = f'./{id_with_context}.xhtml'
 
-    for doc in flatten_to(binder, lambda d: isinstance(d, Document)):
-        with open(f"{out_dir / doc.ident_hash}.xhtml", "wb") as out:
+        with open(f"{out_dir / id_with_context}.xhtml", "wb") as out:
             out.write(bytes(DocumentContentFormatter(doc)))
 
-        with open(f"{out_dir / doc.ident_hash}-metadata.json", "w") as json_out:
+        with open(f"{out_dir / id_with_context}-metadata.json", "w") as json_out:
             # Incorporate metadata from disassemble step while setting defaults
             # for cases like composite pages which may not have metadata from
             # previous stages
@@ -89,6 +95,12 @@ def main():
                 json_metadata,
                 json_out
             )
+
+    with open(f"{out_dir}/collection.toc.xhtml", "wb") as out:
+        out.write(etree.tostring(toc, encoding="utf8", pretty_print=True))
+
+    with open(f"{out_dir}/collection.toc-metadata.json", "w") as toc_json:
+        json.dump(book_toc_metadata, toc_json)
 
 if __name__ == "__main__":
     main()

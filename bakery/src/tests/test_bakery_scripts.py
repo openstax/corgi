@@ -63,7 +63,6 @@ def test_disassemble_book(tmp_path):
     disassemble_book_script = os.path.join(SCRIPT_DIR, "disassemble-book.py")
     input_baked_xhtml = os.path.join(TEST_DATA_DIR, "collection.baked.xhtml")
     input_baked_metadata = os.path.join(TEST_DATA_DIR, "collection.baked-metadata.json")
-    input_baked_collection_id = os.path.join(TEST_DATA_DIR, "collection_id")
 
     input_dir = tmp_path / "book"
     input_dir.mkdir()
@@ -72,17 +71,21 @@ def test_disassemble_book(tmp_path):
     input_baked_xhtml_file.write_bytes(open(input_baked_xhtml, "rb").read())
     input_baked_metadata_file = input_dir / "collection.baked-metadata.json"
     input_baked_metadata_file.write_text(open(input_baked_metadata, "r").read())
-    collection_id = open(input_baked_collection_id, "r").read()
 
     disassembled_output = input_dir / "disassembled"
     disassembled_output.mkdir()
+
+    mock_uuid = "00000000-0000-0000-0000-000000000000"
+    mock_version = "0.0"
+    mock_ident_hash = f"{mock_uuid}@{mock_version}"
 
     subprocess.run(
         [
             "python",
             disassemble_book_script,
             input_dir,
-            collection_id
+            mock_uuid,
+            mock_version
         ],
         cwd=HERE,
         check=True
@@ -94,8 +97,8 @@ def test_disassemble_book(tmp_path):
     assert len(json_output_files) == 3
 
     # Check for expected files and metadata that should be generated in this step
-    json_output_m42119 = disassembled_output / "m42119@1.6-metadata.json"
-    json_output_m42092 = disassembled_output / "m42092@1.10-metadata.json"
+    json_output_m42119 = disassembled_output / f"{mock_ident_hash}:m42119@1.6-metadata.json"
+    json_output_m42092 = disassembled_output / f"{mock_ident_hash}:m42092@1.10-metadata.json"
     m42119_data = json.load(open(json_output_m42119, "r"))
     m42092_data = json.load(open(json_output_m42092, "r"))
     assert m42119_data.get("title") == \
@@ -119,7 +122,6 @@ def test_disassemble_book_empy_baked_metadata(tmp_path):
     """
     disassemble_book_script = os.path.join(SCRIPT_DIR, "disassemble-book.py")
     input_baked_xhtml = os.path.join(TEST_DATA_DIR, "collection.baked.xhtml")
-    input_baked_collection_id = os.path.join(TEST_DATA_DIR, "collection_id")
 
     input_dir = tmp_path / "book"
     input_dir.mkdir()
@@ -127,26 +129,30 @@ def test_disassemble_book_empy_baked_metadata(tmp_path):
     input_baked_xhtml_file = input_dir / "collection.baked.xhtml"
     input_baked_xhtml_file.write_bytes(open(input_baked_xhtml, "rb").read())
     input_baked_metadata_file = input_dir / "collection.baked-metadata.json"
-    collection_id = open(input_baked_collection_id, "r").read()
     input_baked_metadata_file.write_text(json.dumps({}))
 
     disassembled_output = input_dir / "disassembled"
     disassembled_output.mkdir()
+
+    mock_uuid = "00000000-0000-0000-0000-000000000000"
+    mock_version = "0.0"
+    mock_ident_hash = f"{mock_uuid}@{mock_version}"
 
     subprocess.run(
         [
             "python",
             disassemble_book_script,
             input_dir,
-            collection_id
+            mock_uuid,
+            mock_version
         ],
         cwd=HERE,
         check=True
     )
 
     # Check for expected files and metadata that should be generated in this step
-    json_output_m42119 = disassembled_output / "m42119@1.6-metadata.json"
-    json_output_m42092 = disassembled_output / "m42092@1.10-metadata.json"
+    json_output_m42119 = disassembled_output / f"{mock_ident_hash}:m42119@1.6-metadata.json"
+    json_output_m42092 = disassembled_output / f"{mock_ident_hash}:m42092@1.10-metadata.json"
     m42119_data = json.load(open(json_output_m42119, "r"))
     m42092_data = json.load(open(json_output_m42092, "r"))
     assert m42119_data["abstract"] is None

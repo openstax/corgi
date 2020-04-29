@@ -521,6 +521,7 @@ const yargs = require('yargs')
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'fetched-book'),
         input(dataDir, 'baked-book'),
         input(dataDir, 'baked-book-metadata'),
         output(dataDir, 'disassembled-book')
