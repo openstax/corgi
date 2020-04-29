@@ -1,5 +1,5 @@
 PyICU==1.9.8
 cnx-epub==0.21.0
-cnx-common==1.2.2
+cnx-common==1.2.3
 cnx-easybake==1.2.7
-awscli==1.18.18
+awscli==1.18.48
