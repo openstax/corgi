@@ -1,0 +1,300 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml" xmlns:bib="http://bibtexml.sf.net/" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:q="http://cnx.rice.edu/qml/1.0" xmlns:data="http://www.w3.org/TR/html5/dom.html#custom-data-attribute" id="new" cnxml-version="0.7" module-id="new">
+
+<title>The Nature and Origins of Sales Contracts</title>
+<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">
+  <!-- WARNING! The 'metadata' section is read only. Do not edit below.
+       Changes to the metadata section in the source will not be saved. -->
+  <md:repository>https://legacy.cnx.org/content</md:repository>
+  <md:content-url>https://legacy.cnx.org/content/m78900/latest/</md:content-url>
+  <md:content-id>m78900</md:content-id>
+  <md:title>The Nature and Origins of Sales Contracts</md:title>
+  <md:version>1.5</md:version>
+  <md:created>2019/09/06 13:29:33 -0500</md:created>
+  <md:revised>2019/09/09 08:36:39.164 GMT-5</md:revised>
+  <md:actors>
+    <md:person userid="OSCRiceUniversity">
+      <md:firstname>Rice</md:firstname>
+      <md:surname>University</md:surname>
+      <md:fullname>Rice University</md:fullname>
+      <md:email>info@openstaxcollege.org</md:email>
+    </md:person>
+    <md:organization userid="OpenStaxCollege">
+      <md:shortname>OpenStax</md:shortname>
+      <md:fullname>OpenStax</md:fullname>
+      <md:email>info@openstax.org</md:email>
+    </md:organization>
+    <md:person userid="cnxbusinesslaw">
+      <md:firstname>OpenStax</md:firstname>
+      <md:surname>Business Law</md:surname>
+      <md:fullname>OpenStax Business Law</md:fullname>
+      <md:email>info@openstax.org</md:email>
+    </md:person>
+  </md:actors>
+  <md:roles>
+    <md:role type="author">OpenStaxCollege</md:role>
+    <md:role type="maintainer">OpenStaxCollege cnxbusinesslaw</md:role>
+    <md:role type="licensor">OSCRiceUniversity</md:role>
+  </md:roles>
+  <md:license url="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution License 4.0</md:license>
+  <!-- For information on license requirements for use or modification, see license url in the
+       above <md:license> element.
+       For information on formatting required attribution, see the URL:
+         CONTENT_URL/content_info#cnx_cite_header
+       where CONTENT_URL is the value provided above in the <md:content-url> element.
+  -->
+  <md:subjectlist>
+    <md:subject>Business</md:subject>
+    <md:subject>Business</md:subject>
+  </md:subjectlist>
+  <md:abstract/>
+  <md:language>en</md:language>
+  <!-- WARNING! The 'metadata' section is read only. Do not edit above.
+       Changes to the metadata section in the source will not be saved. -->
+</metadata>
+
+<content>
+				<section id="fs-idm222849808">
+			<title class="Heading-2">Features of Sales Contracts</title>
+			<para id="fs-idm221253440">Commercial enterprises that engage in buying and selling practices need to be aware of the features and nature of <term>sales contracts</term>. A contract of sale is a specific type of contract in which one party is obligated to deliver and transfer ownership of a good to a second party, who in turn is obligated to pay for the good in money, or its equivalent. The party who is obligated to deliver the good is known as the <term>vendor</term> or seller. The party who is obligated to pay for the good is known as the <term>vendee</term> or buyer.</para>
+			<para id="fs-idm221283696">It has generally been established that there are six main features of sales contracts. Sales contracts are:</para>
+			<list id="fs-idm218856304" list-type="enumerated">
+				<item><term>Consensual</term>: they are perfected by mere consent without the need for any additional acts</item>
+				<item><term>Bilateral</term>: both parties in the contract are bound to fulfill reciprocal obligations toward each other</item>
+				<item><term>Onerous</term>: the good sold is conveyed in consideration of the price, and the price paid is conveyed in consideration of the good</item>
+				<item><term>Commutative</term>: the good sold is considered to be the equivalent of the price, and vice versa</item>
+				<item><term>Nominate</term>: this type of contract has a special designation (i.e., sale)</item>
+				<item><term>Principal</term>: the validity does not depend upon the existence of other contracts</item>
+			</list>
+			</section>
+			<section id="fs-idm217422416">
+			<title class="Heading-2">Sources of Law for Sales Contracts</title>
+			<para id="fs-idm217020112">Only in very limited circumstances (such as in the buying and selling of stocks) does federal law govern sales contracts. Until the 1950s, there were two main sources of law for sales contracts: state common law and state statutory law. Thus, the laws governing sales contracts differed from state to state. As interstate commercial activity grew in importance, there was a need for a uniform law for sales transactions that would harmonize rules across the states. Therefore, in 1952, the <term>Uniform Commercial Code</term> (<term>UCC</term>)was created to govern business transactions. All 50 states have adopted the Code, but each has the power to modify it, in line with the wishes of the state legislature.</para></section>
+			<section id="fs-idm214356560">
+			<title class="Heading-2">The Uniform Commercial Code</title>
+			<para id="fs-idm213505232">The UCC categorizes items that can be bought or sold into three types:</para>
+			<list id="fs-idm219389696" list-type="enumerated">
+				<item><term>Goods</term> are defined in Section 2-105 of the UCC as tangible items “which are movable at the time of identification to the contract for sale.” Therefore, the primary features of goods are that they are movable and tangible. Refrigerators, paper, and furniture are all examples of goods.</item>
+				<item><term>Services</term> are items that are movable but not tangible. Accounting is an example of a service.</item>
+				<item><term>Realty</term> describes non-good items that are tangible but not movable. Under this definition, commercial and residential property are classed as realty.</item>
+			</list>
+			<para id="fs-idm224106656">These definitions have created some grey areas that have been clarified by the courts in their interpretation of the UCC. In the 2008 case <emphasis effect="italics"><term class="no-emphasis">Crown Castle Inc. et al. v. Fred Nudd Corporation et al.</term></emphasis>, a case in which the telecommunications company Crown Castle sued a cell phone tower installation firm for the construction of faulty towers, the courts had to determine whether cell phone towers (monopoles) should be classified as movable (and hence goods) or non-movable (and therefore realty). Ultimately, it was determined that monopoles are goods. Items that are attached to realty (e.g. a counter or a bar) and that are used for business activities are described as <term>trade fixtures</term> and treated as goods. Software licenses are not tangible, but they are also not movable, and have been treated in different ways: as goods, a <term>mixed sale</term> (a tangible item tied to an intangible item), and pure services. Items such as soil and clay may be treated as goods even if they are part of immovable land because they can be extracted and moved. Crops that are sold while they are still growing on the land are also considered to be goods even though they are technically immovable while growing.</para><para id="fs-idm221105232">Article 2 of the UCC specifically pertains to sales contracts of goods. It defines a sale as a transaction that involves “the passing of title from the seller to the buyer for a price.” However, <term>merchants</term> are classified as a separate entity under the terms of the UCC. This distinction is important because the Code contains provisions that specifically apply to merchants and place greater duties on merchants to protect private citizens. There are four ways in which an entity can be classified as a merchant:</para>
+			<table id="table003" summary="">
+				<tgroup cols="5">
+				<tbody>
+					<row>
+						<entry>
+							Classification
+						</entry>
+						<entry>
+							Examples
+						</entry>
+					</row>
+					<row>
+						<entry>
+							An agent who regularly sells goods as part of his or her business or trade
+						</entry>
+						<entry>
+							A seller on an online auction site
+						</entry>
+					</row>
+					<row>
+						<entry>
+							An individual who employs other people to sell goods
+						</entry>
+						<entry>
+							The owner of a clothing store
+						</entry>
+					</row>
+					<row>
+						<entry>
+							A person who works for a person who sells goods
+						</entry>
+						<entry>
+							An employee at a grocery retailer
+						</entry>
+					</row>
+					<row>
+						<entry>
+							Any entity who self-identifies as a merchant
+						</entry>
+						<entry>
+							An individual who describes himself or herself as a merchant in corporate documents
+						</entry>
+					</row>
+				</tbody>
+				</tgroup>
+			</table>
+		</section>
+		<section id="fs-idm217137920">
+			<title class="Heading-2">Formation of Sales Contracts under the UCC</title>
+			<para id="fs-idm224364624">Sales contracts require most of the same components as general contracts, but the UCC includes some provisions that specifically pertain to the creation of sales contracts. First, the UCC includes a new category of <term>offer</term>. Basic contract law states that for an offer to be valid, it has to have “definiteness of terms.” In the UCC, most of that particular rule is modified for greater flexibility. If the parties have “open” (in other words, “not definite”) terms, the UCC addresses the situation with an overlay of “reasonableness”—for example, if no time for performance is designated, the performance must occur within a “reasonable” time. As a result, the following terms are legally allowed to be “open,” and there is a “default” provision that will apply under the UCC:</para>
+			<table id="table004" summary="">
+				<tgroup cols="5">
+				<tbody>
+					<row>
+						<entry>
+							Open Term
+						</entry>
+						<entry>
+							Default
+						</entry>
+						<entry>
+							Applicable UCC Provision
+						</entry>
+					</row>
+					<row>
+						<entry>
+							Price
+						</entry>
+						<entry>
+							If price is not named, the default is “reasonable price.”
+						</entry>
+						<entry>
+							UCC 2-305(1)
+						</entry>
+					</row>
+					<row>
+						<entry>
+							Payment
+						</entry>
+						<entry>
+							If payment is not named, default is “due at the time and place at which the buyer is to receive the goods.”
+						</entry>
+						<entry>
+							UCC 2-310(a)
+						</entry>
+					</row>
+					<row>
+						<entry>
+							Delivery
+						</entry>
+						<entry>
+							If delivery is not named, the default is “buyer normally takes delivery at the seller’s place of business.”
+						</entry>
+						<entry>
+							UCC 2-308(a)
+						</entry>
+					</row>
+					<row>
+						<entry>
+							Duration of an Ongoing Contract
+						</entry>
+						<entry>
+							If duration of an ongoing contract is not named, the default is “buyer normally takes delivery at the seller’s place of business.”
+						</entry>
+						<entry>
+							UCC 2-308(a)
+						</entry>
+					</row>
+				</tbody>
+				</tgroup>
+			</table>
+			<para id="fs-idm222779104">The only term that really <emphasis effect="italics">cannot</emphasis> be left open is the <term>quantity </term>term. The court is not going to second-guess a quantity if the parties don’t set one in the contract—for example, why would the court arbitrarily want to force the parties to buy and sell 15,000 widgets if a quantity wasn’t specified? There are two exceptions to this rule: <term>requirements contracts</term> (“as much as I need”) and <term>output contracts</term> (“as much as you can produce”). Even though these ideas are <term>illusory</term>, they’re generally allowed in the commercial setting with good-faith limitations under UCC 2-306.</para>
+			<para id="fs-idm216819024">Sometimes, however, the courts will not allow purported “requirements” contracts. In one case, a court ruled that the contract was an unenforceable illusory contract instead of an enforceable requirements contract, even though it was a contract for the sale of goods (“as much as I need”). The reason for this ruling was that it did not appear that the buyer had any real intention of going through with any purchase.</para>
+			<para id="fs-idm224004352">Under Section 2-205 of the UCC, offers made by merchants are considered to be <term>firm offers</term> if the offers are made in writing and explicitly state that there is a three-month irrevocability period. A three-month irrevocability period is assumed if no mention is made with the offer. <term>Acceptance</term> of the offer can be made in any reasonable manner, but the <term>mirror-image rule</term> does not apply under the UCC. This means that if the terms of the acceptance do not mirror those of the offer, the acceptance is treated as a counteroffer and no legal contract is formed. Sale of goods contracts must be in writing if the value of the goods is $500 or more. Modifications to the contract must be made in good faith, and new consideration is not required. A contract provision, or the entire contract itself, can be considered to be <term>unconscionable</term> if its terms are unfair or unreasonable. If a court deems this to be the case, the contract, or certain provisions of it, may be unenforceable.</para>
+		</section>
+		<section id="fs-idm223412736">
+			<title class="Heading-2">Title</title>
+			<para id="fs-idm222813024"><term>Title</term> means ownership of a good. When the sale is completed, an agent must pass the title for the good to the buyer. There are three types of titles:</para>
+			<list id="fs-idm222727360" list-type="enumerated">
+				<item><term>Good title</term> describes a title that is obtained from an individual who owns the goods free and clear.</item>
+				<item><term>Void title</term> occurs when the title is passed to the buyer from a person who does not legitimately own the title. An important point is that good faith is irrelevant when a void title is acquired. For example, a person who unknowingly purchased stolen goods has a void title. An exception occurs when an owner <term>entrusts</term> goods to a merchant who ordinarily deals in those goods, and then that merchant sells the goods to a good-faith buyer. In this case, the buyer acquires a good title. For example, if a motorcycle owner takes the motorcycle to a vehicle repair shop and the motorcycle is accidentally sold, the buyer acquires the title.</item>
+				<item><term>Voidable title</term> occurs when the contract would have been good, but certain circumstances make it voidable. For example, if the buyer was deceitful about his or her true identity, the buyer is a minor, or the buyer wrote a bad check in the sale, then the title is deemed voidable.</item>
+			</list>
+			<figure id="fs-idm223478320"><media id="fs-idm224185680" alt="A photo shows a person making a purchase online with a credit card."><image src="Figure_08_01.jpg" mime-type="image/jpg"/></media>
+			<caption>A sale is defined as a transaction that involves the passing of a title from the seller to the buyer for a price. (Credit: Negative Space/ pexels/ License: CC0)</caption></figure></section>
+			<section id="fs-idm221307264">
+			<title class="Heading-2">Issues Associated with Title</title>
+			<para id="fs-idm214569600">Imagine the following scenario: A café purchases a new coffee machine from a supplier. However, when the supplier tries to deliver the equipment to the café, it is involved in an accident and the coffee machine is destroyed. A question emerging from this scenario is this: Is the supplier legally obligated to replace the machine? Asked differently: Who holds the good title in this scenario?</para>
+			<para id="fs-idm221387936">Prior to the introduction of the Uniform Common Code, the loss would have fallen on the owner of the café, since he or she paid for the coffee machine prior to taking possession of it. Under the UCC, however, as long as the supplier is considered a merchant, the risk of loss remains with the merchant until the buyer takes possession of the good.</para>
+			<para id="fs-idm214996752">Given problems like the one described above, the UCC separately considers four specific issues relating to titles:</para>
+			<list id="fs-idm221159248">
+				<item><term>Ownership</term>. Under consideration is the question of <emphasis effect="italics">when</emphasis> the title transfers from vendor to vendee, and hence when ownership is said to occur.</item>
+				<item>The concept of <term>encumbrance</term> considers when the vendee is granted an interest in the good such that the good can be used as collateral for a debt.</item>
+				<item>The UCC considers when the risk of <term>loss</term> attaches and what the responsibilities of the buyer and seller are to each other, should a loss occur.</item>
+				<item><term>Insurable interest</term> is the right to insure the goods against exposure to risk of loss or damage</item>
+			</list>
+			<para id="fs-idm223184016">The UCC allows four scenarios for sales contracts: simple delivery contracts, common-carrier delivery contracts, goods-in-bailment contracts, and conditional sales contracts.</para>
+			<para id="fs-idm221156320">Each type involves the title, risk of loss, and insurable interest passing at different times.</para>
+			<para id="fs-idm223463120">A <term>simple delivery contract</term> occurs when the goods are transferred from the buyer to the seller at the time of the sale or later, e.g., if the goods are delivered. Title transfers when the contract is executed, insurable interest passes at the same time, and risk of loss transfers when the buyer takes possession, unless the seller is not a merchant. In the latter case, under the rule of <term>tender of delivery</term>, risk remains with the buyer.</para>
+			<para id="fs-idm223142400">A <term>common-carrier delivery contract</term> occurs when a common carrier, who is an independent contractor rather than an agent of the seller (e.g., a trucking line), delivers the goods. The UCC further categorizes these types of contracts into shipment contracts and destination contracts:</para>
+			<list id="fs-idm223927296" list-type="enumerated">
+				<item>A <term>shipment contract</term> occurs when it is the responsibility of the seller to make the shipping arrangements and to transfer the goods to the common carrier. Under this contract, title passes to the buyer at the time of shipment, so the buyer bears the risk of loss, even when he or she has not taken possession of the goods.</item>
+				<item>A <term>destination contract</term> occurs when the seller is required to deliver the goods to a location that is stipulated in the contract. Under this contract, title transfers when the goods are delivered, but the seller bears the risk of loss until that time.</item>
+			</list>
+			<para id="fs-idm224038416">A <term>goods-in-bailment contract</term> occurs when the goods are stored under the control of a third party, such as in a warehouse or on a ship. Transfer of title and risk of loss depends on whether the seller has a document indicating ownership of the goods and whether that document is negotiable or non-negotiable. A <term>negotiable</term> document contains the words, “deliver to the order of [seller].” As soon as that document is endorsed to the buyer, both title and risk pass to the buyer. A <term>non-negotiable</term> document lacks those words. Under these circumstances, title passes with the endorsement of the document, but risk of loss does not pass until the custodian of the goods is notified of the title. If a document of title is completely absent, title passes at the same time as the execution of the contract, but risk does not pass until the custodian is notified of, and acknowledges, the transaction. Insurable interest is created when either the buyer or seller has the title, risk of loss, or an economic interest in the goods.</para>
+			<para id="fs-idm221162896">Finally, a <term>conditional sales contract</term> is a contract that occurs when the sale is dependent on approval. For example, a sale-or-return agreement occurs when both parties agree that the buyer can return the goods at a later date. Insurable interest is created once the goods are identified in the contract. Title and risk of loss depend on whether the goods are delivered by the common carrier, the seller, or in bailment, as described above.</para>
+		</section>
+		<section id="fs-idm217075104">
+			<title class="Heading-2">The International Sale of Goods</title>
+			<para id="fs-idm214235408">With globalization, there has been a significant expansion of commercial transactions undertaken across international borders. The <term>United Nations Convention on Contracts for the International Sale of Goods</term>, or the CISG, is the main legal structure offered for the governance of international commercial transactions. The CISG broadly covers the same topics as the UCC, but it preempts the UCC if there is a problem with an international sale.</para>
+		</section>
+		<section id="fs-idm221258464" class="references">
+			<title>Sources</title>
+			<para id="fs-idm216185664">Kubasek, N., Browne, M. N., Dhooge, L. J., Herron, D. J., Williamson, C., &amp; Barkacs, L. L. (2015). <emphasis effect="italics">Dynamic business law</emphasis>. McGraw-Hill Education.</para>
+		</section>
+
+    <section class="assessment-questions" id="fs-136373">
+
+
+        <exercise id="fs-212323">
+          <problem id="fa-212423">
+            <para id="fa-212623">What is a sales contract?</para>
+          </problem>
+          <solution id="fa-2127823">
+              <para id="fs-1231231434">A sales contract is s specific type of contract is which one party is obligated to deliver to deliver and transfer ownership of a good to a second party, who in turn is obligated to pay for the good in money, or its equivalent.</para>
+          </solution>
+        </exercise>
+
+
+          <exercise id="fs-212323156">
+          <problem id="fa-212423156">
+          <para id="fa-212623156">All of the following are features of sales contracts except:</para>
+          <list list-type="enumerated" number-style="lower-alpha" id="fa-212523156">
+          <item>Consensual.</item>
+          <item>Bilateral.</item>
+          <item>Cumulative.</item>
+          <item>Principal.</item>
+          </list>
+          </problem>
+          </exercise>
+
+          <exercise id="fs-21232315">
+          <problem id="fa-21242315">
+          <para id="fa-21262315">What source of law governs sales contracts?</para>
+          <list list-type="enumerated" number-style="lower-alpha" id="fa-21252316">
+          <item>Common Law.</item>
+          <item>The Uniform Commercial Code.</item>
+          <item>Statutory Law.</item>
+          <item>Federal Law.</item>
+          </list>
+          </problem>
+          <solution id="fa-212782316">
+          <para id="fa-212882316">b</para>
+          </solution>
+          </exercise>
+
+          <exercise id="fs-21232">
+            <problem id="fa-21242">
+              <para id="fa-21262">What is the definition of a good?</para>
+            </problem>
+          </exercise>
+
+          <exercise id="fs-2123112">
+            <problem id="fa-212142">
+              <para id="fa-212162">Distinguish a shipment contract from a destination contract.</para>
+            </problem>
+            <solution id="fa-2127182">
+                <para id="fs-1231213143">A shipment contract occurs when it is the responsibility of the seller to make the shipping arrangements and to transfer the goods to the common carrier. Under this contract, title passes to the buyer at the time of shipment, so the buyer bears the risk of loss, even when he or she has not taken possession of the goods. A destination contract occurs when the seller is required to deliver the goods to a location that is stipulated in the contract. Under this contract, title transfers when the goods are delivered, but the seller bears the risk of loss until that time.</para>
+            </solution>
+          </exercise>
+
+
+
+
+
+    </section>
+
+		</content>
+
+</document>
