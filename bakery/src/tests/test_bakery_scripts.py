@@ -23,14 +23,18 @@ def test_jsonify_book(tmp_path):
         "slug": "1-3-subsection-slug"
     }
 
+    mock_uuid = "00000000-0000-0000-0000-000000000000"
+    mock_version = "0.0"
+    mock_ident_hash = f"{mock_uuid}@{mock_version}"
+
     disassembled_input_dir = tmp_path / "disassembled"
     disassembled_input_dir.mkdir()
 
-    xhtml_input = disassembled_input_dir / "m00001@1.1.xhtml"
+    xhtml_input = disassembled_input_dir / f"{mock_ident_hash}:m00001.xhtml"
     xhtml_input.write_text(html_content)
     toc_input = disassembled_input_dir / "collection.toc.xhtml"
     toc_input.write_text(toc_content)
-    json_metadata_input = disassembled_input_dir / "m00001@1.1-metadata.json"
+    json_metadata_input = disassembled_input_dir / f"{mock_ident_hash}:m00001-metadata.json"
     json_metadata_input.write_text(json.dumps(json_metadata_content))
 
     jsonified_output_dir = tmp_path / "jsonified"
@@ -47,7 +51,7 @@ def test_jsonify_book(tmp_path):
         check=True
     )
 
-    jsonified_output = jsonified_output_dir / "m00001@1.1.json"
+    jsonified_output = jsonified_output_dir / f"{mock_ident_hash}:m00001.json"
     jsonified_output_data = json.loads(jsonified_output.read_text())
     jsonified_toc_output = jsonified_output_dir / "collection.toc.json"
     jsonified_toc_data = json.loads(jsonified_toc_output.read_text())
@@ -97,8 +101,8 @@ def test_disassemble_book(tmp_path):
     assert len(json_output_files) == 3
 
     # Check for expected files and metadata that should be generated in this step
-    json_output_m42119 = disassembled_output / f"{mock_ident_hash}:m42119@1.6-metadata.json"
-    json_output_m42092 = disassembled_output / f"{mock_ident_hash}:m42092@1.10-metadata.json"
+    json_output_m42119 = disassembled_output / f"{mock_ident_hash}:m42119-metadata.json"
+    json_output_m42092 = disassembled_output / f"{mock_ident_hash}:m42092-metadata.json"
     m42119_data = json.load(open(json_output_m42119, "r"))
     m42092_data = json.load(open(json_output_m42092, "r"))
     assert m42119_data.get("title") == \
@@ -151,8 +155,8 @@ def test_disassemble_book_empy_baked_metadata(tmp_path):
     )
 
     # Check for expected files and metadata that should be generated in this step
-    json_output_m42119 = disassembled_output / f"{mock_ident_hash}:m42119@1.6-metadata.json"
-    json_output_m42092 = disassembled_output / f"{mock_ident_hash}:m42092@1.10-metadata.json"
+    json_output_m42119 = disassembled_output / f"{mock_ident_hash}:m42119-metadata.json"
+    json_output_m42092 = disassembled_output / f"{mock_ident_hash}:m42092-metadata.json"
     m42119_data = json.load(open(json_output_m42119, "r"))
     m42092_data = json.load(open(json_output_m42092, "r"))
     assert m42119_data["abstract"] is None

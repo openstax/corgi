@@ -65,7 +65,7 @@ def main():
     nav_links = toc.xpath("//xhtml:a", namespaces=HTML_DOCUMENT_NAMESPACES)
 
     for doc in flatten_to_documents(binder):
-        id_with_context = f'{collection_uuid}@{collection_version}:{doc.ident_hash}'
+        id_with_context = f'{collection_uuid}@{collection_version}:{doc.id}'
 
         module_etree = content_to_etree(doc.content)
         for link in nav_links:
