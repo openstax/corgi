@@ -13,7 +13,7 @@ MAX_THREAD_UPLOAD_S3 = 20
 
 
 class ThreadPoolExecutorStackTraced(concurrent.futures.ThreadPoolExecutor):
-    # Stack Traced ThreadPoolExecutor for better error messages on exceptions on Threads
+    # Stack Traced ThreadPoolExecutor for better error messages on exceptions on threads
     # https://stackoverflow.com/a/24457608/756056
 
     def submit(self, fn, *args, **kwargs):
@@ -103,9 +103,7 @@ def upload(in_dir, bucket, bucket_folder):
 
     sha1_filepattern = '?' * 40  # sha1 hexdigest as 40 characters
 
-    # upload to s3 async with ThreadPoolExecutor
-    # with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_THREAD_WORKERS) as executor:
-
+    # get all resources on file system
     all_resources = []
     for sha1filename in Path(in_dir).glob(sha1_filepattern):
         resource = {}
@@ -118,6 +116,7 @@ def upload(in_dir, bucket, bucket_folder):
                                                     os.path.basename(resource['input_file']) + '-unused.json')
         all_resources.append(resource)
 
+    # check which resources are missing (with ThreadPoolExecutor)
     upload_resources = []
     check_futures = []
     with ThreadPoolExecutorStackTraced(max_workers=MAX_THREAD_CHECK_S3) as executor:
@@ -149,6 +148,7 @@ def upload(in_dir, bucket, bucket_folder):
     print()
     print('{} resources need uploading.'.format(len(upload_resources)))
 
+    # upload to s3 (with ThreadPoolExecutor)
     uploadcount = 0
     upload_futures = []
     with ThreadPoolExecutorStackTraced(max_workers=MAX_THREAD_UPLOAD_S3) as executor:
