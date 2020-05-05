@@ -188,7 +188,7 @@ def upload(in_dir, bucket, bucket_folder):
     print()
     print('{} resources need uploading.'.format(len(upload_resources)))
     elapsed = (timer() - start)
-    print("Time it took to check: {}".format(elapsed))
+    print("Time it took to check: {}s".format(elapsed))
 
     # upload to s3 (with ThreadPoolExecutor)
     start = timer()
@@ -236,7 +236,7 @@ def upload(in_dir, bucket, bucket_folder):
     print()
     print('{} resources uploaded.'.format(upload_count))
     elapsed = (timer() - start)
-    print("Time it took to upload: {}".format(elapsed))
+    print("Time it took to upload: {}s".format(elapsed))
     if (upload_count) != len(upload_resources):
         print('ERROR: Uploaded counted and needed to upload mismatch: {} != {}'.format(
             upload_count, len(upload_resources)))
