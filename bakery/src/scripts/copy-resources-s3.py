@@ -228,7 +228,8 @@ def upload(in_dir, bucket, bucket_folder):
                 executor._threads.clear()
                 concurrent.futures.thread._threads_queues.clear()
                 sys.exit(1)
-    upload_count = int(upload_count / 2)  # divide by 2, don't count json metadata
+    # divide by 2, don't count json metadata
+    upload_count = int(upload_count / 2)
     print()
     print('{} resources uploaded.'.format(upload_count))
     if (upload_count) != len(upload_resources):
