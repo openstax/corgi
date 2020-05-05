@@ -51,7 +51,8 @@ def is_s3_folder_empty(aws_key, aws_secret, bucket, key):
     if prefix[-1] != '/':
         prefix = prefix + '/'
     try:
-        response = s3_client.list_objects(Bucket=bucket, Prefix=prefix, Delimiter='/')
+        response = s3_client.list_objects(
+            Bucket=bucket, Prefix=prefix, Delimiter='/')
         if not 'Contents' in response:
             result = True   # folder is empty
     except botocore.exceptions.ClientError:
@@ -59,7 +60,7 @@ def is_s3_folder_empty(aws_key, aws_secret, bucket, key):
     return result
 
 
-def check_s3_existence(aws_key, aws_secret, bucket, resource, disable_check = False):
+def check_s3_existence(aws_key, aws_secret, bucket, resource, disable_check=False):
     """ check if resource is already existing or needs uploading """
     def s3_md5sum(s3_client, bucket_name, resource_name):
         """ get (special) md5 of S3 resource or None when not existing """
@@ -181,7 +182,8 @@ def upload(in_dir, bucket, bucket_folder):
                 concurrent.futures.thread._threads_queues.clear()
                 sys.exit(1)
     if disable_deep_folder_check:
-        print('- quick checked (destination S3 folder empty or non existing)', end='', flush=True)
+        print('- quick checked (destination S3 folder empty or non existing)',
+              end='', flush=True)
     print()
     print('{} resources need uploading.'.format(len(upload_resources)))
 
