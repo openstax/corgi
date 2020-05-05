@@ -9,6 +9,7 @@ import traceback
 from pathlib import Path
 from timeit import default_timer as timer
 
+# After research and benchmarking 64 seems to be the best speed without big trade-offs.
 MAX_THREAD_CHECK_S3 = 64
 MAX_THREAD_UPLOAD_S3 = 64
 
