@@ -7,9 +7,10 @@ import os
 import sys
 import traceback
 from pathlib import Path
+from timeit import default_timer as timer
 
-MAX_THREAD_CHECK_S3 = 20
-MAX_THREAD_UPLOAD_S3 = 20
+MAX_THREAD_CHECK_S3 = 64
+MAX_THREAD_UPLOAD_S3 = 64
 
 
 class ThreadPoolExecutorStackTraced(concurrent.futures.ThreadPoolExecutor):
@@ -91,7 +92,6 @@ def check_s3_existence(aws_key, aws_secret, bucket, resource, disable_check=Fals
                     's3',
                     aws_access_key_id=aws_key,
                     aws_secret_access_key=aws_secret)
-
                 if data['s3_md5'] != s3_md5sum(s3_client, bucket, resource['output_s3']):
                     upload_resource = resource
                     upload_resource['mime_type'] = data['mime_type']
@@ -151,6 +151,7 @@ def upload(in_dir, bucket, bucket_folder):
         all_resources.append(resource)
 
     # check which resources are missing (with ThreadPoolExecutor)
+    start = timer()
     upload_resources = []
     check_futures = []
     with ThreadPoolExecutorStackTraced(max_workers=MAX_THREAD_CHECK_S3) as executor:
@@ -187,8 +188,11 @@ def upload(in_dir, bucket, bucket_folder):
               end='', flush=True)
     print()
     print('{} resources need uploading.'.format(len(upload_resources)))
+    elapsed = (timer() - start)
+    print("Time it took to check: {}".format(elapsed))
 
     # upload to s3 (with ThreadPoolExecutor)
+    start = timer()
     upload_count = 0
     upload_futures = []
     with ThreadPoolExecutorStackTraced(max_workers=MAX_THREAD_UPLOAD_S3) as executor:
@@ -232,6 +236,8 @@ def upload(in_dir, bucket, bucket_folder):
     upload_count = int(upload_count / 2)
     print()
     print('{} resources uploaded.'.format(upload_count))
+    elapsed = (timer() - start)
+    print("Time it took to upload: {}".format(elapsed))
     if (upload_count) != len(upload_resources):
         print('ERROR: Uploaded counted and needed to upload mismatch: {} != {}'.format(
             upload_count, len(upload_resources)))
