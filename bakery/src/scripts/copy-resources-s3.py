@@ -188,7 +188,7 @@ def upload(in_dir, bucket, bucket_folder):
     print('{} resources need uploading.'.format(len(upload_resources)))
 
     # upload to s3 (with ThreadPoolExecutor)
-    uploadcount = 0
+    upload_count = 0
     upload_futures = []
     with ThreadPoolExecutorStackTraced(max_workers=MAX_THREAD_UPLOAD_S3) as executor:
         print('Uploading to S3 ', end='', flush=True)
@@ -218,7 +218,7 @@ def upload(in_dir, bucket, bucket_folder):
         for future in concurrent.futures.as_completed(upload_futures):
             try:
                 if (future.result()):
-                    uploadcount = uploadcount + 1
+                    upload_count = upload_count + 1
                     print('.', end='', flush=True)
                 upload_futures.remove(future)
             except Exception as e:
@@ -227,12 +227,12 @@ def upload(in_dir, bucket, bucket_folder):
                 executor._threads.clear()
                 concurrent.futures.thread._threads_queues.clear()
                 sys.exit(1)
-    uploadcount = int(uploadcount / 2)  # divide by 2 because of json metadata
+    upload_count = int(upload_count / 2)  # divide by 2, don't count json metadata
     print()
-    print('{} resources uploaded.'.format(uploadcount))
-    if (uploadcount) != len(upload_resources):
+    print('{} resources uploaded.'.format(upload_count))
+    if (upload_count) != len(upload_resources):
         print('ERROR: Uploaded counted and needed to upload mismatch: {} != {}'.format(
-            uploadcount, len(upload_resources)))
+            upload_count, len(upload_resources)))
         sys.exit(1)
     print('FINISHED uploading resources.')
 
