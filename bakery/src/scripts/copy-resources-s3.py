@@ -39,7 +39,27 @@ def slash_join(*args):
     return "/".join(arg.strip("/") for arg in args)
 
 
-def check_s3_existence(aws_key, aws_secret, bucket, resource):
+def is_s3_folder_empty(aws_key, aws_secret, bucket, key):
+    """ check if s3 folder is empty or not existing """
+    result = False
+    session = boto3.session.Session()
+    s3_client = session.client(
+        's3',
+        aws_access_key_id=aws_key,
+        aws_secret_access_key=aws_secret)
+    prefix = key
+    if prefix[-1] != '/':
+        prefix = prefix + '/'
+    try:
+        response = s3_client.list_objects(Bucket=bucket, Prefix=prefix, Delimiter='/')
+        if not 'Contents' in response:
+            result = True   # folder is empty
+    except botocore.exceptions.ClientError:
+        pass
+    return result
+
+
+def check_s3_existence(aws_key, aws_secret, bucket, resource, disable_check = False):
     """ check if resource is already existing or needs uploading """
     def s3_md5sum(s3_client, bucket_name, resource_name):
         """ get (special) md5 of S3 resource or None when not existing """
@@ -58,15 +78,21 @@ def check_s3_existence(aws_key, aws_secret, bucket, resource):
         with open(resource['input_metadata_file']) as json_file:
             data = json.load(json_file)
 
-            session = boto3.session.Session()
-            s3_client = session.client(
-                's3',
-                aws_access_key_id=aws_key,
-                aws_secret_access_key=aws_secret)
-
-            if data['s3_md5'] != s3_md5sum(s3_client, bucket, resource['output_s3']):
+            if disable_check:
+                # empty or non existing s3 folder
+                # skip individual s3 file check
                 upload_resource = resource
                 upload_resource['mime_type'] = data['mime_type']
+            else:
+                session = boto3.session.Session()
+                s3_client = session.client(
+                    's3',
+                    aws_access_key_id=aws_key,
+                    aws_secret_access_key=aws_secret)
+
+                if data['s3_md5'] != s3_md5sum(s3_client, bucket, resource['output_s3']):
+                    upload_resource = resource
+                    upload_resource['mime_type'] = data['mime_type']
         return upload_resource
     except FileNotFoundError as e:
         print('Error: No metadata json found!')
@@ -95,6 +121,12 @@ def upload(in_dir, bucket, bucket_folder):
     """ upload resource and resource json to S3 """
     aws_key = os.getenv('AWS_ACCESS_KEY_ID')
     aws_secret = os.getenv('AWS_SECRET_ACCESS_KEY')
+
+    disable_deep_folder_check = is_s3_folder_empty(
+        aws_key=aws_key,
+        aws_secret=aws_secret,
+        bucket=bucket,
+        key=bucket_folder)
 
     # environment variables mandatory for ThreadPoolExecutor
     if aws_key is None or aws_secret is None:
@@ -128,16 +160,19 @@ def upload(in_dir, bucket, bucket_folder):
                     aws_key=aws_key,
                     aws_secret=aws_secret,
                     bucket=bucket,
-                    resource=resource)
+                    resource=resource,
+                    disable_check=disable_deep_folder_check)
             )
         for future in concurrent.futures.as_completed(check_futures):
             try:
                 resource = future.result()
                 if resource is not None:
                     upload_resources.append(resource)
-                    print('.', end='', flush=True)
+                    if not disable_deep_folder_check:
+                        print('.', end='', flush=True)
                 else:
-                    print('x', end='', flush=True)
+                    if not disable_deep_folder_check:
+                        print('x', end='', flush=True)
                 check_futures.remove(future)
             except Exception as e:
                 print(e)
@@ -145,6 +180,8 @@ def upload(in_dir, bucket, bucket_folder):
                 executor._threads.clear()
                 concurrent.futures.thread._threads_queues.clear()
                 sys.exit(1)
+    if disable_deep_folder_check:
+        print('- quick checked (destination S3 folder empty or non existing)', end='', flush=True)
     print()
     print('{} resources need uploading.'.format(len(upload_resources)))
 
