@@ -81,20 +81,20 @@ def check_s3_existence(aws_key, aws_secret, bucket, resource, disable_check=Fals
         with open(resource['input_metadata_file']) as json_file:
             data = json.load(json_file)
 
-            if disable_check:
-                # empty or non existing s3 folder
-                # skip individual s3 file check
+        if disable_check:
+            # empty or non existing s3 folder
+            # skip individual s3 file check
+            upload_resource = resource
+            upload_resource['mime_type'] = data['mime_type']
+        else:
+            session = boto3.session.Session()
+            s3_client = session.client(
+                's3',
+                aws_access_key_id=aws_key,
+                aws_secret_access_key=aws_secret)
+            if data['s3_md5'] != s3_md5sum(s3_client, bucket, resource['output_s3']):
                 upload_resource = resource
                 upload_resource['mime_type'] = data['mime_type']
-            else:
-                session = boto3.session.Session()
-                s3_client = session.client(
-                    's3',
-                    aws_access_key_id=aws_key,
-                    aws_secret_access_key=aws_secret)
-                if data['s3_md5'] != s3_md5sum(s3_client, bucket, resource['output_s3']):
-                    upload_resource = resource
-                    upload_resource['mime_type'] = data['mime_type']
         return upload_resource
     except FileNotFoundError as e:
         print('Error: No metadata json found!')
