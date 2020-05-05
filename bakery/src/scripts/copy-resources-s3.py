@@ -80,7 +80,6 @@ def check_s3_existence(aws_key, aws_secret, bucket, resource, disable_check=Fals
         upload_resource = None
         with open(resource['input_metadata_file']) as json_file:
             data = json.load(json_file)
-
         if disable_check:
             # empty or non existing s3 folder
             # skip individual s3 file check
