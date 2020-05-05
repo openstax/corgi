@@ -55,8 +55,9 @@ def is_s3_folder_empty(aws_key, aws_secret, bucket, key):
             Bucket=bucket, Prefix=prefix, Delimiter='/')
         if not 'Contents' in response:
             result = True   # folder is empty
-    except botocore.exceptions.ClientError:
-        pass
+    except botocore.exceptions.ClientError as e:
+        print('That should not happen. Empty folder check should not cause a boto ClientError.')
+        raise(e)
     return result
 
 
