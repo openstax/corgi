@@ -191,7 +191,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
     }
     error = err
   } finally {
-    if (error != null || !persist) {
+    if (!persist) {
       console.log('cleaning up')
       const cleanUp = spawn('docker-compose', [
         '-f', tmpComposeYml.name,
@@ -521,6 +521,7 @@ const yargs = require('yargs')
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'fetched-book'),
         input(dataDir, 'baked-book'),
         input(dataDir, 'baked-book-metadata'),
         output(dataDir, 'disassembled-book')
