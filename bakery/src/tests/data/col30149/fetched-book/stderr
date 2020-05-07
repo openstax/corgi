@@ -1,0 +1,12 @@
++ cd fetched-book
+++ cat ../book/collection_id
++ book_dir=col30149
++ mkdir -p col30149 /root/.config/
+++ cat ../book/server
++ server=staging.cnx.org
++ cat
++ yes
+++ cat ../book/server
+++ cat ../book/collection_id
+++ cat ../book/version
++ neb get -r -m -d col30149/raw staging.cnx.org col30149 latest

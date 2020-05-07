@@ -1,18 +1,18 @@
 {
   "scripts": {
-    "lint": "standard ./src/**/**.js"
+    "lint": "standard ./src/**/**.js",
+    "test": "ava -v --timeout=10m"
   },
   "dependencies": {
     "dedent": "^0.7.0",
     "js-yaml": "^3.13.1",
-    "sleep": "^6.1.0",
     "tmp": "^0.1.0",
+    "wait-port": "^0.2.7",
     "yargs": "^15.1.0"
   },
   "devDependencies": {
+    "ava": "^3.7.1",
+    "fs-extra": "^9.0.0",
     "standard": "^14.3.1"
-  },
-  "installConfig": {
-    "pnp": true
   }
 }
