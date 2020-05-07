@@ -1,9 +1,0 @@
-version: '3.7'
-services:
-  backend:
-    build:
-      context: ./backend
-      dockerfile: backend.dockerfile
-  frontend:
-    build:
-      context: ./frontend
