@@ -191,7 +191,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
     }
     error = err
   } finally {
-    if (error != null || !persist) {
+    if (!persist) {
       console.log('cleaning up')
       const cleanUp = spawn('docker-compose', [
         '-f', tmpComposeYml.name,
