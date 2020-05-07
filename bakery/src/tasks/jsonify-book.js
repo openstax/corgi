@@ -5,7 +5,7 @@ const { constructImageSource } = require('../task-util/task-util')
 const task = (taskArgs) => {
   // By default, use the cops-bakery-scripts image on Docker Hub
   // if details given, find alternative image
-  const {imageRegistry, imageName, imageTag} = taskArgs == null ? {} : taskArgs
+  const { imageRegistry, imageName, imageTag } = taskArgs == null ? {} : taskArgs
   const imageSource = (constructImageSource({ imageRegistry, imageName, imageTag }) ||
     { repository: 'openstax/cops-bakery-scripts' }
   )

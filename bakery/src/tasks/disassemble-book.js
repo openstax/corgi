@@ -3,7 +3,7 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
-  const {imageRegistry, imageName, imageTag} = taskArgs == null ? {} : taskArgs
+  const { imageRegistry, imageName, imageTag } = taskArgs == null ? {} : taskArgs
   const imageSource = (constructImageSource({ imageRegistry, imageName, imageTag }) ||
     { repository: 'openstax/cops-bakery-scripts' }
   )
