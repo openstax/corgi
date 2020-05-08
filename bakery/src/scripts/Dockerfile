@@ -2,8 +2,7 @@ FROM python:3.7-stretch
 
 LABEL maintainer="OpenStax Content Engineering"
 
-COPY ./*.py /code/scripts/
-COPY ./requirements.txt /code
+COPY ./requirements.txt /code/
 WORKDIR /code/
 
 RUN pip install -r requirements.txt
@@ -20,3 +19,5 @@ RUN wget --no-check-certificate https://raw.githubusercontent.com/stedolan/jq/ma
     rm -f /tmp/jq-release.key && \
     rm -f /tmp/jq-linux64.asc && \
     rm -f /tmp/jq-linux64
+
+COPY ./*.py /code/scripts/

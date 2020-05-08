@@ -37,8 +37,8 @@ const extractImageDetails = imageArg => {
     imageName = imageArgStripped
     imageTag = 'latest'
   } else {
-    imageName = imageArgStripped.slice(0, tagNameSeparatorIndex + 1)
-    imageTag = imageArgStripped.slice(tagNameSeparatorIndex)
+    imageName = imageArgStripped.slice(0, tagNameSeparatorIndex)
+    imageTag = imageArgStripped.slice(tagNameSeparatorIndex + 1)
   }
   return {
     imageRegistry: 'registry:5000',
@@ -191,7 +191,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
     }
     error = err
   } finally {
-    if (error != null || !persist) {
+    if (!persist) {
       console.log('cleaning up')
       const cleanUp = spawn('docker-compose', [
         '-f', tmpComposeYml.name,
@@ -521,6 +521,7 @@ const yargs = require('yargs')
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'fetched-book'),
         input(dataDir, 'baked-book'),
         input(dataDir, 'baked-book-metadata'),
         output(dataDir, 'disassembled-book')

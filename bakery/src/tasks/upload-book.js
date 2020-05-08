@@ -37,8 +37,8 @@ const task = ({ awsAccessKeyId, awsSecretAccessKey, bucketName }) => {
           book_version="$(cat $book_metadata | jq -r '.version')"
           cp "$book_dir/collection.toc.json" "$target_dir/$book_uuid@$book_version.json"
           cp "$book_dir/collection.toc.xhtml" "$target_dir/$book_uuid@$book_version.xhtml"
-          for jsonfile in "$book_dir/"*@*.json; do cp "$jsonfile" "$target_dir/$book_uuid@$book_version:$(basename $jsonfile)"; done;
-          for xhtmlfile in "$book_dir/"*@*.xhtml; do cp "$xhtmlfile" "$target_dir/$book_uuid@$book_version:$(basename $xhtmlfile)"; done;
+          for jsonfile in "$book_dir/"*@*.json; do cp "$jsonfile" "$target_dir/$(basename $jsonfile)"; done;
+          for xhtmlfile in "$book_dir/"*@*.xhtml; do cp "$xhtmlfile" "$target_dir/$(basename $xhtmlfile)"; done;
           aws s3 cp --recursive "$target_dir" "s3://${bucketName}/contents"
           python /code/scripts/copy-resources-s3.py "$resources_dir" "${bucketName}" resources
         `

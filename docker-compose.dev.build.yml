@@ -9,9 +9,6 @@ services:
   frontend:
     build:
       context: ./frontend
-      args:
-        API_URL: http://backend
-        API_URL_BROWSER: http://localhost
   docs:
     build:
       context: ./docs
