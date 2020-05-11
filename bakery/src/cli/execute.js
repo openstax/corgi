@@ -501,6 +501,44 @@ const yargs = require('yargs')
     }
   }).call())
   .command((() => {
+    // fly -t cops-dev execute -c checksum-book.yml -j bakery/bakery -i book=./data/book -i baked-book=./data/baked-book -o checksum-book=./data/checksum-book
+    const commandUsage = 'checksum <collid>'
+    const handler = async argv => {
+      const buildExec = path.resolve(argv.cops, 'bakery/build')
+
+      const taskContent = execFileSync(buildExec, ['task', 'checksum-book'])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
+
+      const dataDir = path.resolve(argv.data, argv.collid)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'baked-book'),
+        output(dataDir, 'checksum-book')
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'cb',
+      describe: 'checksum resources from a baked book',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || 'execute.js'} ${commandUsage}`)
+        yargs.positional('collid', {
+          describe: 'collection id of collection to work on',
+          type: 'string'
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err) })
+      }
+    }
+  }).call())
+  .command((() => {
     const commandUsage = 'disassemble <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -522,7 +560,7 @@ const yargs = require('yargs')
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'fetched-book'),
-        input(dataDir, 'baked-book'),
+        input(dataDir, 'checksum-book'),
         input(dataDir, 'baked-book-metadata'),
         output(dataDir, 'disassembled-book')
       ], { image: argv.image, persist: argv.persist })
@@ -530,7 +568,7 @@ const yargs = require('yargs')
     return {
       command: commandUsage,
       aliases: 'd',
-      describe: 'disassemble a baked book',
+      describe: 'disassemble a checksummed book',
       builder: yargs => {
         yargs.usage(`Usage: ${process.env.CALLER || 'execute.js'} ${commandUsage}`)
         yargs.positional('collid', {
