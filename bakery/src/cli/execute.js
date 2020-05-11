@@ -487,7 +487,7 @@ const yargs = require('yargs')
     return {
       command: commandUsage,
       aliases: 'bm',
-      describe: 'build metadata files from an baked book',
+      describe: 'build metadata files from a baked book',
       builder: yargs => {
         yargs.usage(`Usage: ${process.env.CALLER || 'execute.js'} ${commandUsage}`)
         yargs.positional('collid', {
