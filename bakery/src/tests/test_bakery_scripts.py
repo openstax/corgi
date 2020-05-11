@@ -120,7 +120,7 @@ def test_disassemble_book(tmp_path):
     nav = toc_output_tree.xpath("//xhtml:nav", namespaces=HTML_DOCUMENT_NAMESPACES)
     assert len(nav) == 1
 
-def test_disassemble_book_empy_baked_metadata(tmp_path):
+def test_disassemble_book_empty_baked_metadata(tmp_path):
     """Test case for disassemble where there may not be associated metadata
     from previous steps in collection.baked-metadata.json
     """
