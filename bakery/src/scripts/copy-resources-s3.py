@@ -74,7 +74,6 @@ def check_s3_existence(aws_key, aws_secret, bucket, resource, disable_check=Fals
             )['ETag']
         except botocore.exceptions.ClientError:
             md5sum = None
-            pass
         return md5sum
 
     try:
