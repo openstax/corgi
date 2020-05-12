@@ -177,6 +177,7 @@ def upload(in_dir, bucket, bucket_folder):
                     if not disable_deep_folder_check:
                         print('x', end='', flush=True)
                 check_futures.remove(future)
+                del future
             except Exception as e:
                 print(e)
                 # stop all threads on error now
@@ -226,6 +227,7 @@ def upload(in_dir, bucket, bucket_folder):
                     upload_count = upload_count + 1
                     print('.', end='', flush=True)
                 upload_futures.remove(future)
+                del future
             except Exception as e:
                 print(e)
                 # stop all threads on error now
