@@ -40,11 +40,13 @@ const extractImageDetails = imageArg => {
     imageName = imageArgStripped.slice(0, tagNameSeparatorIndex)
     imageTag = imageArgStripped.slice(tagNameSeparatorIndex + 1)
   }
-  return {
+  const details = {
     imageRegistry: 'registry:5000',
     imageName,
     imageTag
   }
+  console.log(`extracted image details: ${JSON.stringify(details)}`)
+  return details
 }
 
 const input = (dataDir, name) => `--input=${name}=${dataDir}/${name}`
@@ -249,7 +251,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -286,7 +288,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -338,7 +340,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -375,7 +377,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -413,7 +415,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -454,7 +456,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -496,7 +498,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -539,7 +541,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -580,7 +582,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
