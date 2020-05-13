@@ -146,25 +146,25 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
       output: 'silent'
     })
 
+    console.log('syncing')
+    const sync = spawn('fly', [
+      'sync',
+      '-c', 'http://localhost.localdomain:8080'
+    ], { stdio: 'inherit' })
+    children.push(sync)
+    await completion(sync)
+
     console.log('logging in')
     const login = spawn('fly', [
       'login',
       '-k',
       '-t', 'bakery-cli',
-      '-c', 'http://127.0.0.1:8080',
+      '-c', 'http://localhost.localdomain:8080',
       '-u', 'admin',
       '-p', 'admin'
     ], { stdio: 'inherit' })
     children.push(login)
     await completion(login)
-
-    console.log('syncing')
-    const sync = spawn('fly', [
-      'sync',
-      '-t', 'bakery-cli'
-    ], { stdio: 'inherit' })
-    children.push(sync)
-    await completion(sync)
 
     console.log('waiting for concourse to settle')
     await sleep(5000)
