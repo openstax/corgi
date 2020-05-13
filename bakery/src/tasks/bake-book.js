@@ -1,15 +1,21 @@
 const dedent = require('dedent')
 
-const task = () => {
+const { constructImageSource } = require('../task-util/task-util')
+
+const task = (taskArgs) => {
+  const imageDefault = {
+    name: 'openstax/cnx-easybake'
+  }
+  const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
+  const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
+
   return {
     task: 'bake book',
     config: {
       platform: 'linux',
       image_resource: {
         type: 'docker-image',
-        source: {
-          repository: 'openstax/cnx-easybake'
-        }
+        source: imageSource
       },
       inputs: [
         { name: 'book' },
