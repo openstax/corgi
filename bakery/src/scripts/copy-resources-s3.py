@@ -192,7 +192,7 @@ def upload(in_dir, bucket, bucket_folder):
             except:
                 halt_all_threads(executor)
                 raise
-                sys.exit(1) # keep sure program stops (threads)
+                sys.exit(1)  # keep sure program stops (threads)
     if disable_deep_folder_check:
         print('- quick checked (destination S3 folder empty or non existing)',
               end='', flush=True)
@@ -248,7 +248,7 @@ def upload(in_dir, bucket, bucket_folder):
             except:
                 halt_all_threads(executor)
                 raise
-                sys.exit(1) # keep sure program stops (threads)
+                sys.exit(1)  # keep sure program stops (threads)
     # divide by 2, don't count json metadata
     upload_count = int(upload_count / 2)
     print()
