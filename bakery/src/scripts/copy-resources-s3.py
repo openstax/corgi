@@ -120,6 +120,11 @@ def upload_s3(aws_key, aws_secret, filename, bucket, key, content_type):
 
 def upload(in_dir, bucket, bucket_folder):
     """ upload resource and resource json to S3 """
+    def halt_all_threads(executor):
+        """ halt all threads from executor """
+        executor._threads.clear()
+        concurrent.futures.thread._threads_queues.clear()
+
     aws_key = os.getenv('AWS_ACCESS_KEY_ID')
     aws_secret = os.getenv('AWS_SECRET_ACCESS_KEY')
 
@@ -168,6 +173,14 @@ def upload(in_dir, bucket, bucket_folder):
         for future in concurrent.futures.as_completed(check_futures):
             try:
                 resource = future.result()
+            except Exception as e:
+                print(e)    # print error from ThreadPoolExecutorStackTraced
+                halt_all_threads(executor)
+                sys.exit(1)
+            finally:
+                check_futures.remove(future)
+                del future
+            try:
                 if resource is not None:
                     upload_resources.append(resource)
                     if not disable_deep_folder_check:
@@ -175,14 +188,9 @@ def upload(in_dir, bucket, bucket_folder):
                 else:
                     if not disable_deep_folder_check:
                         print('x', end='', flush=True)
-                check_futures.remove(future)
-                del future
-            except Exception as e:
-                print(e)
-                # stop all threads on error now
-                executor._threads.clear()
-                concurrent.futures.thread._threads_queues.clear()
-                sys.exit(1)
+            except:
+                halt_all_threads(executor)
+                raise
     if disable_deep_folder_check:
         print('- quick checked (destination S3 folder empty or non existing)',
               end='', flush=True)
@@ -222,17 +230,21 @@ def upload(in_dir, bucket, bucket_folder):
             )
         for future in concurrent.futures.as_completed(upload_futures):
             try:
-                if (future.result()):
-                    upload_count = upload_count + 1
-                    print('.', end='', flush=True)
+                result = future.result()
+            except Exception as e:
+                print(e)    # print error from ThreadPoolExecutorStackTraced
+                halt_all_threads(executor)
+                sys.exit(1)
+            finally:
                 upload_futures.remove(future)
                 del future
-            except Exception as e:
-                print(e)
-                # stop all threads on error now
-                executor._threads.clear()
-                concurrent.futures.thread._threads_queues.clear()
-                sys.exit(1)
+            try:
+                if result is not None:
+                    upload_count = upload_count + 1
+                    print('.', end='', flush=True)
+            except:
+                halt_all_threads(executor)
+                raise
     # divide by 2, don't count json metadata
     upload_count = int(upload_count / 2)
     print()
