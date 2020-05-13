@@ -40,9 +40,9 @@ const task = (taskArgs) => {
           mkdir "$target_dir"
           cp "$book_dir/collection.baked.xhtml" "$target_dir/collection.baked.xhtml"
           cat "assembled-book-metadata/$collection_id/collection.assembled-metadata.json" | jq --arg colid "$collection_id" --arg uuid "$book_uuid" --arg version "$book_version" --argjson license "$book_license" \
-              '. + {($colid): {id: $uuid, version: $version, license: $license}}' > "$target_dir/collection.metadata.json"
+              '. + {($colid): {id: $uuid, version: $version, license: $license}}' > "/tmp/collection.baked-input-metadata.json"
           cd "$target_dir"
-          python /code/scripts/bake-book-metadata.py collection.metadata.json collection.baked.xhtml collection.baked-metadata.json "$collection_id"
+          python /code/scripts/bake-book-metadata.py /tmp/collection.baked-input-metadata.json collection.baked.xhtml collection.baked-metadata.json "$collection_id"
           `
         ]
       }
