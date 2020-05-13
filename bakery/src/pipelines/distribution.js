@@ -38,18 +38,19 @@ const pipeline = (env) => {
     plan: [
       { get: 's3-feed', trigger: true, version: 'every' },
       { get: 'cnx-recipes' },
-      taskLookUpFeed(),
-      taskFetchBook(),
-      taskAssembleBook(),
-      taskAssembleBookMeta(),
-      taskBakeBook(),
-      taskBakeBookMeta(),
-      taskDisassembleBook(),
-      taskJsonifyBook(),
+      taskLookUpFeed({ image: { tag: env.IMAGE_TAG } }),
+      taskFetchBook({ image: { tag: env.IMAGE_TAG } }),
+      taskAssembleBook({ image: { tag: env.IMAGE_TAG } }),
+      taskAssembleBookMeta({ image: { tag: env.IMAGE_TAG } }),
+      taskBakeBook({ image: { tag: env.IMAGE_TAG } }),
+      taskBakeBookMeta({ image: { tag: env.IMAGE_TAG } }),
+      taskDisassembleBook({ image: { tag: env.IMAGE_TAG } }),
+      taskJsonifyBook({ image: { tag: env.IMAGE_TAG } }),
       taskUploadBook({
         bucketName: bucket,
         awsAccessKeyId: awsAccessKeyId,
-        awsSecretAccessKey: awsSecretAccessKey
+        awsSecretAccessKey: awsSecretAccessKey,
+        image: { tag: env.IMAGE_TAG }
       })
     ]
   }

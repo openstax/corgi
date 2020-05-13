@@ -1,15 +1,21 @@
 const dedent = require('dedent')
 
-const task = () => {
+const { constructImageSource } = require('../task-util/task-util')
+
+const task = (taskArgs) => {
+  const imageDefault = {
+    name: 'openstax/cops-bakery-scripts'
+  }
+  const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
+  const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
+
   return {
     task: 'look up feed',
     config: {
       platform: 'linux',
       image_resource: {
         type: 'docker-image',
-        source: {
-          repository: 'openstax/cops-bakery-scripts'
-        }
+        source: imageSource
       },
       inputs: [{ name: 's3-feed' }],
       outputs: [{ name: 'book' }],

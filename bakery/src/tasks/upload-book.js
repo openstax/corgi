@@ -1,15 +1,22 @@
 const dedent = require('dedent')
 
-const task = ({ awsAccessKeyId, awsSecretAccessKey, bucketName }) => {
+const { constructImageSource } = require('../task-util/task-util')
+
+const task = (taskArgs) => {
+  const { awsAccessKeyId, awsSecretAccessKey, bucketName } = taskArgs
+  const imageDefault = {
+    name: 'openstax/cops-bakery-scripts'
+  }
+  const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
+  const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
+
   return {
     task: 'upload book',
     config: {
       platform: 'linux',
       image_resource: {
         type: 'docker-image',
-        source: {
-          repository: 'openstax/cops-bakery-scripts'
-        }
+        source: imageSource
       },
       params: {
         AWS_ACCESS_KEY_ID: `${awsAccessKeyId}`,

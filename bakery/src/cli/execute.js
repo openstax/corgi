@@ -26,7 +26,19 @@ const stripLocalPrefix = imageArg => {
   return imageArg.replace(/^(localhost.localdomain:5000)\//, '')
 }
 
-const extractImageDetails = imageArg => {
+const imageDetailsFromArgs = (argv) => {
+  let imageDetails = null
+  if (argv.image) {
+    imageDetails = extractLocalImageDetails(argv.image)
+  }
+  if (argv.tag) {
+    imageDetails = { tag: argv.tag }
+  }
+  console.log(`extracted image details: ${JSON.stringify(imageDetails)}`)
+  return imageDetails == null ? null : { image: imageDetails }
+}
+
+const extractLocalImageDetails = imageArg => {
   if (imageArg == null) {
     return null
   }
@@ -41,11 +53,10 @@ const extractImageDetails = imageArg => {
     imageTag = imageArgStripped.slice(tagNameSeparatorIndex + 1)
   }
   const details = {
-    imageRegistry: 'registry:5000',
-    imageName,
-    imageTag
+    registry: 'registry:5000',
+    name: imageName,
+    tag: imageTag
   }
-  console.log(`extracted image details: ${JSON.stringify(details)}`)
   return details
 }
 
@@ -216,7 +227,11 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'fetch-book'])
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'fetch-book', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -260,7 +275,11 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'assemble-book'])
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'assemble-book', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -297,7 +316,11 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'bake-book'])
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'bake-book', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -349,7 +372,11 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'mathify-book'])
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'mathify-book', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -386,7 +413,9 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'build-pdf', '-a', '{bucketName: none}'])
+      const imageDetails = imageDetailsFromArgs(argv) || {}
+      const taskArgs = [`--taskargs=${JSON.stringify({ ...imageDetails, ...{ bucketName: 'none' } })}`]
+      const taskContent = execFileSync(buildExec, ['task', 'build-pdf', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -424,7 +453,7 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const imageDetails = extractImageDetails(argv.image)
+      const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
         ? []
         : [`--taskargs=${JSON.stringify(imageDetails)}`]
@@ -465,7 +494,7 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const imageDetails = extractImageDetails(argv.image)
+      const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
         ? []
         : [`--taskargs=${JSON.stringify(imageDetails)}`]
@@ -507,7 +536,7 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const imageDetails = extractImageDetails(argv.image)
+      const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
         ? []
         : [`--taskargs=${JSON.stringify(imageDetails)}`]
@@ -550,7 +579,7 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const imageDetails = extractImageDetails(argv.image)
+      const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
         ? []
         : [`--taskargs=${JSON.stringify(imageDetails)}`]
@@ -605,12 +634,18 @@ const yargs = require('yargs')
     describe: 'name of image to use instead of default',
     type: 'string'
   })
+  .option('t', {
+    alias: 'tag',
+    describe: 'use a particular tag of the default remote task image resource',
+    type: 'string'
+  })
   .option('p', {
     alias: 'persist',
     describe: 'persist containers after running cli command',
     boolean: true,
     default: false
   })
+  .conflicts('i', 't')
   .demandCommand(1, 'command required')
   .help()
   .wrap(process.env.COLUMNS)
