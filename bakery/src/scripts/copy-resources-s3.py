@@ -177,10 +177,11 @@ def upload(in_dir, bucket, bucket_folder):
                 print(e)    # print error from ThreadPoolExecutorStackTraced
                 halt_all_threads(executor)
                 sys.exit(1)
-            finally:
+            try:
+                # free memory of threads
                 check_futures.remove(future)
                 del future
-            try:
+                # process thread results
                 if resource is not None:
                     upload_resources.append(resource)
                     if not disable_deep_folder_check:
@@ -235,10 +236,11 @@ def upload(in_dir, bucket, bucket_folder):
                 print(e)    # print error from ThreadPoolExecutorStackTraced
                 halt_all_threads(executor)
                 sys.exit(1)
-            finally:
+            try:
+                # free memory of threads
                 upload_futures.remove(future)
                 del future
-            try:
+                # process thread results
                 if result is not None:
                     upload_count = upload_count + 1
                     print('.', end='', flush=True)
