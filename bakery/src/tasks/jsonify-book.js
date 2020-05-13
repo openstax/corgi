@@ -34,6 +34,7 @@ const task = (taskArgs) => {
           target_dir="jsonified-book/$collection_id/jsonified"
           mkdir "$target_dir"
           python /code/scripts/jsonify-book.py "$book_dir" "$target_dir"
+          jsonschema -i "$target_dir/collection.toc.json" /code/scripts/book-schema.json
         `
         ]
       }
