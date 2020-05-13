@@ -32,6 +32,12 @@ jobs:
 
     steps:
       - checkout
+
+      - run:
+          name: Setup localdomain
+          command: |
+            sudo sed -i 's/localhost/localhost localhost.localdomain/g' /etc/hosts
+
       - run:
           name: Install node
           command: |
