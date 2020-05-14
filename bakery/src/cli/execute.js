@@ -23,7 +23,7 @@ const completion = subprocess => {
 }
 
 const stripLocalPrefix = imageArg => {
-  return imageArg.replace(/^(localhost.localdomain:5000)\//, '')
+  return imageArg.replace(/^(localhost:5000)\//, '')
 }
 
 const imageDetailsFromArgs = (argv) => {
@@ -137,7 +137,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
       })
       const imageStripped = stripLocalPrefix(image)
       if (imageStripped === image) {
-        throw new Error(`Specified image ${image} does not have prefix 'localhost.localdomain:5000'. Not safe to automatically push!`)
+        throw new Error(`Specified image ${image} does not have prefix 'localhost:5000'. Not safe to automatically push!`)
       }
       console.log(`uploading image: ${image}`)
       const pushImage = spawn('docker', [
@@ -160,7 +160,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
     console.log('syncing')
     const sync = spawn('fly', [
       'sync',
-      '-c', 'http://localhost.localdomain:8080'
+      '-c', 'http://localhost:8080'
     ], { stdio: 'inherit' })
     children.push(sync)
     await completion(sync)
@@ -170,7 +170,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
       'login',
       '-k',
       '-t', 'bakery-cli',
-      '-c', 'http://localhost.localdomain:8080',
+      '-c', 'http://localhost:8080',
       '-u', 'admin',
       '-p', 'admin'
     ], { stdio: 'inherit' })

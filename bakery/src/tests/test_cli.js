@@ -116,7 +116,7 @@ test('stable flow in pdf and distribution pipeline', async t => {
   const scriptsImageBuild = spawn('docker', [
     'build',
     'src/scripts',
-    '--tag=localhost.localdomain:5000/openstax/cops-bakery-scripts:test'
+    '--tag=localhost:5000/openstax/cops-bakery-scripts:test'
   ])
   await completion(scriptsImageBuild)
 
@@ -132,7 +132,7 @@ test('stable flow in pdf and distribution pipeline', async t => {
   const assembleMeta = spawn('node', [
     'src/cli/execute.js',
     ...commonArgs,
-    '--image=localhost.localdomain:5000/openstax/cops-bakery-scripts:test',
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
     'assemble-meta',
     bookId
   ])
@@ -161,7 +161,7 @@ test('stable flow in pdf and distribution pipeline', async t => {
   const checksum = spawn('node', [
     'src/cli/execute.js',
     ...commonArgs,
-    '--image=localhost.localdomain:5000/openstax/cops-bakery-scripts:test',
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
     'checksum',
     bookId
   ])
@@ -172,7 +172,7 @@ test('stable flow in pdf and distribution pipeline', async t => {
   const bakeMeta = spawn('node', [
     'src/cli/execute.js',
     ...commonArgs,
-    '--image=localhost.localdomain:5000/openstax/cops-bakery-scripts:test',
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
     'bake-meta',
     bookId
   ])
@@ -200,7 +200,7 @@ test('stable flow in pdf and distribution pipeline', async t => {
     const disassemble = spawn('node', [
       'src/cli/execute.js',
       ...commonArgs,
-      '--image=localhost.localdomain:5000/openstax/cops-bakery-scripts:test',
+      '--image=localhost:5000/openstax/cops-bakery-scripts:test',
       'disassemble',
       bookId
     ])
@@ -210,7 +210,7 @@ test('stable flow in pdf and distribution pipeline', async t => {
     const jsonify = spawn('node', [
       'src/cli/execute.js',
       ...commonArgs,
-      '--image=localhost.localdomain:5000/openstax/cops-bakery-scripts:test',
+      '--image=localhost:5000/openstax/cops-bakery-scripts:test',
       'jsonify',
       bookId
     ])

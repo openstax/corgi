@@ -34,11 +34,6 @@ jobs:
       - checkout
 
       - run:
-          name: Setup localdomain
-          command: |
-            sudo sed -i 's/localhost/localhost localhost.localdomain/g' /etc/hosts
-
-      - run:
           name: Install node
           command: |
             export NVM_DIR=/opt/circleci/.nvm
@@ -99,7 +94,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: install
+          name: Install and lint
           command: |
             cd ./bakery
             npm install
