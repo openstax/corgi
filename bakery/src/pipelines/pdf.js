@@ -32,7 +32,7 @@ const pipeline = (env) => {
       type: 'docker-image',
       source: {
         repository: 'openstax/output-producer-resource',
-        tag: '1.1.2'
+        tag: env.IMAGE_TAG || 'latest'
       }
     }
   ]
@@ -75,13 +75,13 @@ const pipeline = (env) => {
       { get: 'output-producer', trigger: true, version: 'every' },
       reportToOutputProducer(Status.ASSIGNED),
       { get: 'cnx-recipes' },
-      taskLookUpBook(),
+      taskLookUpBook({ image: { tag: env.IMAGE_TAG } }),
       reportToOutputProducer(Status.PROCESSING),
-      taskFetchBook(),
-      taskAssembleBook(),
-      taskBakeBook(),
-      taskMathifyBook(),
-      taskBuildPdf({ bucketName: env.S3_BUCKET }),
+      taskFetchBook({ image: { tag: env.IMAGE_TAG } }),
+      taskAssembleBook({ image: { tag: env.IMAGE_TAG } }),
+      taskBakeBook({ image: { tag: env.IMAGE_TAG } }),
+      taskMathifyBook({ image: { tag: env.IMAGE_TAG } }),
+      taskBuildPdf({ bucketName: env.S3_BUCKET, image: { tag: env.IMAGE_TAG } }),
       {
         put: 's3',
         params: {

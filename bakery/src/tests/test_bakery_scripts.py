@@ -211,6 +211,8 @@ def test_bake_book(tmp_path):
 
     assert isinstance(baked_metadata[collection_id]["tree"], dict) is True
     assert 'contents' in baked_metadata[collection_id]["tree"].keys()
+    assert 'license' in baked_metadata[collection_id].keys()
+    assert baked_metadata[collection_id]["revised"] == "2019-08-30T16:35:37.569966-05:00"
     assert baked_metadata[collection_id]["legacy_id"] == 'col11406'
     assert "College Physics" in \
         baked_metadata[collection_id]["title"]

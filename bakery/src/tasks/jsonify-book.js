@@ -3,12 +3,12 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
-  // By default, use the cops-bakery-scripts image on Docker Hub
-  // if details given, find alternative image
-  const { imageRegistry, imageName, imageTag } = taskArgs == null ? {} : taskArgs
-  const imageSource = (constructImageSource({ imageRegistry, imageName, imageTag }) ||
-    { repository: 'openstax/cops-bakery-scripts' }
-  )
+  const imageDefault = {
+    name: 'openstax/cops-bakery-scripts'
+  }
+  const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
+  const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
+
   return {
     task: 'jsonify book',
     config: {
@@ -34,6 +34,7 @@ const task = (taskArgs) => {
           target_dir="jsonified-book/$collection_id/jsonified"
           mkdir "$target_dir"
           python /code/scripts/jsonify-book.py "$book_dir" "$target_dir"
+          jsonschema -i "$target_dir/collection.toc.json" /code/scripts/book-schema.json
         `
         ]
       }

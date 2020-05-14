@@ -1,15 +1,22 @@
 const dedent = require('dedent')
 
-const task = ({ bucketName }) => {
+const { constructImageSource } = require('../task-util/task-util')
+
+const task = (taskArgs) => {
+  const { bucketName } = taskArgs
+  const imageDefault = {
+    name: 'openstax/princexml'
+  }
+  const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
+  const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
+
   return {
     task: 'build pdf',
     config: {
       platform: 'linux',
       image_resource: {
         type: 'docker-image',
-        source: {
-          repository: 'openstax/princexml'
-        }
+        source: imageSource
       },
       inputs: [
         { name: 'book' },

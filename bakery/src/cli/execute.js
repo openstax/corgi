@@ -26,7 +26,19 @@ const stripLocalPrefix = imageArg => {
   return imageArg.replace(/^(localhost.localdomain:5000)\//, '')
 }
 
-const extractImageDetails = imageArg => {
+const imageDetailsFromArgs = (argv) => {
+  let imageDetails = null
+  if (argv.image) {
+    imageDetails = extractLocalImageDetails(argv.image)
+  }
+  if (argv.tag) {
+    imageDetails = { tag: argv.tag }
+  }
+  console.log(`extracted image details: ${JSON.stringify(imageDetails)}`)
+  return imageDetails == null ? null : { image: imageDetails }
+}
+
+const extractLocalImageDetails = imageArg => {
   if (imageArg == null) {
     return null
   }
@@ -40,11 +52,12 @@ const extractImageDetails = imageArg => {
     imageName = imageArgStripped.slice(0, tagNameSeparatorIndex)
     imageTag = imageArgStripped.slice(tagNameSeparatorIndex + 1)
   }
-  return {
-    imageRegistry: 'registry:5000',
-    imageName,
-    imageTag
+  const details = {
+    registry: 'registry:5000',
+    name: imageName,
+    tag: imageTag
   }
+  return details
 }
 
 const input = (dataDir, name) => `--input=${name}=${dataDir}/${name}`
@@ -144,25 +157,25 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
       output: 'silent'
     })
 
+    console.log('syncing')
+    const sync = spawn('fly', [
+      'sync',
+      '-c', 'http://localhost.localdomain:8080'
+    ], { stdio: 'inherit' })
+    children.push(sync)
+    await completion(sync)
+
     console.log('logging in')
     const login = spawn('fly', [
       'login',
       '-k',
       '-t', 'bakery-cli',
-      '-c', 'http://127.0.0.1:8080',
+      '-c', 'http://localhost.localdomain:8080',
       '-u', 'admin',
       '-p', 'admin'
     ], { stdio: 'inherit' })
     children.push(login)
     await completion(login)
-
-    console.log('syncing')
-    const sync = spawn('fly', [
-      'sync',
-      '-t', 'bakery-cli'
-    ], { stdio: 'inherit' })
-    children.push(sync)
-    await completion(sync)
 
     console.log('waiting for concourse to settle')
     await sleep(5000)
@@ -214,7 +227,11 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'fetch-book'])
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'fetch-book', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -249,7 +266,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -258,7 +275,11 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'assemble-book'])
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'assemble-book', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -286,7 +307,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -295,7 +316,11 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'bake-book'])
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'bake-book', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -338,7 +363,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -347,7 +372,11 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'mathify-book'])
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'mathify-book', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -375,7 +404,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -384,7 +413,9 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'build-pdf', '-a', '{bucketName: none}'])
+      const imageDetails = imageDetailsFromArgs(argv) || {}
+      const taskArgs = [`--taskargs=${JSON.stringify({ ...imageDetails, ...{ bucketName: 'none' } })}`]
+      const taskContent = execFileSync(buildExec, ['task', 'build-pdf', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -413,7 +444,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -422,7 +453,7 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const imageDetails = extractImageDetails(argv.image)
+      const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
         ? []
         : [`--taskargs=${JSON.stringify(imageDetails)}`]
@@ -454,7 +485,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -463,7 +494,7 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const imageDetails = extractImageDetails(argv.image)
+      const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
         ? []
         : [`--taskargs=${JSON.stringify(imageDetails)}`]
@@ -479,6 +510,7 @@ const yargs = require('yargs')
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'fetched-book'),
         input(dataDir, 'baked-book'),
         input(dataDir, 'assembled-book-metadata'),
         output(dataDir, 'baked-book-metadata')
@@ -506,7 +538,11 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'checksum-book'])
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'checksum-book', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -534,7 +570,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -543,7 +579,7 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const imageDetails = extractImageDetails(argv.image)
+      const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
         ? []
         : [`--taskargs=${JSON.stringify(imageDetails)}`]
@@ -577,7 +613,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -586,7 +622,7 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const imageDetails = extractImageDetails(argv.image)
+      const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
         ? []
         : [`--taskargs=${JSON.stringify(imageDetails)}`]
@@ -618,7 +654,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -641,12 +677,18 @@ const yargs = require('yargs')
     describe: 'name of image to use instead of default',
     type: 'string'
   })
+  .option('t', {
+    alias: 'tag',
+    describe: 'use a particular tag of the default remote task image resource',
+    type: 'string'
+  })
   .option('p', {
     alias: 'persist',
     describe: 'persist containers after running cli command',
     boolean: true,
     default: false
   })
+  .conflicts('i', 't')
   .demandCommand(1, 'command required')
   .help()
   .wrap(process.env.COLUMNS)

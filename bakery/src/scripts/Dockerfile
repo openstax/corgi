@@ -20,4 +20,4 @@ RUN wget --no-check-certificate https://raw.githubusercontent.com/stedolan/jq/ma
     rm -f /tmp/jq-linux64.asc && \
     rm -f /tmp/jq-linux64
 
-COPY ./*.py /code/scripts/
+COPY ./*.py ./*.json /code/scripts/
