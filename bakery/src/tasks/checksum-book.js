@@ -2,7 +2,7 @@ const dedent = require('dedent')
 
 const { constructImageSource } = require('../task-util/task-util')
 
-const task = () => {
+const task = (taskArgs) => {
   const imageDefault = {
     name: 'openstax/cops-bakery-scripts'
   }
