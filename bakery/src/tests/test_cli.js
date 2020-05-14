@@ -96,7 +96,7 @@ test('pin pipeline tasks to versions', async t => {
   }
 })
 
-test('stable flow in content distribution pipeline', async t => {
+test('stable flow in pdf and distribution pipeline', async t => {
   // Prepare test data
   const bookId = 'col30149'
   const outputDir = 'src/tests/output'
