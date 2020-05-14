@@ -1,4 +1,4 @@
-.. _operations-clean-up-the-swarm:
+.. _operations-cleaning-up-the-swarm:
 
 ==================
 Clean Up The Swarm

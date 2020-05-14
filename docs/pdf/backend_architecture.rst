@@ -1,8 +1,8 @@
-.. _backend-architecture:
+.. _pdf-backend-architecture:
 
-====================
-Backend Architecture
-====================
+============================
+PDF Backend API Architecture
+============================
 
 The COPS backend is built using FastAPI which is a web framework built in Python.
 

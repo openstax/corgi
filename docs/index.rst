@@ -6,16 +6,13 @@
 ----
 
 ======================================
-content output producer service (COPS)
+Content Output Producer Service (COPS)
 ======================================
 
 COPS is a web application built to allow vendors, Content Managers, QA, and
 developers to produce various outputs of our OpenStax book content.
 
 Currently, we are focusing on PDF output in preparation for testing "Baked" PDFs.
-
-First Steps
-===========
 
 .. toctree::
    :maxdepth: 2
@@ -24,29 +21,6 @@ First Steps
 
    intro/overview
 
-
-:ref:`intro-overview`
-    Understand what COPS is and what it can do.
-
-
-The Front-end (UI)
-==================
-
-The Backend
-===========
-
-.. toctree::
-   :caption: The Backend API
-   :hidden:
-
-   backend/architecture
-
-:ref:`backend-architecture`
-    Developer documentation for the COPS backend architecture
-
-Operations
-==========
-
 .. toctree::
    :maxdepth: 2
    :caption: Operations
@@ -54,12 +28,23 @@ Operations
 
    operations/setting_up_the_swarm
    operations/updating_the_stack
+   operations/cleaning_up_the_swarm
+   operations/bakery
 
-:ref:`operations-updating-the-stack`
-    How to update the stack with the latest changes
+.. toctree::
+   :maxdepth: 2
+   :caption: PDF System
+   :hidden:
 
-Quality Assurance
-=================
+   pdf/backend_architecture
+   pdf/frontend_ui
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Distribution System
+   :hidden:
+
+   intro/overview
 
 .. toctree::
    :maxdepth: 2
@@ -68,13 +53,6 @@ Quality Assurance
 
    qa/setup_local_qa_cops_test
 
-
-:doc:`qa/setup_local_qa_cops_test`
-    How to setup local qa cops test environs
-
-Extras
-======
-
 .. toctree::
    :maxdepth: 2
    :caption: Extras
@@ -82,13 +60,9 @@ Extras
 
    glossary
 
-:doc:`glossary`
-    A glossary of terms used throughout the documentation.
 
 Indices and tables
 ==================
 
-* :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
-* :ref:`glossary`
+* :ref:`genindex`
