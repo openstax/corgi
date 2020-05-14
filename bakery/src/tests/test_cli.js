@@ -82,6 +82,18 @@ test('stable flow in content distribution pipeline', async t => {
   await completion(bakeMeta)
   t.truthy(fs.existsSync(`${outputDir}/${bookId}/baked-book-metadata/${bookId}/collection.baked-metadata.json`))
 
+  const checksum = spawn('node', [
+    'src/cli/execute.js',
+    '--cops=..',
+    `--data=${outputDir}`,
+    '--image=localhost.localdomain:5000/openstax/cops-bakery-scripts:test',
+    '--persist',
+    'checksum',
+    bookId
+  ], { stdio: 'inherit' })
+  await completion(checksum)
+  t.truthy(fs.existsSync(`${outputDir}/${bookId}/checksum-book/${bookId}/resources`))
+
   const disassemble = spawn('node', [
     'src/cli/execute.js',
     '--cops=..',
