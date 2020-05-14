@@ -20,7 +20,7 @@ const task = (taskArgs) => {
       inputs: [
         { name: 'book' },
         { name: 'fetched-book' },
-        { name: 'baked-book' },
+        { name: 'checksum-book' },
         { name: 'baked-book-metadata' }
       ],
       outputs: [{ name: 'disassembled-book' }],
@@ -34,7 +34,7 @@ const task = (taskArgs) => {
           book_metadata="fetched-book/$collection_id/raw/metadata.json"
           book_uuid="$(cat $book_metadata | jq -r '.id')"
           book_version="$(cat $book_metadata | jq -r '.version')"
-          cp -r baked-book/* disassembled-book
+          cp -r checksum-book/* disassembled-book
           cp "baked-book-metadata/$collection_id/collection.baked-metadata.json" "disassembled-book/$collection_id/collection.baked-metadata.json"
           book_dir="disassembled-book/$collection_id"
           mkdir "$book_dir/disassembled"

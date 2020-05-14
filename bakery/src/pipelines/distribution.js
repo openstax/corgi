@@ -5,6 +5,7 @@ const pipeline = (env) => {
   const taskAssembleBookMeta = require('../tasks/assemble-book-metadata')
   const taskBakeBook = require('../tasks/bake-book')
   const taskBakeBookMeta = require('../tasks/bake-book-metadata')
+  const taskChecksumBook = require('../tasks/checksum-book')
   const taskDisassembleBook = require('../tasks/disassemble-book')
   const taskJsonifyBook = require('../tasks/jsonify-book')
   const taskUploadBook = require('../tasks/upload-book')
@@ -44,6 +45,7 @@ const pipeline = (env) => {
       taskAssembleBookMeta({ image: { tag: env.IMAGE_TAG } }),
       taskBakeBook({ image: { tag: env.IMAGE_TAG } }),
       taskBakeBookMeta({ image: { tag: env.IMAGE_TAG } }),
+      taskChecksumBook({ image: { tag: env.IMAGE_TAG } }),
       taskDisassembleBook({ image: { tag: env.IMAGE_TAG } }),
       taskJsonifyBook({ image: { tag: env.IMAGE_TAG } }),
       taskUploadBook({
