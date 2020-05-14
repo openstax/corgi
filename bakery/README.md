@@ -100,8 +100,8 @@ For example, if one wanted to make changes to cops-bakery-scripts and have those
 1. Have `src/scripts` as your working directory
 2. Make the desired change in the `src/scripts/*.py` file
 3. Build the image with `docker build .`
-4. Tag the build image as `localhost.localdomain:5000/openstax/cops-bakery/scripts:latest` (the prefix of `localhost.localdomain:5000` is *required*, what you name and tag your image is up to you), for example, with `docker tag $(docker image ls | awk 'NR==2 {print $3}') localhost.localdomain:5000/openstax/cops-bakery-scripts:latest`
-5. Run the desired pipeline step with the CLI with the `--image` flag, e.g. `node ./src/cli/execute.js assemble-meta --image localhost.localdomain:5000/openstax/cops-bakery-scripts:latest -c ./.. -d /tmp/data col30149`
+4. Tag the build image as `localhost:5000/openstax/cops-bakery/scripts:latest` (the prefix of `localhost:5000` is *required*, what you name and tag your image is up to you), for example, with `docker tag $(docker image ls | awk 'NR==2 {print $3}') localhost:5000/openstax/cops-bakery-scripts:latest`
+5. Run the desired pipeline step with the CLI with the `--image` flag, e.g. `node ./src/cli/execute.js assemble-meta --image localhost:5000/openstax/cops-bakery-scripts:latest -c ./.. -d /tmp/data col30149`
 
 Note: Using a local docker image as a task's `image_resource` is only supported for the `assemble-meta`, `bake-meta`, `disassemble`, and `jsonify` steps for now, to allow for local development.
 
