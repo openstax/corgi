@@ -20,7 +20,7 @@ const completion = subprocess => {
       if (code === 0) {
         resolve({ stdout, stderr })
       } else {
-        error.message = `Subprocess failed with code ${code}`
+        error.message = `Subprocess failed with code ${code} and captured output: \n${formatSubprocessOutput({ stdout, stderr })}`
         reject(error)
       }
     })

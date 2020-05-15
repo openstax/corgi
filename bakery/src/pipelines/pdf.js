@@ -39,10 +39,11 @@ const pipeline = (env) => {
 
   const resources = [
     {
-      name: 'cnx-recipes',
-      type: 'git',
+      name: 'cnx-recipes-output',
+      type: 'docker-image',
       source: {
-        uri: 'https://github.com/openstax/cnx-recipes.git'
+        repository: 'openstax/cnx-recipes-output',
+        tag: env.IMAGE_TAG || 'latest'
       }
     },
     {
@@ -74,7 +75,7 @@ const pipeline = (env) => {
     plan: [
       { get: 'output-producer', trigger: true, version: 'every' },
       reportToOutputProducer(Status.ASSIGNED),
-      { get: 'cnx-recipes' },
+      { get: 'cnx-recipes-output' },
       taskLookUpBook({ image: { tag: env.IMAGE_TAG } }),
       reportToOutputProducer(Status.PROCESSING),
       taskFetchBook({ image: { tag: env.IMAGE_TAG } }),
