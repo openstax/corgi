@@ -1,4 +1,4 @@
-## Bakery Concourse Pipeline Generator and Bakery CLI
+## Bakery Concourse Pipeline Config Generator and Bakery CLI
 
 This directory contains the code necessary to both generate and run our content distribution and pdf pipelines, either in individual steps or as a whole. Effort has been put in to paramaterize code pieces so that:
 - A downstream user (user of the Bakery CLI)
@@ -32,7 +32,7 @@ For example, to fetch a book and have its contents appear in the directory `/tmp
 
 `node ./src/cli/execute.js fetch -c ./.. -d /tmp/data staging.cnx.org col30149 latest`
 
-### Bakery Concourse Pipeline Generator
+### Bakery Concourse Pipeline Config Generator
 
 #### Dependencies
 - node >= 12.16.1
@@ -91,9 +91,10 @@ Note: The `--args` option (shorthand, `-a`) must be valid `yaml` (or `json`, sin
 Use process substitution!
 Example: `fly -t dev sp -p bakery -c <(./build pipeline pdf staging)`
 
-### Development
+### Development and QA
 
-#### Conventions
+#### Tip for development
+
 The Bakery CLI allows the user to specify an `image_resource` for concourse to run the task in instead of the default. This is especially useful for either developing locally on the cops-bakery-scripts or perhaps being able to use the checked out code to create an image rather than using the image on Docker Hub when running tests. There is some specific convention for how to do this sort of thing.
 
 For example, if one wanted to make changes to cops-bakery-scripts and have those changes reflect in the CLI running locally, one would have to follow these steps:
@@ -103,7 +104,13 @@ For example, if one wanted to make changes to cops-bakery-scripts and have those
 4. Tag the build image as `localhost:5000/openstax/cops-bakery/scripts:latest` (the prefix of `localhost:5000` is *required*, what you name and tag your image is up to you), for example, with `docker tag $(docker image ls | awk 'NR==2 {print $3}') localhost:5000/openstax/cops-bakery-scripts:latest`
 5. Run the desired pipeline step with the CLI with the `--image` flag, e.g. `node ./src/cli/execute.js assemble-meta --image localhost:5000/openstax/cops-bakery-scripts:latest -c ./.. -d /tmp/data col30149`
 
-Note: Using a local docker image as a task's `image_resource` is only supported for the `assemble-meta`, `bake-meta`, `disassemble`, and `jsonify` steps for now, to allow for local development.
+Note: This is probably most useful for the `cops-bakery-scripts` image, but you can technically use a local version of an image like `nebuchadnezzar` as well.
+
+#### Tip for development, deployment, and QA
+
+Both the Bakery CLI and the Pipeline Config Generator allow you to specify a tag of a remote image to use with the `--tag`. For example, if a tag, `important-tag`, has been released for each of our images, one can:
+1. Generate a pipeline pinning all versions of images to that tag with usage like `./build pipeline pdf staging --tag=important-tag`
+2. Run an individual task with the Bakery CLI using the image of that tag as the image_resource with usage like `node ./src/cli/execute.js fetch -c ./.. -d /tmp/data staging.cnx.org col30149 latest --tag=important-tag`
 
 #### Testing
 `npm run lint` will lint the JS files in `bakery` and `npm run test` will run regression tests on `bakery` via the CLI.
