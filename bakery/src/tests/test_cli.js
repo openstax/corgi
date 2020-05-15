@@ -120,6 +120,12 @@ test('stable flow in pdf and distribution pipeline', async t => {
   ])
   await completion(scriptsImageBuild)
 
+  // Log a heartbeat every minute so CI doesn't timeout
+  setInterval(() => {
+    console.log('HEARTBEAT\n   /\\ \n__/  \\  _ \n      \\/')
+  }, 60000)
+
+  // Start running tasks
   const assemble = spawn('node', [
     'src/cli/execute.js',
     ...commonArgs,
