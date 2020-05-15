@@ -63,39 +63,7 @@ const extractLocalImageDetails = imageArg => {
 const input = (dataDir, name) => `--input=${name}=${dataDir}/${name}`
 const output = (dataDir, name) => `--output=${name}=${dataDir}/${name}`
 
-const composeYml = `
----
-version: "3"
-
-services:
-  concourse-db:
-    image: postgres
-    environment:
-      - POSTGRES_DB=concourse
-      - POSTGRES_PASSWORD=concourse_pass
-      - POSTGRES_USER=concourse_user
-      - PGDATA=/database
-
-  concourse:
-    image: concourse/concourse:6.0
-    command: quickstart
-    privileged: true
-    depends_on: [concourse-db]
-    ports: ["8080:8080"]
-    environment:
-      - CONCOURSE_POSTGRES_HOST=concourse-db
-      - CONCOURSE_POSTGRES_USER=concourse_user
-      - CONCOURSE_POSTGRES_PASSWORD=concourse_pass
-      - CONCOURSE_POSTGRES_DATABASE=concourse
-      - CONCOURSE_EXTERNAL_URL
-      - CONCOURSE_ADD_LOCAL_USER=admin:admin
-      - CONCOURSE_MAIN_TEAM_LOCAL_USER=admin
-
-  registry:
-    image: registry:2
-    ports: ["5000:5000"]
-    restart: always
-`
+const composeYml = fs.readFileSync(path.resolve(__dirname, 'docker-compose.yml'), { encoding: 'utf8' })
 
 const flyExecute = async (cmdArgs, { image, persist }) => {
   const tmpComposeYml = tmp.fileSync()
@@ -330,10 +298,10 @@ const yargs = require('yargs')
       fs.writeFileSync(path.resolve(tmpBookDir.name, 'style'), styleName)
 
       const tmpRecipesDir = tmp.dirSync()
-      fs.mkdirSync(path.resolve(tmpRecipesDir.name, 'recipes/output/'), { recursive: true })
-      fs.mkdirSync(path.resolve(tmpRecipesDir.name, 'styles/output/'), { recursive: true })
-      fs.copyFileSync(path.resolve(argv.recipefile), path.resolve(tmpRecipesDir.name, `recipes/output/${styleName}.css`))
-      fs.copyFileSync(path.resolve(argv.stylefile), path.resolve(tmpRecipesDir.name, `styles/output/${styleName}-pdf.css`))
+      fs.mkdirSync(path.resolve(tmpRecipesDir.name, 'rootfs/recipes/'), { recursive: true })
+      fs.mkdirSync(path.resolve(tmpRecipesDir.name, 'rootfs/styles/'), { recursive: true })
+      fs.copyFileSync(path.resolve(argv.recipefile), path.resolve(tmpRecipesDir.name, `rootfs/recipes/${styleName}.css`))
+      fs.copyFileSync(path.resolve(argv.stylefile), path.resolve(tmpRecipesDir.name, `rootfs/styles/${styleName}-pdf.css`))
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
@@ -341,7 +309,7 @@ const yargs = require('yargs')
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'assembled-book'),
-        `--input=cnx-recipes=${tmpRecipesDir.name}`,
+        `--input=cnx-recipes-output=${tmpRecipesDir.name}`,
         output(dataDir, 'baked-book')
       ], { image: argv.image, persist: argv.persist })
     }
