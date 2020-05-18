@@ -3,6 +3,7 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
+  const { versionedFile } = taskArgs
   const imageDefault = {
     name: 'openstax/cops-bakery-scripts'
   }
@@ -25,7 +26,7 @@ const task = (taskArgs) => {
           '-cxe',
           dedent`
           exec 2> >(tee book/stderr >&2)
-          feed=s3-feed/distribution-feed.json
+          feed="s3-feed/${versionedFile}"
           echo -n "$(cat $feed | jq -r '.[-1].collection_id')" >book/collection_id
           echo -n "$(cat $feed | jq -r '.[-1].server')" >book/server
           echo -n "$(cat $feed | jq -r '.[-1].style')" >book/style

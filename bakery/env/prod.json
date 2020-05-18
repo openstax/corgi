@@ -2,5 +2,6 @@
   "ENV_NAME": "production",
   "COPS_TARGET": "https://cops.openstax.org/api",
   "S3_BUCKET": "ce-pdf-spike",
-  "S3_DIST_BUCKET": "ce-contents-cops-distribution-373045849756"
+  "S3_DIST_BUCKET": "ce-contents-cops-distribution-373045849756",
+  "VERSIONED_FILE": ""
 }

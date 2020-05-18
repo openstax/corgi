@@ -2,5 +2,6 @@
   "ENV_NAME": "staging",
   "COPS_TARGET": "https://cops-staging.openstax.org/api",
   "S3_BUCKET": "ce-cops-staging",
-  "S3_DIST_BUCKET": ""
+  "S3_DIST_BUCKET": "",
+  "VERSIONED_FILE": ""
 }

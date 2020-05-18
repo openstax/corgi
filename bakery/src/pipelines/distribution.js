@@ -28,7 +28,7 @@ const pipeline = (env) => {
       type: 's3',
       source: {
         bucket: bucket,
-        versioned_file: env.ENV_NAME === 'local' ? env.VERSIONED_FILE : '((versioned-feed-file))',
+        versioned_file: env.VERSIONED_FILE,
         access_key_id: awsAccessKeyId,
         secret_access_key: awsSecretAccessKey
       }
@@ -40,7 +40,10 @@ const pipeline = (env) => {
     plan: [
       { get: 's3-feed', trigger: true, version: 'every' },
       { get: 'cnx-recipes-output' },
-      taskLookUpFeed({ image: { tag: env.IMAGE_TAG } }),
+      taskLookUpFeed({
+        versionedFile: env.VERSIONED_FILE,
+        image: { tag: env.IMAGE_TAG }
+      }),
       taskFetchBook({ image: { tag: env.IMAGE_TAG } }),
       taskAssembleBook({ image: { tag: env.IMAGE_TAG } }),
       taskAssembleBookMeta({ image: { tag: env.IMAGE_TAG } }),
