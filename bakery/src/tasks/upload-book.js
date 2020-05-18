@@ -9,6 +9,7 @@ const task = (taskArgs) => {
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
+  const bucketPrefix = 'apps/archive'
 
   return {
     task: 'upload book',
@@ -45,8 +46,8 @@ const task = (taskArgs) => {
           cp "$book_dir/collection.toc.xhtml" "$target_dir/$book_uuid@$book_version.xhtml"
           for jsonfile in "$book_dir/"*@*.json; do cp "$jsonfile" "$target_dir/$(basename $jsonfile)"; done;
           for xhtmlfile in "$book_dir/"*@*.xhtml; do cp "$xhtmlfile" "$target_dir/$(basename $xhtmlfile)"; done;
-          aws s3 cp --recursive "$target_dir" "s3://${bucketName}/contents"
-          python /code/scripts/copy-resources-s3.py "$resources_dir" "${bucketName}" resources
+          aws s3 cp --recursive "$target_dir" "s3://${bucketName}/${bucketPrefix}/contents"
+          python /code/scripts/copy-resources-s3.py "$resources_dir" "${bucketName}" "${bucketPrefix}/resources"
         `
         ]
       }
