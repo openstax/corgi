@@ -58,7 +58,7 @@ const pipeline = (env) => {
       name: 's3',
       type: 's3',
       source: {
-        bucket: env.S3_BUCKET,
+        bucket: env.S3_PDF_BUCKET,
         access_key_id: env.ENV_NAME === 'local'
           ? env.S3_ACCESS_KEY_ID
           : '((aws-sandbox-secret-key-id))',
@@ -82,7 +82,7 @@ const pipeline = (env) => {
       taskAssembleBook({ image: { tag: env.IMAGE_TAG } }),
       taskBakeBook({ image: { tag: env.IMAGE_TAG } }),
       taskMathifyBook({ image: { tag: env.IMAGE_TAG } }),
-      taskBuildPdf({ bucketName: env.S3_BUCKET, image: { tag: env.IMAGE_TAG } }),
+      taskBuildPdf({ bucketName: env.S3_PDF_BUCKET, image: { tag: env.IMAGE_TAG } }),
       {
         put: 's3',
         params: {
