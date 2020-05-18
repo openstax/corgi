@@ -24,7 +24,7 @@ const task = (taskArgs) => {
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee s3-feed/stderr >&2)
+          exec 2> >(tee book/stderr >&2)
           feed=s3-feed/distribution-feed.json
           echo -n "$(cat $feed | jq -r '.[-1].collection_id')" >book/collection_id
           echo -n "$(cat $feed | jq -r '.[-1].server')" >book/server
