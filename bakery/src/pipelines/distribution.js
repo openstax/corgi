@@ -10,7 +10,6 @@ const pipeline = (env) => {
   const taskJsonifyBook = require('../tasks/jsonify-book')
   const taskUploadBook = require('../tasks/upload-book')
 
-  const bucket = env.ENV_NAME === 'local' ? env.S3_DIST_BUCKET : '((aws-s3-distribution-bucket))'
   const awsAccessKeyId = env.ENV_NAME === 'local' ? env.S3_ACCESS_KEY_ID : '((aws-sandbox-secret-key-id))'
   const awsSecretAccessKey = env.ENV_NAME === 'local' ? env.S3_SECRET_ACCESS_KEY : '((aws-sandbox-secret-access-key))'
 
@@ -27,8 +26,8 @@ const pipeline = (env) => {
       name: 's3-feed',
       type: 's3',
       source: {
-        bucket: bucket,
-        versioned_file: env.ENV_NAME === 'local' ? env.VERSIONED_FILE : '((versioned-feed-file))',
+        bucket: env.S3_DIST_BUCKET,
+        versioned_file: env.VERSIONED_FILE,
         access_key_id: awsAccessKeyId,
         secret_access_key: awsSecretAccessKey
       }
@@ -40,7 +39,10 @@ const pipeline = (env) => {
     plan: [
       { get: 's3-feed', trigger: true, version: 'every' },
       { get: 'cnx-recipes-output' },
-      taskLookUpFeed({ image: { tag: env.IMAGE_TAG } }),
+      taskLookUpFeed({
+        versionedFile: env.VERSIONED_FILE,
+        image: { tag: env.IMAGE_TAG }
+      }),
       taskFetchBook({ image: { tag: env.IMAGE_TAG } }),
       taskAssembleBook({ image: { tag: env.IMAGE_TAG } }),
       taskAssembleBookMeta({ image: { tag: env.IMAGE_TAG } }),
@@ -50,7 +52,7 @@ const pipeline = (env) => {
       taskDisassembleBook({ image: { tag: env.IMAGE_TAG } }),
       taskJsonifyBook({ image: { tag: env.IMAGE_TAG } }),
       taskUploadBook({
-        bucketName: bucket,
+        bucketName: env.S3_DIST_BUCKET,
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
         image: { tag: env.IMAGE_TAG }
