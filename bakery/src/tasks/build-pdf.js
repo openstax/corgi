@@ -31,7 +31,7 @@ const task = (taskArgs) => {
           dedent`
           exec 2> >(tee artifacts/stderr >&2)
           book_dir="mathified-book/$(cat book/collection_id)"
-          echo -n "https://${bucketName}.s3.amazonaws.com/$(cat book/pdf_filename))" >artifacts/pdf_url
+          echo -n "https://${bucketName}.s3.amazonaws.com/$(cat book/pdf_filename)" >artifacts/pdf_url
           prince -v --output="artifacts/$(cat book/pdf_filename)" "$book_dir/collection.mathified.xhtml"
         `
         ]
