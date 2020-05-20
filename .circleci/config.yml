@@ -32,6 +32,7 @@ jobs:
 
     steps:
       - checkout
+
       - run:
           name: Install node
           command: |
@@ -93,7 +94,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: install
+          name: Install and lint
           command: |
             cd ./bakery
             npm install

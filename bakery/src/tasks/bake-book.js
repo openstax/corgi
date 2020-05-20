@@ -1,20 +1,26 @@
 const dedent = require('dedent')
 
-const task = () => {
+const { constructImageSource } = require('../task-util/task-util')
+
+const task = (taskArgs) => {
+  const imageDefault = {
+    name: 'openstax/cnx-easybake'
+  }
+  const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
+  const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
+
   return {
     task: 'bake book',
     config: {
       platform: 'linux',
       image_resource: {
         type: 'docker-image',
-        source: {
-          repository: 'openstax/cnx-easybake'
-        }
+        source: imageSource
       },
       inputs: [
         { name: 'book' },
         { name: 'assembled-book' },
-        { name: 'cnx-recipes' }
+        { name: 'cnx-recipes-output' }
       ],
       outputs: [{ name: 'baked-book' }],
       run: {
@@ -25,8 +31,8 @@ const task = () => {
           exec 2> >(tee baked-book/stderr >&2)
           cp -r assembled-book/* baked-book
           book_dir="baked-book/$(cat book/collection_id)"
-          cnx-easybake -q "cnx-recipes/recipes/output/$(cat book/style).css" "$book_dir/collection.assembled.xhtml" "$book_dir/collection.baked.xhtml"
-          style_file="cnx-recipes/styles/output/$(cat book/style)-pdf.css"
+          cnx-easybake -q "cnx-recipes-output/rootfs/recipes/$(cat book/style).css" "$book_dir/collection.assembled.xhtml" "$book_dir/collection.baked.xhtml"
+          style_file="cnx-recipes-output/rootfs/styles/$(cat book/style)-pdf.css"
           if [ -f "$style_file" ]
           then
             cp "$style_file" $book_dir

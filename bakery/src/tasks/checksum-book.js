@@ -3,15 +3,14 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
-  const { bucketName } = taskArgs
   const imageDefault = {
-    name: 'openstax/princexml'
+    name: 'openstax/cops-bakery-scripts'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
   return {
-    task: 'build pdf',
+    task: 'checksum book',
     config: {
       platform: 'linux',
       image_resource: {
@@ -20,19 +19,21 @@ const task = (taskArgs) => {
       },
       inputs: [
         { name: 'book' },
-        { name: 'mathified-book' }
+        { name: 'baked-book' }
       ],
-      outputs: [{ name: 'artifacts' }],
+      outputs: [{ name: 'checksum-book' }],
       run: {
-        user: 'root',
         path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee artifacts/stderr >&2)
-          book_dir="mathified-book/$(cat book/collection_id)"
-          echo -n "https://${bucketName}.s3.amazonaws.com/$(cat book/pdf_filename))" >artifacts/pdf_url
-          prince -v --output="artifacts/$(cat book/pdf_filename)" "$book_dir/collection.mathified.xhtml"
+          exec 2> >(tee checksum-book/stderr >&2)
+          collection_id="$(cat book/collection_id)"
+          cp -r baked-book/* checksum-book
+          book_dir="checksum-book/$collection_id"
+          mkdir "$book_dir/baked"
+          find "baked-book/$collection_id/" -maxdepth 1 -type f -exec cp {} $book_dir/baked \;
+          python /code/scripts/checksum-resources.py "$book_dir"
         `
         ]
       }
