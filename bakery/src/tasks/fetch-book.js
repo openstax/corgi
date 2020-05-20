@@ -28,13 +28,6 @@ const task = (taskArgs) => {
           exec 2> >(tee fetched-book/stderr >&2)
           cd fetched-book
           book_dir="$(cat ../book/collection_id)"
-          mkdir -p "$book_dir" ~/.config/
-          server="$(cat ../book/server)"
-          cat >~/.config/nebuchadnezzar.ini <<EOF
-          [settings]
-          [environ-$server]
-          url = https://$server
-          EOF
           yes | neb get -r -m -d "$book_dir/raw" "$(cat ../book/server)" "$(cat ../book/collection_id)" "$(cat ../book/version)"
         `
         ]
