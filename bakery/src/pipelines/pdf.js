@@ -32,17 +32,18 @@ const pipeline = (env) => {
       type: 'docker-image',
       source: {
         repository: 'openstax/output-producer-resource',
-        tag: '1.1.2'
+        tag: env.IMAGE_TAG || 'latest'
       }
     }
   ]
 
   const resources = [
     {
-      name: 'cnx-recipes',
-      type: 'git',
+      name: 'cnx-recipes-output',
+      type: 'docker-image',
       source: {
-        uri: 'https://github.com/openstax/cnx-recipes.git'
+        repository: 'openstax/cnx-recipes-output',
+        tag: env.IMAGE_TAG || 'latest'
       }
     },
     {
@@ -57,13 +58,9 @@ const pipeline = (env) => {
       name: 's3',
       type: 's3',
       source: {
-        bucket: env.S3_BUCKET,
-        access_key_id: env.ENV_NAME === 'local'
-          ? env.S3_ACCESS_KEY_ID
-          : '((aws-sandbox-secret-key-id))',
-        secret_access_key: env.ENV_NAME === 'local'
-          ? env.S3_SECRET_ACCESS_KEY
-          : '((aws-sandbox-secret-access-key))',
+        bucket: env.S3_PDF_BUCKET,
+        access_key_id: '((aws-sandbox-secret-key-id))',
+        secret_access_key: '((aws-sandbox-secret-access-key))',
         skip_download: true
       }
     }
@@ -74,14 +71,14 @@ const pipeline = (env) => {
     plan: [
       { get: 'output-producer', trigger: true, version: 'every' },
       reportToOutputProducer(Status.ASSIGNED),
-      { get: 'cnx-recipes' },
-      taskLookUpBook(),
+      { get: 'cnx-recipes-output' },
+      taskLookUpBook({ image: { tag: env.IMAGE_TAG } }),
       reportToOutputProducer(Status.PROCESSING),
-      taskFetchBook(),
-      taskAssembleBook(),
-      taskBakeBook(),
-      taskMathifyBook(),
-      taskBuildPdf({ bucketName: env.S3_BUCKET }),
+      taskFetchBook({ image: { tag: env.IMAGE_TAG } }),
+      taskAssembleBook({ image: { tag: env.IMAGE_TAG } }),
+      taskBakeBook({ image: { tag: env.IMAGE_TAG } }),
+      taskMathifyBook({ image: { tag: env.IMAGE_TAG } }),
+      taskBuildPdf({ bucketName: env.S3_PDF_BUCKET, image: { tag: env.IMAGE_TAG } }),
       {
         put: 's3',
         params: {

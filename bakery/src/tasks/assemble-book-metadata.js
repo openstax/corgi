@@ -2,10 +2,13 @@ const dedent = require('dedent')
 
 const { constructImageSource } = require('../task-util/task-util')
 
-const task = ({ imageRegistry, imageName, imageTag }) => {
-  const imageSource = (constructImageSource({ imageRegistry, imageName, imageTag }) ||
-    { repository: 'openstax/cops-bakery-scripts' }
-  )
+const task = (taskArgs) => {
+  const imageDefault = {
+    name: 'openstax/cops-bakery-scripts'
+  }
+  const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
+  const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
+
   return {
     task: 'assemble book metadata',
     config: {

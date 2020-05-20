@@ -92,7 +92,6 @@ def generate_checksum_resources_from_xhtml(filename, output_dir):
 
             create_symlink(img_filename, output_dir, sha1)
             create_json_metadata(output_dir, sha1, mime_type, s3_md5, img_basename)
-            # print('{}, {}, {}'.format(img_filename, sha1, mime_type)) # debug
 
     # get all a @href resources
     for node in doc.xpath('//x:a[@href and not(starts-with(@href, "http") or starts-with(@href, "//") or starts-with(@href, "#"))]',
@@ -112,7 +111,6 @@ def generate_checksum_resources_from_xhtml(filename, output_dir):
 
             create_symlink(img_filename, output_dir, sha1)
             create_json_metadata(output_dir, sha1, mime_type, s3_md5, img_basename)
-            # print('{}, {}, {}'.format(img_filename, sha1, mime_type)) # debug
 
     output_file = os.path.join(output_dir, basename)
     # note: non self closing tags in xhtml are probably not respected here
