@@ -2,5 +2,6 @@
   "ENV_NAME": "local",
   "COPS_TARGET": "http://backend/api",
   "S3_PDF_BUCKET": "ce-pdf-local",
-  "S3_DIST_BUCKET": "ce-contents-cops-distribution-373045849756-LOCAL"
+  "S3_DIST_BUCKET": "ce-contents-cops-distribution-373045849756-LOCAL",
+  "VERSIONED_FILE": ""
 }

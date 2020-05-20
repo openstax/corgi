@@ -1,5 +1,5 @@
 const pipeline = (env) => {
-  const taksLookUpFeed = require('../tasks/look-up-feed')
+  const taskLookUpFeed = require('../tasks/look-up-feed')
   const taskFetchBook = require('../tasks/fetch-book')
   const taskAssembleBook = require('../tasks/assemble-book')
   const taskAssembleBookMeta = require('../tasks/assemble-book-metadata')
@@ -16,10 +16,11 @@ const pipeline = (env) => {
 
   const resources = [
     {
-      name: 'cnx-recipes',
-      type: 'git',
+      name: 'cnx-recipes-output',
+      type: 'docker-image',
       source: {
-        uri: 'https://github.com/openstax/cnx-recipes.git'
+        repository: 'openstax/cnx-recipes-output',
+        tag: env.IMAGE_TAG || 'latest'
       }
     },
     {
@@ -38,20 +39,24 @@ const pipeline = (env) => {
     name: 'bakery',
     plan: [
       { get: 's3-feed', trigger: true, version: 'every' },
-      { get: 'cnx-recipes' },
-      taksLookUpFeed(),
-      taskFetchBook(),
-      taskAssembleBook(),
-      taskAssembleBookMeta(),
-      taskBakeBook(),
-      taskBakeBookMeta(),
-      taskChecksumBook(),
-      taskDisassembleBook(),
-      taskJsonifyBook(),
+      { get: 'cnx-recipes-output' },
+      taskLookUpFeed({
+        versionedFile: env.VERSIONED_FILE,
+        image: { tag: env.IMAGE_TAG }
+      }),
+      taskFetchBook({ image: { tag: env.IMAGE_TAG } }),
+      taskAssembleBook({ image: { tag: env.IMAGE_TAG } }),
+      taskAssembleBookMeta({ image: { tag: env.IMAGE_TAG } }),
+      taskBakeBook({ image: { tag: env.IMAGE_TAG } }),
+      taskBakeBookMeta({ image: { tag: env.IMAGE_TAG } }),
+      taskChecksumBook({ image: { tag: env.IMAGE_TAG } }),
+      taskDisassembleBook({ image: { tag: env.IMAGE_TAG } }),
+      taskJsonifyBook({ image: { tag: env.IMAGE_TAG } }),
       taskUploadBook({
-        bucketName: bucket,
+        bucketName: env.S3_DIST_BUCKET,
         awsAccessKeyId: awsAccessKeyId,
-        awsSecretAccessKey: awsSecretAccessKey
+        awsSecretAccessKey: awsSecretAccessKey,
+        image: { tag: env.IMAGE_TAG }
       })
     ]
   }

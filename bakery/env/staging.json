@@ -3,4 +3,5 @@
   "COPS_TARGET": "https://cops-staging.openstax.org/api",
   "S3_PDF_BUCKET": "ce-cops-staging",
   "S3_DIST_BUCKET": "ce-contents-cops-distribution-373045849756-STAGING"
+  "VERSIONED_FILE": ""
 }
