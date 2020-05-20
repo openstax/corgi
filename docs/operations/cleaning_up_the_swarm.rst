@@ -5,7 +5,7 @@ Clean Up The Swarm
 ==================
 
 Add cronjob to run docker prune (MOVE TO CLEANUP)
-===============================
+=================================================
 
 Docker swarm does not come with any kind of "garbage collection" for dangling 
 volumes or unused containers that are created when doing updates or after 
@@ -13,7 +13,7 @@ restarts. This has caused issues where the host nodes run out of hard drive stor
 prevent this we have created an :term:`Ansible` playbook to configure a cronjob on the server.
 
 Local or from bastion2?
-----------------------
+-----------------------
 
 There are two places you can run this playbook.
 

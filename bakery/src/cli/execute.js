@@ -23,10 +23,22 @@ const completion = subprocess => {
 }
 
 const stripLocalPrefix = imageArg => {
-  return imageArg.replace(/^(localhost.localdomain:5000)\//, '')
+  return imageArg.replace(/^(localhost:5000)\//, '')
 }
 
-const extractImageDetails = imageArg => {
+const imageDetailsFromArgs = (argv) => {
+  let imageDetails = null
+  if (argv.image) {
+    imageDetails = extractLocalImageDetails(argv.image)
+  }
+  if (argv.tag) {
+    imageDetails = { tag: argv.tag }
+  }
+  console.log(`extracted image details: ${JSON.stringify(imageDetails)}`)
+  return imageDetails == null ? null : { image: imageDetails }
+}
+
+const extractLocalImageDetails = imageArg => {
   if (imageArg == null) {
     return null
   }
@@ -40,49 +52,18 @@ const extractImageDetails = imageArg => {
     imageName = imageArgStripped.slice(0, tagNameSeparatorIndex)
     imageTag = imageArgStripped.slice(tagNameSeparatorIndex + 1)
   }
-  return {
-    imageRegistry: 'registry:5000',
-    imageName,
-    imageTag
+  const details = {
+    registry: 'registry:5000',
+    name: imageName,
+    tag: imageTag
   }
+  return details
 }
 
 const input = (dataDir, name) => `--input=${name}=${dataDir}/${name}`
 const output = (dataDir, name) => `--output=${name}=${dataDir}/${name}`
 
-const composeYml = `
----
-version: "3"
-
-services:
-  concourse-db:
-    image: postgres
-    environment:
-      - POSTGRES_DB=concourse
-      - POSTGRES_PASSWORD=concourse_pass
-      - POSTGRES_USER=concourse_user
-      - PGDATA=/database
-
-  concourse:
-    image: concourse/concourse:6.0
-    command: quickstart
-    privileged: true
-    depends_on: [concourse-db]
-    ports: ["8080:8080"]
-    environment:
-      - CONCOURSE_POSTGRES_HOST=concourse-db
-      - CONCOURSE_POSTGRES_USER=concourse_user
-      - CONCOURSE_POSTGRES_PASSWORD=concourse_pass
-      - CONCOURSE_POSTGRES_DATABASE=concourse
-      - CONCOURSE_EXTERNAL_URL
-      - CONCOURSE_ADD_LOCAL_USER=admin:admin
-      - CONCOURSE_MAIN_TEAM_LOCAL_USER=admin
-
-  registry:
-    image: registry:2
-    ports: ["5000:5000"]
-    restart: always
-`
+const composeYml = fs.readFileSync(path.resolve(__dirname, 'docker-compose.yml'), { encoding: 'utf8' })
 
 const flyExecute = async (cmdArgs, { image, persist }) => {
   const tmpComposeYml = tmp.fileSync()
@@ -124,7 +105,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
       })
       const imageStripped = stripLocalPrefix(image)
       if (imageStripped === image) {
-        throw new Error(`Specified image ${image} does not have prefix 'localhost.localdomain:5000'. Not safe to automatically push!`)
+        throw new Error(`Specified image ${image} does not have prefix 'localhost:5000'. Not safe to automatically push!`)
       }
       console.log(`uploading image: ${image}`)
       const pushImage = spawn('docker', [
@@ -144,25 +125,25 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
       output: 'silent'
     })
 
+    console.log('syncing')
+    const sync = spawn('fly', [
+      'sync',
+      '-c', 'http://localhost:8080'
+    ], { stdio: 'inherit' })
+    children.push(sync)
+    await completion(sync)
+
     console.log('logging in')
     const login = spawn('fly', [
       'login',
       '-k',
       '-t', 'bakery-cli',
-      '-c', 'http://127.0.0.1:8080',
+      '-c', 'http://localhost:8080',
       '-u', 'admin',
       '-p', 'admin'
     ], { stdio: 'inherit' })
     children.push(login)
     await completion(login)
-
-    console.log('syncing')
-    const sync = spawn('fly', [
-      'sync',
-      '-t', 'bakery-cli'
-    ], { stdio: 'inherit' })
-    children.push(sync)
-    await completion(sync)
 
     console.log('waiting for concourse to settle')
     await sleep(5000)
@@ -191,7 +172,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
     }
     error = err
   } finally {
-    if (error != null || !persist) {
+    if (!persist) {
       console.log('cleaning up')
       const cleanUp = spawn('docker-compose', [
         '-f', tmpComposeYml.name,
@@ -214,7 +195,11 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'fetch-book'])
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'fetch-book', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -249,7 +234,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -258,7 +243,11 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'assemble-book'])
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'assemble-book', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -286,7 +275,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -295,7 +284,11 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'bake-book'])
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'bake-book', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -305,10 +298,10 @@ const yargs = require('yargs')
       fs.writeFileSync(path.resolve(tmpBookDir.name, 'style'), styleName)
 
       const tmpRecipesDir = tmp.dirSync()
-      fs.mkdirSync(path.resolve(tmpRecipesDir.name, 'recipes/output/'), { recursive: true })
-      fs.mkdirSync(path.resolve(tmpRecipesDir.name, 'styles/output/'), { recursive: true })
-      fs.copyFileSync(path.resolve(argv.recipefile), path.resolve(tmpRecipesDir.name, `recipes/output/${styleName}.css`))
-      fs.copyFileSync(path.resolve(argv.stylefile), path.resolve(tmpRecipesDir.name, `styles/output/${styleName}-pdf.css`))
+      fs.mkdirSync(path.resolve(tmpRecipesDir.name, 'rootfs/recipes/'), { recursive: true })
+      fs.mkdirSync(path.resolve(tmpRecipesDir.name, 'rootfs/styles/'), { recursive: true })
+      fs.copyFileSync(path.resolve(argv.recipefile), path.resolve(tmpRecipesDir.name, `rootfs/recipes/${styleName}.css`))
+      fs.copyFileSync(path.resolve(argv.stylefile), path.resolve(tmpRecipesDir.name, `rootfs/styles/${styleName}-pdf.css`))
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
@@ -316,7 +309,7 @@ const yargs = require('yargs')
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'assembled-book'),
-        `--input=cnx-recipes=${tmpRecipesDir.name}`,
+        `--input=cnx-recipes-output=${tmpRecipesDir.name}`,
         output(dataDir, 'baked-book')
       ], { image: argv.image, persist: argv.persist })
     }
@@ -338,7 +331,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -347,7 +340,11 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'mathify-book'])
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'mathify-book', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -375,7 +372,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -384,7 +381,9 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const taskContent = execFileSync(buildExec, ['task', 'build-pdf', '-a', '{bucketName: none}'])
+      const imageDetails = imageDetailsFromArgs(argv) || {}
+      const taskArgs = [`--taskargs=${JSON.stringify({ ...imageDetails, ...{ bucketName: 'none' } })}`]
+      const taskContent = execFileSync(buildExec, ['task', 'build-pdf', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -413,7 +412,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -422,7 +421,7 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const imageDetails = extractImageDetails(argv.image)
+      const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
         ? []
         : [`--taskargs=${JSON.stringify(imageDetails)}`]
@@ -454,7 +453,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -463,7 +462,7 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const imageDetails = extractImageDetails(argv.image)
+      const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
         ? []
         : [`--taskargs=${JSON.stringify(imageDetails)}`]
@@ -479,6 +478,7 @@ const yargs = require('yargs')
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'fetched-book'),
         input(dataDir, 'baked-book'),
         input(dataDir, 'assembled-book-metadata'),
         output(dataDir, 'baked-book-metadata')
@@ -487,7 +487,7 @@ const yargs = require('yargs')
     return {
       command: commandUsage,
       aliases: 'bm',
-      describe: 'build metadata files from an baked book',
+      describe: 'build metadata files from a baked book',
       builder: yargs => {
         yargs.usage(`Usage: ${process.env.CALLER || 'execute.js'} ${commandUsage}`)
         yargs.positional('collid', {
@@ -501,11 +501,53 @@ const yargs = require('yargs')
     }
   }).call())
   .command((() => {
+    // fly -t cops-dev execute -c checksum-book.yml -j bakery/bakery -i book=./data/book -i baked-book=./data/baked-book -o checksum-book=./data/checksum-book
+    const commandUsage = 'checksum <collid>'
+    const handler = async argv => {
+      const buildExec = path.resolve(argv.cops, 'bakery/build')
+
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'checksum-book', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
+
+      const dataDir = path.resolve(argv.data, argv.collid)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'baked-book'),
+        output(dataDir, 'checksum-book')
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'cb',
+      describe: 'checksum resources from a baked book',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || 'execute.js'} ${commandUsage}`)
+        yargs.positional('collid', {
+          describe: 'collection id of collection to work on',
+          type: 'string'
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
+  }).call())
+  .command((() => {
     const commandUsage = 'disassemble <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const imageDetails = extractImageDetails(argv.image)
+      const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
         ? []
         : [`--taskargs=${JSON.stringify(imageDetails)}`]
@@ -521,7 +563,8 @@ const yargs = require('yargs')
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'baked-book'),
+        input(dataDir, 'fetched-book'),
+        input(dataDir, 'checksum-book'),
         input(dataDir, 'baked-book-metadata'),
         output(dataDir, 'disassembled-book')
       ], { image: argv.image, persist: argv.persist })
@@ -529,7 +572,7 @@ const yargs = require('yargs')
     return {
       command: commandUsage,
       aliases: 'd',
-      describe: 'disassemble a baked book',
+      describe: 'disassemble a checksummed book',
       builder: yargs => {
         yargs.usage(`Usage: ${process.env.CALLER || 'execute.js'} ${commandUsage}`)
         yargs.positional('collid', {
@@ -538,7 +581,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -547,7 +590,7 @@ const yargs = require('yargs')
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
 
-      const imageDetails = extractImageDetails(argv.image)
+      const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
         ? []
         : [`--taskargs=${JSON.stringify(imageDetails)}`]
@@ -579,7 +622,7 @@ const yargs = require('yargs')
         })
       },
       handler: argv => {
-        handler(argv).catch((err) => { console.error(err) })
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
   }).call())
@@ -602,12 +645,18 @@ const yargs = require('yargs')
     describe: 'name of image to use instead of default',
     type: 'string'
   })
+  .option('t', {
+    alias: 'tag',
+    describe: 'use a particular tag of the default remote task image resource',
+    type: 'string'
+  })
   .option('p', {
     alias: 'persist',
     describe: 'persist containers after running cli command',
     boolean: true,
     default: false
   })
+  .conflicts('i', 't')
   .demandCommand(1, 'command required')
   .help()
   .wrap(process.env.COLUMNS)

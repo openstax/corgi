@@ -9,7 +9,7 @@ module.exports.command = commandUsage
 module.exports.aliases = ['t']
 module.exports.describe = 'builds a bakery pipeline task runnable with fly execute'
 module.exports.builder = yargs => {
-  yargs.usage(`Usage: ${process.env.CALLER || 'build.js'} ${commandUsage}`)
+  yargs.usage(`Usage: ${process.env.CALLER || 'build'} ${commandUsage}`)
   yargs.positional('taskname', {
     describe: 'name of task to build',
     choices: fs.readdirSync(taskDir).map(file => path.basename(file, '.js')),
@@ -31,11 +31,7 @@ module.exports.builder = yargs => {
 module.exports.handler = argv => {
   const task = (() => {
     const taskFilePath = path.resolve(taskDir, `${argv.taskname}.js`)
-    try {
-      return require(taskFilePath)
-    } catch {
-      throw new Error(`Could not find task file: ${taskFilePath}`)
-    }
+    return require(taskFilePath)
   })()
   const outputFile = argv.output == null
     ? undefined

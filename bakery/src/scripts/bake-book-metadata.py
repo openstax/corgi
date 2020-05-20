@@ -15,11 +15,11 @@ def capture_book_metadata():
         metadata = DocumentMetadataParser(html)
         binder = reconstitute(baked_xhtml)
 
-    required_metadata = ('title', 'license_url')
+    required_metadata = ('title', 'revised')
     for required_data in required_metadata:
         if getattr(metadata, required_data) is None:
             raise ValueError("A value for '{}' could not be found.".format(required_data))
-        
+
     legacy_id, legacy_version = utils.parse_uri(metadata.cnx_archive_uri)
 
     if legacy_id != collection_id:
@@ -27,19 +27,22 @@ def capture_book_metadata():
 
     with open(raw_metadata_file, "r") as raw_json :
         baked_metadata = json.load(raw_json)
-    
+
     tree = utils.model_to_tree(binder)
-    
+
     baked_book_json = {
         "title": metadata.title,
-        "license": {
-            "url": metadata.license_url
-        },
+        "revised": metadata.revised,
         "legacy_id": legacy_id,
         "legacy_version": legacy_version,
         "tree": tree
     }
-    baked_metadata[collection_id] = baked_book_json
+
+    # If there is existing book metadata provided, update with data above
+    if baked_metadata.get(collection_id):
+        baked_metadata[collection_id].update(baked_book_json)
+    else:
+        baked_metadata[collection_id] = baked_book_json
 
     with open(baked_metadata_file, "w") as json_out:
         json.dump(
