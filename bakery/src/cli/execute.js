@@ -1,8 +1,9 @@
 const path = require('path')
 const fs = require('fs')
+const http = require('http')
 const { execFileSync, spawn } = require('child_process')
 const waitPort = require('wait-port')
-
+const which = require('which')
 const tmp = require('tmp')
 tmp.setGracefulCleanup()
 
@@ -125,13 +126,36 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
       output: 'silent'
     })
 
-    console.log('syncing')
-    const sync = spawn('fly', [
-      'sync',
-      '-c', 'http://localhost:8080'
-    ], { stdio: 'inherit' })
-    children.push(sync)
-    await completion(sync)
+    try {
+      console.log('syncing')
+      const sync = spawn('fly', [
+        'sync',
+        '-c', 'http://localhost:8080'
+      ], { stdio: 'inherit' })
+      children.push(sync)
+      await completion(sync)
+    } catch (err) {
+      console.log('current fly cli incompatible with this concourse version')
+      console.log('syncing fly cli via direct download')
+      const printOldFlyVersion = spawn('fly', ['--version'])
+      children.push(printOldFlyVersion)
+      await completion(printOldFlyVersion)
+      const flyUrl = `http://localhost:8080/api/v1/cli?arch=amd64&platform=${process.platform}`
+      const flyPath = which.sync('fly')
+      const newFly = await new Promise((resolve, reject) => {
+        let newFlyData = Buffer.from('')
+        http.get(flyUrl, response => {
+          const { statusCode } = response
+          if (statusCode !== 200) { reject(new Error(`Request failed. Code: ${statusCode}`)) }
+          response.on('data', chunk => { newFlyData = Buffer.concat([newFlyData, chunk]) })
+          response.on('end', () => { resolve(newFlyData) })
+        }).on('error', (err) => { reject(new Error(`Connection error. Code: ${err.code || 'undefined'}`)) })
+      })
+      fs.writeFileSync(flyPath, newFly)
+      const printNewFlyVersion = spawn('fly', ['--version'])
+      children.push(printNewFlyVersion)
+      await completion(printNewFlyVersion)
+    }
 
     console.log('logging in')
     const login = spawn('fly', [
