@@ -206,7 +206,7 @@ restarts. This has caused issues where the host nodes run out of hard drive stor
 prevent this we have created an :term:`Ansible` playbook to configure a cronjob on the server.
 
 Local or from bastion2?
-----------------------
+-----------------------
 
 There are two places you can run this playbook.
 

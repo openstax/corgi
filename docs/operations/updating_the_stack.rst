@@ -55,39 +55,24 @@ Configure Proxy Jump through Bastionn to AWS Server from Local Server.
       ProxyJump bastion2
       ForwardAgent yes
 
-.. note:: ProxyJump, in 
+.. note:: Assuming that you have a copy of **IdentityFile ~/.ssh/cops.pem** copied and configured where your ssh keys are.
+
+
+Setup Port Forwarding to AWS by Tunneling Through Bastion2
+-------------------------------------------------------
+Open a fresh terminal window, keep terminal open until the end of the deployment process.
+
 (set ups yoru enviornment when you go int ot the cops server it  will automatically ttunnel through bastion  two . 
 because aws serveer only accdesiisble via bastion. 
 Whenever I go to cops I need  to go through bastion2.)
-
-IdentityFile ~/.ssh/cops.pem assumptio that you've copied your  ssh from your ssh server. 
-configure to where youre ssh keys are - 
-
-Port Forwarding
-
 Corresponding tunnel command: ssh cops -NL 9999:/var/run/docker.sock
 portfowardsing, cops to docker socket on servier - 
-
-Setup SSH Tunnel from Local to Production
------------------------------------------
-Open a fresh terminal window, keep terminal open until the end of the deployment process.
-
-**Establish a SSH tunnel from localhost to (bastion2 to AWS) tunnel created in previous step**
-
-.. code-block:: bash
-
-   ssh -NL 9999:localhost:2377 bastion2.cnx.org
-
-replace code block above with 
-Port Forwarding
 
 Corresponding tunnel command: 
 
 .. code-block:: bash
 
-   ssh cops -NL 9999:/var/run/docker.sock'
-
-portfowardsing, cops to docker socket on servier - 
+   ssh cops -NL 9999:/var/run/docker.sock
 
 **No other commands will be typed into this window.**
 
