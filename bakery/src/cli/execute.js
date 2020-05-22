@@ -137,7 +137,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
     } catch (err) {
       console.log('current fly cli incompatible with this concourse version')
       console.log('syncing fly cli via direct download')
-      const printOldFlyVersion = spawn('fly', ['--version'])
+      const printOldFlyVersion = spawn('fly', ['--version'], { stdio: 'inherit' })
       children.push(printOldFlyVersion)
       await completion(printOldFlyVersion)
       const flyUrl = `http://localhost:8080/api/v1/cli?arch=amd64&platform=${process.platform}`
@@ -152,7 +152,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
         }).on('error', (err) => { reject(new Error(`Connection error. Code: ${err.code || 'undefined'}`)) })
       })
       fs.writeFileSync(flyPath, newFly)
-      const printNewFlyVersion = spawn('fly', ['--version'])
+      const printNewFlyVersion = spawn('fly', ['--version'], { stdio: 'inherit' })
       children.push(printNewFlyVersion)
       await completion(printNewFlyVersion)
     }
