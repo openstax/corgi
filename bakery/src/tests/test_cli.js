@@ -196,6 +196,7 @@ test('stable flow in pdf and distribution pipeline', async t => {
     ])
     const buildPdfResult = await completion(buildPdf)
     t.truthy(fs.existsSync(`${outputDir}/${bookId}/artifacts/collection.pdf`), formatSubprocessOutput(buildPdfResult))
+    t.is(fs.readFileSync(`${outputDir}/${bookId}/artifacts/pdf_url`, { encoding: 'utf8' }), 'https://none.s3.amazonaws.com/collection.pdf', formatSubprocessOutput(buildPdfResult))
   })
 
   // Distribution continued
