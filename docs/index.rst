@@ -44,7 +44,7 @@ Currently, we are focusing on PDF output in preparation for testing "Baked" PDFs
    :caption: Distribution System
    :hidden:
 
-   intro/overview
+   distribution/steps
 
 .. toctree::
    :maxdepth: 2
