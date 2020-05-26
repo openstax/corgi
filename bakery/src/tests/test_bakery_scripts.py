@@ -186,6 +186,8 @@ def test_assemble_book(tmp_path):
     assert assembled_metadata["m42119@1.6"]["abstract"] is None
     assert "Explain the difference between a model and a theory" in \
         assembled_metadata["m42092@1.10"]["abstract"]
+    assert assembled_metadata["m42092@1.10"]["revised"] == "2018/09/18 09:55:13.413 GMT-5"
+    assert assembled_metadata["m42119@1.6"]["revised"] == "2018/08/03 15:49:52 -0500"
 
 def test_bake_book(tmp_path):
     """Test basic input / output for bake-book script"""
