@@ -167,7 +167,7 @@ def test_disassemble_book_empty_baked_metadata(tmp_path):
 def test_assemble_book(tmp_path):
     """Test basic input / output for assemble-book script"""
     assemble_book_script = os.path.join(SCRIPT_DIR, "assemble-book-metadata.py")
-    input_assembled_xhtml = os.path.join(TEST_DATA_DIR, "collection.assembled.xhtml")
+    input_assembled_book = os.path.join(TEST_DATA_DIR, "assembled-book")
 
     assembled_metadata_output = tmp_path / "collection.assembed-metadata.json"
 
@@ -175,7 +175,7 @@ def test_assemble_book(tmp_path):
         [
             "python",
             assemble_book_script,
-            input_assembled_xhtml,
+            input_assembled_book,
             assembled_metadata_output
         ],
         cwd=HERE,
