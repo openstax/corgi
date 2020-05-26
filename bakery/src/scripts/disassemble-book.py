@@ -115,7 +115,6 @@ def main():
             *:not(:hover) > a.-dev-permalinker { display: none; }
             * > a.-dev-permalinker {
                 margin-left: .1rem;
-                font-weight: bold;
                 text-decoration: none;
             }
         '''
