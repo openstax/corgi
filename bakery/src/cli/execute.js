@@ -126,22 +126,40 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
       output: 'silent'
     })
 
+    console.log('syncing fly')
+    let flyPath
     try {
-      console.log('syncing')
-      const sync = spawn('fly', [
-        'sync',
-        '-c', 'http://localhost:8080'
-      ], { stdio: 'inherit' })
-      children.push(sync)
-      await completion(sync)
-    } catch (err) {
-      console.log('current fly cli incompatible with this concourse version')
-      console.log('syncing fly cli via direct download')
-      const printOldFlyVersion = spawn('fly', ['--version'], { stdio: 'inherit' })
+      flyPath = which.sync('fly')
+    } catch {
+      console.log('no fly installation detected on PATH')
+      const flyDir = path.resolve(process.env.HOME, '.local/bin/')
+      flyPath = path.resolve(flyDir, 'bakery-cli-fly')
+      fs.mkdirSync(flyDir, { recursive: true })
+    }
+
+    let needsDownload = false
+    if (fs.existsSync(flyPath)) {
+      console.log(`detected fly cli installation at ${flyPath}`)
+      const printOldFlyVersion = spawn(flyPath, ['--version'], { stdio: 'inherit' })
       children.push(printOldFlyVersion)
       await completion(printOldFlyVersion)
+      try {
+        const sync = spawn(flyPath, [
+          'sync',
+          '-c', 'http://localhost:8080'
+        ], { stdio: 'inherit' })
+        children.push(sync)
+        await completion(sync)
+      } catch (err) {
+        needsDownload = true
+      }
+    } else {
+      needsDownload = true
+    }
+
+    if (needsDownload) {
+      console.log('syncing fly cli via direct download')
       const flyUrl = `http://localhost:8080/api/v1/cli?arch=amd64&platform=${process.platform}`
-      const flyPath = which.sync('fly')
       const newFly = await new Promise((resolve, reject) => {
         let newFlyData = Buffer.from('')
         http.get(flyUrl, response => {
@@ -152,13 +170,14 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
         }).on('error', (err) => { reject(new Error(`Connection error. Code: ${err.code || 'undefined'}`)) })
       })
       fs.writeFileSync(flyPath, newFly)
-      const printNewFlyVersion = spawn('fly', ['--version'], { stdio: 'inherit' })
+      fs.chmodSync(flyPath, 0o776)
+      const printNewFlyVersion = spawn(flyPath, ['--version'], { stdio: 'inherit' })
       children.push(printNewFlyVersion)
       await completion(printNewFlyVersion)
     }
 
     console.log('logging in')
-    const login = spawn('fly', [
+    const login = spawn(flyPath, [
       'login',
       '-k',
       '-t', 'bakery-cli',
@@ -179,7 +198,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
       ...cmdArgs
     ]
     console.log(`executing fly with args: ${flyArgs}`)
-    const execute = spawn('fly', flyArgs, {
+    const execute = spawn(flyPath, flyArgs, {
       stdio: 'inherit',
       env: {
         ...process.env,
