@@ -75,8 +75,76 @@ def main():
             if module_etree.xpath(f"/xhtml:body/xhtml:div[@id='{link_href[1:]}']", namespaces=HTML_DOCUMENT_NAMESPACES):
                 link.attrib['href'] = f'./{id_with_context}.xhtml'
 
+        # Inject some styling and JS for QA
+        xml_parser = etree.XMLParser(ns_clean=True)
+        root = etree.XML(bytes(DocumentContentFormatter(doc)), xml_parser)
+        head = root.xpath("//xhtml:head", namespaces=HTML_DOCUMENT_NAMESPACES)
+
+        if not head:
+            head = etree.Element("head")
+            root.insert(0, head)
+        
+        style = etree.Element("style")
+        script = etree.Element("script")
+
+        style.text = u'''
+            /* STYLING_FOR_DEVS */
+            /* Linking to a specific element should highlight the element */
+            :target {
+                background-color: #ffffcc;
+                border: 1px dotted #000000;
+
+                animation-name: cssAnimation;
+                animation-duration: 10s;
+                animation-timing-function: ease-out;
+                animation-delay: 0s;
+                animation-fill-mode: forwards;
+            }
+            @keyframes cssAnimation {
+                to {
+                    background-color: initial;
+                    border: initial;
+                }
+            }
+
+            /* Style footnotes so that they stand out */
+            [role="doc-footnote"] { background-color: #ffcccc; border: 1px dashed #ff0000; }
+            [role="doc-footnote"]:before { content: "FOOTNOTE " ; }
+            
+            /* Show a permalink when hovering over a heading or paragraph */
+            *:not(:hover) > a.-dev-permalinker { display: none; }
+            * > a.-dev-permalinker {
+                margin-left: .1rem;
+                text-decoration: none;
+            }
+        '''
+
+        script.text = u'''//<![CDATA[
+            // SCRIPTS_FOR_DEVS
+            window.addEventListener('load', () => {
+                const pilcrow = '¶'
+
+                function addPermalink(parent, id) {
+                    const link = window.document.createElement('a')
+                    link.classList.add('-dev-permalinker')
+                    link.setAttribute('href', '#' + id)
+                    link.textContent = pilcrow
+                    parent.appendChild(link)
+                }
+
+                const paragraphs = Array.from(document.querySelectorAll('p[id]'))
+                paragraphs.forEach(p => addPermalink(p, p.getAttribute('id')) )
+
+                const headings = Array.from(document.querySelectorAll('*[id] > h1, *[id] > h2, *[id] > h3, *[id] > h4, *[id] > h5, *[id] > h6'))
+                headings.forEach(h => addPermalink(h, h.parentElement.getAttribute('id')) )
+            })
+        // ]]>'''
+
+        head.append(style)
+        head.append(script)
+
         with open(f"{out_dir / id_with_context}.xhtml", "wb") as out:
-            out.write(bytes(DocumentContentFormatter(doc)))
+            out.write(etree.tostring(root))
 
         with open(f"{out_dir / id_with_context}-metadata.json", "w") as json_out:
             # Incorporate metadata from disassemble step while setting defaults
