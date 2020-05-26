@@ -45,6 +45,7 @@ Currently, we are focusing on PDF output in preparation for testing "Baked" PDFs
    :hidden:
 
    distribution/steps
+   distribution/cli
 
 .. toctree::
    :maxdepth: 2

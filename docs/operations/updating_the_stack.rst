@@ -59,7 +59,7 @@ Configure Proxy Jump through Bastionn to AWS Server from Local Server.
 
 
 Setup Port Forwarding to AWS by Tunneling Through Bastion2
--------------------------------------------------------
+----------------------------------------------------------
 Open a fresh terminal window, keep terminal open until the end of the deployment process.
 
 (set ups yoru enviornment when you go int ot the cops server it  will automatically ttunnel through bastion  two . 

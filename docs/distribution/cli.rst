@@ -1,3 +1,5 @@
+.. _distribution-pipeline-cli:
+
 ===========
 CLI (To Do)
 ===========
