@@ -160,7 +160,9 @@ def test_disassemble_book_empty_baked_metadata(tmp_path):
     m42119_data = json.load(open(json_output_m42119, "r"))
     m42092_data = json.load(open(json_output_m42092, "r"))
     assert m42119_data["abstract"] is None
+    assert m42119_data["id"] == "m42119"
     assert m42092_data["abstract"] is None
+    assert m42092_data["id"] == "m42092"
 
 def test_assemble_book(tmp_path):
     """Test basic input / output for assemble-book script"""

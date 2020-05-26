@@ -85,7 +85,8 @@ def main():
             json_metadata = {
                 "slug": slugs.get(doc.ident_hash),
                 "title": doc.metadata.get("title"),
-                "abstract": None
+                "abstract": None,
+                "id": doc.id
             }
 
             # Add / override metadata from baking if available
