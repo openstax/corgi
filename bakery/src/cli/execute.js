@@ -63,12 +63,7 @@ const extractLocalImageDetails = imageArg => {
 const input = (dataDir, name) => `--input=${name}=${dataDir}/${name}`
 const output = (dataDir, name) => `--output=${name}=${dataDir}/${name}`
 
-const composeYml = fs.readFileSync(path.resolve(__dirname, 'docker-compose.yml'), { encoding: 'utf8' })
-
 const flyExecute = async (cmdArgs, { image, persist }) => {
-  const tmpComposeYml = tmp.fileSync()
-  fs.writeFileSync(tmpComposeYml.name, composeYml)
-
   const children = []
 
   process.on('exit', code => {
@@ -82,7 +77,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
   })
 
   const startup = spawn('docker-compose', [
-    '-f', tmpComposeYml.name,
+    `--file=${path.resolve(__dirname, 'docker-compose.yml')}`,
     'up',
     '-d'
   ], {
@@ -175,7 +170,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
     if (!persist) {
       console.log('cleaning up')
       const cleanUp = spawn('docker-compose', [
-        '-f', tmpComposeYml.name,
+        `--file=${COMPOSE_FILE_PATH}`,
         'stop'
       ], { stdio: 'inherit' })
       children.push(cleanUp)
