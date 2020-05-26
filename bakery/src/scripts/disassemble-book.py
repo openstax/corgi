@@ -2,6 +2,7 @@ import sys
 import json
 import utils
 from pathlib import Path
+from datetime import datetime
 
 from lxml import etree
 from lxml.builder import ElementMaker, E
@@ -86,7 +87,8 @@ def main():
                 "slug": slugs.get(doc.ident_hash),
                 "title": doc.metadata.get("title"),
                 "abstract": None,
-                "id": doc.id
+                "id": doc.id,
+                "revised": datetime.now().isoformat()
             }
 
             # Add / override metadata from baking if available

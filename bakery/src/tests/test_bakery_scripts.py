@@ -110,9 +110,11 @@ def test_disassemble_book(tmp_path):
     assert m42119_data.get("slug") == \
         "1-introduction-to-science-and-the-realm-of-physics-physical-quantities-and-units"
     assert m42119_data["abstract"] is None
+    assert m42119_data["revised"] == "2018/08/03 15:49:52 -0500"
     assert m42092_data.get("title") == "Physics: An Introduction"
     assert m42092_data.get("slug") == "1-1-physics-an-introduction"
     assert m42092_data.get("abstract") == "Explain the difference between a model and a theory"
+    assert m42092_data["revised"] is not None
 
     toc_output = disassembled_output / "collection.toc.xhtml"
     assert toc_output.exists()
