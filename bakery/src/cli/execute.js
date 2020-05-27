@@ -186,7 +186,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
 }
 
 const tasks = {
-  fetch: () => {
+  fetch: (parentCommand) => {
     const commandUsage = 'fetch <server> <collid> <version>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -217,7 +217,7 @@ const tasks = {
       aliases: 'f',
       describe: 'fetch a book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
         yargs.positional('server', {
           describe: 'content server to fetch from',
           type: 'string'
@@ -234,7 +234,7 @@ const tasks = {
       }
     }
   },
-  assemble: () => {
+  assemble: (parentCommand) => {
     const commandUsage = 'assemble <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -264,7 +264,7 @@ const tasks = {
       aliases: 'a',
       describe: 'assemble a book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
           type: 'string'
@@ -275,7 +275,7 @@ const tasks = {
       }
     }
   },
-  bake: () => {
+  bake: (parentCommand) => {
     const commandUsage = 'bake <collid> <recipefile> <stylefile>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -314,7 +314,7 @@ const tasks = {
       aliases: 'b',
       describe: 'bake a book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
           type: 'string'
@@ -331,7 +331,7 @@ const tasks = {
       }
     }
   },
-  mathify: () => {
+  mathify: (parentCommand) => {
     const commandUsage = 'mathify <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -361,7 +361,7 @@ const tasks = {
       aliases: 'm',
       describe: 'mathify a book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
           type: 'string'
@@ -372,7 +372,7 @@ const tasks = {
       }
     }
   },
-  'build-pdf': () => {
+  'build-pdf': (parentCommand) => {
     const commandUsage = 'build-pdf <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -401,7 +401,7 @@ const tasks = {
       aliases: 'p',
       describe: 'build a pdf from a book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
           type: 'string'
@@ -412,7 +412,7 @@ const tasks = {
       }
     }
   },
-  'assemble-meta': () => {
+  'assemble-meta': (parentCommand) => {
     const commandUsage = 'assemble-meta <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -442,7 +442,7 @@ const tasks = {
       aliases: 'am',
       describe: 'build metadata files from an assembled book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
           type: 'string'
@@ -453,7 +453,7 @@ const tasks = {
       }
     }
   },
-  'bake-meta': () => {
+  'bake-meta': (parentCommand) => {
     const commandUsage = 'bake-meta <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -485,7 +485,7 @@ const tasks = {
       aliases: 'bm',
       describe: 'build metadata files from a baked book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
           type: 'string'
@@ -496,7 +496,7 @@ const tasks = {
       }
     }
   },
-  checksum: () => {
+  checksum: (parentCommand) => {
     // fly -t cops-dev execute -c checksum-book.yml -j bakery/bakery -i book=./data/book -i baked-book=./data/baked-book -o checksum-book=./data/checksum-book
     const commandUsage = 'checksum <collid>'
     const handler = async argv => {
@@ -527,7 +527,7 @@ const tasks = {
       aliases: 'cb',
       describe: 'checksum resources from a baked book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
           type: 'string'
@@ -538,7 +538,7 @@ const tasks = {
       }
     }
   },
-  disassemble: () => {
+  disassemble: (parentCommand) => {
     const commandUsage = 'disassemble <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -570,7 +570,7 @@ const tasks = {
       aliases: 'd',
       describe: 'disassemble a checksummed book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
           type: 'string'
@@ -581,7 +581,7 @@ const tasks = {
       }
     }
   },
-  jsonify: () => {
+  jsonify: (parentCommand) => {
     const commandUsage = 'jsonify <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -611,7 +611,7 @@ const tasks = {
       aliases: 'j',
       describe: 'build metadata from disassembled book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
           type: 'string'
