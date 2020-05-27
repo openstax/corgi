@@ -16,9 +16,6 @@ To use the CLI, you must have all of the following already installed:
 - docker-compose
 - node >= 12.16.1
 - npm
-- concourse `fly` CLI
-    1. [install concourse locally](https://concoursetutorial.com/#getting-started)
-    1. download `fly` from http://localhost:8080 and add it to your path
 
 getting the above software installed is outside the scope of this documentation.
 
