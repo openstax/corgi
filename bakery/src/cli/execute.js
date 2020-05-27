@@ -62,6 +62,7 @@ const extractLocalImageDetails = imageArg => {
 
 const input = (dataDir, name) => `--input=${name}=${dataDir}/${name}`
 const output = (dataDir, name) => `--output=${name}=${dataDir}/${name}`
+const COMPOSE_FILE_PATH = path.resolve(__dirname, 'docker-compose.yml')
 
 const flyExecute = async (cmdArgs, { image, persist }) => {
   const children = []
@@ -77,7 +78,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
   })
 
   const startup = spawn('docker-compose', [
-    `--file=${path.resolve(__dirname, 'docker-compose.yml')}`,
+    `--file=${COMPOSE_FILE_PATH}`,
     'up',
     '-d'
   ], {
@@ -184,8 +185,8 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
   }
 }
 
-const yargs = require('yargs')
-  .command((() => {
+const tasks = {
+  fetch: () => {
     const commandUsage = 'fetch <server> <collid> <version>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -216,7 +217,7 @@ const yargs = require('yargs')
       aliases: 'f',
       describe: 'fetch a book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || 'execute.js'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
         yargs.positional('server', {
           describe: 'content server to fetch from',
           type: 'string'
@@ -232,8 +233,8 @@ const yargs = require('yargs')
         handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
-  }).call())
-  .command((() => {
+  },
+  assemble: () => {
     const commandUsage = 'assemble <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -263,7 +264,7 @@ const yargs = require('yargs')
       aliases: 'a',
       describe: 'assemble a book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || 'execute.js'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
           type: 'string'
@@ -273,8 +274,8 @@ const yargs = require('yargs')
         handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
-  }).call())
-  .command((() => {
+  },
+  bake: () => {
     const commandUsage = 'bake <collid> <recipefile> <stylefile>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -313,7 +314,7 @@ const yargs = require('yargs')
       aliases: 'b',
       describe: 'bake a book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || 'execute.js'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
           type: 'string'
@@ -329,8 +330,8 @@ const yargs = require('yargs')
         handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
-  }).call())
-  .command((() => {
+  },
+  mathify: () => {
     const commandUsage = 'mathify <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -360,7 +361,7 @@ const yargs = require('yargs')
       aliases: 'm',
       describe: 'mathify a book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || 'execute.js'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
           type: 'string'
@@ -370,8 +371,8 @@ const yargs = require('yargs')
         handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
-  }).call())
-  .command((() => {
+  },
+  'build-pdf': () => {
     const commandUsage = 'build-pdf <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -400,7 +401,7 @@ const yargs = require('yargs')
       aliases: 'p',
       describe: 'build a pdf from a book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || 'execute.js'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
           type: 'string'
@@ -410,8 +411,8 @@ const yargs = require('yargs')
         handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
-  }).call())
-  .command((() => {
+  },
+  'assemble-meta': () => {
     const commandUsage = 'assemble-meta <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -441,7 +442,7 @@ const yargs = require('yargs')
       aliases: 'am',
       describe: 'build metadata files from an assembled book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || 'execute.js'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
           type: 'string'
@@ -451,8 +452,8 @@ const yargs = require('yargs')
         handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
-  }).call())
-  .command((() => {
+  },
+  'bake-meta': () => {
     const commandUsage = 'bake-meta <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -484,7 +485,7 @@ const yargs = require('yargs')
       aliases: 'bm',
       describe: 'build metadata files from a baked book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || 'execute.js'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
           type: 'string'
@@ -494,8 +495,8 @@ const yargs = require('yargs')
         handler(argv).catch((err) => { console.error(err) })
       }
     }
-  }).call())
-  .command((() => {
+  },
+  checksum: () => {
     // fly -t cops-dev execute -c checksum-book.yml -j bakery/bakery -i book=./data/book -i baked-book=./data/baked-book -o checksum-book=./data/checksum-book
     const commandUsage = 'checksum <collid>'
     const handler = async argv => {
@@ -526,7 +527,7 @@ const yargs = require('yargs')
       aliases: 'cb',
       describe: 'checksum resources from a baked book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || 'execute.js'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
           type: 'string'
@@ -536,8 +537,8 @@ const yargs = require('yargs')
         handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
-  }).call())
-  .command((() => {
+  },
+  disassemble: () => {
     const commandUsage = 'disassemble <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -569,7 +570,7 @@ const yargs = require('yargs')
       aliases: 'd',
       describe: 'disassemble a checksummed book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || 'execute.js'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
           type: 'string'
@@ -579,8 +580,8 @@ const yargs = require('yargs')
         handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
-  }).call())
-  .command((() => {
+  },
+  jsonify: () => {
     const commandUsage = 'jsonify <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
@@ -610,7 +611,7 @@ const yargs = require('yargs')
       aliases: 'j',
       describe: 'build metadata from disassembled book',
       builder: yargs => {
-        yargs.usage(`Usage: ${process.env.CALLER || 'execute.js'} ${commandUsage}`)
+        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
           type: 'string'
@@ -620,40 +621,113 @@ const yargs = require('yargs')
         handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
+  }
+}
+
+const yargs = require('yargs')
+  .command((() => {
+    const commandUsage = 'run'
+    return {
+      command: commandUsage,
+      describe: 'run a bakery task',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
+        return yargs
+          .command(tasks.fetch())
+          .command(tasks.assemble())
+          .command(tasks.bake())
+          .command(tasks.mathify())
+          .command(tasks['build-pdf']())
+          .command(tasks['assemble-meta']())
+          .command(tasks.checksum())
+          .command(tasks['bake-meta']())
+          .command(tasks.disassemble())
+          .command(tasks.jsonify())
+          .option('c', {
+            alias: 'cops',
+            demandOption: true,
+            describe: 'path to output-producer-service directory',
+            normalize: true,
+            type: 'string'
+          })
+          .option('d', {
+            alias: 'data',
+            demandOption: true,
+            describe: 'path to data directory',
+            normalize: true,
+            type: 'string'
+          })
+          .option('i', {
+            alias: 'image',
+            describe: 'name of image to use instead of default',
+            type: 'string'
+          })
+          .option('t', {
+            alias: 'tag',
+            describe: 'use a particular tag of the default remote task image resource',
+            type: 'string'
+          })
+          .option('p', {
+            alias: 'persist',
+            describe: 'persist containers after running cli command',
+            boolean: true,
+            default: false
+          })
+          .conflicts('i', 't')
+      }
+    }
   }).call())
-  .option('c', {
-    alias: 'cops',
-    demandOption: true,
-    describe: 'path to output-producer-service directory',
-    normalize: true,
-    type: 'string'
-  })
-  .option('d', {
-    alias: 'data',
-    demandOption: true,
-    describe: 'path to data directory',
-    normalize: true,
-    type: 'string'
-  })
-  .option('i', {
-    alias: 'image',
-    describe: 'name of image to use instead of default',
-    type: 'string'
-  })
-  .option('t', {
-    alias: 'tag',
-    describe: 'use a particular tag of the default remote task image resource',
-    type: 'string'
-  })
-  .option('p', {
-    alias: 'persist',
-    describe: 'persist containers after running cli command',
-    boolean: true,
-    default: false
-  })
-  .conflicts('i', 't')
+  .command((() => {
+    const commandUsage = 'up'
+    const handler = async _ => {
+      const teardown = spawn('docker-compose', [
+        `--file=${COMPOSE_FILE_PATH}`,
+        'up',
+        '-d'
+      ], { stdio: 'inherit' })
+      await completion(teardown)
+    }
+    return {
+      command: commandUsage,
+      describe: 'start up bakery-cli spawned containers',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
+  }).call())
+  .command((() => {
+    const commandUsage = 'stop'
+    const handler = async argv => {
+      const composeCmd = argv.destroy ? 'down' : 'stop'
+      const teardown = spawn('docker-compose', [
+        `--file=${COMPOSE_FILE_PATH}`,
+        composeCmd
+      ], { stdio: 'inherit' })
+      await completion(teardown)
+    }
+    return {
+      command: commandUsage,
+      describe: 'clean up bakery-cli spawned containers',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
+        yargs.option('d', {
+          alias: 'destroy',
+          describe: 'destroy containers as well',
+          boolean: true,
+          default: false
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
+  }).call())
   .demandCommand(1, 'command required')
   .help()
+  .alias('h', 'help')
   .wrap(process.env.COLUMNS)
   .version(false)
   .strict()
