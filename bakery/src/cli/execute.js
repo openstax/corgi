@@ -64,6 +64,7 @@ const extractLocalImageDetails = imageArg => {
 const input = (dataDir, name) => `--input=${name}=${dataDir}/${name}`
 const output = (dataDir, name) => `--output=${name}=${dataDir}/${name}`
 const COMPOSE_FILE_PATH = path.resolve(__dirname, 'docker-compose.yml')
+const BAKERY_PATH = path.resolve(__dirname, '../..')
 
 const flyExecute = async (cmdArgs, { image, persist }) => {
   const children = []
@@ -232,7 +233,7 @@ const tasks = {
   fetch: (parentCommand) => {
     const commandUsage = 'fetch <server> <collid> <version>'
     const handler = async argv => {
-      const buildExec = path.resolve(argv.cops, 'bakery/build')
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
@@ -280,7 +281,7 @@ const tasks = {
   assemble: (parentCommand) => {
     const commandUsage = 'assemble <collid>'
     const handler = async argv => {
-      const buildExec = path.resolve(argv.cops, 'bakery/build')
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
@@ -321,7 +322,7 @@ const tasks = {
   bake: (parentCommand) => {
     const commandUsage = 'bake <collid> <recipefile> <stylefile>'
     const handler = async argv => {
-      const buildExec = path.resolve(argv.cops, 'bakery/build')
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
@@ -377,7 +378,7 @@ const tasks = {
   mathify: (parentCommand) => {
     const commandUsage = 'mathify <collid>'
     const handler = async argv => {
-      const buildExec = path.resolve(argv.cops, 'bakery/build')
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
@@ -418,7 +419,7 @@ const tasks = {
   'build-pdf': (parentCommand) => {
     const commandUsage = 'build-pdf <collid>'
     const handler = async argv => {
-      const buildExec = path.resolve(argv.cops, 'bakery/build')
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv) || {}
       const taskArgs = [`--taskargs=${JSON.stringify({ ...imageDetails, ...{ bucketName: 'none' } })}`]
@@ -458,7 +459,7 @@ const tasks = {
   'assemble-meta': (parentCommand) => {
     const commandUsage = 'assemble-meta <collid>'
     const handler = async argv => {
-      const buildExec = path.resolve(argv.cops, 'bakery/build')
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
@@ -499,7 +500,7 @@ const tasks = {
   'bake-meta': (parentCommand) => {
     const commandUsage = 'bake-meta <collid>'
     const handler = async argv => {
-      const buildExec = path.resolve(argv.cops, 'bakery/build')
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
@@ -542,7 +543,7 @@ const tasks = {
   checksum: (parentCommand) => {
     const commandUsage = 'checksum <collid>'
     const handler = async argv => {
-      const buildExec = path.resolve(argv.cops, 'bakery/build')
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
@@ -583,7 +584,7 @@ const tasks = {
   disassemble: (parentCommand) => {
     const commandUsage = 'disassemble <collid>'
     const handler = async argv => {
-      const buildExec = path.resolve(argv.cops, 'bakery/build')
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
@@ -626,7 +627,7 @@ const tasks = {
   jsonify: (parentCommand) => {
     const commandUsage = 'jsonify <collid>'
     const handler = async argv => {
-      const buildExec = path.resolve(argv.cops, 'bakery/build')
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = imageDetails == null
@@ -685,13 +686,6 @@ const yargs = require('yargs')
           .command(tasks['bake-meta']())
           .command(tasks.disassemble())
           .command(tasks.jsonify())
-          .option('c', {
-            alias: 'cops',
-            demandOption: true,
-            describe: 'path to output-producer-service directory',
-            normalize: true,
-            type: 'string'
-          })
           .option('d', {
             alias: 'data',
             demandOption: true,
