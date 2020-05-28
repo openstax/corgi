@@ -497,7 +497,6 @@ const tasks = {
     }
   },
   checksum: (parentCommand) => {
-    // fly -t cops-dev execute -c checksum-book.yml -j bakery/bakery -i book=./data/book -i baked-book=./data/baked-book -o checksum-book=./data/checksum-book
     const commandUsage = 'checksum <collid>'
     const handler = async argv => {
       const buildExec = path.resolve(argv.cops, 'bakery/build')
