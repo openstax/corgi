@@ -1,8 +1,9 @@
 const path = require('path')
 const fs = require('fs')
+const http = require('http')
 const { execFileSync, spawn } = require('child_process')
 const waitPort = require('wait-port')
-
+const which = require('which')
 const tmp = require('tmp')
 tmp.setGracefulCleanup()
 
@@ -125,16 +126,58 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
       output: 'silent'
     })
 
-    console.log('syncing')
-    const sync = spawn('fly', [
-      'sync',
-      '-c', 'http://localhost:8080'
-    ], { stdio: 'inherit' })
-    children.push(sync)
-    await completion(sync)
+    console.log('syncing fly')
+    let flyPath
+    try {
+      flyPath = which.sync('fly')
+    } catch {
+      console.log('no fly installation detected on PATH')
+      const flyDir = path.resolve(process.env.HOME, '.local/bin/')
+      flyPath = path.resolve(flyDir, 'bakery-cli-fly')
+      fs.mkdirSync(flyDir, { recursive: true })
+    }
+
+    let needsDownload = false
+    if (fs.existsSync(flyPath)) {
+      console.log(`detected fly cli installation at ${flyPath}`)
+      const printOldFlyVersion = spawn(flyPath, ['--version'], { stdio: 'inherit' })
+      children.push(printOldFlyVersion)
+      await completion(printOldFlyVersion)
+      try {
+        const sync = spawn(flyPath, [
+          'sync',
+          '-c', 'http://localhost:8080'
+        ], { stdio: 'inherit' })
+        children.push(sync)
+        await completion(sync)
+      } catch (err) {
+        needsDownload = true
+      }
+    } else {
+      needsDownload = true
+    }
+
+    if (needsDownload) {
+      console.log('syncing fly cli via direct download')
+      const flyUrl = `http://localhost:8080/api/v1/cli?arch=amd64&platform=${process.platform}`
+      const newFly = await new Promise((resolve, reject) => {
+        let newFlyData = Buffer.from('')
+        http.get(flyUrl, response => {
+          const { statusCode } = response
+          if (statusCode !== 200) { reject(new Error(`Request failed. Code: ${statusCode}`)) }
+          response.on('data', chunk => { newFlyData = Buffer.concat([newFlyData, chunk]) })
+          response.on('end', () => { resolve(newFlyData) })
+        }).on('error', (err) => { reject(new Error(`Connection error. Code: ${err.code || 'undefined'}`)) })
+      })
+      fs.writeFileSync(flyPath, newFly)
+      fs.chmodSync(flyPath, 0o776)
+      const printNewFlyVersion = spawn(flyPath, ['--version'], { stdio: 'inherit' })
+      children.push(printNewFlyVersion)
+      await completion(printNewFlyVersion)
+    }
 
     console.log('logging in')
-    const login = spawn('fly', [
+    const login = spawn(flyPath, [
       'login',
       '-k',
       '-t', 'bakery-cli',
@@ -155,7 +198,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
       ...cmdArgs
     ]
     console.log(`executing fly with args: ${flyArgs}`)
-    const execute = spawn('fly', flyArgs, {
+    const execute = spawn(flyPath, flyArgs, {
       stdio: 'inherit',
       env: {
         ...process.env,

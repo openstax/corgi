@@ -32,11 +32,11 @@ const task = (taskArgs) => {
           cp output-producer/version book/version
           cp output-producer/collection_style book/style
           cp output-producer/content_server book/server
-          pdf_filename="$(cat book/collection_id)-$(cat book/version)-$(cat book/server_name)-$(cat book/job_id).pdf"
-          echo "$pdf_filename" > book/pdf_filename
           wget -q -O jq 'https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64' && chmod +x jq
-          server_name="$(cat output-producer/job.json | ./jq -r '.content_server.name')"
-          echo "$server_name" >book/server_name
+          server_shortname="$(cat output-producer/job.json | ./jq -r '.content_server.name')"
+          echo "$server_shortname" >book/server_shortname
+          pdf_filename="$(cat book/collection_id)-$(cat book/version)-$(cat book/server_shortname)-$(cat book/job_id).pdf"
+          echo "$pdf_filename" > book/pdf_filename
         `
         /* eslint-enable */
         ]

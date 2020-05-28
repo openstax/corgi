@@ -110,9 +110,11 @@ def test_disassemble_book(tmp_path):
     assert m42119_data.get("slug") == \
         "1-introduction-to-science-and-the-realm-of-physics-physical-quantities-and-units"
     assert m42119_data["abstract"] is None
+    assert m42119_data["revised"] == "2018/08/03 15:49:52 -0500"
     assert m42092_data.get("title") == "Physics: An Introduction"
     assert m42092_data.get("slug") == "1-1-physics-an-introduction"
     assert m42092_data.get("abstract") == "Explain the difference between a model and a theory"
+    assert m42092_data["revised"] is not None
 
     toc_output = disassembled_output / "collection.toc.xhtml"
     assert toc_output.exists()
@@ -160,12 +162,14 @@ def test_disassemble_book_empty_baked_metadata(tmp_path):
     m42119_data = json.load(open(json_output_m42119, "r"))
     m42092_data = json.load(open(json_output_m42092, "r"))
     assert m42119_data["abstract"] is None
+    assert m42119_data["id"] == "m42119"
     assert m42092_data["abstract"] is None
+    assert m42092_data["id"] == "m42092"
 
 def test_assemble_book(tmp_path):
     """Test basic input / output for assemble-book script"""
     assemble_book_script = os.path.join(SCRIPT_DIR, "assemble-book-metadata.py")
-    input_assembled_xhtml = os.path.join(TEST_DATA_DIR, "collection.assembled.xhtml")
+    input_assembled_book = os.path.join(TEST_DATA_DIR, "assembled-book")
 
     assembled_metadata_output = tmp_path / "collection.assembed-metadata.json"
 
@@ -173,7 +177,7 @@ def test_assemble_book(tmp_path):
         [
             "python",
             assemble_book_script,
-            input_assembled_xhtml,
+            input_assembled_book,
             assembled_metadata_output
         ],
         cwd=HERE,
@@ -184,6 +188,8 @@ def test_assemble_book(tmp_path):
     assert assembled_metadata["m42119@1.6"]["abstract"] is None
     assert "Explain the difference between a model and a theory" in \
         assembled_metadata["m42092@1.10"]["abstract"]
+    assert assembled_metadata["m42092@1.10"]["revised"] == "2018/09/18 09:55:13.413 GMT-5"
+    assert assembled_metadata["m42119@1.6"]["revised"] == "2018/08/03 15:49:52 -0500"
 
 def test_bake_book(tmp_path):
     """Test basic input / output for bake-book script"""

@@ -2,7 +2,7 @@ version: "3.7"
 services:
   backend:
     deploy:
-      replicas: 1
+      replicas: 2
       update_config:
         parallelism: 1
         delay: 10s
@@ -10,7 +10,7 @@ services:
         condition: on-failure
   frontend:
     deploy:
-      replicas: 1
+      replicas: 2
       update_config:
         parallelism: 1
         delay: 10s

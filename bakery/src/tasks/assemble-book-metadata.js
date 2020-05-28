@@ -32,9 +32,7 @@ const task = (taskArgs) => {
           book_dir="assembled-book/$collection_id"
           target_dir="assembled-book-metadata/$collection_id"
           mkdir "$target_dir"
-          cp "$book_dir/collection.assembled.xhtml" "$target_dir/collection.assembled.xhtml"
-          cd "$target_dir"
-          python /code/scripts/assemble-book-metadata.py collection.assembled.xhtml collection.assembled-metadata.json
+          python /code/scripts/assemble-book-metadata.py "$book_dir" "$target_dir/collection.assembled-metadata.json"
         `
         ]
       }
