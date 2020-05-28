@@ -76,7 +76,7 @@ For example:
 * Content-Server: staging
 
 after a few seconds (it takes maybe 20-30 seconds) you can see the job starting in 
-`local Concourse <http://localhost:8100>`_ and in the `local COPS UI <http://localhost`_.
+`local Concourse <http://localhost:8100>`_ and in the `local COPS UI <http://localhost>`_.
 
 Beecause the pdf-pipeline is not in our interested here it is recommended to 
 stop/cancel the job in the `Concourse <http://localhost:8100>`_ and press the red X 

@@ -1,8 +1,8 @@
 .. _operations-setting-up-the-swarm:
 
-=================
+################
 Set Up The Swarm
-=================
+################
 
 COPS utilizes :term:`Container Orchestration` provided by `Docker Swarm <https://docs.docker.com/engine/swarm/>`_ to manage 
 and deploy the various services that comprise the system. 
@@ -20,14 +20,15 @@ This document will assume that the server operating system is `Ubuntu 18.04 (Bio
 .. note:: 
 
    This process is mostly done manual but we will be porting these steps over to 
-   using :term:`Ansible`. Currently, the only steps using Ansible are 
-   `Add cronjob to run docker prune`_. 
+   using :term:`Ansible`. Currently, the only step using Ansible is to
+   :ref:`operations-cleaning-up-the-swarm`
 
+*************
 Prerequisites
-=============
+*************
 
 Install Docker
---------------
+==============
 
 **Update Local Database**
 
@@ -59,8 +60,9 @@ Install Docker
 
    sudo apt-get update
 
+*****************
 Install Docker-CE
-=================
+*****************
 
 **Install Docker-CE**
 
@@ -82,8 +84,9 @@ Install Docker-CE
 
 .. note:: If a permission error occurs the server may need to be restarted.
 
+*******************
 Create Docker Swarm
-===================
+*******************
 
 .. important:: The following ports need to be available on the master and worker nodes.
 
@@ -136,8 +139,9 @@ Copy ``docker swarm join`` command with token from ``docker swarm init`` output
 
 Paste ``docker swarm join..`` command into a terminal window of all other nodes in the swarm.
 
+***************************
 Create Main Traefik Service
-===========================
+***************************
 
 .. important:: A `DevOps Request <https://github.com/openstax/cnx/wiki/Making-DevOps-Requests>`_ 
    needs to be made in order for devops to add the openstax.cert and openstax.pem 
@@ -193,87 +197,3 @@ Create Main Traefik Service
      --entrypoints='Name:https Address::443 TLS:/etc/ssl/certs/openstax.crt,/etc/ssl/private/openstax.pem' \
      --logLevel=INFO \
      --accessLog
-
-Clean Up The Swarm
-==================
-
-Add cronjob to run docker prune
--------------------------------
-
-Docker swarm does not come with any kind of "garbage collection" for dangling 
-volumes or unused containers that are created when doing updates or after 
-restarts. This has caused issues where the host nodes run out of hard drive storage. To 
-prevent this we have created an :term:`Ansible` playbook to configure a cronjob on the server.
-
-Local or from bastion2?
------------------------
-
-There are two places you can run this playbook.
-
-1. From ``localhost`` if you have ``bastion2`` setup as a :term:`JumpHost` and proper key 
-   to cops servers in the correct directory.
-2. From ``bastion2`` directly.
-
-See this `guide <https://github.com/openstax/cnx/wiki/Configure-bastion2.cnx.org-as-a-JumpHost>`_ 
-in the `ConEng wiki <https://github.com/openstax/cnx/wiki>`_ to learn how to configure a :term:`JumpHost`.
-
-If you are running from ``bastion2`` you will need to clone down the 
-`output-producer-service repository <https://github.com/openstax/output-producer-service>`_ 
-into your home directory and execute the commands.
-
-Running the playbook
---------------------
-
-* Ensure you are in the root directory of  the project and change directory into 
-  the ``./ansible`` directory.
-
-.. code-block:: bash
-
-   cd ./ansible
-
-* Create a virtualenv for installing `Ansible <https://docs.ansible.com/ansible/latest/index.html>`_ and dependencies
-
-.. code-block:: bash
-
-   python -m .venv venv
-
-* Activate the virtualenv
-
-.. code-block:: bash
-
-   source ./.venv/bin/activate
-
-* Install requirements.txt
-
-.. code-block:: bash
-
-   pip install -r requirements.txt
-
-.. important:: The following steps depend on where you are running the ``ansible-playbook`` command. 
-
-* Run the :term:`Ansible` playbook for ``bastion2`` as :term:`JumpHost`
-
-.. code-block:: bash
-
-   ansible-playbook -i inventory.jumphost.yml main.yml
-
-* Run the Ansible playbook if you are logged into ``bastion2.cnx.org``
-
-.. code-block:: bash
-
-   ansible-playbook -i inventory.yml main.yml
-
-* You should see the following as output:
-
-.. code-block:: bash
-
-   PLAY [OpenStax COPS deployment] ************************************************
-
-   TASK [Gathering Facts] *********************************************************
-   ok: [default]
-
-   TASK [Create cronjob to do docker cleanup] *************************************
-   changed: [default]
-
-   PLAY RECAP *********************************************************************
-   default  : ok=2    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0

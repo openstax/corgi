@@ -17,6 +17,17 @@ ready it will read the necessary information from the job and begin producing
 the output format specified. Upon completion, the job status will be updated with
 a completed status and a link for the user to download the specified output.
 
+Currently the COPS swarm lives on our AWS EC2, where the pdf pipeline is.
+EC2 cops service really only pertains to the PDF pipeline
+
+
+EC2 VM where COPS is running AWS EC2 VM bastion2
+port 22 EC2 has bastion permission only. 
+
+Network Bastion2 to AWS EC2
+with Identity file on your local machine cops.permission
+
+
 .. blockdiag::
 
     blockdiag workflow {

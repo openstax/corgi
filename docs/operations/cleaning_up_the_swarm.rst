@@ -1,19 +1,25 @@
 .. _operations-cleaning-up-the-swarm:
 
-==================
+##################
 Clean Up The Swarm
-==================
+##################
 
-Add cronjob to run docker prune (MOVE TO CLEANUP)
-=================================================
+**************************************
+To Do: Add cronjob to run docker prune
+**************************************
 
 Docker swarm does not come with any kind of "garbage collection" for dangling 
 volumes or unused containers that are created when doing updates or after 
-restarts. This has caused issues where the host nodes run out of hard drive storage. To 
-prevent this we have created an :term:`Ansible` playbook to configure a cronjob on the server.
+restarts.
 
+** `Ansible <https://docs.ansible.com/ansible/latest/index.html>`_ **
+
+.. important:: This has caused issues where the host nodes run out of hard drive storage. To 
+   prevent this we have created an :term:`Ansible` playbook to configure a cronjob on the server.
+
+**************************************
 Local or from bastion2?
------------------------
+**************************************
 
 There are two places you can run this playbook.
 
@@ -28,49 +34,49 @@ If you are running from ``bastion2`` you will need to clone down the
 `output-producer-service repository <https://github.com/openstax/output-producer-service>`_ 
 into your home directory and execute the commands.
 
+********************
 Running the playbook
---------------------
+********************
 
-* Ensure you are in the root directory of  the project and change directory into 
-  the ``./ansible`` directory.
-
-.. code-block:: bash
-
-   cd ./ansible
-
-* Create a virtualenv for installing `Ansible <https://docs.ansible.com/ansible/latest/index.html>`_ and dependencies
+**From root directory of the project, change directory into the Ansible directory:**
 
 .. code-block:: bash
 
-   python -m .venv venv
+   $ cd ./ansible
 
-* Activate the virtualenv
-
-.. code-block:: bash
-
-   source ./.venv/bin/activate
-
-* Install requirements.txt
+**Create a virtual environment for installing Ansible and dependencies:**
 
 .. code-block:: bash
 
-   pip install -r requirements.txt
+   $ python -m .venv venv
+
+**Activate the virtual environment:**
+
+.. code-block:: bash
+
+   $ source ./.venv/bin/activate
+
+**Install dependencies:**
+
+.. code-block:: bash
+
+   (venv) $ pip install -r requirements.txt
 
 .. important:: The following steps depend on where you are running the ``ansible-playbook`` command. 
 
-* Run the :term:`Ansible` playbook for ``bastion2`` as :term:`JumpHost`
+**Run** :term:`Ansible` **playbook for** ``bastion2`` **as** :term:`JumpHost` **:**
 
 .. code-block:: bash
 
-   ansible-playbook -i inventory.jumphost.yml main.yml
+   (venv) $ ansible-playbook -i inventory.jumphost.yml main.yml
 
-* Run the Ansible playbook if you are logged into ``bastion2.cnx.org``
+**Run the Ansible playbook if you are logged into** ``bastion2.cnx.org`` **:**
 
 .. code-block:: bash
 
-   ansible-playbook -i inventory.yml main.yml
+   (venv) $ ansible-playbook -i inventory.yml main.yml
 
-* You should see the following as output:
+**Ensure good run with similar output:**
 
 .. code-block:: bash
 

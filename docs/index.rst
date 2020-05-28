@@ -29,7 +29,7 @@ Currently, we are focusing on PDF output in preparation for testing "Baked" PDFs
    operations/setting_up_the_swarm
    operations/updating_the_stack
    operations/cleaning_up_the_swarm
-   operations/bakery
+   operations/updating_bakery_scripts
 
 .. toctree::
    :maxdepth: 2
