@@ -108,7 +108,6 @@ test('stable flow in pdf and distribution pipeline', async t => {
 
   const commonArgs = [
     'run',
-    '--cops=..',
     `--data=${outputDir}`,
     '--persist'
   ]
