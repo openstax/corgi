@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Exit in case of error
 set -e
@@ -28,4 +28,4 @@ config > docker-stack.yml
 
 docker-auto-labels docker-stack.yml
 
-docker stack deploy -c docker-stack.yml --with-registry-auth ${STACK_NAME}
+docker stack deploy -c docker-stack.yml --with-registry-auth "${STACK_NAME}"

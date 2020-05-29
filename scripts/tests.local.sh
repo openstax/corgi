@@ -3,7 +3,7 @@
 # Exit in case of error
 set -e
 
-if [ $(uname -s) = "Linux" ]; then
+if [ "$(uname -s)" = "Linux" ]; then
     echo "Remove __pycache__ files"
     sudo find . -type d -name __pycache__ -exec rm -r {} \+
 fi
