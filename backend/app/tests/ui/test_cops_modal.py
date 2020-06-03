@@ -24,10 +24,9 @@ def test_modal_remains_open_with_data_fields_empty(selenium, base_url):
 @pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
-@pytest.mark.parametrize("colid", ["col26069"])
-@pytest.mark.parametrize("vers", ["latest"])
-@pytest.mark.parametrize("style", ["chemistry"])
-@pytest.mark.parametrize("serv", ["staging"])
+@pytest.mark.parametrize(
+    "colid, vers, style, serv", [("col26069", "latest", "chemistry", "staging")]
+)
 def test_modal_create_pdf_cancel(selenium, base_url, colid, vers, style, serv):
     # GIVEN: Selenium driver and the base url
 

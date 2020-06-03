@@ -2,7 +2,6 @@ from pages.base import Page
 from regions.base import Region
 
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 
 
 class Home(Page):
@@ -35,7 +34,7 @@ class Home(Page):
     _page_field_locator = (By.CSS_SELECTOR, "#input-17")
     _no_data_available = (
         By.CSS_SELECTOR,
-        "# app > div > main > div > div > div > div > "
+        "#app > div > main > div > div > div > div > "
         "div.v-data-table.elevation-1.theme--light > div "
         "> table > tbody > tr > td",
     )
@@ -100,26 +99,80 @@ class Home(Page):
             "button:nth-child(3) > span ",
         )
 
+        _form_locator = (
+            By.CSS_SELECTOR,
+            "#app > div.v-dialog__content.v-dialog__content--active > div > div > "
+            "div.v-card__text > div > form",
+        )
+        _modal_collection_id_locator = (
+            By.XPATH,
+            '//*[@id="app"]/div[3]/div/div/div[2]/div/form/div/div['
+            "1]/div/div/div[ "
+            "1]/div",
+        )
+        _modal_version_locator = (
+            By.CSS_SELECTOR,
+            "#app > div.v-dialog__content.v-dialog__content--active > div > "
+            "div > div.v-card__text > div > form > div > div:nth-child(2) > "
+            "div > div > div.v-input__slot > div > label",
+        )
+        _modal_style_locator = (
+            By.CSS_SELECTOR,
+            "#app > div.v-dialog__content.v-dialog__content--active > div > div "
+            "> div.v-card__text > div > form > div > div:nth-child(3) > div > "
+            "div > div.v-input__slot > div.v-select__slot > label",
+        )
+        _modal_server_locator = (
+            By.CSS_SELECTOR,
+            "#app > div.v-dialog__content.v-dialog__content--active > div > div "
+            "> div.v-card__text > div > form > div > div:nth-child(4) > div > "
+            "div > div.v-input__slot > div.v-select__slot > label",
+        )
+
+        @property
+        def form(self):
+            return self.find_element(*self._form_locator)
+
+        @property
+        def collection_id_field(self):
+            self.form.find_element(*self._modal_collection_id_locator)
+            return self
+
+        @property
+        def version_field(self):
+            self.form.find_element(*self._modal_version_locator)
+            return self
+
+        @property
+        def style_field(self):
+            self.form.find_element(*self._modal_style_locator)
+            return self
+
+        @property
+        def server_field(self):
+            self.form.find_element(*self._modal_server_locator)
+            return self
+
+        def fill_collection_id_field(self, value):
+            self.collection_id_field.send_keys(value)
+            return self
+
+        def fill_version_field(self, value):
+            self.version_field.send_keys(value)
+            return self
+
+        def fill_style_field(self, value):
+            self.style_field.send_keys(value)
+            return self
+
+        def fill_server_field(self, value):
+            self.server_field.send_keys(value)
+            return self
+
         def click_cancel_button(self):
             self.find_element(*self._modal_cancel_button_locator).click()
             return self
 
         def click_create_button(self):
             self.find_element(*self._modal_create_button_locator).click()
-            return self
-
-        def fill_collection_id_field(self, value):
-            self.driver.find_element_by_tag_name("body").send_keys(Keys.TAB, value)
-            return self
-
-        def fill_version_field(self, value):
-            self.driver.find_element_by_tag_name("body").send_keys(Keys.TAB, value)
-            return self
-
-        def fill_style_field(self, value):
-            self.driver.find_element_by_tag_name("body").send_keys(Keys.TAB, value)
-            return self
-
-        def fill_server_field(self, value):
-            self.driver.find_element_by_tag_name("body").send_keys(Keys.TAB, value)
             return self
