@@ -1,4 +1,6 @@
-version: 2.0
+version: 2.1
+orbs:
+  shellcheck: circleci/shellcheck@1.3.16
 jobs:
   integration-test:
     machine:
@@ -108,3 +110,5 @@ workflows:
       - cli-functional-test
       - bakery-scripts-test
       - lint-bakery
+      - shellcheck/check:
+          path: ./scripts
