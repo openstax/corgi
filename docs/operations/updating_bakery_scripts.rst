@@ -19,122 +19,27 @@ and you can build the pipeliens with those tags
 
 Development
 ===========
-Filled out the credentials.yml
 
-.. code-block:: bash
+[Bucket Set Up instructions for development here.]
+[How can you easily copy the prod bucket with all its permissions?]
 
-    credentials.yml
+when you have made updates to the scripts.. bakery/src/scripts
+you can push to dockerhub 
+and test your scripts by refereing to the docker images
 
-Make sure the environment variables for the environment you want are good in:
+1. push scripts to image
+2. build pipsline foncifg file with pieline command
+3. do a find and replace for openstax/cops-bakery-scripts
+4. save config file
+5. execute the config file.
 
-.. code-block:: bash
-
-    bakery/env/<environment>.json 
-
-
-Build pipeline and give output to the pipeline config file:
-
-.. code-block:: bash
-
-    $ cd bakery
-    $ ./build pipeline distribution local -o distribution-pipeline.local.yml
-
-
--- docker-compose up, concourse server on port :8100
-
-- Set up local concourse target - Note this version is a more updated version
-
-than what is in production
-
-.. code-block:: bash
-
-    fly -t cops-dev login -c http://localhost:8100 -u dev -p dev
-
-
-- See concourse server targets
-
-.. code-block:: bash
-
-    fly targets
-
-
-Will most likely prompt you to sync -
-
-.. code-block:: bash
-
-    fly -t cops-dev sync
-
-
-Set the pipeline to the concourse server target with pipeline config file- 
-
-.. code-block:: bash
-    
-    fly -t cops-dev sp -p distribution-pipeline -c distribution-pipeline.local.yml -l credentials.yml
-
-
-Unpause Pipeline:
-
-.. code-block:: bash
-    
-    fly -t cops-dev unpause-pipeline -p distribution-pipeline
-
-
-- Let  it be known as to what the triggers the pipeline:
-
-https://github.com/openstax/output-producer-service/blob/master/bakery/distribution-feed.json
-- Let it be known how the s3 bucket needs to be set updated
---- Enable version if not Concourse S3 resource will give a versioning error.
---- Bucket region/ access
---- Distribution-feed.json file that (temporary) triggers pipeline
---- Can be seen on localhost:8100
-
-uses build-bakery
-(set the tag)
-export tag 
-
-How do you update them?
-Where do they update?
-run with pipeline?
-run with task?
-
--------
-
-generate script and push to docker.
-
-export a tag for development  nad build and look at it. 
-if you need to test with concourse build push 
-
-production 
-build-push
+there's another way to do this with the CLI - reference the readme. 
 
 Production
 ==========
-Filled out the credentials.yml:
-
-.. code-block:: bash
-
-    credentials.yml
-
-Make sure the environment variables for the environment you want are good in:
-
-.. code-block:: bash
-
-    bakery/env/<environment>.json 
-
-Build Pipeline in bakery/ directory:
-
-.. code-block:: bash
-    
-    ./build pipeline distribution local -o distribution-pipeline.local.yml
-
-Set Pipeline in concourse with config file:
-
-.. code-block:: bash
-    
-    fly -t cops-dev sp -p distribution-pipeline -c distribution-pipeline.local.yml -l credentials.yml
-
-Unpause Pipeline:
-
-.. code-block:: bash
-    
-    fly -t cops-dev unpause-pipeline -p distribution-pipeline
+When you are good with what you see 
+let the code be merged
+once the code is merged 
+autotag occurs and you grab the tag that is used 
+[steps here]
+to stage it and  then it will get promoted to production. 

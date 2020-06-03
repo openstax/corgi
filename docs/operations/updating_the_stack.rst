@@ -177,7 +177,7 @@ Promote to Production
    docker service ls
 
 4. Scale the Replicas for Updated COPS Stack (Already done by Thomas)
----------------------------------------------
+---------------------------------------------------------------------
 On production you will also need to scale the replicas again after deployment.
 By defualt docker swarm scales to 1 replica, (Clarify: we want 2 and hope it's not on the same node - fault tolerance).
 

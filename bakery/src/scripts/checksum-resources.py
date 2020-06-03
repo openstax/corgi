@@ -9,6 +9,7 @@ from lxml import etree
 BUF_SIZE = 8 * 1024 * 1024  # same as boto3 default chunk size. Don't modify.
 RESOURCES_DIR = 'resources'
 
+
 # https://stackoverflow.com/a/22058673/756056
 def get_checksums(filename):
     """ generate SHA1 and S3 MD5 etag checksums from file """
@@ -130,6 +131,7 @@ def main():
     mkdir_resources(out_dir)
     for xhtml_file in Path(in_dir).glob('*.xhtml'):
         generate_checksum_resources_from_xhtml(str(xhtml_file), out_dir)
+
 
 if __name__ == "__main__":
     main()

@@ -107,7 +107,7 @@ test('stable flow in pdf and distribution pipeline', async t => {
   await fs.copy(`${dataDir}/${bookId}`, `${outputDir}/${bookId}`)
 
   const commonArgs = [
-    '--cops=..',
+    'run',
     `--data=${outputDir}`,
     '--persist'
   ]
@@ -164,22 +164,12 @@ test('stable flow in pdf and distribution pipeline', async t => {
     bookId
   ])
 
+  // Distribution
   const checksum = spawn('node', [
     'src/cli/execute.js',
     ...commonArgs,
     '--image=localhost:5000/openstax/cops-bakery-scripts:test',
     'checksum',
-    bookId
-  ])
-  await completion(checksum)
-  t.truthy(fs.existsSync(`${outputDir}/${bookId}/checksum-book/${bookId}/resources`))
-
-  // Distribution
-  const bakeMeta = spawn('node', [
-    'src/cli/execute.js',
-    ...commonArgs,
-    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
-    'bake-meta',
     bookId
   ])
 
@@ -200,8 +190,18 @@ test('stable flow in pdf and distribution pipeline', async t => {
   })
 
   // Distribution continued
-  const branchDistribution = completion(bakeMeta).then(async (bakeMetaResult) => {
-    // bake-meta assertion
+  const branchDistribution = completion(checksum).then(async (checksumResult) => {
+    // checksum assertion
+    t.truthy(fs.existsSync(`${outputDir}/${bookId}/checksum-book/${bookId}/resources`), formatSubprocessOutput(checksumResult))
+
+    const bakeMeta = spawn('node', [
+      'src/cli/execute.js',
+      ...commonArgs,
+      '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+      'bake-meta',
+      bookId
+    ])
+    const bakeMetaResult = await completion(bakeMeta)
     t.truthy(fs.existsSync(`${outputDir}/${bookId}/baked-book-metadata/${bookId}/collection.baked-metadata.json`), formatSubprocessOutput(bakeMetaResult))
 
     const disassemble = spawn('node', [

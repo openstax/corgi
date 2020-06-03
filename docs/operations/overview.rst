@@ -1,22 +1,8 @@
-.. image:: ./_static/images/cops.png
-   :scale: 50%
-   :alt: COPS
-   :align: center
+.. _operations-overview:
 
-----
-
-============================================
-Content Output Producer Service (COPS) (WIP)
-============================================
-
-COPS is a web application built to allow vendors, Content Managers, QA, and
-developers to produce various outputs of our OpenStax book content.
-
-What is this?
-What does it do?
-What does it emcompass?
-Who is it for?
-What are it's parts?
+==============
+Overview (WIP)
+==============
 
 .. note::
    Currently, the only output that is available is PDF.
@@ -41,6 +27,7 @@ port 22 EC2 has bastion permission only.
 Network Bastion2 to AWS EC2
 with Identity file on your local machine cops.permission
 
+
 .. blockdiag::
 
     blockdiag workflow {
@@ -53,53 +40,4 @@ with Identity file on your local machine cops.permission
       A -> B -> C -> D -> E -> A;
     }
 
-.. toctree::
-   :maxdepth: 2
-   :caption: COPS Operations
-   :hidden:
 
-   operations/overview
-   operations/setting_up_the_swarm
-   operations/updating_the_stack
-   operations/cleaning_up_the_swarm
-   operations/updating_bakery_scripts
-
-.. toctree::
-   :maxdepth: 2
-   :caption: PDF System
-   :hidden:
-
-   pdf/overview
-   pdf/steps
-   pdf/backend_architecture
-   pdf/frontend_ui
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Distribution System
-   :hidden:
-
-   distribution/overview
-   distribution/steps
-   distribution/cli
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Quality Assurance
-   :hidden:
-
-   qa/setup_local_qa_cops_test
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Extras
-   :hidden:
-
-   glossary
-
-
-Indices and tables
-==================
-
-* :ref:`modindex`
-* :ref:`genindex`

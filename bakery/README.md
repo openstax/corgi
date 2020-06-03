@@ -27,7 +27,7 @@ For now, the file `src/cli/execute.js` is the entry point for the CLI, and must 
 
 For example, to fetch a book and have its contents appear in the directory `/tmp/data`, one could use the following command, with `bakery` as their working directory:
 
-`node ./src/cli/execute.js fetch -c ./.. -d /tmp/data staging.cnx.org col30149 latest`
+`node ./src/cli/execute.js run fetch -d /tmp/data staging.cnx.org col30149 latest`
 
 ### Bakery Concourse Pipeline Config Generator
 
@@ -99,7 +99,7 @@ For example, if one wanted to make changes to cops-bakery-scripts and have those
 2. Make the desired change in the `src/scripts/*.py` file
 3. Build the image with `docker build .`
 4. Tag the build image as `localhost:5000/openstax/cops-bakery/scripts:latest` (the prefix of `localhost:5000` is *required*, what you name and tag your image is up to you), for example, with `docker tag $(docker image ls | awk 'NR==2 {print $3}') localhost:5000/openstax/cops-bakery-scripts:latest`
-5. Run the desired pipeline step with the CLI with the `--image` flag, e.g. `node ./src/cli/execute.js assemble-meta --image localhost:5000/openstax/cops-bakery-scripts:latest -c ./.. -d /tmp/data col30149`
+5. Run the desired pipeline step with the CLI with the `--image` flag, e.g. `node ./src/cli/execute.js run assemble-meta --image localhost:5000/openstax/cops-bakery-scripts:latest -d /tmp/data col30149`
 
 Note: This is probably most useful for the `cops-bakery-scripts` image, but you can technically use a local version of an image like `nebuchadnezzar` as well.
 
@@ -107,7 +107,7 @@ Note: This is probably most useful for the `cops-bakery-scripts` image, but you 
 
 Both the Bakery CLI and the Pipeline Config Generator allow you to specify a tag of a remote image to use with the `--tag`. For example, if a tag, `important-tag`, has been released for each of our images, one can:
 1. Generate a pipeline pinning all versions of images to that tag with usage like `./build pipeline pdf staging --tag=important-tag`
-2. Run an individual task with the Bakery CLI using the image of that tag as the image_resource with usage like `node ./src/cli/execute.js fetch -c ./.. -d /tmp/data staging.cnx.org col30149 latest --tag=important-tag`
+2. Run an individual task with the Bakery CLI using the image of that tag as the image_resource with usage like `node ./src/cli/execute.js run fetch -d /tmp/data staging.cnx.org col30149 latest --tag=important-tag`
 
 #### Testing
 `npm run lint` will lint the JS files in `bakery` and `npm run test` will run regression tests on `bakery` via the CLI.

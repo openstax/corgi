@@ -10,9 +10,8 @@ const pipeline = (env) => {
   const taskJsonifyBook = require('../tasks/jsonify-book')
   const taskUploadBook = require('../tasks/upload-book')
 
-  const bucket = env.S3_DIST_BUCKET
-  const awsAccessKeyId = '((aws-sandbox-secret-key-id))'
-  const awsSecretAccessKey = '((aws-sandbox-secret-access-key))'
+  const awsAccessKeyId = env.ENV_NAME === 'local' ? env.S3_ACCESS_KEY_ID : '((aws-sandbox-secret-key-id))'
+  const awsSecretAccessKey = env.ENV_NAME === 'local' ? env.S3_SECRET_ACCESS_KEY : '((aws-sandbox-secret-access-key))'
 
   const resources = [
     {
@@ -27,8 +26,8 @@ const pipeline = (env) => {
       name: 's3-feed',
       type: 's3',
       source: {
-        bucket: bucket,
-        versioned_file: '((versioned-feed-file))',
+        bucket: env.S3_DIST_BUCKET,
+        versioned_file: env.VERSIONED_FILE,
         access_key_id: awsAccessKeyId,
         secret_access_key: awsSecretAccessKey
       }
@@ -41,7 +40,7 @@ const pipeline = (env) => {
       { get: 's3-feed', trigger: true, version: 'every' },
       { get: 'cnx-recipes-output' },
       taskLookUpFeed({
-        versionedFile: '((versioned-feed-file))',
+        versionedFile: env.VERSIONED_FILE,
         image: { tag: env.IMAGE_TAG }
       }),
       taskFetchBook({ image: { tag: env.IMAGE_TAG } }),
