@@ -10,8 +10,8 @@ class Home(Page):
 
     @property
     def loaded(self):
-        return (self.is_create_new_pdf_button_displayed and
-                not self.create_pdf_modal_is_open)
+        return self.is_create_new_pdf_button_displayed
+
 
     @property
     def is_create_new_pdf_button_displayed(self):
@@ -36,4 +36,4 @@ class Home(Page):
 
         def click_cancel_button(self):
             self.cancel_button.click()
-            return self.page.wait_for_page_to_load()
+            self.wait.until(lambda _: not self.page.create_pdf_modal_is_open)
