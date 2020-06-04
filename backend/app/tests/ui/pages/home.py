@@ -28,7 +28,7 @@ class Home(Page):
             *self._pdf_job_form_modal_locator))
 
     class CreateJobModal(Region):
-        _modal_cancel_button_locator = (By.CSS_SELECTOR, '.job-cancel-button > span')
+        _modal_cancel_button_locator = (By.CLASS_NAME, 'job-cancel-button')
 
         @property
         def cancel_button(self):
