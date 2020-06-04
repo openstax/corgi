@@ -1,8 +1,12 @@
 .. _pdf-backend-architecture:
 
-=====================
-Backend Architechture
-=====================
+###########################
+Backend Architechture (WIP)
+###########################
+
+*******
+FastAPI
+*******
 
 The PDF Backend API architecture is built using FastAPI which is a web framework built in Python.
 
@@ -15,8 +19,23 @@ the patterns that are specific to doing development on the backend. The `FastAPI
 tutorial <https://fastapi.tiangolo.com/tutorial/intro/>`_ serves as an excellent
 reference for more specifics of the framework.
 
+Clarify: How do you get to this locally?
 
-Data models, Schema models, and the Service layer
-=================================================
+*************
+Data Models
+*************
 
-The backend
+WIP
+
+*************
+Schema Models
+*************
+
+WIP
+
+*************
+Service Layer
+*************
+
+WIP
+

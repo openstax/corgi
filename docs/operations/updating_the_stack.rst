@@ -11,6 +11,8 @@ Refer to :ref:`operations-setting-up-the-swarm` to do the initial setup of the s
 
 After updates have been made to the Stack, the following need to happen - 
 
+----
+
 ********
 Overview
 ********
@@ -24,6 +26,8 @@ Deploy COPS Stack to Staging
    - Deployment to Staging with newly build and tagged images to make sure new images work.
 Promote COPS Stack to Production
    - Deployment to Production after successful deploy to Staging.
+
+----
 
 *************
 Prerequisites
@@ -68,6 +72,8 @@ docker-compose file.
       IdentityFile ~/.ssh/cops.pem
       ProxyJump bastion2
       ForwardAgent yes
+
+----
 
 *****
 Steps
@@ -143,9 +149,11 @@ Deploy to Staging
 
    docker service ls
 
+----
 
 Promote to Production
 =====================
+
 1. Update Staging Variables to Production Variables
 ---------------------------------------------------
 **Switch to the terminal window where you set the** ``DOCKER_HOST``, and set (production) environment variables:**
@@ -168,8 +176,8 @@ Promote to Production
 
    DOMAIN=$DOMAIN TRAEFIK_TAG=$TRAEFIK_TAG STACK_NAME=$STACK_NAME TAG=$TAG ./scripts/deploy.sh
 
-3. Check to see the deployment went well with tagged images by running 
-----------------------------------------------------------------------
+3. Ensure deployment went well with tagged images by running 
+------------------------------------------------------------
 (Clarify: Confirm this is the right way to do this. Highly don't think so)
 
 .. code-block:: bash
@@ -185,6 +193,8 @@ By defualt docker swarm scales to 1 replica, (Clarify: we want 2 and hope it's n
 
    $ docker service update --replicas 2 cops_prod_backend
    $ docker service update --replicas 2 cops_prod_frontend
+
+----
 
 Cleanup
 =======

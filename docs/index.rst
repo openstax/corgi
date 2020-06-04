@@ -5,53 +5,29 @@
 
 ----
 
-============================================
+############################################
 Content Output Producer Service (COPS) (WIP)
-============================================
+############################################
 
-COPS is a web application built to allow vendors, Content Managers, QA, and
-developers to produce various outputs of our OpenStax book content.
-
-What is this?
-What does it do?
-What does it emcompass?
-Who is it for?
-What are it's parts?
-
-.. note::
-   Currently, the only output that is available is PDF.
-
-The COPS system acts as a central location for users to create jobs and view
-their status. When a user creates a job they are needing to produce an output
-(PDF, epub, etc) for a book. A book is typically called a collection by Content
+COPS an overarching system that contain different ways to 
+produce Openstax book content for various users (Content Manangers (CMs), 
+QA, and developers) to consume. A book is typically called a collection by Content
 Managers and others that work directly with content.
 
-When a job is created it will be placed in a queue. When the output pipeline is
-ready it will read the necessary information from the job and begin producing
-the output format specified. Upon completion, the job status will be updated with
-a completed status and a link for the user to download the specified output.
+****************
+COPS at a Glance
+****************
++----------------+-----------------+-----------+-----------+-----------+
+| Output         | Users           | More Info | More Info | More Info |
++================+=================+===========+===========+===========+
+| PDF            | CMs, CE Styles  | blah blah | blah blah | blah blah |
++----------------+-----------------+-----------+-----------+-----------+
+| Distribution   | Rex, Tutor      | etc etc e | etc etc e | etc etc e |
++----------------+-----------------+-----------+-----------+-----------+
 
-Currently the COPS swarm lives on our AWS EC2, where the pdf pipeline is.
-EC2 cops service really only pertains to the PDF pipeline
-
-
-EC2 VM where COPS is running AWS EC2 VM bastion2
-port 22 EC2 has bastion permission only. 
-
-Network Bastion2 to AWS EC2
-with Identity file on your local machine cops.permission
-
-.. blockdiag::
-
-    blockdiag workflow {
-       // Set labels to nodes
-       A [label = "Cops UI"];
-       B [label = "Create Job"];
-       C [label = "Job Queued"];
-       D [label = "Output Pipeline"];
-       E [label = "Output URL"];
-      A -> B -> C -> D -> E -> A;
-    }
+.. note::
+   | **June 3rd, 2020**  
+   | The PDF Pipeline is in production. The Distribution Pipeline is still being developed. 
 
 .. toctree::
    :maxdepth: 2
@@ -63,6 +39,7 @@ with Identity file on your local machine cops.permission
    operations/updating_the_stack
    operations/cleaning_up_the_swarm
    operations/updating_bakery_scripts
+   operations/generate_pipeline_config
 
 .. toctree::
    :maxdepth: 2
@@ -88,7 +65,7 @@ with Identity file on your local machine cops.permission
    :caption: Quality Assurance
    :hidden:
 
-   qa/setup_local_qa_cops_test
+   qa/setup
 
 .. toctree::
    :maxdepth: 2
@@ -97,8 +74,23 @@ with Identity file on your local machine cops.permission
 
    glossary
 
+Tech Resources
+==============
+* `AWS S3 <https://aws.amazon.com/s3/>`_
+* `AWS EC2 <https://aws.amazon.com/ec2/>`_
+* `AWS Cloudfront <https://aws.amazon.com/cloudfront/>`_
+* `Traefik <https://containo.us/traefik/>`_
+* `Docker <https://www.docker.com/>`_
+* `Docker Swarm <https://docs.docker.com/engine/swarm/>`_
+* `Docker Hub <https://hub.docker.com/>`_
+* `FAST API <https://fastapi.tiangolo.com/>`_
+* `VUE.js <https://vuejs.org/>`_
+* `Concourse <https://concourse-ci.org/>`_
+* `Sphinx Docs <https://www.sphinx-doc.org/en/master/>`_
+* `ConEng wiki <https://github.com/openstax/cnx/wiki>`_ 
 
-Indices and tables
+
+Indices and Tables
 ==================
 
 * :ref:`modindex`

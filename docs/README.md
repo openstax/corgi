@@ -9,18 +9,20 @@ docker-compose up -d
 
 When up, you should be able to visit localhost:8000 to see the docs
 
-## Editing the docs
+## Editing The Docs
 
-Edits are done in restructured text. 
+Edits are done in restructured text (rst). 
 
-Validate and update your edits by running:
+Validate and update edits by running:
 ```
 make html
 ```
 
-Sometimes if edits don't take and the navigation doesn't update, re-build the docker image.
+If Navigations edits do not update, re-build the docker image.=:
+```
+$ cd output-producer-service
+$ docker-compose down
+$ docker-compose up
+```
 
-
-
-Note: In container or outside the container, with installed requirements. 
-
+Note: Can be done in container or outside the container, with installed requirements.

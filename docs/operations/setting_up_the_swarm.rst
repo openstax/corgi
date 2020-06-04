@@ -17,11 +17,15 @@ After set up of the servers with swarm we can then :ref:`operations-updating-the
 
 This document will assume that the server operating system is `Ubuntu 18.04 (Bionic Beaver) <https://releases.ubuntu.com/18.04.4/>`_ and proper user permissions and SSH access has already been established.
 
+[Clarify that this has all been set up by DevOps on Bastion/AWS Ec2?]
+
 .. note:: 
 
    This process is mostly done manual but we will be porting these steps over to 
    using :term:`Ansible`. Currently, the only step using Ansible is to
    :ref:`operations-cleaning-up-the-swarm`
+
+----
 
 *************
 Prerequisites
@@ -30,59 +34,61 @@ Prerequisites
 Install Docker
 ==============
 
-**Update Local Database**
+Run the following commands to install Docker:
 
 .. code-block:: bash
 
+   # Update Local Database
    sudo apt-get update
 
-**Download Dependencies**
-
 .. code-block:: bash
 
+   # Download Dependencies
    sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
 
-**Add Docker's GPG Key**
-
 .. code-block:: bash
 
+   # Add Docker's GPG Key
    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add --
 
-**Install Docker Repository**
-
 .. code-block:: bash
 
+   # Install Docker Repository
    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
 
-**Update Repositories**
-
 .. code-block:: bash
-
+   
+   # Update Repositories
    sudo apt-get update
+
+----
+
 
 *****************
 Install Docker-CE
 *****************
 
-**Install Docker-CE**
+Run the following commands to install Docker-CE:
 
 .. code-block:: bash
 
+   # Install Docker-CE
    sudo apt-get install docker-ce
 
-**Add User to Docker Group**
-
 .. code-block:: bash
 
+   # Add User to Docker Group
    sudo usermod -aG docker $USER
 
-**Test Docker**
-
 .. code-block:: bash
 
+   # Test Docker
    docker run hello-world
 
-.. note:: If a permission error occurs the server may need to be restarted.
+.. warning:: If a permission error occurs the server may need to be restarted.
+
+----
+
 
 *******************
 Create Docker Swarm
@@ -138,6 +144,8 @@ Copy ``docker swarm join`` command with token from ``docker swarm init`` output
    docker swarm join --token SWMTKN-1-xxxxxxxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxx xxx.xx.xxx.xxx:2377
 
 Paste ``docker swarm join..`` command into a terminal window of all other nodes in the swarm.
+
+----
 
 ***************************
 Create Main Traefik Service

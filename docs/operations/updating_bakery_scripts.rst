@@ -1,45 +1,50 @@
 .. _operations-updating-bakery-scripts:
 
-===========================
-Update COPS "Bakery" Scripts 
-===========================
+#######################
+Update Pipeline Scripts 
+#######################
 
-All scripts that pipeline tasks may use to complete jobs for any COPS Pipelines live in docker image `openstax/cops-bakery-scripts <https://hub.docker.com/repository/docker/openstax/cops-bakery-scripts>`_. 
-The scripts are not limited to baking tasks as that name would suggest. 
+All scripts that COPS Concourse pipeline tasks may use to complete jobs live in Docker Image `openstax/cops-bakery-scripts <https://hub.docker.com/repository/docker/openstax/cops-bakery-scripts>`_. 
+built from `bakery/src/scripts/ <https://github.com/openstax/output-producer-service/tree/master/bakery/src/scripts>`_ 
+directory in the `openstax/output-producer-service <https://github.com/openstax/output-producer-service/>`_ repository/ project.
 
-Updating the bakery scripts and testing it in the pipeline.
+All output pipelines (pdf, distribution, etc) use the same Docker Image. 
+The scripts are not limited to baking tasks as the name would suggest.
 
-SCripts giet merge into docker
-you will get a new merge
-and new build pipeline gets triggered and images get new targets
-
-ce-image-autotag pipeline
-
-and you can build the pipeliens with those tags
+----
 
 Development
 ===========
 
-[Bucket Set Up instructions for development here.]
-[How can you easily copy the prod bucket with all its permissions?]
+Build Image with Changes
+------------------------
 
-when you have made updates to the scripts.. bakery/src/scripts
-you can push to dockerhub 
-and test your scripts by refereing to the docker images
+1. Have ``bakery/src/scripts`` as your working directory
+2. Make the desired change in the ``bakery/src/scripts/*.py`` file
+3. Build the image with ``docker build .``
 
-1. push scripts to image
-2. build pipsline foncifg file with pieline command
-3. do a find and replace for openstax/cops-bakery-scripts
-4. save config file
-5. execute the config file.
+The Hard Way
+-------------
+4. Push up to docker hub
+5. :ref:`operations-generate-pipeline-config`
+6. Find and replace ``openstax/cops-bakery-scripts`` in config file to your image
+7. Set desired pipeline:
+   
+   - :ref:`pdf-pipeline-steps`
+   - :ref:`distribution-pipeline-steps`
 
-there's another way to do this with the CLI - reference the readme. 
+The Alternate Way
+-----------------
+
+4. Alternatively the better way (recently implemented) - 
+https://github.com/openstax/output-producer-service/tree/master/bakery#development-and-qa
+
+----
 
 Production
 ==========
-When you are good with what you see 
-let the code be merged
-once the code is merged 
-autotag occurs and you grab the tag that is used 
-[steps here]
-to stage it and  then it will get promoted to production. 
+When your code is reviewed and merged it will trigger our 
+`ce-image-autotag pipeline <https://concourse-dev0.openstax.org/teams/Dev/pipelines/ce-image-autotag>`_
+to build and tag a new docker image for `openstax/cops-bakery-scripts <https://hub.docker.com/repository/docker/openstax/cops-bakery-scripts>`_. 
+
+After the image is built and tagged, a tag is returned and that is what is used to :ref:`operations-updating-the-stack`

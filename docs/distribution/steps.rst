@@ -1,261 +1,131 @@
 .. _distribution-pipeline-steps:
 
-###############
-Pipeline Set Up
-###############
-
-***********
-Development
-***********
-
-
-Overview
-========
+############################
+Distribution Pipeline Set Up
+############################
 
 Internal Development and/or Debugging of Distribution Pipeline Steps
 The approach allows developers / QA to inspect all input / output files for tasks 
 to confirm data is being generated as expected.
 
-Each step of the distribution pipeline can be run individually and step by step.
+Each step of the distirbution pipeline can be run individually and step by step.
 
+----
 
+*************
 Prerequisites
-=============
+*************
 
-docker
-concourse ``fly`` download the cli command binary for linux or install it on mac with ``brew cask install fly``.  
-aws cli
+`Install Docker <https://docs.docker.com/get-docker/>`_
+=========================================================
 
-1. Get Concourse up and running before you go through the steps
----------------------------------------------------------------
+`Install AWS CLI <https://aws.amazon.com/cli/>`_
+================================================
 
-Clone the repo and start the whole infrastructure with
+Clone output-producer-service
+=============================
 
 .. code-block:: bash
+
+    $ git cllone git@github.com:openstax/output-producer-service.git
+
+Install Concourse fly cli
+===========================
+  
+- For Linux, `Download the cli command binary <https://concourse-ci.org/quick-start.html>`_
+- For Mac, Install with ``brew cask install fly``.  
+
+----
+
+*****
+Steps
+*****
+
+Get Concourse Up
+================
+
+**1. Start the whole infrastructure, from root of output-proudcer-service**
+
+.. code-block:: bash
+
    $ cd output-producer-service
    $ docker-compose up -d
 
-You can check if concourse is running by going with your browser to
+**2. Ensure Concourse is up by visiting** `http://localhost:8100 <http://localhost:8100>`_ **in your browser.**
 
-* `http://localhost:8100 <http://localhost:8100>`_
 * login:``dev``
 * password: ``dev``
 
-You should see no pipelines running
+You should see no pipelines running.
 
-2. Sync and Connect fly with Concourse
---------------------------------------
+-------
 
-Sometimes there is a version mismatch and we need to sync fly with our Concourse 
-version in use. To do that it is recommend to first run this command:
+Set Concourse Pipeline
+======================
 
-.. code-block:: bash
+**1. Target the Concourse Fly Cli to the Concourse server:**
 
-   fly sync -c http://localhost:8100
-
-Now we connect ``fly`` cli with our concourse server and name this connection ``cops-dev``
+Run ``fly targets``. If you don't see `http://localhost:8100` listed under url, run:
 
 .. code-block:: bash
 
    fly -t cops-dev login -c http://localhost:8100 -u dev -p dev
 
+We've named this pipeline ``cops-dev``.
 
+.. note:: 
+   Production Concourse Target URL: https://concourse-dev0.openstax.org 
 
+**2. Set the pipeline with a name and configurations.**
 
-Setup the pipeline for accepting jobs
-`````````````````````````````````````
+Must have a configuration file to run the following: :ref:`operations-generate-pipeline-config`.
 
 .. code-block:: bash
 
-   fly -t cops-dev sp -p bakery -c bakery/pdf-pipeline.local.yml
+    $ cd bakery
+    $ fly -t cops-dev sp -p bakery -c distirbution-pipeline.local.yml
 
-and confirm with ``y``.
+We've named this pipeline ``bakery`` and passed in config file ``distirbution-pipeline.local.yml``.
 
-Now unpause the pipeline
+..  warning:: 
+    If a mismatch occurs between the **fly cli version** and **Concourse version**
+    this can be fixed with the ``fly -t <target_name> sync`` command.
+
+    If it continues to block try running the below and then sync:
+
+    .. code-block:: bash
+
+        fly -t cops-dev login -c http://localhost:8100 -u dev -p dev
+
+**3. Confirm Pipeline Configurations.**
+
+.. code-block:: bash
+
+    apply configuration? [yN]: y
+    pipeline created!
+
+**4. Unpause Pipeline**
 
 .. code-block:: bash
 
    fly -t cops-dev unpause-pipeline -p bakery
 
-Select a collection for the job and start the PDF pipeline
-``````````````````````````````````````````````````````````
-
-Go to `http://localhost/ <http://localhost/>`_ and start a job with your collection of your choice in the UI.
-
-For example:
-* Collection: col12081
-* Version: latest
-* Style: hs-physics
-* Content-Server: staging
-
-after a few seconds (it takes maybe 20-30 seconds) you can see the job starting in 
-`local Concourse <http://localhost:8100>`_ and in the `local COPS UI <http://localhost>`_.
-
-Beecause the pdf-pipeline is not in our interested here it is recommended to 
-stop/cancel the job in the `Concourse <http://localhost:8100>`_ and press the red X 
-for cancelling the job.
-
-Start the distribution pipeline steps manually step by step
------------------------------------------------------------
-
-Generate task definition files
-``````````````````````````````
-
-.. code-block:: bash
-
-   cd bakery
-
-if you have not already install necessary packages with
-
-.. code-block:: bash
-
-   yarn
-
-and build the yml task definition files:
-
-.. code-block:: bash
-
-   ./build task look-up-book > look-up-book.yml
-   ./build task fetch-book > fetch-book.yml
-   ./build task assemble-book > assemble-book.yml
-   ./build task assemble-book-metadata > assemble-book-metadata.yml
-   ./build task bake-book > bake-book.yml
-   ./build task bake-book-metadata > bake-book-metadata.yml
-   ./build task checksum-book > checksum-book.yml
-   ./build task disassemble-book > disassemble-book.yml
-   ./build task jsonify-book > jsonify-book.yml
-
-
-
-Make sure the environment variables for the environment you want are good in:
-the part you have to fill out:
- distirbution bucket 
-  "S3_DIST_BUCKET": "ce-contents-cops-distribution-373045849756",
-  "VERSIONED_FILE": "distribution_feed.json"
-
-pdf bucket only needs 
-"S3_PDF_BUCKET": "my-bucket",
-
-.. code-block:: bash
-
-    bakery/env/<environment>.json 
-
-
-Build pipeline and give output to the pipeline config file:
-
-.. code-block:: bash
-
-    $ cd bakery
-    $ ./build pipeline distribution local -o distribution-pipeline.local.yml
-
-
--- docker-compose up, concourse server on port :8100
-
-- Set up local concourse target - Note this version is a more updated version
-
-than what is in production
-
-.. code-block:: bash
-
-    fly -t cops-dev login -c http://localhost:8100 -u dev -p dev
-
-
-- See concourse server targets
-
-.. code-block:: bash
-
-    fly targets
-
-
-Will most likely prompt you to sync -
-
-.. code-block:: bash
-
-    fly -t cops-dev sync
-
-
-Set the pipeline to the concourse server target with pipeline config file- 
-
-.. code-block:: bash
-    
-    fly -t cops-dev sp -p distribution-pipeline -c distribution-pipeline.local.yml -l credentials.yml
-
-
-Unpause Pipeline:
-
-.. code-block:: bash
-    
-    fly -t cops-dev unpause-pipeline -p distribution-pipeline
-
-
-- Let  it be known as to what the triggers the pipeline:
-
-https://github.com/openstax/output-producer-service/blob/master/bakery/distribution-feed.json
-- Let it be known how the s3 bucket needs to be set updated
---- Enable version if not Concourse S3 resource will give a versioning error.
---- Bucket region/ access
---- Distribution-feed.json file that (temporary) triggers pipeline
---- Can be seen on localhost:8100
-
-uses build-bakery
-(set the tag)
-export tag 
-
-How do you update them?
-Where do they update?
-run with pipeline?
-run with task?
+The Distribution pipeline has now been set up to take jobs.
 
 -------
 
-generate script and push to docker.
+Trigger Pipeline Job
+====================
 
-export a tag for development  nad build and look at it. 
-if you need to test with concourse build push 
+[currently we are using distibution-feed.json file]
 
-production 
-build-push
+- Let  it be known as to what the triggers the pipeline: https://github.com/openstax/output-producer-service/blob/master/bakery/distribution-feed.json
+- Let it be known how the s3 bucket needs to be set updated
+    - Enable version if not Concourse S3 resource will give a versioning error.
+    - Bucket region/ access
 
-Production
-==========
+Watch Pipeline Work
+====================
 
-concourse-dev0
-
-Filled out the credentials.yml:
-
-.. code-block:: bash
-
-    credentials.yml
-
-Make sure the environment variables for the environment you want are good in:
-
-.. code-block:: bash
-
-    bakery/env/<environment>.json 
-
-Build Pipeline in bakery/ directory:
-
-.. code-block:: bash
-    
-    ./build pipeline distribution local -o distribution-pipeline.local.yml
-
-Set Pipeline in concourse with config file:
-
-.. code-block:: bash
-    
-    fly -t cops-dev sp -p distribution-pipeline -c distribution-pipeline.local.yml -l credentials.yml
-
-Unpause Pipeline:
-
-.. code-block:: bash
-    
-    fly -t cops-dev unpause-pipeline -p distribution-pipeline
-
-Run tasks using ``fly``
-```````````````````````
-
-TODO
-
-**********
-Production
-**********
+After about 30 seconds the job will start in your
+`local Concourse <http://localhost:8100>`_ and you will be able to see the job status on `http://localhost/ <http://localhost/>`_ .

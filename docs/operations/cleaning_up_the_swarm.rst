@@ -4,89 +4,130 @@
 Clean Up The Swarm
 ##################
 
-**************************************
-To Do: Add cronjob to run docker prune
-**************************************
-
-Docker swarm does not come with any kind of "garbage collection" for dangling 
-volumes or unused containers that are created when doing updates or after 
+Docker swarm does not come with any "garbage collection" for dangling 
+volumes or unused containers that have been created during updates or after 
 restarts.
 
-** `Ansible <https://docs.ansible.com/ansible/latest/index.html>`_ **
+**To Do: Add Cronjob to run** ``docker prune``
 
-.. important:: This has caused issues where the host nodes run out of hard drive storage. To 
-   prevent this we have created an :term:`Ansible` playbook to configure a cronjob on the server.
+.. warning:: **This has caused issues where the host nodes run out of hard drive storage. To 
+   prevent this we have created an** :term:`Ansible` **playbook to configure a cronjob on the server.**
 
-**************************************
-Local or from bastion2?
-**************************************
+----
 
-There are two places you can run this playbook.
+*************************
+Clean Up Execute Location
+*************************
 
-1. From ``localhost`` if you have ``bastion2`` setup as a :term:`JumpHost` and proper key 
-   to cops servers in the correct directory.
-2. From ``bastion2`` directly.
+There are two places you can run this 'Clean Up' Ansible playbook:
 
-See this `guide <https://github.com/openstax/cnx/wiki/Configure-bastion2.cnx.org-as-a-JumpHost>`_ 
-in the `ConEng wiki <https://github.com/openstax/cnx/wiki>`_ to learn how to configure a :term:`JumpHost`.
+1. Localhost with Bastion2 as a Jumphost
+2. Directly from Bastion2.cnx.org
 
-If you are running from ``bastion2`` you will need to clone down the 
-`output-producer-service repository <https://github.com/openstax/output-producer-service>`_ 
-into your home directory and execute the commands.
+----
 
-********************
-Running the playbook
-********************
+Execute from LocalHost
+======================
+From **localhost**, using **bastion2** as a jumphost, you need: 
 
-**From root directory of the project, change directory into the Ansible directory:**
+   1. **bastion2** set up as a :term:`JumpHost` (`Configure Jumphost Guide <https://github.com/openstax/cnx/wiki/Configure-bastion2.cnx.org-as-a-JumpHost>`_)
+   2. Proper key to cops servers in the correct directory
+   3. Run following commands
 
-.. code-block:: bash
+      .. code-block:: bash
 
-   $ cd ./ansible
+         $ cd ./ansible
 
-**Create a virtual environment for installing Ansible and dependencies:**
+         # Changes directory from project root to Ansible directory
+         
+      .. code-block:: bash
+         
+         $ python -m .venv venv
 
-.. code-block:: bash
+         # Creates virtual environment to install Ansible and dependencies
 
-   $ python -m .venv venv
+      .. code-block:: bash
+                           
+         $ source ./.venv/bin/activate
 
-**Activate the virtual environment:**
+         # Activates the virtual environment
 
-.. code-block:: bash
+      .. code-block:: bash
+                          
+         (venv) $ pip install -r requirements.txt
 
-   $ source ./.venv/bin/activate
+         # Installs Dependencies
 
-**Install dependencies:**
+      .. code-block:: bash
 
-.. code-block:: bash
+         (venv) $ ansible-playbook -i inventory.jumphost.yml main.yml
 
-   (venv) $ pip install -r requirements.txt
+         # Runs the Ansible playbook using bastion2 as jumphost
+   
+   3. Ensure good run with similar output:
 
-.. important:: The following steps depend on where you are running the ``ansible-playbook`` command. 
+      .. code-block:: bash
 
-**Run** :term:`Ansible` **playbook for** ``bastion2`` **as** :term:`JumpHost` **:**
+         PLAY [OpenStax COPS deployment] ************************************************
 
-.. code-block:: bash
+         TASK [Gathering Facts] *********************************************************
+         ok: [default]
 
-   (venv) $ ansible-playbook -i inventory.jumphost.yml main.yml
+         TASK [Create cronjob to do docker cleanup] *************************************
+         changed: [default]
 
-**Run the Ansible playbook if you are logged into** ``bastion2.cnx.org`` **:**
+         PLAY RECAP *********************************************************************
+         default  : ok=2    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
 
-.. code-block:: bash
+----
 
-   (venv) $ ansible-playbook -i inventory.yml main.yml
+Execute from bastion2.cnx.org
+=============================
+   
+   1. Clone down copy of `output-producer-service repository <https://github.com/openstax/output-producer-service>`_ into your home directory
+   2. Run following commands
 
-**Ensure good run with similar output:**
+      .. code-block:: bash
 
-.. code-block:: bash
+         $ cd ./ansible
 
-   PLAY [OpenStax COPS deployment] ************************************************
+         # Changes directory from project root to Ansible directory
+         
+      .. code-block:: bash
+         
+         $ python -m .venv venv
 
-   TASK [Gathering Facts] *********************************************************
-   ok: [default]
+         # Creates virtual environment to install Ansible and dependencies
 
-   TASK [Create cronjob to do docker cleanup] *************************************
-   changed: [default]
+      .. code-block:: bash
+                           
+         $ source ./.venv/bin/activate
 
-   PLAY RECAP *********************************************************************
-   default  : ok=2    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+         # Activates the virtual environment
+
+      .. code-block:: bash
+                          
+         (venv) $ pip install -r requirements.txt
+
+         # Installs Dependencies
+
+      .. code-block:: bash
+
+         (venv) $ ansible-playbook -i inventory.yml main.yml
+
+         # Runs the Ansible playbook directly from bastion2
+
+   3. Ensure good run with similar output:
+
+      .. code-block:: bash
+
+         PLAY [OpenStax COPS deployment] ************************************************
+
+         TASK [Gathering Facts] *********************************************************
+         ok: [default]
+
+         TASK [Create cronjob to do docker cleanup] *************************************
+         changed: [default]
+
+         PLAY RECAP *********************************************************************
+         default  : ok=2    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
