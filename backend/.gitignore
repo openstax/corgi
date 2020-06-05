@@ -12,3 +12,4 @@ __pycache__/
 
 # Pytest report files
 report.html
+junit.xml
