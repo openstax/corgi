@@ -46,7 +46,6 @@ docker-compose file.
 
 .. note:: Example above assumes that a copy of ``cops.pem`` for  **IdentityFile** is copied to where your ssh keys are.
 
-
 2. Set up Port Forward to COPS Server (AWS) through Bastion2
 ============================================================
 **Securely copy your ``cops.pem`` identity file from Bastion:**

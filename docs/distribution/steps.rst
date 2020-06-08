@@ -87,15 +87,28 @@ Must have a configuration file to run the following: :ref:`operations-generate-p
 
 We've named this pipeline ``bakery`` and passed in config file ``distirbution-pipeline.local.yml``.
 
-..  warning:: 
-    If a mismatch occurs between the **fly cli version** and **Concourse version**
-    this can be fixed with the ``fly -t <target_name> sync`` command.
+..  warning::
 
-    If it continues to block try running the below and then sync:
+    **Invalid Token Warning**
 
     .. code-block:: bash
 
-        fly -t cops-dev login -c http://localhost:8100 -u dev -p dev
+        could not find a valid token.
+        logging in to team 'main'
+
+        navigate to the following URL in your browser:
+
+            http://localhost:8100/login?fly_port=57012
+
+    | If navigating to the URL does not work, try:  
+    | ``ctrl+c`` and  ``fly -t cops-dev login -c http://localhost:8100 -u dev -p dev``
+
+    **Version Mismatch Warning**
+
+    If a mismatch occurs between the **fly cli version** and **Concourse version**
+    this can be fixed with the ``fly -t <target_name> sync`` command.
+
+
 
 **3. Confirm Pipeline Configurations.**
 
