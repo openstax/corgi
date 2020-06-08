@@ -9,7 +9,8 @@ const task = (taskArgs) => {
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
-  const bucketPrefix = 'apps/archive'
+  const codeVersionFromTag = imageSource.tag || 'version-unknown'
+  const bucketPrefix = `apps/archive/${codeVersionFromTag}`
 
   return {
     task: 'upload book',
