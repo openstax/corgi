@@ -46,10 +46,6 @@ def main():
         html_root = etree.parse(file)
         binder = reconstitute(file)
 
-        # It's important that we generate slug metadata in parallel with disassemble
-        # so that where ident_hash values are based upon potentially randomly
-        # generated UUIDs we can still use them as unique keys in JSON outputs
-        # without diverging
         slugs = extract_slugs_from_binder(binder)
 
     with open(baked_metdata_file, "r") as baked_json:
