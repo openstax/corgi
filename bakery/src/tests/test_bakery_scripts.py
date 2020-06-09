@@ -122,6 +122,10 @@ def test_disassemble_book(tmp_path):
     toc_output_tree = etree.parse(open(toc_output))
     nav = toc_output_tree.xpath("//xhtml:nav", namespaces=HTML_DOCUMENT_NAMESPACES)
     assert len(nav) == 1
+    toc_metadata_output = disassembled_output / "collection.toc-metadata.json"
+    assert toc_metadata_output.exists()
+    toc_metadata = json.load(open(toc_metadata_output, "r"))
+    assert toc_metadata.get("title") == "College Physics"
 
 def test_disassemble_book_empty_baked_metadata(tmp_path):
     """Test case for disassemble where there may not be associated metadata

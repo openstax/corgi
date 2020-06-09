@@ -54,7 +54,7 @@ def main():
 
     with open(baked_metdata_file, "r") as baked_json:
         baked_metadata = json.load(baked_json)
-        book_toc_metadata = baked_metadata.get(binder.id)
+        book_toc_metadata = baked_metadata.get(binder.ident_hash)
 
     nav = html_root.xpath("//xhtml:nav", namespaces=HTML_DOCUMENT_NAMESPACES)[0]
 
@@ -84,7 +84,7 @@ def main():
         if not head:
             head = etree.Element("head")
             root.insert(0, head)
-        
+
         style = etree.Element("style")
         script = etree.Element("script")
 
@@ -111,7 +111,7 @@ def main():
             /* Style footnotes so that they stand out */
             [role="doc-footnote"] { background-color: #ffcccc; border: 1px dashed #ff0000; }
             [role="doc-footnote"]:before { content: "FOOTNOTE " ; }
-            
+
             /* Show a permalink when hovering over a heading or paragraph */
             *:not(:hover) > a.-dev-permalinker { display: none; }
             * > a.-dev-permalinker {
