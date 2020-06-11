@@ -8,8 +8,6 @@ Docker swarm does not come with any "garbage collection" for dangling
 volumes or unused containers that have been created during updates or after 
 restarts.
 
-**To Do: Add Cronjob to run** ``docker prune``
-
 .. warning:: **This has caused issues where the host nodes run out of hard drive storage. To 
    prevent this we have created an** :term:`Ansible` **playbook to configure a cronjob on the server.**
 

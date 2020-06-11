@@ -16,7 +16,7 @@ Prerequisites
 
 .. code-block:: bash
 
-    $ git cllone git@github.com:openstax/output-producer-service.git
+    $ git clone git@github.com:openstax/output-producer-service.git
 
 3. Install Concourse fly cli
 ============================

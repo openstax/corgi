@@ -40,6 +40,7 @@ COPS at a Glance
    operations/cleaning_up_the_swarm
    operations/updating_bakery_scripts
    operations/generate_pipeline_config
+   operations/cli
 
 .. toctree::
    :maxdepth: 2
@@ -58,7 +59,6 @@ COPS at a Glance
 
    distribution/overview
    distribution/steps
-   distribution/cli
 
 .. toctree::
    :maxdepth: 2

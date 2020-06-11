@@ -35,11 +35,11 @@ To check the logs run:
 
 ## View the Docs
 
+For our documentation we use [Sphinx-docs](https://www.sphinx-doc.org/en/master/)
+and lives in the [./docs](./docs) directory.
+
 If you are currently running the entire stack you should be able to see the
 documentation by visiting [http://localhost:8000](http://localhost:8000).
-
-The documentation is built using [Sphinx-docs](https://www.sphinx-doc.org/en/master/)
-and lives in the [./docs](./docs) directory.
 
 The documentation is configured to watch for changes and re-build the documentation.
 This allows developers the ability to preview their documentation changes as they 
@@ -49,6 +49,25 @@ If you would like to run the documentation without the entire stack running you
 can do so by running:
 
     docker-compose up docs
+
+## Editing The Docs
+
+Edits are done in restructured text (rst). 
+
+Validate and update edits by running:
+```
+$ cd docs
+$ make html
+```
+
+If edits have been made to the Navigation and are not reflected, re-build the docker image:
+```
+$ cd output-producer-service
+$ docker-compose down
+$ docker-compose up
+```
+
+Note: Can be done in container or outside the container, with installed requirements.
 
 ## Run integration tests 
 
