@@ -6,6 +6,7 @@ from glob import glob
 from lxml import etree
 
 from cnxepub.html_parsers import HTML_DOCUMENT_NAMESPACES
+from cnxepub.collation import reconstitute
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(HERE, "data")
@@ -121,6 +122,10 @@ def test_disassemble_book(tmp_path):
     toc_output_tree = etree.parse(open(toc_output))
     nav = toc_output_tree.xpath("//xhtml:nav", namespaces=HTML_DOCUMENT_NAMESPACES)
     assert len(nav) == 1
+    toc_metadata_output = disassembled_output / "collection.toc-metadata.json"
+    assert toc_metadata_output.exists()
+    toc_metadata = json.load(open(toc_metadata_output, "r"))
+    assert toc_metadata.get("title") == "College Physics"
 
 def test_disassemble_book_empty_baked_metadata(tmp_path):
     """Test case for disassemble where there may not be associated metadata
@@ -197,8 +202,10 @@ def test_bake_book(tmp_path):
     input_raw_metadata = os.path.join(TEST_DATA_DIR, "collection.assembled-metadata.json")
     input_baked_xhtml = os.path.join(TEST_DATA_DIR, "collection.baked.xhtml")
     output_baked_book_metadata = tmp_path / "collection.toc-metadata.json"
-    input_baked_collection_id = os.path.join(TEST_DATA_DIR, "collection_id")
-    collection_id = open(input_baked_collection_id, "r").read().strip()
+
+    with open(input_baked_xhtml, "r") as baked_xhtml:
+        binder = reconstitute(baked_xhtml)
+        book_ident_hash = binder.ident_hash
 
     subprocess.run(
         [
@@ -206,8 +213,7 @@ def test_bake_book(tmp_path):
             bake_book_script,
             input_raw_metadata,
             input_baked_xhtml,
-            output_baked_book_metadata,
-            collection_id
+            output_baked_book_metadata
         ],
         cwd=HERE,
         check=True
@@ -215,10 +221,9 @@ def test_bake_book(tmp_path):
 
     baked_metadata = json.loads(output_baked_book_metadata.read_text())
 
-    assert isinstance(baked_metadata[collection_id]["tree"], dict) is True
-    assert 'contents' in baked_metadata[collection_id]["tree"].keys()
-    assert 'license' in baked_metadata[collection_id].keys()
-    assert baked_metadata[collection_id]["revised"] == "2019-08-30T16:35:37.569966-05:00"
-    assert baked_metadata[collection_id]["legacy_id"] == 'col11406'
+    assert isinstance(baked_metadata[book_ident_hash]["tree"], dict) is True
+    assert 'contents' in baked_metadata[book_ident_hash]["tree"].keys()
+    assert 'license' in baked_metadata[book_ident_hash].keys()
+    assert baked_metadata[book_ident_hash]["revised"] == "2019-08-30T16:35:37.569966-05:00"
     assert "College Physics" in \
-        baked_metadata[collection_id]["title"]
+        baked_metadata[book_ident_hash]["title"]

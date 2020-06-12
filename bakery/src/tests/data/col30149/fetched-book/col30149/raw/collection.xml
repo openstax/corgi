@@ -1,252 +1,758 @@
-<col:collection xmlns="http://cnx.rice.edu/collxml" xmlns:cnx="http://cnx.rice.edu/cnxml" xmlns:cnxorg="http://cnx.rice.edu/system-info" xmlns:md="http://cnx.rice.edu/mdml" xmlns:col="http://cnx.rice.edu/collxml" xml:lang="en">
+<col:collection xmlns="http://cnx.rice.edu/collxml" xmlns:cnx="http://cnx.rice.edu/cnxml" xmlns:cnxorg="http://cnx.rice.edu/system-info" xmlns:md="http://cnx.rice.edu/mdml" xmlns:col="http://cnx.rice.edu/collxml" xmlns:cnxml="http://cnx.rice.edu/cnxml" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:q="http://cnx.rice.edu/qml/1.0" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:bib="http://bibtexml.sf.net/" xmlns:cc="http://web.resource.org/cc/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xml:lang="en">
   <metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">
-    <!-- WARNING! The 'metadata' section is read only. Do not edit below. Changes to the metadata section in the source will not be saved. -->
-    <md:repository>https://legacy.cnx.org/content</md:repository>
-    <md:content-url>https://legacy.cnx.org/content/col30149/1.6</md:content-url>
-    <md:content-id>col30149</md:content-id>
-    <md:title>Business Law I Essentials</md:title>
-    <md:version>1.6</md:version>
-    <md:created>2019-09-09T08:24:49-05:00</md:created>
-    <md:revised>2019-11-26T12:25:47.829336-06:00</md:revised>
-    <md:language>en</md:language>
-    <md:license url="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike License</md:license>
-    <!-- For information on license requirements for use or modification, see license url in the above <md:license> element.
-           For information on formatting required attribution, see the URL:
-             CONTENT_URL/content_info#cnx_cite_header
-           where CONTENT_URL is the value provided above in the <md:content-url> element.
-      -->
-    <md:actors>
-      <md:person userid="cnxbusinesslaw">
-        <md:firstname>OpenStax</md:firstname>
-        <md:surname>Business Law</md:surname>
-        <md:fullname>OpenStax Business Law</md:fullname>
-        <md:email>info@openstax.org</md:email>
-      </md:person>
-    </md:actors>
-    <md:roles>
-      <md:role type="author">cnxbusinesslaw</md:role>
-      <md:role type="maintainer">cnxbusinesslaw</md:role>
-      <md:role type="licensor">cnxbusinesslaw</md:role>
-    </md:roles>
-    <md:abstract/>
-    <md:subjectlist>
-      <md:subject>Business</md:subject>
-    </md:subjectlist>
-  </metadata>
+  <!-- WARNING! The 'metadata' section is read only. Do not edit below.
+       Changes to the metadata section in the source will not be saved. -->
+
+  <md:repository>https://legacy.cnx.org/content</md:repository>
+  <md:content-url>https://legacy.cnx.org/content/col30149/1.8</md:content-url>
+  <md:content-id>col30149</md:content-id>
+  <md:title>Business Law I Essentials</md:title>
+  
+  
+  <md:version>1.8</md:version>
+  <md:created>2019/09/09 08:24:49.302 GMT-5</md:created>
+  <md:revised>2020/03/04 14:39:38.940 US/Central</md:revised>
+
+  <md:actors>
+    
+    
+    <md:person userid="cnxbusinesslaw">
+      <md:firstname>OpenStax</md:firstname>
+      <md:surname>Business Law</md:surname>
+      <md:fullname>OpenStax Business Law</md:fullname>
+      <md:email>info@openstax.org</md:email>
+    </md:person>
+    
+  </md:actors>
+  <md:roles>
+    <md:role type="author">cnxbusinesslaw</md:role>
+    <md:role type="maintainer">cnxbusinesslaw</md:role>
+    <md:role type="licensor">cnxbusinesslaw</md:role>
+    
+    
+  </md:roles>
+
+  <md:license url="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike License 4.0</md:license>
+  <!-- For information on license requirements for use or modification, see license url in the
+       above <md:license> element.
+       For information on formatting required attribution, see the URL:
+         CONTENT_URL/content_info#cnx_cite_header
+       where CONTENT_URL is the value provided above in the <md:content-url> element.
+  -->
+  
+  
+  
+  
+
+  
+
+  
+
+  <md:subjectlist>
+    <md:subject>Business</md:subject>
+  </md:subjectlist>
+
+  <md:abstract/>
+
+  <md:language>en</md:language>
+
+  
+
+  
+  
+  
+  
+  
+
+  <!-- WARNING! The 'metadata' section is read only. Do not edit above.
+       Changes to the metadata section in the source will not be saved. -->
+</metadata>
+
   <col:parameters>
-    <col:param name="print-style" value="business-ethics"/>
+    <col:param name="real-imaginary-notation" value="font"/>
+    <col:param name="and-or-notation" value="propositional-logic"/>
+    <col:param name="gradient-notation" value="text"/>
+    <col:param name="mean-notation" value="bar"/>
+    <col:param name="remainder-notation" value="text"/>
+    <col:param name="conjugate-notation" value="bar"/>
+    <col:param name="imaginary-i-notation" value="i"/>
+    <col:param name="scalar-product-notation" value="angle-bracket"/>
+    <col:param name="print-font-size" value="10pt"/>
+    <col:param name="curl-notation" value="text"/>
+    <col:param name="for-all-equation-layout" value="symbolic"/>
+    <col:param name="vector-notation" value="bold"/>
+    <col:param name="print-paper-size" value="8.5x11"/>
+    <col:param name="print-font" value="computer-modern"/>
+    <col:param name="print-style" value="business-ethics-prod"/>
+    <col:param name="print-paragraph-spacing" value="compact"/>
   </col:parameters>
+  
   <col:content>
-    <col:module document="m78967" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.2">
-      <md:title>Preface</md:title>
-    </col:module>
-    <col:subcollection>
-      <md:title>American Law, Legal Reasoning, and the Legal System</md:title>
-      <col:content>
-        <col:module document="m78875" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Introduction</md:title>
-        </col:module>
-        <col:module document="m78876" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Basic American Legal Principles</md:title>
-        </col:module>
-        <col:module document="m78877" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Sources and Types of Law</md:title>
-        </col:module>
-        <col:module document="m78878" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
-          <md:title>Important Business Laws and Regulations</md:title>
-        </col:module>
-      </col:content>
-    </col:subcollection>
-    <col:subcollection>
-      <md:title>Disputes and Dispute Settlement</md:title>
-      <col:content>
-        <col:module document="m78879" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Introduction</md:title>
-        </col:module>
-        <col:module document="m78880" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.8">
-          <md:title>Negotiation</md:title>
-        </col:module>
-        <col:module document="m78921" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
-          <md:title>Mediation</md:title>
-        </col:module>
-        <col:module document="m78882" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.4">
-          <md:title>Arbitration</md:title>
-        </col:module>
-      </col:content>
-    </col:subcollection>
-    <col:subcollection>
-      <md:title>Business Ethics and Social Responsibility</md:title>
-      <col:content>
-        <col:module document="m78883" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Introduction</md:title>
-        </col:module>
-        <col:module document="m78884" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
-          <md:title>Business Ethics</md:title>
-        </col:module>
-        <col:module document="m78885" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
-          <md:title>Social Responsibility</md:title>
-        </col:module>
-      </col:content>
-    </col:subcollection>
-    <col:subcollection>
-      <md:title>Business and the United States Constitution</md:title>
-      <col:content>
-        <col:module document="m78886" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
-          <md:title>Introduction</md:title>
-        </col:module>
-        <col:module document="m78922" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Commerce Clause</md:title>
-        </col:module>
-        <col:module document="m78888" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Constitutional Protections</md:title>
-        </col:module>
-      </col:content>
-    </col:subcollection>
-    <col:subcollection>
-      <md:title>Criminal Liability</md:title>
-      <col:content>
-        <col:module document="m78889" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
-          <md:title>Introduction</md:title>
-        </col:module>
-        <col:module document="m78890" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
-          <md:title>Common Business Crimes</md:title>
-        </col:module>
-        <col:module document="m78891" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Civil vs. Criminal Liability</md:title>
-        </col:module>
-      </col:content>
-    </col:subcollection>
-    <col:subcollection>
-      <md:title>The Tort System</md:title>
-      <col:content>
-        <col:module document="m78892" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Introduction</md:title>
-        </col:module>
-        <col:module document="m78893" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Intentional Torts and Negligence</md:title>
-        </col:module>
-        <col:module document="m78894" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
-          <md:title>Product and Strict Liability</md:title>
-        </col:module>
-      </col:content>
-    </col:subcollection>
-    <col:subcollection>
-      <md:title>Contract Law</md:title>
-      <col:content>
-        <col:module document="m78895" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Introduction</md:title>
-        </col:module>
-        <col:module document="m78896" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Agreement, Consideration, and Promissory Estoppel</md:title>
-        </col:module>
-        <col:module document="m78897" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Capacity and Legality</md:title>
-        </col:module>
-        <col:module document="m78898" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Breach of Contract and Remedies</md:title>
-        </col:module>
-      </col:content>
-    </col:subcollection>
-    <col:subcollection>
-      <md:title>Sales Contracts</md:title>
-      <col:content>
-        <col:module document="m78899" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Introduction</md:title>
-        </col:module>
-        <col:module document="m78900" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
-          <md:title>The Nature and Origins of Sales Contracts</md:title>
-        </col:module>
-        <col:module document="m78901" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
-          <md:title>Warranties and Sales Contracts</md:title>
-        </col:module>
-      </col:content>
-    </col:subcollection>
-    <col:subcollection>
-      <md:title>Employment and Labor Law</md:title>
-      <col:content>
-        <col:module document="m78902" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Introduction</md:title>
-        </col:module>
-        <col:module document="m78903" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
-          <md:title>Employment, Worker Protection, and Immigration Law</md:title>
-        </col:module>
-        <col:module document="m78904" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
-          <md:title>Labor Law</md:title>
-        </col:module>
-        <col:module document="m78905" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
-          <md:title>Equal Opportunity in Employment</md:title>
-        </col:module>
-      </col:content>
-    </col:subcollection>
-    <col:subcollection>
-      <md:title>Government Regulation</md:title>
-      <col:content>
-        <col:module document="m78906" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Introduction</md:title>
-        </col:module>
-        <col:module document="m78907" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Administrative Law</md:title>
-        </col:module>
-        <col:module document="m78908" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
-          <md:title>Regulatory Agencies</md:title>
-        </col:module>
-      </col:content>
-    </col:subcollection>
-    <col:subcollection>
-      <md:title>Antitrust Law</md:title>
-      <col:content>
-        <col:module document="m78909" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Introduction</md:title>
-        </col:module>
-        <col:module document="m78910" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
-          <md:title>History of Antitrust Law</md:title>
-        </col:module>
-        <col:module document="m78911" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Antitrust Laws</md:title>
-        </col:module>
-      </col:content>
-    </col:subcollection>
-    <col:subcollection>
-      <md:title>Unfair Trade Practices and the Federal Trade Commission</md:title>
-      <col:content>
-        <col:module document="m78912" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Introduction</md:title>
-        </col:module>
-        <col:module document="m78913" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
-          <md:title>Unfair Trade Practices</md:title>
-        </col:module>
-        <col:module document="m78914" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.4">
-          <md:title>The Federal Trade Commission</md:title>
-        </col:module>
-      </col:content>
-    </col:subcollection>
-    <col:subcollection>
-      <md:title>International Law</md:title>
-      <col:content>
-        <col:module document="m78915" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Introduction</md:title>
-        </col:module>
-        <col:module document="m78916" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
-          <md:title>Introduction to International Law</md:title>
-        </col:module>
-        <col:module document="m78917" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Sources and Practice of International Law</md:title>
-        </col:module>
-      </col:content>
-    </col:subcollection>
-    <col:subcollection>
-      <md:title>Securities Regulation</md:title>
-      <col:content>
-        <col:module document="m78918" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Introduction</md:title>
-        </col:module>
-        <col:module document="m78919" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
-          <md:title>Liability Under the Securities Act</md:title>
-        </col:module>
-        <col:module document="m78920" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
-          <md:title>The Framework of Securities Regulation</md:title>
-        </col:module>
-      </col:content>
-    </col:subcollection>
+    
+      <col:module document="m78967" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.2">
+        <md:title>Preface</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      
+        
+      <col:subcollection>
+        <md:title>American Law, Legal Reasoning, and the Legal System</md:title>
+        
+        
+        
+
+        <col:content>
+          
+    
+      <col:module document="m78875" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Introduction</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78876" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Basic American Legal Principles</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78877" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Sources and Types of Law</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78878" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
+        <md:title>Important Business Laws and Regulations</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+        </col:content>
+      </col:subcollection>
+    
+    
+      
+        
+      <col:subcollection>
+        <md:title>Disputes and Dispute Settlement</md:title>
+        
+        
+        
+
+        <col:content>
+          
+    
+      <col:module document="m78879" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Introduction</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78880" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.8">
+        <md:title>Negotiation</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78921" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
+        <md:title>Mediation</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78882" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.4">
+        <md:title>Arbitration</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+        </col:content>
+      </col:subcollection>
+    
+    
+      
+        
+      <col:subcollection>
+        <md:title>Business Ethics and Social Responsibility</md:title>
+        
+        
+        
+
+        <col:content>
+          
+    
+      <col:module document="m78883" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Introduction</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78884" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
+        <md:title>Business Ethics</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78885" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
+        <md:title>Social Responsibility</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+        </col:content>
+      </col:subcollection>
+    
+    
+      
+        
+      <col:subcollection>
+        <md:title>Business and the United States Constitution</md:title>
+        
+        
+        
+
+        <col:content>
+          
+    
+      <col:module document="m78886" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
+        <md:title>Introduction</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78922" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Commerce Clause</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78888" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Constitutional Protections</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+        </col:content>
+      </col:subcollection>
+    
+    
+      
+        
+      <col:subcollection>
+        <md:title>Criminal Liability</md:title>
+        
+        
+        
+
+        <col:content>
+          
+    
+      <col:module document="m78889" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
+        <md:title>Introduction</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78890" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
+        <md:title>Common Business Crimes</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78891" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Civil vs. Criminal Liability</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+        </col:content>
+      </col:subcollection>
+    
+    
+      
+        
+      <col:subcollection>
+        <md:title>The Tort System</md:title>
+        
+        
+        
+
+        <col:content>
+          
+    
+      <col:module document="m78892" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Introduction</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78893" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Intentional Torts and Negligence</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78894" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
+        <md:title>Product and Strict Liability</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+        </col:content>
+      </col:subcollection>
+    
+    
+      
+        
+      <col:subcollection>
+        <md:title>Contract Law</md:title>
+        
+        
+        
+
+        <col:content>
+          
+    
+      <col:module document="m78895" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Introduction</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78896" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Agreement, Consideration, and Promissory Estoppel</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78897" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Capacity and Legality</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78898" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Breach of Contract and Remedies</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+        </col:content>
+      </col:subcollection>
+    
+    
+      
+        
+      <col:subcollection>
+        <md:title>Sales Contracts</md:title>
+        
+        
+        
+
+        <col:content>
+          
+    
+      <col:module document="m78899" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Introduction</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78900" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
+        <md:title>The Nature and Origins of Sales Contracts</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78901" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
+        <md:title>Warranties and Sales Contracts</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+        </col:content>
+      </col:subcollection>
+    
+    
+      
+        
+      <col:subcollection>
+        <md:title>Employment and Labor Law</md:title>
+        
+        
+        
+
+        <col:content>
+          
+    
+      <col:module document="m78902" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Introduction</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78903" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
+        <md:title>Employment, Worker Protection, and Immigration Law</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78904" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
+        <md:title>Labor Law</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78905" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
+        <md:title>Equal Opportunity in Employment</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+        </col:content>
+      </col:subcollection>
+    
+    
+      
+        
+      <col:subcollection>
+        <md:title>Government Regulation</md:title>
+        
+        
+        
+
+        <col:content>
+          
+    
+      <col:module document="m78906" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Introduction</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78907" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Administrative Law</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78908" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
+        <md:title>Regulatory Agencies</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+        </col:content>
+      </col:subcollection>
+    
+    
+      
+        
+      <col:subcollection>
+        <md:title>Antitrust Law</md:title>
+        
+        
+        
+
+        <col:content>
+          
+    
+      <col:module document="m78909" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Introduction</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78910" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
+        <md:title>History of Antitrust Law</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78911" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Antitrust Laws</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+        </col:content>
+      </col:subcollection>
+    
+    
+      
+        
+      <col:subcollection>
+        <md:title>Unfair Trade Practices and the Federal Trade Commission</md:title>
+        
+        
+        
+
+        <col:content>
+          
+    
+      <col:module document="m78912" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Introduction</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78913" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
+        <md:title>Unfair Trade Practices</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78914" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.4">
+        <md:title>The Federal Trade Commission</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+        </col:content>
+      </col:subcollection>
+    
+    
+      
+        
+      <col:subcollection>
+        <md:title>International Law</md:title>
+        
+        
+        
+
+        <col:content>
+          
+    
+      <col:module document="m78915" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Introduction</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78916" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
+        <md:title>Introduction to International Law</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78917" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Sources and Practice of International Law</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+        </col:content>
+      </col:subcollection>
+    
+    
+      
+        
+      <col:subcollection>
+        <md:title>Securities Regulation</md:title>
+        
+        
+        
+
+        <col:content>
+          
+    
+      <col:module document="m78918" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Introduction</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78919" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.6">
+        <md:title>Liability Under the Securities Act</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+    
+      <col:module document="m78920" version="latest" repository="https://legacy.cnx.org/content" cnxorg:version-at-this-collection-version="1.5">
+        <md:title>The Framework of Securities Regulation</md:title>
+        
+        
+        
+      </col:module>
+        
+      
+    
+        </col:content>
+      </col:subcollection>
+    
   </col:content>
 </col:collection>
