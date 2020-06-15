@@ -34,8 +34,22 @@ const pipeline = (env) => {
         access_key_id: awsAccessKeyId,
         secret_access_key: awsSecretAccessKey
       }
+    },
+    {
+      name: 'ticker',
+      type: 'time',
+      source: {
+        interval: env.PIPELINE_TICK_INTERVAL
+      }
     }
   ]
+
+  const feederJob = {
+    name: 'feeder',
+    plan: [
+      { get: 'ticker', trigger: true }
+    ]
+  }
 
   const bakeryJob = {
     name: 'bakery',
@@ -68,7 +82,7 @@ const pipeline = (env) => {
   return {
     config: {
       resources: resources,
-      jobs: [bakeryJob]
+      jobs: [feederJob, bakeryJob]
     }
   }
 }
