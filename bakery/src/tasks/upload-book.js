@@ -3,15 +3,14 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
-  const { awsAccessKeyId, awsSecretAccessKey, bucketName } = taskArgs
+  const { awsAccessKeyId, awsSecretAccessKey, bucketName, codeVersion } = taskArgs
   const imageDefault = {
     name: 'openstax/cops-bakery-scripts',
     tag: 'master'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
-  const codeVersionFromTag = imageSource.tag || 'version-unknown'
-  const bucketPrefix = `apps/archive/${codeVersionFromTag}`
+  const bucketPrefix = `apps/archive/${codeVersion}`
 
   return {
     task: 'upload book',
