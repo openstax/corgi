@@ -55,7 +55,8 @@ const pipeline = (env) => {
       taskDisassembleBook({ image: { tag: lockedTag } }),
       taskJsonifyBook({ image: { tag: lockedTag } }),
       taskUploadBook({
-        bucketName: env.S3_DIST_BUCKET,
+        distBucketName: env.S3_DIST_BUCKET,
+        versionedBucketName: env.S3_VERSIONED_BUCKET,
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
         codeVersion: codeVersionFromTag,
