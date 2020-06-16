@@ -30,26 +30,26 @@ class Home(Page):
     class CreateJobModal(Region):
         _modal_cancel_button_locator = (By.CLASS_NAME, "job-cancel-button")
 
-        _modal_create_button_locator = (By.CSS_SELECTOR, "button:nth-child(3)")
+        _modal_create_button_locator = (By.CLASS_NAME, "create-button-start-job")
 
         _modal_collection_id_field_error_locator = (
-            By.CSS_SELECTOR,
-            "div:nth-child(1) > div.v-text-field__details",
+            By.CLASS_NAME,
+            "collection-id-error-text",
         )
 
         _modal_version_field_error_locator = (
-            By.CSS_SELECTOR,
-            "div:nth-child(2) > div > div > " "div.v-text-field__details",
+            By.CLASS_NAME,
+            "version-text-error",
         )
 
         _modal_style_field_error_locator = (
-            By.CSS_SELECTOR,
-            "div:nth-child(3) > div > div > div.v-text-field__details",
+            By.CLASS_NAME,
+            "style-error-text",
         )
 
         _modal_content_server_field_error_locator = (
-            By.CSS_SELECTOR,
-            "div:nth-child(4) > div > div > " "div.v-text-field__details",
+            By.CLASS_NAME,
+            "server-error-text",
         )
 
         @property

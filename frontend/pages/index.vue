@@ -41,8 +41,10 @@
                     <v-col cols="12" sm="3" md="3">
                       <v-text-field
                         v-model="collectionId"
-                        :rules="collectionRules"
+                        :rules="[v => !!v || 'Collection ID is required']"
+                        :items="collectionRules"
                         label="Collection ID"
+                        class="collection-id-error-text"
                         hint="e.g. col12345"
                         required
                       />
@@ -50,7 +52,10 @@
                     <v-col cols="12" sm="3" md="3">
                       <v-text-field
                         v-model="version"
+                        :rules="[v => !!v || '']"
+                        :items="versionItems"
                         label="Version"
+                        class="version-text-error"
                         hint="e.g. 19.2"
                         optional
                       />
@@ -62,6 +67,7 @@
                         :items="styleItems"
                         hint="e.g. microbiology"
                         label="Style"
+                        class="style-error-text"
                         required
                       />
                     </v-col>
@@ -71,6 +77,7 @@
                         :items="content_servers"
                         :rules="[v => !!v || 'Please select a server']"
                         label="Content Server"
+                        class="server-error-text"
                         required
                       />
                     </v-col>
@@ -87,7 +94,7 @@
               <v-btn @click="closeDialog()" class="job-cancel-button" color="blue darken-1" text>
                 Cancel
               </v-btn>
-              <v-btn @click="clickCollection(collectionId, contentServerId, version, style)" color="blue darken-1" text>
+              <v-btn @click="clickCollection(collectionId, contentServerId, version, style)" class="create-button-start-job" color="blue darken-1" text>
                 Create
               </v-btn>
             </v-card-actions>

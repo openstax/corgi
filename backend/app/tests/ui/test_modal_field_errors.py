@@ -19,10 +19,21 @@ def test_empty_modal_field_errors(selenium, base_url):
     modal.click_create_button()
 
     # THEN: The error messages are shown
-    assert "Collection ID is required" == modal.collection_id_field_error.text
-    assert "" == modal.version_field_error.text
-    assert "Style is required" == modal.style_field_error.text
-    assert "Please select a server" == modal.content_server_field_error.text
+    split_col_id = modal.collection_id_field_error.text.splitlines()
+    text_col_id = split_col_id[1]
+    assert "Collection ID is required" == text_col_id
+
+    split_version = modal.version_field_error.text
+    text_version = split_version.replace("Version", "")
+    assert "" == text_version
+
+    split_style = modal.style_field_error.text.splitlines()
+    text_style = split_style[1]
+    assert "Style is required" == text_style
+
+    split_server = modal.content_server_field_error.text.splitlines()
+    text_server = split_server[1]
+    assert "Please select a server" == text_server
 
     # AND: The modal does not close and remains open
     assert home.create_job_modal_is_open
