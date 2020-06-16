@@ -9,7 +9,7 @@ module.exports.command = commandUsage
 module.exports.aliases = ['t']
 module.exports.describe = 'builds a bakery pipeline task runnable with fly execute'
 module.exports.builder = yargs => {
-  yargs.usage(`Usage: ${process.env.CALLER || 'build'} ${commandUsage}`)
+  yargs.usage(`Usage: ${process.env.CALLER || 'build.js'} ${commandUsage}`)
   yargs.positional('taskname', {
     describe: 'name of task to build',
     choices: fs.readdirSync(taskDir).map(file => path.basename(file, '.js')),

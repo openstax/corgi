@@ -41,8 +41,8 @@ Install Concourse fly cli
 Steps
 *****
 
-Get Concourse Up
-================
+1. Get Concourse Up
+===================
 
 **1. Start the whole infrastructure, from root of output-proudcer-service**
 
@@ -60,8 +60,8 @@ You should see no pipelines running.
 
 -------
 
-Set Concourse Pipeline
-======================
+2. Set Concourse Pipeline
+=========================
 
 **1. Target the Concourse Fly Cli to the Concourse server:**
 
@@ -127,8 +127,8 @@ The Distribution pipeline has now been set up to take jobs.
 
 -------
 
-Trigger Pipeline Job
-====================
+3. Trigger Pipeline Job
+=======================
 
 [currently we are using distibution-feed.json file]
 
@@ -137,8 +137,8 @@ Trigger Pipeline Job
     - Enable version if not Concourse S3 resource will give a versioning error.
     - Bucket region/ access
 
-Watch Pipeline Work
-====================
+4. Watch Pipeline Work
+======================
 
 After about 30 seconds the job will start in your
 `local Concourse <http://localhost:8100>`_ and you will be able to see the job status on `http://localhost/ <http://localhost/>`_ .

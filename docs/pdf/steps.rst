@@ -128,8 +128,8 @@ Example PDF JOB parameters:
 
 **4. Press Create.**
 
-Watch Pipeline Work
-====================
+4. Watch Pipeline Work
+======================
 
 After about 30 seconds the job will start in your
 `local Concourse <http://localhost:8100>`_ and you will be able to see the job status on `http://localhost/ <http://localhost/>`_ .

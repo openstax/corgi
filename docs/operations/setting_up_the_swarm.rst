@@ -17,8 +17,6 @@ After set up of the servers with swarm we can then :ref:`operations-updating-the
 
 This document will assume that the server operating system is `Ubuntu 18.04 (Bionic Beaver) <https://releases.ubuntu.com/18.04.4/>`_ and proper user permissions and SSH access has already been established.
 
-[Clarify that this has all been set up by DevOps on Bastion/AWS Ec2?]
-
 .. note:: 
 
    This process is mostly done manual but we will be porting these steps over to 

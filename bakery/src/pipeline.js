@@ -1,30 +1,30 @@
-const fs = require('fs')	
-const path = require('path')	
-const yaml = require('js-yaml')	
+const fs = require('fs')
+const path = require('path')
+const yaml = require('js-yaml')
 
 const pipelineDir = path.resolve(__dirname, './pipelines')
 const envDir = path.resolve(__dirname, '../env')
-const commandUsage = 'pipeline <pipelinetype> <env> [options]...'	
+const commandUsage = 'pipeline <pipelinetype> <env> [options]...'
 
 module.exports.command = commandUsage
 module.exports.aliases = ['p']
 module.exports.describe = 'builds a pipeline runnable with fly command'
-module.exports.builder = yargs => {	
+module.exports.builder = yargs => {
   yargs.usage(`Usage: ${process.env.CALLER || 'build.js'} ${commandUsage}`)
-  yargs.positional('env', {
-    describe: 'pipeline environment',
+  yargs.positional('pipelinetype', {
+    describe: 'type of pipeline',
+    choices: fs.readdirSync(pipelineDir).map(file => path.basename(file, '.js')),
+    type: 'string'
+  }).positional('env', {
+    describe: 'name of environment',
     choices: fs.readdirSync(envDir).map(file => path.basename(file, '.json')),
     type: 'string'
-  }).positional('pipelinetype', {	
-    describe: 'pipeline type',	
-    choices: fs.readdirSync(pipelineDir).map(file => path.basename(file, '.js')),	
-    type: 'string'	
-  }).option('output', {	
-    alias: ['o'],	
-    describe: 'path to output file',	
-    defaultDescription: 'stdout',	
-    normalize: true,	
-    requiresArg: true,	
+  }).option('output', {
+    alias: ['o'],
+    describe: 'path to output file',
+    defaultDescription: 'stdout',
+    normalize: true,
+    requiresArg: true,
     type: 'string'
   }).option('tag', {
     alias: ['t'],
@@ -53,7 +53,7 @@ module.exports.handler = argv => {
     ? undefined
     : path.resolve(argv.output)
 
-  const pipelineArgs = argv.tag != null ? {...env, ...{IMAGE_TAG: argv.tag}} : env
+  const pipelineArgs = argv.tag != null ? { ...env, ...{ IMAGE_TAG: argv.tag } } : env
   const pipelineConfig = pipeline(pipelineArgs).config
 
   const forward = fs.readFileSync(path.resolve(__dirname, 'forward.yml'), { encoding: 'utf8' })
