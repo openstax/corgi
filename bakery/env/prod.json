@@ -5,5 +5,6 @@
   "S3_DIST_BUCKET": "ce-contents-cops-distribution-373045849756",
   "S3_VERSIONED_BUCKET": "",
   "VERSIONED_FILE": "",
-  "FEED_FILE_URL": "https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/approved-books.json"
+  "FEED_FILE_URL": "https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/approved-books.json",
+  "PIPELINE_TICK_INTERVAL": ""
 }
