@@ -29,7 +29,7 @@ const pipeline = (env) => {
       name: 's3-feed',
       type: 's3',
       source: {
-        bucket: env.S3_DIST_BUCKET,
+        bucket: env.S3_VERSIONED_BUCKET,
         versioned_file: env.VERSIONED_FILE,
         access_key_id: awsAccessKeyId,
         secret_access_key: awsSecretAccessKey
