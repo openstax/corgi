@@ -12,7 +12,7 @@ const task = (taskArgs) => {
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
   return {
-    task: 'look up feed',
+    task: 'dequeue book',
     config: {
       platform: 'linux',
       image_resource: {
@@ -27,15 +27,15 @@ const task = (taskArgs) => {
           '-cxe',
           dedent`
           exec 2> >(tee book/stderr >&2)
-          feed="s3-queue/${versionedFile}"
-          if [[ ! -s "$feed" ]]; then
-            echo "Feed is empty"
+          book="s3-queue/${versionedFile}"
+          if [[ ! -s "$book" ]]; then
+            echo "Book is empty"
             exit 1
           fi
-          echo -n "$(cat $feed | jq -r '.collection_id')" >book/collection_id
-          echo -n "$(cat $feed | jq -r '.server')" >book/server
-          echo -n "$(cat $feed | jq -r '.style')" >book/style
-          echo -n "$(cat $feed | jq -r '.version')" >book/version
+          echo -n "$(cat $book | jq -r '.collection_id')" >book/collection_id
+          echo -n "$(cat $book | jq -r '.server')" >book/server
+          echo -n "$(cat $book | jq -r '.style')" >book/style
+          echo -n "$(cat $book | jq -r '.version')" >book/version
         `
         ]
       }

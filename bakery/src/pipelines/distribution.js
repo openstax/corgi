@@ -1,6 +1,6 @@
 const pipeline = (env) => {
   const taskCheckFeed = require('../tasks/check-feed')
-  const taskLookUpFeed = require('../tasks/look-up-feed')
+  const taskDequeueBook = require('../tasks/dequeue-book')
   const taskFetchBook = require('../tasks/fetch-book')
   const taskAssembleBook = require('../tasks/assemble-book')
   const taskAssembleBookMeta = require('../tasks/assemble-book-metadata')
@@ -69,7 +69,7 @@ const pipeline = (env) => {
     plan: [
       { get: 's3-queue', trigger: true, version: 'every' },
       { get: 'cnx-recipes-output' },
-      taskLookUpFeed({
+      taskDequeueBook({
         versionedFile: versionedFile,
         image: { tag: lockedTag }
       }),
