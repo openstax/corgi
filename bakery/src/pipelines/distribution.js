@@ -1,4 +1,5 @@
 const pipeline = (env) => {
+  const taskCheckFeed = require('../tasks/check-feed')
   const taskLookUpFeed = require('../tasks/look-up-feed')
   const taskFetchBook = require('../tasks/fetch-book')
   const taskAssembleBook = require('../tasks/assemble-book')
@@ -13,6 +14,7 @@ const pipeline = (env) => {
   const awsAccessKeyId = env.ENV_NAME === 'local' ? env.S3_ACCESS_KEY_ID : '((aws-sandbox-secret-key-id))'
   const awsSecretAccessKey = env.ENV_NAME === 'local' ? env.S3_SECRET_ACCESS_KEY : '((aws-sandbox-secret-access-key))'
   const codeVersionFromTag = env.IMAGE_TAG || 'version-unknown'
+  const versionedFile = `${codeVersionFromTag}.${env.VERSIONED_FILE}`
 
   const lockedTag = env.IMAGE_TAG || 'master'
 
@@ -30,7 +32,8 @@ const pipeline = (env) => {
       type: 's3',
       source: {
         bucket: env.S3_VERSIONED_BUCKET,
-        versioned_file: env.VERSIONED_FILE,
+        versioned_file: versionedFile,
+        initial_version: 'initializing',
         access_key_id: awsAccessKeyId,
         secret_access_key: awsSecretAccessKey
       }
@@ -47,7 +50,17 @@ const pipeline = (env) => {
   const feederJob = {
     name: 'feeder',
     plan: [
-      { get: 'ticker', trigger: true }
+      { get: 'ticker', trigger: true },
+      taskCheckFeed({
+        awsAccessKeyId: awsAccessKeyId,
+        awsSecretAccessKey: awsSecretAccessKey,
+        feedFileUrl: env.FEED_FILE_URL,
+        versionedBucketName: env.S3_VERSIONED_BUCKET,
+        versionedFile: versionedFile,
+        codeVersion: codeVersionFromTag,
+        maxBooksPerRun: env.MAX_BOOKS_PER_TICK,
+        image: { tag: lockedTag }
+      })
     ]
   }
 
@@ -57,7 +70,7 @@ const pipeline = (env) => {
       { get: 's3-feed', trigger: true, version: 'every' },
       { get: 'cnx-recipes-output' },
       taskLookUpFeed({
-        versionedFile: env.VERSIONED_FILE,
+        versionedFile: versionedFile,
         image: { tag: lockedTag }
       }),
       taskFetchBook({ image: { tag: lockedTag } }),
