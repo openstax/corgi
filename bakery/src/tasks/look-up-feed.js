@@ -19,7 +19,7 @@ const task = (taskArgs) => {
         type: 'docker-image',
         source: imageSource
       },
-      inputs: [{ name: 's3-feed' }],
+      inputs: [{ name: 's3-queue' }],
       outputs: [{ name: 'book' }],
       run: {
         path: '/bin/bash',
@@ -27,7 +27,7 @@ const task = (taskArgs) => {
           '-cxe',
           dedent`
           exec 2> >(tee book/stderr >&2)
-          feed="s3-feed/${versionedFile}"
+          feed="s3-queue/${versionedFile}"
           if [[ ! -s "$feed" ]]; then
             echo "Feed is empty"
             exit 1

@@ -28,7 +28,7 @@ const pipeline = (env) => {
       }
     },
     {
-      name: 's3-feed',
+      name: 's3-queue',
       type: 's3',
       source: {
         bucket: env.S3_VERSIONED_BUCKET,
@@ -67,7 +67,7 @@ const pipeline = (env) => {
   const bakeryJob = {
     name: 'bakery',
     plan: [
-      { get: 's3-feed', trigger: true, version: 'every' },
+      { get: 's3-queue', trigger: true, version: 'every' },
       { get: 'cnx-recipes-output' },
       taskLookUpFeed({
         versionedFile: versionedFile,
