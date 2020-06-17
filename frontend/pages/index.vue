@@ -42,7 +42,6 @@
                       <v-text-field
                         v-model="collectionId"
                         :rules="[v => !!v || 'Collection ID is required']"
-                        :items="collectionRules"
                         label="Collection ID"
                         class="collection-id-error-text"
                         hint="e.g. col12345"
@@ -52,10 +51,7 @@
                     <v-col cols="12" sm="3" md="3">
                       <v-text-field
                         v-model="version"
-                        :rules="[v => !!v || '']"
-                        :items="versionItems"
                         label="Version"
-                        class="version-text-error"
                         hint="e.g. 19.2"
                         optional
                       />

@@ -37,11 +37,6 @@ class Home(Page):
             "collection-id-error-text",
         )
 
-        _modal_version_field_error_locator = (
-            By.CLASS_NAME,
-            "version-text-error",
-        )
-
         _modal_style_field_error_locator = (
             By.CLASS_NAME,
             "style-error-text",
@@ -71,10 +66,6 @@ class Home(Page):
         @property
         def collection_id_field_error(self):
             return self.find_element(*self._modal_collection_id_field_error_locator)
-
-        @property
-        def version_field_error(self):
-            return self.find_element(*self._modal_version_field_error_locator)
 
         @property
         def style_field_error(self):

@@ -23,10 +23,6 @@ def test_empty_modal_field_errors(selenium, base_url):
     text_col_id = split_col_id[1]
     assert "Collection ID is required" == text_col_id
 
-    split_version = modal.version_field_error.text
-    text_version = split_version.replace("Version", "")
-    assert "" == text_version
-
     split_style = modal.style_field_error.text.splitlines()
     text_style = split_style[1]
     assert "Style is required" == text_style
