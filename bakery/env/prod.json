@@ -6,5 +6,6 @@
   "S3_VERSIONED_BUCKET": "",
   "VERSIONED_FILE": "",
   "FEED_FILE_URL": "https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/approved-books.json",
-  "PIPELINE_TICK_INTERVAL": ""
+  "PIPELINE_TICK_INTERVAL": "",
+  "MAX_BOOKS_PER_TICK": ""
 }
