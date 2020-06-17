@@ -28,6 +28,10 @@ const task = (taskArgs) => {
           dedent`
           exec 2> >(tee book/stderr >&2)
           feed="s3-feed/${versionedFile}"
+          if [[ ! -s "$feed" ]]; then
+            echo "Feed is empty"
+            exit 1
+          fi
           echo -n "$(cat $feed | jq -r '.collection_id')" >book/collection_id
           echo -n "$(cat $feed | jq -r '.server')" >book/server
           echo -n "$(cat $feed | jq -r '.style')" >book/style
