@@ -28,10 +28,10 @@ const task = (taskArgs) => {
           dedent`
           exec 2> >(tee book/stderr >&2)
           feed="s3-feed/${versionedFile}"
-          echo -n "$(cat $feed | jq -r '.[-1].collection_id')" >book/collection_id
-          echo -n "$(cat $feed | jq -r '.[-1].server')" >book/server
-          echo -n "$(cat $feed | jq -r '.[-1].style')" >book/style
-          echo -n "$(cat $feed | jq -r '.[-1].version')" >book/version
+          echo -n "$(cat $feed | jq -r '.collection_id')" >book/collection_id
+          echo -n "$(cat $feed | jq -r '.server')" >book/server
+          echo -n "$(cat $feed | jq -r '.style')" >book/style
+          echo -n "$(cat $feed | jq -r '.version')" >book/version
         `
         ]
       }
