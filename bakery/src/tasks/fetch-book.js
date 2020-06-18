@@ -4,7 +4,8 @@ const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
   const imageDefault = {
-    name: 'openstax/nebuchadnezzar'
+    name: 'openstax/nebuchadnezzar',
+    tag: 'master'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
@@ -28,7 +29,7 @@ const task = (taskArgs) => {
           exec 2> >(tee fetched-book/stderr >&2)
           cd fetched-book
           book_dir="$(cat ../book/collection_id)"
-          yes | neb get -r -m -d "$book_dir/raw" "$(cat ../book/server)" "$(cat ../book/collection_id)" "$(cat ../book/version)"
+          yes | neb get -r -d "$book_dir/raw" "$(cat ../book/server)" "$(cat ../book/collection_id)" "$(cat ../book/version)"
         `
         ]
       }

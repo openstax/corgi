@@ -28,7 +28,7 @@ const stripLocalPrefix = imageArg => {
 }
 
 const imageDetailsFromArgs = (argv) => {
-  let imageDetails = null
+  let imageDetails = {}
   if (argv.image) {
     imageDetails = extractLocalImageDetails(argv.image)
   }
@@ -36,7 +36,7 @@ const imageDetailsFromArgs = (argv) => {
     imageDetails = { tag: argv.tag }
   }
   console.log(`extracted image details: ${JSON.stringify(imageDetails)}`)
-  return imageDetails == null ? null : { image: imageDetails }
+  return { image: imageDetails }
 }
 
 const extractLocalImageDetails = imageArg => {
@@ -48,15 +48,15 @@ const extractLocalImageDetails = imageArg => {
   let imageName, imageTag
   if (tagNameSeparatorIndex === -1) {
     imageName = imageArgStripped
-    imageTag = 'latest'
   } else {
     imageName = imageArgStripped.slice(0, tagNameSeparatorIndex)
     imageTag = imageArgStripped.slice(tagNameSeparatorIndex + 1)
   }
+  const maybeTag = imageTag == null ? {} : { tag: imageTag }
   const details = {
     registry: 'registry:5000',
     name: imageName,
-    tag: imageTag
+    ...maybeTag
   }
   return details
 }
@@ -680,16 +680,16 @@ const yargs = require('yargs')
       builder: yargs => {
         yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
         return yargs
-          .command(tasks.fetch())
-          .command(tasks.assemble())
-          .command(tasks.bake())
-          .command(tasks.mathify())
-          .command(tasks['build-pdf']())
-          .command(tasks['assemble-meta']())
-          .command(tasks.checksum())
-          .command(tasks['bake-meta']())
-          .command(tasks.disassemble())
-          .command(tasks.jsonify())
+          .command(tasks.fetch(commandUsage))
+          .command(tasks.assemble(commandUsage))
+          .command(tasks.bake(commandUsage))
+          .command(tasks.mathify(commandUsage))
+          .command(tasks['build-pdf'](commandUsage))
+          .command(tasks['assemble-meta'](commandUsage))
+          .command(tasks.checksum(commandUsage))
+          .command(tasks['bake-meta'](commandUsage))
+          .command(tasks.disassemble(commandUsage))
+          .command(tasks.jsonify(commandUsage))
           .option('d', {
             alias: 'data',
             demandOption: true,

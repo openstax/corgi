@@ -13,13 +13,15 @@ const pipeline = (env) => {
   const awsAccessKeyId = env.ENV_NAME === 'local' ? env.S3_ACCESS_KEY_ID : '((aws-sandbox-secret-key-id))'
   const awsSecretAccessKey = env.ENV_NAME === 'local' ? env.S3_SECRET_ACCESS_KEY : '((aws-sandbox-secret-access-key))'
 
+  const lockedTag = env.IMAGE_TAG || 'master'
+
   const resources = [
     {
       name: 'cnx-recipes-output',
       type: 'docker-image',
       source: {
         repository: 'openstax/cnx-recipes-output',
-        tag: env.IMAGE_TAG || 'latest'
+        tag: lockedTag
       }
     },
     {
@@ -41,21 +43,21 @@ const pipeline = (env) => {
       { get: 'cnx-recipes-output' },
       taskLookUpFeed({
         versionedFile: env.VERSIONED_FILE,
-        image: { tag: env.IMAGE_TAG }
+        image: { tag: lockedTag }
       }),
-      taskFetchBook({ image: { tag: env.IMAGE_TAG } }),
-      taskAssembleBook({ image: { tag: env.IMAGE_TAG } }),
-      taskAssembleBookMeta({ image: { tag: env.IMAGE_TAG } }),
-      taskBakeBook({ image: { tag: env.IMAGE_TAG } }),
-      taskBakeBookMeta({ image: { tag: env.IMAGE_TAG } }),
-      taskChecksumBook({ image: { tag: env.IMAGE_TAG } }),
-      taskDisassembleBook({ image: { tag: env.IMAGE_TAG } }),
-      taskJsonifyBook({ image: { tag: env.IMAGE_TAG } }),
+      taskFetchBook({ image: { tag: lockedTag } }),
+      taskAssembleBook({ image: { tag: lockedTag } }),
+      taskAssembleBookMeta({ image: { tag: lockedTag } }),
+      taskBakeBook({ image: { tag: lockedTag } }),
+      taskBakeBookMeta({ image: { tag: lockedTag } }),
+      taskChecksumBook({ image: { tag: lockedTag } }),
+      taskDisassembleBook({ image: { tag: lockedTag } }),
+      taskJsonifyBook({ image: { tag: lockedTag } }),
       taskUploadBook({
         bucketName: env.S3_DIST_BUCKET,
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
-        image: { tag: env.IMAGE_TAG }
+        image: { tag: lockedTag }
       })
     ]
   }

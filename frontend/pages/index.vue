@@ -16,7 +16,7 @@
             <v-btn
               v-on="on"
               color="primary"
-              class="mb-3"
+              class="mb-3 create-job-button"
               dark
               large
               tile
@@ -27,7 +27,7 @@
               </v-icon>
             </v-btn>
           </template>
-          <v-card>
+          <v-card class="job-modal">
             <v-card-title class="headline grey lighten-2" primary-title>
               <v-icon class="mr-1" large>
                 mdi-file-document-box-plus-outline
@@ -84,7 +84,7 @@
             <v-divider />
             <v-card-actions>
               <v-spacer />
-              <v-btn @click="closeDialog()" color="blue darken-1" text>
+              <v-btn @click="closeDialog()" class="job-cancel-button" color="blue darken-1" text>
                 Cancel
               </v-btn>
               <v-btn @click="clickCollection(collectionId, contentServerId, version, style)" color="blue darken-1" text>
