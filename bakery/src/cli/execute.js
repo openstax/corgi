@@ -680,16 +680,16 @@ const yargs = require('yargs')
       builder: yargs => {
         yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
         return yargs
-          .command(tasks.fetch())
-          .command(tasks.assemble())
-          .command(tasks.bake())
-          .command(tasks.mathify())
-          .command(tasks['build-pdf']())
-          .command(tasks['assemble-meta']())
-          .command(tasks.checksum())
-          .command(tasks['bake-meta']())
-          .command(tasks.disassemble())
-          .command(tasks.jsonify())
+          .command(tasks.fetch(commandUsage))
+          .command(tasks.assemble(commandUsage))
+          .command(tasks.bake(commandUsage))
+          .command(tasks.mathify(commandUsage))
+          .command(tasks['build-pdf'](commandUsage))
+          .command(tasks['assemble-meta'](commandUsage))
+          .command(tasks.checksum(commandUsage))
+          .command(tasks['bake-meta'](commandUsage))
+          .command(tasks.disassemble(commandUsage))
+          .command(tasks.jsonify(commandUsage))
           .option('d', {
             alias: 'data',
             demandOption: true,
