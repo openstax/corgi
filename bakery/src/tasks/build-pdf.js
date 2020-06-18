@@ -5,7 +5,8 @@ const { constructImageSource } = require('../task-util/task-util')
 const task = (taskArgs) => {
   const { bucketName } = taskArgs
   const imageDefault = {
-    name: 'openstax/princexml'
+    name: 'openstax/princexml',
+    tag: 'master'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })

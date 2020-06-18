@@ -5,7 +5,8 @@ const { constructImageSource } = require('../task-util/task-util')
 const task = (taskArgs) => {
   const { versionedFile } = taskArgs
   const imageDefault = {
-    name: 'openstax/cops-bakery-scripts'
+    name: 'openstax/cops-bakery-scripts',
+    tag: 'master'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })

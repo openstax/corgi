@@ -36,6 +36,24 @@ const formatSubprocessOutput = (result) => {
   `
 }
 
+const sourceObjs = (obj) => {
+  const sources = []
+  if (typeof obj !== 'object') { return sources }
+  if (obj instanceof Array) {
+    for (const subobj of obj) {
+      sources.push(...sourceObjs(subobj))
+    }
+  }
+  if (obj.type != null && obj.type === 'docker-image') {
+    sources.push(obj.source)
+  } else {
+    for (const key of Object.keys(obj)) {
+      sources.push(...sourceObjs(obj[key]))
+    }
+  }
+  return sources
+}
+
 test('build pipelines', async t => {
   const envs = (await fs.readdir('env')).map(file => path.basename(file, '.json'))
   const pipelines = (await fs.readdir('src/pipelines')).map(file => path.basename(file, '.js'))
@@ -57,25 +75,26 @@ test('build pipelines', async t => {
   t.pass()
 })
 
-test('pin pipeline tasks to versions', async t => {
-  const sourceObjs = (obj) => {
-    const sources = []
-    if (typeof obj !== 'object') { return sources }
-    if (obj instanceof Array) {
-      for (const subobj of obj) {
-        sources.push(...sourceObjs(subobj))
-      }
-    }
-    if (obj.type != null && obj.type === 'docker-image') {
-      sources.push(obj.source)
-    } else {
-      for (const key of Object.keys(obj)) {
-        sources.push(...sourceObjs(obj[key]))
-      }
-    }
-    return sources
-  }
+test('default tag is master', async t => {
+  let pipelineOut = ''
+  const buildPipeline = spawn('./build', [
+    'pipeline',
+    'pdf',
+    'prod'
+  ])
+  buildPipeline.stdout.on('data', (data) => {
+    pipelineOut += data.toString()
+  })
+  const buildPipelineResult = await completion(buildPipeline)
 
+  const obj = yaml.safeLoad(pipelineOut)
+  const sources = sourceObjs(obj)
+  for (const source of sources) {
+    t.is(source.tag, 'master', formatSubprocessOutput(buildPipelineResult))
+  }
+})
+
+test('pin pipeline tasks to versions', async t => {
   const customTag = 'my-custom-tag'
   let pipelineOut = ''
   const buildPipeline = spawn('./build', [
