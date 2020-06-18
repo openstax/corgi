@@ -1,19 +1,25 @@
-.. _setup-local-qa-cops-testing:
+.. _qa-testing-set-up:
 
-========================================================
-Setting up local qa cops test environs (will be updated)
-========================================================
+################################
+Local QA Environment Setup (WIP)
+################################
 
+*********
 Objective
----------
+*********
 
 Get familiar with Concourse by setting up the bakery-pipeline locally.
 This is the pipeline which is used under the hood for `Content Output Producer (COPS) <https://cops.openstax.org/>`_
 
-Generate a pipeline configuration file
---------------------------------------
+*****
+Steps
+*****
 
-There is a bakery directory with a ``pipeline.local.yml`` which can be used to configure your local Concourse. Alternatively, if you want to customize some settings (e.g. provide AWS credentials), you can update the corresponding settings in ``bakery/env/local.json`` and generate an updated pipeline configuration:
+Generate a pipeline configuration file
+======================================
+
+There is a bakery directory with a ``pipeline.local.yml`` which can be used to configure your local Concourse. 
+Alternatively, if you want to customize some settings (e.g. provide AWS credentials), you can update the corresponding settings in ``bakery/env/local.json`` and generate an updated pipeline configuration:
 
 .. code-block:: bash
 
