@@ -3,7 +3,7 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
-  const { versionedFile } = taskArgs
+  const { queueFilename } = taskArgs
   const imageDefault = {
     name: 'openstax/cops-bakery-scripts',
     tag: 'master'
@@ -12,14 +12,14 @@ const task = (taskArgs) => {
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
   return {
-    task: 'look up feed',
+    task: 'dequeue book',
     config: {
       platform: 'linux',
       image_resource: {
         type: 'docker-image',
         source: imageSource
       },
-      inputs: [{ name: 's3-feed' }],
+      inputs: [{ name: 's3-queue' }],
       outputs: [{ name: 'book' }],
       run: {
         path: '/bin/bash',
@@ -27,11 +27,15 @@ const task = (taskArgs) => {
           '-cxe',
           dedent`
           exec 2> >(tee book/stderr >&2)
-          feed="s3-feed/${versionedFile}"
-          echo -n "$(cat $feed | jq -r '.[-1].collection_id')" >book/collection_id
-          echo -n "$(cat $feed | jq -r '.[-1].server')" >book/server
-          echo -n "$(cat $feed | jq -r '.[-1].style')" >book/style
-          echo -n "$(cat $feed | jq -r '.[-1].version')" >book/version
+          book="s3-queue/${queueFilename}"
+          if [[ ! -s "$book" ]]; then
+            echo "Book is empty"
+            exit 1
+          fi
+          echo -n "$(cat $book | jq -r '.collection_id')" >book/collection_id
+          echo -n "$(cat $book | jq -r '.server')" >book/server
+          echo -n "$(cat $book | jq -r '.style')" >book/style
+          echo -n "$(cat $book | jq -r '.version')" >book/version
         `
         ]
       }
