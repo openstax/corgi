@@ -3,7 +3,7 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
-  const { awsAccessKeyId, awsSecretAccessKey, feedFileUrl, codeVersion, versionedBucketName, versionedFile, maxBooksPerRun } = taskArgs
+  const { awsAccessKeyId, awsSecretAccessKey, feedFileUrl, codeVersion, queueStateBucket, queueFilename, maxBooksPerRun } = taskArgs
   const imageDefault = {
     name: 'openstax/cops-bakery-scripts',
     tag: 'master'
@@ -29,7 +29,7 @@ const task = (taskArgs) => {
           '-cxe',
           dedent`
           curl ${feedFileUrl} -o book-feed.json
-          python /code/scripts/check-feed.py book-feed.json "${codeVersion}" "${versionedBucketName}" "${versionedFile}" "${maxBooksPerRun}"
+          python /code/scripts/check-feed.py book-feed.json "${codeVersion}" "${queueStateBucket}" "${queueFilename}" "${maxBooksPerRun}"
         `
         ]
       }

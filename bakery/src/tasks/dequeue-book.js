@@ -3,7 +3,7 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
-  const { versionedFile } = taskArgs
+  const { queueFilename } = taskArgs
   const imageDefault = {
     name: 'openstax/cops-bakery-scripts',
     tag: 'master'
@@ -27,7 +27,7 @@ const task = (taskArgs) => {
           '-cxe',
           dedent`
           exec 2> >(tee book/stderr >&2)
-          book="s3-queue/${versionedFile}"
+          book="s3-queue/${queueFilename}"
           if [[ ! -s "$book" ]]; then
             echo "Book is empty"
             exit 1

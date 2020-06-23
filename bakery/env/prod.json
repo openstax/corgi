@@ -3,8 +3,8 @@
   "COPS_TARGET": "https://cops.openstax.org/api",
   "S3_PDF_BUCKET": "ce-pdf-spike",
   "S3_DIST_BUCKET": "ce-contents-cops-distribution-373045849756",
-  "S3_VERSIONED_BUCKET": "",
-  "VERSIONED_FILE": "",
+  "S3_QUEUE_STATE_BUCKET": "",
+  "QUEUE_FILENAME": "",
   "FEED_FILE_URL": "https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/approved-books.json",
   "PIPELINE_TICK_INTERVAL": "",
   "MAX_BOOKS_PER_TICK": ""

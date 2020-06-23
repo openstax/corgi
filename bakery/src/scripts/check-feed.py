@@ -7,8 +7,8 @@ import botocore
 def main():
     feed_json = Path(sys.argv[1]).resolve(strict=True)
     code_version = sys.argv[2]
-    versioned_s3_bucket_name = sys.argv[3]
-    versioned_file = sys.argv[4]
+    queue_state_bucket = sys.argv[3]
+    queue_filename = sys.argv[4]
     max_books_per_run = int(sys.argv[5])
 
     with open(feed_json, 'r') as feed_file:
@@ -30,9 +30,9 @@ def main():
         bucket_key = f"{code_version}/{complete_filename}"
 
         try:
-            print(f"Checking for s3://{versioned_s3_bucket_name}/{bucket_key}")
+            print(f"Checking for s3://{queue_state_bucket}/{bucket_key}")
             s3_client.head_object(
-                Bucket=versioned_s3_bucket_name,
+                Bucket=queue_state_bucket,
                 Key=bucket_key
             )
         except botocore.exceptions.ClientError as error:
@@ -40,8 +40,8 @@ def main():
             if error_code == '404':
                 print(f"Found feed entry to build: {book}")
                 s3_client.put_object(
-                    Bucket=versioned_s3_bucket_name,
-                    Key=versioned_file,
+                    Bucket=queue_state_bucket,
+                    Key=queue_filename,
                     Body=json.dumps(book)
                 )
                 books_queued += 1

@@ -3,8 +3,8 @@
   "COPS_TARGET": "https://cops-staging.openstax.org/api",
   "S3_PDF_BUCKET": "ce-cops-staging",
   "S3_DIST_BUCKET": "",
-  "S3_VERSIONED_BUCKET": "",
-  "VERSIONED_FILE": "",
+  "S3_QUEUE_STATE_BUCKET": "",
+  "QUEUE_FILENAME": "",
   "FEED_FILE_URL": "",
   "PIPELINE_TICK_INTERVAL": "",
   "MAX_BOOKS_PER_TICK": ""

@@ -3,14 +3,14 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
-  const { awsAccessKeyId, awsSecretAccessKey, distBucketName, versionedBucketName, codeVersion } = taskArgs
+  const { awsAccessKeyId, awsSecretAccessKey, distBucket, queueStateBucket, codeVersion } = taskArgs
   const imageDefault = {
     name: 'openstax/cops-bakery-scripts',
     tag: 'master'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
-  const bucketPrefix = `apps/archive/${codeVersion}`
+  const distBucketPrefix = `apps/archive/${codeVersion}`
 
   return {
     task: 'upload book',
@@ -48,11 +48,11 @@ const task = (taskArgs) => {
           cp "$book_dir/collection.toc.xhtml" "$target_dir/$book_uuid@$book_version.xhtml"
           for jsonfile in "$book_dir/"*@*.json; do cp "$jsonfile" "$target_dir/$(basename $jsonfile)"; done;
           for xhtmlfile in "$book_dir/"*@*.xhtml; do cp "$xhtmlfile" "$target_dir/$(basename $xhtmlfile)"; done;
-          aws s3 cp --recursive "$target_dir" "s3://${distBucketName}/${bucketPrefix}/contents"
-          python /code/scripts/copy-resources-s3.py "$resources_dir" "${distBucketName}" "${bucketPrefix}/resources"
+          aws s3 cp --recursive "$target_dir" "s3://${distBucket}/${distBucketPrefix}/contents"
+          python /code/scripts/copy-resources-s3.py "$resources_dir" "${distBucket}" "${distBucketPrefix}/resources"
           complete_filename=".$collection_id@$book_legacy_version.complete"
           date -Iseconds > "/tmp/$complete_filename"
-          aws s3 cp "/tmp/$complete_filename" "s3://${versionedBucketName}/${codeVersion}/$complete_filename"
+          aws s3 cp "/tmp/$complete_filename" "s3://${queueStateBucket}/${codeVersion}/$complete_filename"
         `
         ]
       }

@@ -14,7 +14,7 @@ const pipeline = (env) => {
   const awsAccessKeyId = env.ENV_NAME === 'local' ? env.S3_ACCESS_KEY_ID : '((aws-sandbox-secret-key-id))'
   const awsSecretAccessKey = env.ENV_NAME === 'local' ? env.S3_SECRET_ACCESS_KEY : '((aws-sandbox-secret-access-key))'
   const codeVersionFromTag = env.IMAGE_TAG || 'version-unknown'
-  const versionedFile = `${codeVersionFromTag}.${env.VERSIONED_FILE}`
+  const queueFilename = `${codeVersionFromTag}.${env.QUEUE_FILENAME}`
 
   const lockedTag = env.IMAGE_TAG || 'master'
 
@@ -31,8 +31,8 @@ const pipeline = (env) => {
       name: 's3-queue',
       type: 's3',
       source: {
-        bucket: env.S3_VERSIONED_BUCKET,
-        versioned_file: versionedFile,
+        bucket: env.S3_QUEUE_STATE_BUCKET,
+        versioned_file: queueFilename,
         initial_version: 'initializing',
         access_key_id: awsAccessKeyId,
         secret_access_key: awsSecretAccessKey
@@ -55,8 +55,8 @@ const pipeline = (env) => {
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
         feedFileUrl: env.FEED_FILE_URL,
-        versionedBucketName: env.S3_VERSIONED_BUCKET,
-        versionedFile: versionedFile,
+        queueStateBucket: env.S3_QUEUE_STATE_BUCKET,
+        queueFilename: queueFilename,
         codeVersion: codeVersionFromTag,
         maxBooksPerRun: env.MAX_BOOKS_PER_TICK,
         image: { tag: lockedTag }
@@ -70,7 +70,7 @@ const pipeline = (env) => {
       { get: 's3-queue', trigger: true, version: 'every' },
       { get: 'cnx-recipes-output' },
       taskDequeueBook({
-        versionedFile: versionedFile,
+        queueFilename: queueFilename,
         image: { tag: lockedTag }
       }),
       taskFetchBook({ image: { tag: lockedTag } }),
@@ -82,8 +82,8 @@ const pipeline = (env) => {
       taskDisassembleBook({ image: { tag: lockedTag } }),
       taskJsonifyBook({ image: { tag: lockedTag } }),
       taskUploadBook({
-        distBucketName: env.S3_DIST_BUCKET,
-        versionedBucketName: env.S3_VERSIONED_BUCKET,
+        distBucket: env.S3_DIST_BUCKET,
+        queueStateBucket: env.S3_QUEUE_STATE_BUCKET,
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
         codeVersion: codeVersionFromTag,

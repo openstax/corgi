@@ -75,13 +75,13 @@ while others pertain only to it:
 
 * ``S3_ACCESS_KEY_ID``: AWS credential for S3 access
 * ``S3_SECRET_ACCESS_KEY``: AWS credential for S3 access
-* ``VERSIONED_FILE``: A filename to use for the versioned S3 file
+* ``QUEUE_FILENAME``: A filename to use for the versioned S3 file
 * ``S3_DIST_BUCKET``: The S3 bucket where the pipeline should upload content (e.g. JSON and XHTML files)
-* ``S3_VERSIONED_BUCKET``: The S3 bucket where the pipeline will create files of two forms:
+* ``S3_QUEUE_STATE_BUCKET``: The S3 bucket where the pipeline will create files of two forms:
 
     * ``<code version>/.<collection_id>@<version>.complete``: These are code version and book specific
       files indicating completion of a build. Their content inludes an ISO-8601 timestamp of when the ``upload-task`` created and uploaded the marker file.
-    * ``<code version>.<VERSIONED_FILE>``: The code version specific instance of a versioned file used
+    * ``<code version>.<QUEUE_FILENAME>``: The code version specific instance of a versioned file used
       by the ``feeder`` and ``bakery`` jobs.
 
 * ``FEED_FILE_URL``: The URL for the input JSON feed
@@ -92,8 +92,8 @@ while others pertain only to it:
   the ``check-feed`` task in the ``feeder`` job.
 
 .. important::
-    The value of ``VERSIONED_FILE`` should be selected such that the file ``<code version>.<VERSIONED_FILE>`` in
-    ``S3_VERSIONED_BUCKET`` has never existed prior to the pipeline being created. The reason being otherwise even "deleting"
+    The value of ``QUEUE_FILENAME`` should be selected such that the file ``<code version>.<QUEUE_FILENAME>`` in
+    ``S3_QUEUE_STATE_BUCKET`` has never existed prior to the pipeline being created. The reason being otherwise even "deleting"
     a file will cause Concourse to see a version preceding the delete, and it will pick it up as a
     job. In production this will be less of a  concern since only pipelines will write to the environment.
     However, for development you can adopt a convention such as ``distribution-queue-<your initials>-<nonce>.json``
@@ -112,8 +112,8 @@ S3 to host your feed file):
         "S3_ACCESS_KEY_ID": "MODIFY ME",
         "S3_SECRET_ACCESS_KEY": "MODIFY_ME",
         "S3_DIST_BUCKET": "ce-rap-dev-dist1",
-        "S3_VERSIONED_BUCKET": "ce-rap-dev-dist2",
-        "VERSIONED_FILE": "distribution-queue-abc-1.json",
+        "S3_QUEUE_STATE_BUCKET": "ce-rap-dev-dist2",
+        "QUEUE_FILENAME": "distribution-queue-abc-1.json",
         "FEED_FILE_URL": "https://ce-rap-dev-dist2.s3.amazonaws.com/distribution-feed.json",
         "PIPELINE_TICK_INTERVAL": "20m",
         "MAX_BOOKS_PER_TICK": "3"
