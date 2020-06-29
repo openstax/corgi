@@ -32,29 +32,6 @@ Prerequisites
 Generate Configuration File
 ***************************
 
-1. Fill in Environment File
-===========================
-
-Assuming set up for local development fill out ``bakery/env/local.json``.
-
-**For PDF Pipeline:**
-
-.. code-block::
-
-    "S3_PDF_BUCKET": "my-bucket"
-
-**For Distribution Pipeline:**
-
-.. code-block::
-
-    "S3_DIST_BUCKET": "ce-contents-cops-distribution-373045849756",
-    "VERSIONED_FILE": "distribution_feed.json"
-
-[changed above because ``ce-contents-cops-distribution-373045849756`` is the "production bucket tied to cloudfront]
-
-2. Generate Configuration File
-==============================
-
 Generate pipeline configuration file with output flag ``-o``. If no output file is given it will stdout.
 
 .. code-block:: bash
@@ -62,21 +39,15 @@ Generate pipeline configuration file with output flag ``-o``. If no output file 
     $ cd bakery
     $ ./build pipeline distribution local -o distribution-pipeline.local.yml
 
-
-3. Setup Pipeline with Configurations
-=====================================
-
-**Quick Command:**
+For command usage:
 
 .. code-block:: bash
-    
-    $ cd bakery
-    $ fly -t cops-dev sp -p <pipeline_name> -c <config_file>
 
-- *pipeline_name*: can be anything
-- *config_file*: generated file from previous step
+    $ ./build pipeline -help
 
-**Complete Steps to set up pipelines:**
+This generated file will be used to configure the Concourse pipeline, with the ``set-pipeline`` command.
+
+**Complete steps to set up pipelines:**
 
 - :ref:`pdf-pipeline-steps`
 - :ref:`distribution-pipeline-steps`
