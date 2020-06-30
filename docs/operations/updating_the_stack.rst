@@ -67,7 +67,16 @@ docker-compose file.
       ProxyJump bastion2
       ForwardAgent yes
 
+You can copy down your ``cops.pem`` into your ``~/.ssh`` from bastion2 by:
+
+.. code-block:: bash
+
+   $ cd ~/.ssh/
+   $ scp <user>@bastion2:~/.ssh/cops.pem .
+
 .. note:: Example above assumes that a copy of ``cops.pem`` for  **IdentityFile** is copied to where your ssh keys are.
+
+
 
 ----
 
@@ -116,8 +125,13 @@ Load staging environment variables (DOMAIN, STACK_NAME, TRAEFIK_TAG) with script
 
 .. code-block:: bash
 
-   source ./script/vars.staging.sh
+   $ source ./script/vars.staging.sh
 
+Check the staging environment variables:
+
+.. code-block:: bash
+
+   $ env
 
 Select Tag to Pin Images
 ------------------------
@@ -172,7 +186,6 @@ Deploy to staging using the following script:
 
 3. Promote Staging to Production
 ================================
-
 Ensure SSH tunnel to COPS is set up and you are in a *new terminal* to communicate with the swarm manager node with previous steps.
 
 There is no need to set any environment variables for production or pick a tag. 
