@@ -1,6 +1,9 @@
-FROM python:3.7-stretch
+FROM python:3.7-slim
 
 LABEL maintainer="OpenStax Content Engineering"
+
+RUN apt update
+RUN apt install -y build-essential libicu-dev pkg-config libmagic1 mime-support wget
 
 COPY ./requirements.txt /code/
 WORKDIR /code/
