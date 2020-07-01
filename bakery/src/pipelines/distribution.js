@@ -10,6 +10,7 @@ const pipeline = (env) => {
   const taskDisassembleBook = require('../tasks/disassemble-book')
   const taskJsonifyBook = require('../tasks/jsonify-book')
   const taskUploadBook = require('../tasks/upload-book')
+  const taskValidateXhtml = require('../tasks/validate-xhtml')
 
   const awsAccessKeyId = env.ENV_NAME === 'local' ? env.S3_ACCESS_KEY_ID : '((aws-sandbox-secret-key-id))'
   const awsSecretAccessKey = env.ENV_NAME === 'local' ? env.S3_SECRET_ACCESS_KEY : '((aws-sandbox-secret-access-key))'
@@ -82,6 +83,11 @@ const pipeline = (env) => {
       taskChecksumBook({ image: { tag: lockedTag } }),
       taskDisassembleBook({ image: { tag: lockedTag } }),
       taskJsonifyBook({ image: { tag: lockedTag } }),
+      taskValidateXhtml({
+        image: { tag: lockedTag },
+        inputSource: 'jsonified-book',
+        inputPath: 'jsonified/*@*.xhtml'
+      }),
       taskUploadBook({
         distBucket: env.S3_DIST_BUCKET,
         queueStateBucket: env.S3_QUEUE_STATE_BUCKET,

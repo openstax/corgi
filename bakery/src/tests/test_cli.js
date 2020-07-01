@@ -154,6 +154,16 @@ test('stable flow in pdf and distribution pipeline', async t => {
   const assembleResult = await completion(assemble)
   t.truthy(fs.existsSync(`${outputDir}/${bookId}/assembled-book/${bookId}/collection.assembled.xhtml`), formatSubprocessOutput(assembleResult))
 
+  const assembleValidateXhtml = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    'validate-xhtml',
+    bookId,
+    'assembled-book',
+    'collection.assembled.xhtml'
+  ])
+  await completion(assembleValidateXhtml)
+
   const assembleMeta = spawn('node', [
     'src/cli/execute.js',
     ...commonArgs,
@@ -174,6 +184,16 @@ test('stable flow in pdf and distribution pipeline', async t => {
   ])
   const bakeResult = await completion(bake)
   t.truthy(fs.existsSync(`${outputDir}/${bookId}/baked-book/${bookId}/collection.baked.xhtml`), formatSubprocessOutput(bakeResult))
+
+  const bakeValidateXhtml = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    'validate-xhtml',
+    bookId,
+    'baked-book',
+    'collection.baked.xhtml'
+  ])
+  await completion(bakeValidateXhtml)
 
   // PDF
   const mathify = spawn('node', [
@@ -197,6 +217,16 @@ test('stable flow in pdf and distribution pipeline', async t => {
     // mathify assertion
     t.truthy(fs.existsSync(`${outputDir}/${bookId}/mathified-book/${bookId}/collection.mathified.xhtml`), formatSubprocessOutput(mathifyResult))
 
+    const mathifyValidateXhtml = spawn('node', [
+      'src/cli/execute.js',
+      ...commonArgs,
+      'validate-xhtml',
+      bookId,
+      'mathified-book',
+      'collection.mathified.xhtml'
+    ])
+    await completion(mathifyValidateXhtml)
+
     const buildPdf = spawn('node', [
       'src/cli/execute.js',
       ...commonArgs,
@@ -212,6 +242,16 @@ test('stable flow in pdf and distribution pipeline', async t => {
   const branchDistribution = completion(checksum).then(async (checksumResult) => {
     // checksum assertion
     t.truthy(fs.existsSync(`${outputDir}/${bookId}/checksum-book/${bookId}/resources`), formatSubprocessOutput(checksumResult))
+
+    const checksumValidateXhtml = spawn('node', [
+      'src/cli/execute.js',
+      ...commonArgs,
+      'validate-xhtml',
+      bookId,
+      'checksum-book',
+      'collection.baked.xhtml'
+    ])
+    await completion(checksumValidateXhtml)
 
     const bakeMeta = spawn('node', [
       'src/cli/execute.js',
@@ -233,6 +273,16 @@ test('stable flow in pdf and distribution pipeline', async t => {
     const disassembleResult = await completion(disassemble)
     t.truthy(fs.existsSync(`${outputDir}/${bookId}/disassembled-book/${bookId}/disassembled/collection.toc.xhtml`), formatSubprocessOutput(disassembleResult))
 
+    const disassembleValidateXhtml = spawn('node', [
+      'src/cli/execute.js',
+      ...commonArgs,
+      'validate-xhtml',
+      bookId,
+      'disassembled-book',
+      'disassembled/*@*.xhtml'
+    ])
+    await completion(disassembleValidateXhtml)
+
     const jsonify = spawn('node', [
       'src/cli/execute.js',
       ...commonArgs,
@@ -242,6 +292,16 @@ test('stable flow in pdf and distribution pipeline', async t => {
     ])
     const jsonifyResult = await completion(jsonify)
     t.truthy(fs.existsSync(`${outputDir}/${bookId}/jsonified-book/${bookId}/jsonified/collection.toc.json`), formatSubprocessOutput(jsonifyResult))
+
+    const jsonifyValidateXhtml = spawn('node', [
+      'src/cli/execute.js',
+      ...commonArgs,
+      'validate-xhtml',
+      bookId,
+      'jsonified-book',
+      'jsonified/*@*.xhtml'
+    ])
+    await completion(jsonifyValidateXhtml)
   })
 
   await Promise.all([branchPdf, branchDistribution])

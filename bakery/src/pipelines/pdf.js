@@ -5,6 +5,7 @@ const pipeline = (env) => {
   const taskBakeBook = require('../tasks/bake-book')
   const taskMathifyBook = require('../tasks/mathify-book')
   const taskBuildPdf = require('../tasks/build-pdf')
+  const taskValidateXhtml = require('../tasks/validate-xhtml')
 
   const lockedTag = env.IMAGE_TAG || 'master'
 
@@ -84,6 +85,11 @@ const pipeline = (env) => {
       taskAssembleBook({ image: { tag: lockedTag } }),
       taskBakeBook({ image: { tag: lockedTag } }),
       taskMathifyBook({ image: { tag: lockedTag } }),
+      taskValidateXhtml({
+        image: { tag: lockedTag },
+        inputSource: 'mathified-book',
+        inputPath: 'collection.mathified.xhtml'
+      }),
       taskBuildPdf({ bucketName: env.S3_PDF_BUCKET, image: { tag: lockedTag } }),
       {
         put: 's3',

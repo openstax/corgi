@@ -670,6 +670,52 @@ const tasks = {
         handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
+  },
+  'validate-xhtml': (parentCommand) => {
+    const commandUsage = 'validate-xhtml <collid> <inputsource> <inputpath>'
+    const handler = async argv => {
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
+
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = [`--taskargs=${JSON.stringify(
+        { ...imageDetails, ...{ inputSource: argv.inputsource, inputPath: argv.inputpath } }
+      )}`]
+      const taskContent = execFileSync(buildExec, ['task', 'validate-xhtml', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
+
+      const dataDir = path.resolve(argv.data, argv.collid)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, argv.inputsource)
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'v',
+      describe: 'validate XHTML file(s) from a task',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
+        yargs.positional('collid', {
+          describe: 'collection id of collection to work on',
+          type: 'string'
+        }).positional('inputsource', {
+          describe: 'input source to consume data from',
+          type: 'string'
+        }).positional('inputpath', {
+          describe: 'path with task outputs for XHTML files to validate',
+          type: 'string'
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
   }
 }
 
@@ -692,6 +738,7 @@ const yargs = require('yargs')
           .command(tasks['bake-meta'](commandUsage))
           .command(tasks.disassemble(commandUsage))
           .command(tasks.jsonify(commandUsage))
+          .command(tasks['validate-xhtml'](commandUsage))
           .option('d', {
             alias: 'data',
             demandOption: true,
