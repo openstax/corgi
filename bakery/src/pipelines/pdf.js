@@ -83,17 +83,7 @@ const pipeline = (env) => {
       reportToOutputProducer(Status.PROCESSING),
       taskFetchBook({ image: { tag: lockedTag } }),
       taskAssembleBook({ image: { tag: lockedTag } }),
-      taskValidateXhtml({
-        image: { tag: lockedTag },
-        inputSource: 'assembled-book',
-        inputPath: 'collection.assembled.xhtml'
-      }),
       taskBakeBook({ image: { tag: lockedTag } }),
-      taskValidateXhtml({
-        image: { tag: lockedTag },
-        inputSource: 'baked-book',
-        inputPath: 'collection.baked.xhtml'
-      }),
       taskMathifyBook({ image: { tag: lockedTag } }),
       taskValidateXhtml({
         image: { tag: lockedTag },

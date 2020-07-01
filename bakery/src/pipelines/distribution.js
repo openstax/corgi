@@ -76,31 +76,11 @@ const pipeline = (env) => {
       }),
       taskFetchBook({ image: { tag: lockedTag } }),
       taskAssembleBook({ image: { tag: lockedTag } }),
-      taskValidateXhtml({
-        image: { tag: lockedTag },
-        inputSource: 'assembled-book',
-        inputPath: 'collection.assembled.xhtml'
-      }),
       taskAssembleBookMeta({ image: { tag: lockedTag } }),
       taskBakeBook({ image: { tag: lockedTag } }),
-      taskValidateXhtml({
-        image: { tag: lockedTag },
-        inputSource: 'baked-book',
-        inputPath: 'collection.baked.xhtml'
-      }),
       taskBakeBookMeta({ image: { tag: lockedTag } }),
       taskChecksumBook({ image: { tag: lockedTag } }),
-      taskValidateXhtml({
-        image: { tag: lockedTag },
-        inputSource: 'checksum-book',
-        inputPath: 'collection.baked.xhtml'
-      }),
       taskDisassembleBook({ image: { tag: lockedTag } }),
-      taskValidateXhtml({
-        image: { tag: lockedTag },
-        inputSource: 'disassembled-book',
-        inputPath: 'disassembled/*@*.xhtml'
-      }),
       taskJsonifyBook({ image: { tag: lockedTag } }),
       taskValidateXhtml({
         image: { tag: lockedTag },
