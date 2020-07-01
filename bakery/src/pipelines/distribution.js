@@ -66,6 +66,7 @@ const pipeline = (env) => {
 
   const bakeryJob = {
     name: 'bakery',
+    max_in_flight: 5,
     plan: [
       { get: 's3-queue', trigger: true, version: 'every' },
       { get: 'cnx-recipes-output' },
