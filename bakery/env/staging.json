@@ -2,10 +2,10 @@
   "ENV_NAME": "staging",
   "COPS_TARGET": "https://cops-staging.openstax.org/api",
   "S3_PDF_BUCKET": "ce-cops-staging",
-  "S3_DIST_BUCKET": "",
-  "S3_QUEUE_STATE_BUCKET": "",
-  "QUEUE_FILENAME": "",
-  "FEED_FILE_URL": "",
-  "PIPELINE_TICK_INTERVAL": "",
-  "MAX_BOOKS_PER_TICK": ""
+  "S3_DIST_BUCKET": "sandbox-web-hosting-content-gatekeeper",
+  "S3_QUEUE_STATE_BUCKET": "sandbox-web-hosting-content-queue-state",
+  "QUEUE_FILENAME": "distribution-queue.json",
+  "FEED_FILE_URL": "https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/approved-books.json",
+  "PIPELINE_TICK_INTERVAL": "24h",
+  "MAX_BOOKS_PER_TICK": "50"
 }
