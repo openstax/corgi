@@ -18,7 +18,8 @@ def test_empty_modal_field_errors(selenium, base_url):
     # AND: Create button is clicked when data fields are empty
     modal.click_create_button()
 
-    # THEN: The error messages are shown
+    # THEN: The correct error messages are shown for each applicable
+    # input field (colid, style and server)
     split_col_id = modal.collection_id_field_error.text.splitlines()
     text_col_id = split_col_id[1]
     assert "Collection ID is required" == text_col_id
@@ -55,7 +56,9 @@ def test_incorrect_col_id_error(selenium, base_url):
 
     split_col_id_incorrect = modal.collection_id_incorrect_field_error.text.splitlines()
     text_col_id_incorrect = split_col_id_incorrect[1]
+
+    # THEN: Correct error message appears in collection id field
     assert "A valid collection ID is required, e.g. col12345" == text_col_id_incorrect
 
-    # AND: The modal does not close and remains open
+    # THEN: The modal does not close and remains open
     assert home.create_job_modal_is_open
