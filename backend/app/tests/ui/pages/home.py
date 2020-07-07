@@ -34,7 +34,10 @@ class Home(Page):
 
         _modal_create_button_locator = (By.CLASS_NAME, "create-button-start-job")
 
-        _modal_collection_id_field_locator = (By.CLASS_NAME, "collection-id-field")
+        _modal_collection_id_field_locator = (
+            By.CSS_SELECTOR,
+            ".collection-id-field input",
+        )
 
         _modal_collection_id_field_error_locator = (
             By.CLASS_NAME,
