@@ -41,9 +41,9 @@
                     <v-col cols="12" sm="3" md="3">
                       <v-text-field
                         v-model="collectionId"
-                        :rules="[v => !!v || 'Collection ID is required']"
+                        :rules="[v => !!v || 'Collection ID is required', v => /^col\d*$/.test(v) || 'A valid collection ID is required, e.g. col12345']"
                         label="Collection ID"
-                        class="collection-id-error-text"
+                        class="collection-id-error-text collection-id-incorrect-error-text collection-id-field"
                         hint="e.g. col12345"
                         required
                       />
