@@ -1,5 +1,6 @@
 const pipeline = (env) => {
-  const taskLookUpFeed = require('../tasks/look-up-feed')
+  const taskCheckFeed = require('../tasks/check-feed')
+  const taskDequeueBook = require('../tasks/dequeue-book')
   const taskFetchBook = require('../tasks/fetch-book')
   const taskAssembleBook = require('../tasks/assemble-book')
   const taskAssembleBookMeta = require('../tasks/assemble-book-metadata')
@@ -9,9 +10,14 @@ const pipeline = (env) => {
   const taskDisassembleBook = require('../tasks/disassemble-book')
   const taskJsonifyBook = require('../tasks/jsonify-book')
   const taskUploadBook = require('../tasks/upload-book')
+  const taskValidateXhtml = require('../tasks/validate-xhtml')
 
   const awsAccessKeyId = env.ENV_NAME === 'local' ? env.S3_ACCESS_KEY_ID : '((aws-sandbox-secret-key-id))'
   const awsSecretAccessKey = env.ENV_NAME === 'local' ? env.S3_SECRET_ACCESS_KEY : '((aws-sandbox-secret-access-key))'
+  const codeVersionFromTag = env.IMAGE_TAG || 'version-unknown'
+  const queueFilename = `${codeVersionFromTag}.${env.QUEUE_FILENAME}`
+
+  const lockedTag = env.IMAGE_TAG || 'master'
 
   const resources = [
     {
@@ -19,43 +25,76 @@ const pipeline = (env) => {
       type: 'docker-image',
       source: {
         repository: 'openstax/cnx-recipes-output',
-        tag: env.IMAGE_TAG || 'latest'
+        tag: lockedTag
       }
     },
     {
-      name: 's3-feed',
+      name: 's3-queue',
       type: 's3',
       source: {
-        bucket: env.S3_DIST_BUCKET,
-        versioned_file: env.VERSIONED_FILE,
+        bucket: env.S3_QUEUE_STATE_BUCKET,
+        versioned_file: queueFilename,
+        initial_version: 'initializing',
         access_key_id: awsAccessKeyId,
         secret_access_key: awsSecretAccessKey
+      }
+    },
+    {
+      name: 'ticker',
+      type: 'time',
+      source: {
+        interval: env.PIPELINE_TICK_INTERVAL
       }
     }
   ]
 
-  const bakeryJob = {
-    name: 'bakery',
+  const feederJob = {
+    name: 'feeder',
     plan: [
-      { get: 's3-feed', trigger: true, version: 'every' },
-      { get: 'cnx-recipes-output' },
-      taskLookUpFeed({
-        versionedFile: env.VERSIONED_FILE,
-        image: { tag: env.IMAGE_TAG }
-      }),
-      taskFetchBook({ image: { tag: env.IMAGE_TAG } }),
-      taskAssembleBook({ image: { tag: env.IMAGE_TAG } }),
-      taskAssembleBookMeta({ image: { tag: env.IMAGE_TAG } }),
-      taskBakeBook({ image: { tag: env.IMAGE_TAG } }),
-      taskBakeBookMeta({ image: { tag: env.IMAGE_TAG } }),
-      taskChecksumBook({ image: { tag: env.IMAGE_TAG } }),
-      taskDisassembleBook({ image: { tag: env.IMAGE_TAG } }),
-      taskJsonifyBook({ image: { tag: env.IMAGE_TAG } }),
-      taskUploadBook({
-        bucketName: env.S3_DIST_BUCKET,
+      { get: 'ticker', trigger: true },
+      taskCheckFeed({
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
-        image: { tag: env.IMAGE_TAG }
+        feedFileUrl: env.FEED_FILE_URL,
+        queueStateBucket: env.S3_QUEUE_STATE_BUCKET,
+        queueFilename: queueFilename,
+        codeVersion: codeVersionFromTag,
+        maxBooksPerRun: env.MAX_BOOKS_PER_TICK,
+        image: { tag: lockedTag }
+      })
+    ]
+  }
+
+  const bakeryJob = {
+    name: 'bakery',
+    max_in_flight: 5,
+    plan: [
+      { get: 's3-queue', trigger: true, version: 'every' },
+      { get: 'cnx-recipes-output' },
+      taskDequeueBook({
+        queueFilename: queueFilename,
+        image: { tag: lockedTag }
+      }),
+      taskFetchBook({ image: { tag: lockedTag } }),
+      taskAssembleBook({ image: { tag: lockedTag } }),
+      taskAssembleBookMeta({ image: { tag: lockedTag } }),
+      taskBakeBook({ image: { tag: lockedTag } }),
+      taskBakeBookMeta({ image: { tag: lockedTag } }),
+      taskChecksumBook({ image: { tag: lockedTag } }),
+      taskDisassembleBook({ image: { tag: lockedTag } }),
+      taskJsonifyBook({ image: { tag: lockedTag } }),
+      taskValidateXhtml({
+        image: { tag: lockedTag },
+        inputSource: 'jsonified-book',
+        inputPath: 'jsonified/*@*.xhtml'
+      }),
+      taskUploadBook({
+        distBucket: env.S3_DIST_BUCKET,
+        queueStateBucket: env.S3_QUEUE_STATE_BUCKET,
+        awsAccessKeyId: awsAccessKeyId,
+        awsSecretAccessKey: awsSecretAccessKey,
+        codeVersion: codeVersionFromTag,
+        image: { tag: lockedTag }
       })
     ]
   }
@@ -63,7 +102,7 @@ const pipeline = (env) => {
   return {
     config: {
       resources: resources,
-      jobs: [bakeryJob]
+      jobs: [feederJob, bakeryJob]
     }
   }
 }

@@ -36,6 +36,24 @@ const formatSubprocessOutput = (result) => {
   `
 }
 
+const sourceObjs = (obj) => {
+  const sources = []
+  if (typeof obj !== 'object') { return sources }
+  if (obj instanceof Array) {
+    for (const subobj of obj) {
+      sources.push(...sourceObjs(subobj))
+    }
+  }
+  if (obj.type != null && obj.type === 'docker-image') {
+    sources.push(obj.source)
+  } else {
+    for (const key of Object.keys(obj)) {
+      sources.push(...sourceObjs(obj[key]))
+    }
+  }
+  return sources
+}
+
 test('build pipelines', async t => {
   const envs = (await fs.readdir('env')).map(file => path.basename(file, '.json'))
   const pipelines = (await fs.readdir('src/pipelines')).map(file => path.basename(file, '.js'))
@@ -57,25 +75,26 @@ test('build pipelines', async t => {
   t.pass()
 })
 
-test('pin pipeline tasks to versions', async t => {
-  const sourceObjs = (obj) => {
-    const sources = []
-    if (typeof obj !== 'object') { return sources }
-    if (obj instanceof Array) {
-      for (const subobj of obj) {
-        sources.push(...sourceObjs(subobj))
-      }
-    }
-    if (obj.type != null && obj.type === 'docker-image') {
-      sources.push(obj.source)
-    } else {
-      for (const key of Object.keys(obj)) {
-        sources.push(...sourceObjs(obj[key]))
-      }
-    }
-    return sources
-  }
+test('default tag is master', async t => {
+  let pipelineOut = ''
+  const buildPipeline = spawn('./build', [
+    'pipeline',
+    'pdf',
+    'prod'
+  ])
+  buildPipeline.stdout.on('data', (data) => {
+    pipelineOut += data.toString()
+  })
+  const buildPipelineResult = await completion(buildPipeline)
 
+  const obj = yaml.safeLoad(pipelineOut)
+  const sources = sourceObjs(obj)
+  for (const source of sources) {
+    t.is(source.tag, 'master', formatSubprocessOutput(buildPipelineResult))
+  }
+})
+
+test('pin pipeline tasks to versions', async t => {
   const customTag = 'my-custom-tag'
   let pipelineOut = ''
   const buildPipeline = spawn('./build', [
@@ -135,6 +154,16 @@ test('stable flow in pdf and distribution pipeline', async t => {
   const assembleResult = await completion(assemble)
   t.truthy(fs.existsSync(`${outputDir}/${bookId}/assembled-book/${bookId}/collection.assembled.xhtml`), formatSubprocessOutput(assembleResult))
 
+  const assembleValidateXhtml = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    'validate-xhtml',
+    bookId,
+    'assembled-book',
+    'collection.assembled.xhtml'
+  ])
+  await completion(assembleValidateXhtml)
+
   const assembleMeta = spawn('node', [
     'src/cli/execute.js',
     ...commonArgs,
@@ -155,6 +184,16 @@ test('stable flow in pdf and distribution pipeline', async t => {
   ])
   const bakeResult = await completion(bake)
   t.truthy(fs.existsSync(`${outputDir}/${bookId}/baked-book/${bookId}/collection.baked.xhtml`), formatSubprocessOutput(bakeResult))
+
+  const bakeValidateXhtml = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    'validate-xhtml',
+    bookId,
+    'baked-book',
+    'collection.baked.xhtml'
+  ])
+  await completion(bakeValidateXhtml)
 
   // PDF
   const mathify = spawn('node', [
@@ -178,6 +217,16 @@ test('stable flow in pdf and distribution pipeline', async t => {
     // mathify assertion
     t.truthy(fs.existsSync(`${outputDir}/${bookId}/mathified-book/${bookId}/collection.mathified.xhtml`), formatSubprocessOutput(mathifyResult))
 
+    const mathifyValidateXhtml = spawn('node', [
+      'src/cli/execute.js',
+      ...commonArgs,
+      'validate-xhtml',
+      bookId,
+      'mathified-book',
+      'collection.mathified.xhtml'
+    ])
+    await completion(mathifyValidateXhtml)
+
     const buildPdf = spawn('node', [
       'src/cli/execute.js',
       ...commonArgs,
@@ -193,6 +242,16 @@ test('stable flow in pdf and distribution pipeline', async t => {
   const branchDistribution = completion(checksum).then(async (checksumResult) => {
     // checksum assertion
     t.truthy(fs.existsSync(`${outputDir}/${bookId}/checksum-book/${bookId}/resources`), formatSubprocessOutput(checksumResult))
+
+    const checksumValidateXhtml = spawn('node', [
+      'src/cli/execute.js',
+      ...commonArgs,
+      'validate-xhtml',
+      bookId,
+      'checksum-book',
+      'collection.baked.xhtml'
+    ])
+    await completion(checksumValidateXhtml)
 
     const bakeMeta = spawn('node', [
       'src/cli/execute.js',
@@ -214,6 +273,16 @@ test('stable flow in pdf and distribution pipeline', async t => {
     const disassembleResult = await completion(disassemble)
     t.truthy(fs.existsSync(`${outputDir}/${bookId}/disassembled-book/${bookId}/disassembled/collection.toc.xhtml`), formatSubprocessOutput(disassembleResult))
 
+    const disassembleValidateXhtml = spawn('node', [
+      'src/cli/execute.js',
+      ...commonArgs,
+      'validate-xhtml',
+      bookId,
+      'disassembled-book',
+      'disassembled/*@*.xhtml'
+    ])
+    await completion(disassembleValidateXhtml)
+
     const jsonify = spawn('node', [
       'src/cli/execute.js',
       ...commonArgs,
@@ -223,6 +292,16 @@ test('stable flow in pdf and distribution pipeline', async t => {
     ])
     const jsonifyResult = await completion(jsonify)
     t.truthy(fs.existsSync(`${outputDir}/${bookId}/jsonified-book/${bookId}/jsonified/collection.toc.json`), formatSubprocessOutput(jsonifyResult))
+
+    const jsonifyValidateXhtml = spawn('node', [
+      'src/cli/execute.js',
+      ...commonArgs,
+      'validate-xhtml',
+      bookId,
+      'jsonified-book',
+      'jsonified/*@*.xhtml'
+    ])
+    await completion(jsonifyValidateXhtml)
   })
 
   await Promise.all([branchPdf, branchDistribution])

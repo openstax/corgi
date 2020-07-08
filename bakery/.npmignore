@@ -1,0 +1,6 @@
+src/tests
+src/scripts
+**/__pycache__/
+credentials.yml.template
+dist/
+node_modules/

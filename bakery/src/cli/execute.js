@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const path = require('path')
 const fs = require('fs')
 const http = require('http')
@@ -28,7 +30,7 @@ const stripLocalPrefix = imageArg => {
 }
 
 const imageDetailsFromArgs = (argv) => {
-  let imageDetails = null
+  let imageDetails = {}
   if (argv.image) {
     imageDetails = extractLocalImageDetails(argv.image)
   }
@@ -36,7 +38,7 @@ const imageDetailsFromArgs = (argv) => {
     imageDetails = { tag: argv.tag }
   }
   console.log(`extracted image details: ${JSON.stringify(imageDetails)}`)
-  return imageDetails == null ? null : { image: imageDetails }
+  return { image: imageDetails }
 }
 
 const extractLocalImageDetails = imageArg => {
@@ -48,15 +50,15 @@ const extractLocalImageDetails = imageArg => {
   let imageName, imageTag
   if (tagNameSeparatorIndex === -1) {
     imageName = imageArgStripped
-    imageTag = 'latest'
   } else {
     imageName = imageArgStripped.slice(0, tagNameSeparatorIndex)
     imageTag = imageArgStripped.slice(tagNameSeparatorIndex + 1)
   }
+  const maybeTag = imageTag == null ? {} : { tag: imageTag }
   const details = {
     registry: 'registry:5000',
     name: imageName,
-    tag: imageTag
+    ...maybeTag
   }
   return details
 }
@@ -668,6 +670,52 @@ const tasks = {
         handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
+  },
+  'validate-xhtml': (parentCommand) => {
+    const commandUsage = 'validate-xhtml <collid> <inputsource> <inputpath>'
+    const handler = async argv => {
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
+
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = [`--taskargs=${JSON.stringify(
+        { ...imageDetails, ...{ inputSource: argv.inputsource, inputPath: argv.inputpath } }
+      )}`]
+      const taskContent = execFileSync(buildExec, ['task', 'validate-xhtml', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
+
+      const dataDir = path.resolve(argv.data, argv.collid)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, argv.inputsource)
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'v',
+      describe: 'validate XHTML file(s) from a task',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
+        yargs.positional('collid', {
+          describe: 'collection id of collection to work on',
+          type: 'string'
+        }).positional('inputsource', {
+          describe: 'input source to consume data from',
+          type: 'string'
+        }).positional('inputpath', {
+          describe: 'path with task outputs for XHTML files to validate',
+          type: 'string'
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
   }
 }
 
@@ -680,16 +728,17 @@ const yargs = require('yargs')
       builder: yargs => {
         yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
         return yargs
-          .command(tasks.fetch())
-          .command(tasks.assemble())
-          .command(tasks.bake())
-          .command(tasks.mathify())
-          .command(tasks['build-pdf']())
-          .command(tasks['assemble-meta']())
-          .command(tasks.checksum())
-          .command(tasks['bake-meta']())
-          .command(tasks.disassemble())
-          .command(tasks.jsonify())
+          .command(tasks.fetch(commandUsage))
+          .command(tasks.assemble(commandUsage))
+          .command(tasks.bake(commandUsage))
+          .command(tasks.mathify(commandUsage))
+          .command(tasks['build-pdf'](commandUsage))
+          .command(tasks['assemble-meta'](commandUsage))
+          .command(tasks.checksum(commandUsage))
+          .command(tasks['bake-meta'](commandUsage))
+          .command(tasks.disassemble(commandUsage))
+          .command(tasks.jsonify(commandUsage))
+          .command(tasks['validate-xhtml'](commandUsage))
           .option('d', {
             alias: 'data',
             demandOption: true,

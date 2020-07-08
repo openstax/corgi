@@ -5,6 +5,9 @@ const pipeline = (env) => {
   const taskBakeBook = require('../tasks/bake-book')
   const taskMathifyBook = require('../tasks/mathify-book')
   const taskBuildPdf = require('../tasks/build-pdf')
+  const taskValidateXhtml = require('../tasks/validate-xhtml')
+
+  const lockedTag = env.IMAGE_TAG || 'master'
 
   // FIXME: This mapping should be in the COPS resource
   const Status = Object.freeze({
@@ -32,7 +35,7 @@ const pipeline = (env) => {
       type: 'docker-image',
       source: {
         repository: 'openstax/output-producer-resource',
-        tag: env.IMAGE_TAG || 'latest'
+        tag: lockedTag
       }
     }
   ]
@@ -43,7 +46,7 @@ const pipeline = (env) => {
       type: 'docker-image',
       source: {
         repository: 'openstax/cnx-recipes-output',
-        tag: env.IMAGE_TAG || 'latest'
+        tag: lockedTag
       }
     },
     {
@@ -76,13 +79,18 @@ const pipeline = (env) => {
       { get: 'output-producer', trigger: true, version: 'every' },
       reportToOutputProducer(Status.ASSIGNED),
       { get: 'cnx-recipes-output' },
-      taskLookUpBook({ image: { tag: env.IMAGE_TAG } }),
+      taskLookUpBook({ image: { tag: lockedTag } }),
       reportToOutputProducer(Status.PROCESSING),
-      taskFetchBook({ image: { tag: env.IMAGE_TAG } }),
-      taskAssembleBook({ image: { tag: env.IMAGE_TAG } }),
-      taskBakeBook({ image: { tag: env.IMAGE_TAG } }),
-      taskMathifyBook({ image: { tag: env.IMAGE_TAG } }),
-      taskBuildPdf({ bucketName: env.S3_PDF_BUCKET, image: { tag: env.IMAGE_TAG } }),
+      taskFetchBook({ image: { tag: lockedTag } }),
+      taskAssembleBook({ image: { tag: lockedTag } }),
+      taskBakeBook({ image: { tag: lockedTag } }),
+      taskMathifyBook({ image: { tag: lockedTag } }),
+      taskValidateXhtml({
+        image: { tag: lockedTag },
+        inputSource: 'mathified-book',
+        inputPath: 'collection.mathified.xhtml'
+      }),
+      taskBuildPdf({ bucketName: env.S3_PDF_BUCKET, image: { tag: lockedTag } }),
       {
         put: 's3',
         params: {

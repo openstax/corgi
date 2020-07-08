@@ -1,133 +1,226 @@
 .. _operations-updating-the-stack:
 
-================================
-Deploying and updating the stack
-================================
+############################
+Update and Deploy COPS Stack
+############################
+The entire COPS system is deployed using `Docker Swarm <https://docs.docker.com/engine/swarm/>`_. The deployment process is currently done manually (hopefully will be automated in the future) but is fairly straightforward.
 
-The entire COPS system is deployed using Docker swarm. Docker swarm provides a ``docker stack`` command that will deploy and update a set of services based on a docker-compose file. Refer to :ref:`operations-setting-up-the-swarm` to do the initial setup of the servers with swarm.
+Docker Swarm provides a ``docker stack`` command that will deploy and update a set of services based on a docker-compose file. 
 
-The deployment process is currently done manually (hopefully will be automated in the future) but is fairly straightforward.
+Refer to :ref:`operations-setting-up-the-swarm` to do the initial setup of the servers with swarm.
 
-The steps at a high level are:
+After updates have been made to the Stack, the following need to happen -
 
-1. Establish an SSH tunnel from ``bastion2.cnx.org`` to the AWS server.
-2. Establish an SSH tunnel from your local computer to ``bastion2.cnx.org``.
-3. Run the ``./script/build-push.sh`` script to build and push images to dockerhub.
-4. Run the ``./script/deploy.sh`` script to deploy or update the stack.
+********
+Overview
+********
 
-The more granular details of the deployment are explained below.
+Set Up SSH Tunnel
+   - Set up Portforwarding to AWS by Tunneling through Bastion2. Bastion2 is the only with permission to talk to the AWS Server. Where our COPS Stack is deployed. 
+   - Set up Terminal for Communication with Docker Swarm Manager Node
+Deploy COPS Stack to Staging
+   - Deployment to Staging with newly build and tagged images to make sure new images work.
+Promote COPS Stack to Production
+   - Promote the COPS Stack to Production after successful deploy to Staging.
+Build and Push Docker Images
+   - Build, Tag, and Push updated images.
 
-Install docker-auto-labels
-==========================
+----
 
-The docker-auto-labels package is used to ensure the proper labels are applied to the
-docker swarm nodes. For example, the database should only be running on ``server1.cops-mvp.openstax.org``.
-This is done by applying a label to that node and adding a constraint to the
-docker-compose file.
-
-Install the docker-auto-labels package:
+*************
+Prerequisites
+*************
+1. Install `Docker Auto Labels <https://github.com/tiangolo/docker-auto-labels>`_
+=================================================================================
+This will ensure proper labels are applied to the docker swarm nodes. 
 
 .. code-block:: bash
 
    pip install docker-auto-labels
 
-Setup the SSH tunnel
-====================
+For example, the database should only be running on ``server1.cops-mvp.openstax.org``.
+This is done by applying a label to that node and adding a constraint to the
+docker-compose file.
 
-* Make sure you already have an identity file to ``bastion2.cnx.org`` (e.g. at ~/.ssh/bastion2_id_rsa) as well as to ``cops.openstax.org`` (e.g. at ~/.ssh/cops.pem).
+2. Set up Port Forward to COPS Server (AWS) through Bastion2
+============================================================
 
-* Add lines similar to the following to your ssh config (e.g. at ~/.ssh/config):
+**Make sure you already have local identity files to:** 
+   
+   - ``bastion2.cnx.org`` (e.g. at ~/.ssh/bastion2_id_rsa) 
+   - ``cops.openstax.org`` (e.g. at ~/.ssh/cops.pem).
 
-.. code-block:: text
 
-   Host bastion2 bastion2.cnx.org
+**Configure your** ``~/.ssh/config`` **with identity files:**
+
+.. code-block:: bash
+
+   Host bastion2
       HostName bastion2.cnx.org
-      User thomas
-      IdentityFile ~/.ssh/bastion2_id_rsa
+      User <user>
+      IdentityFile ~/.ssh/id_rsa
       ForwardAgent yes
-
-   Host cops cops.openstax.org
+   Host cops
       User ubuntu
       HostName cops.openstax.org
       IdentityFile ~/.ssh/cops.pem
       ProxyJump bastion2
       ForwardAgent yes
 
-* Open a fresh terminal window. Keep it open until the end of the deployment process.
+You can copy down your ``cops.pem`` into your ``~/.ssh`` from bastion2 by:
 
-* Run the following command to establish an SSH tunnel to a manager node in AWS:
+.. code-block:: bash
+
+   $ cd ~/.ssh/
+   $ scp <user>@bastion2:~/.ssh/cops.pem .
+
+.. note:: Example above assumes that a copy of ``cops.pem`` for  **IdentityFile** is copied to where your ssh keys are.
+
+
+
+----
+
+*****
+Steps
+*****
+
+1. Set Up SSH Tunnel
+====================
+
+Port Forward COPS Server to Local Docker Socket
+-----------------------------------------------
+
+**In a fresh terminal window, establish an SSH tunnel to a manager node in AWS:**
 
 .. code-block:: bash
 
    ssh cops -NL 9999:/var/run/docker.sock
 
-This command doesn't produce any output unless there is an error. No other commands
-will be typed into this window.
+This command doesn't produce any output unless there is an error.
 
-Setup terminal window for communicating with docker swarm manager node
-======================================================================
+**Keep terminal open until the end of the deployment process. No other commands will be typed into this window.**
 
-* Open another fresh terminal window. Keep it open until the end of the process.
-
-* Configure docker in that terminal to use the remote host established before:
+Setup Terminal for Communicating with Docker Swarm Manager Node
+---------------------------------------------------------------
+**In a fresh terminal window, configure Docker to use the remote host (established prior):** 
 
 .. code-block:: bash
 
-   export DOCKER_HOST="localhost:9999"
+   $ export DOCKER_HOST="localhost:9999"
 
-.. note:: All docker commands you run in this window will be like running them on the remote host. This window should only be used to run the deploy script.
+We will refer to this as our **Docker Talker** window. Keep terminal open until the end of the deployment process.
 
-Deploy to staging environment
-=============================
+.. note:: This window should only be used to run the deploy script. 
+   All docker commands you run in this window will be like running them on the remote host.
 
-* Ensure an ssh tunnel to cops is set up and you are in a new terminal setup to communicate with the swarm manager node by following previous steps.
+2. Deploy to Staging
+====================
 
-* Load staging environment variables (DOMAIN, STACK_NAME, TRAEFIK_TAG):
+Ensure SSH tunnel to COPS is set up and you are in a *new terminal* to communicate with the swarm manager node with previous steps.
+
+Load Environment Variables
+--------------------------
+
+Load staging environment variables (DOMAIN, STACK_NAME, TRAEFIK_TAG) with script:
 
 .. code-block:: bash
 
-   source ./script/vars.staging.sh
+   $ source ./script/vars.staging.sh
 
-* Pick a tag to pin images with. Image tags are autogenerated by this `concourse pipeline <https://concourse-dev0.openstax.org/teams/Dev/pipelines/ce-image-autotag>`_. Whenever a change is made to a COPS-related repository, so you can look there for the latest successful autogenerated tag. Export the tag as an environment variable:
+Check the staging environment variables:
 
 .. code-block:: bash
 
-   export TAG=a-tag-of-your-choosing
+   $ env
 
-* Run the deployment script, which will fail and exit without deploying if any of the required environment variables are not set:
+Select Tag to Pin Images
+------------------------
+
+Docker Image Tags are autogenerated. Whenever code is merged to a COPS-related repository, 
+the change triggers the `ce-image-autotag concourse pipeline <https://concourse-dev0.openstax.org/teams/Dev/pipelines/ce-image-autotag>`_.
+
+To Find a Tag:
+
+   - Go to the `ce-image-autotag concourse pipeline <https://concourse-dev0.openstax.org/teams/Dev/pipelines/ce-image-autotag>`_.
+   - Click into the 'build-and-push-images' job.
+   - Click on a job number (Defaults to the latest job)
+
+   For any ``docker-hub-image-<docker-container-name>`` a similar output is produced:
+
+   .. code-block:: bash
+
+      ...
+      openstax/output-producer-frontend:20200612.204804 tagged as master
+
+   .. note:: 
+
+      Above Example Shows:
+
+         - **Container/Image Name**: ``output-producer-frontend``
+         - **Tag**: ``20200612.204804``
+
+   - Copy selected Tag: ``20200612.204804``
+
+Export Image Tag
+----------------
+
+Export image tag as staging environment variable:
+
+.. code-block:: bash
+
+   export TAG="tag-of-your-choosing"  ## i.e. 20200612.204804
+
+
+Deploy
+------
+
+Deploy to staging using the following script:
 
 .. code-block:: bash
 
    ./scripts/deploy.sh
 
-Promote images in staging environment to production
-===================================================
+.. warning::
+   Deploy script will fail and exit without deploying if any of the required environment variables are not set.
 
-* Ensure an ssh tunnel to cops is set up and you are in a new terminal setup to communicate with the swarm manager node by following previous steps.
 
-* There is no need to set any environment variables for production or pick a tag. Simply call the promotion script, which will automatically detect the tag deployed to staging and deploy it to production:
+3. Promote Staging to Production
+================================
+Ensure SSH tunnel to COPS is set up and you are in a *new terminal* to communicate with the swarm manager node with previous steps.
+
+There is no need to set any environment variables for production or pick a tag. 
+The promotion script will automatically detect the tag deployed to staging and deploy it to production:
+
 .. code-block:: bash
 
    ./scripts/promote-deploy.sh
 
-Build and push new docker images
-================================
+4. Build & Push New Docker Images
+=================================
 
-* Open another fresh terminal window. Keep it open until the end of the deployment process.
-
-* Ensure you have master checked out and the latest codez:
+Get Latest Codez
+----------------
+**In a fresh terminal window, pull latest codez:**
 
 .. code-block:: bash
 
+   cd output-producer-service
    git checkout master && git pull origin master
 
-* Tag and upload images to dockerhub. This script builds the images with ``--no-cache`` so may take several minutes.
+Build Images with Tag and Push to Dockerhub
+-------------------------------------------
+**In same terminal window as above, run script:**
 
 .. code-block:: bash
 
    DOMAIN=$DOMAIN TAG=$TAG ./scripts/build-push.sh
 
+.. note:: This script builds the images with ``--no-cache`` so may take several minutes.
+
+**Keep terminal open until the end of the deployment process.**
+
+----
+
 Cleanup
 =======
-
-When the deployment is complete you can close all terminal windows.
+Close all terminal windows when deployment is complete.

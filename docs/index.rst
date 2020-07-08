@@ -5,75 +5,67 @@
 
 ----
 
-======================================
-content output producer service (COPS)
-======================================
+############################################
+Content Output Producer Service (COPS) (WIP)
+############################################
 
-COPS is a web application built to allow vendors, Content Managers, QA, and
-developers to produce various outputs of our OpenStax book content.
+COPS an overarching system that contain different ways to 
+produce Openstax book content for various users (Content Manangers (CMs), 
+QA, and developers) to consume. A book is typically called a collection by Content
+Managers and others that work directly with content.
 
-Currently, we are focusing on PDF output in preparation for testing "Baked" PDFs.
+****************
+COPS at a Glance
+****************
++----------------+-----------------+-----------+-----------+-----------+
+| Output         | Users           | More Info | More Info | More Info |
++================+=================+===========+===========+===========+
+| PDF            | CMs, CE Styles  | blah blah | blah blah | blah blah |
++----------------+-----------------+-----------+-----------+-----------+
+| Distribution   | Rex, Tutor      | etc etc e | etc etc e | etc etc e |
++----------------+-----------------+-----------+-----------+-----------+
 
-First Steps
-===========
-
-.. toctree::
-   :maxdepth: 2
-   :caption: First Steps
-   :hidden:
-
-   intro/overview
-
-
-:ref:`intro-overview`
-    Understand what COPS is and what it can do.
-
-
-The Front-end (UI)
-==================
-
-The Backend
-===========
-
-.. toctree::
-   :caption: The Backend API
-   :hidden:
-
-   backend/architecture
-
-:ref:`backend-architecture`
-    Developer documentation for the COPS backend architecture
-
-Operations
-==========
+.. note::
+   | **June 3rd, 2020**  
+   | The PDF Pipeline is in production. The Distribution Pipeline is still being developed. 
 
 .. toctree::
    :maxdepth: 2
-   :caption: Operations
+   :caption: COPS Operations
    :hidden:
 
+   operations/overview
    operations/setting_up_the_swarm
    operations/updating_the_stack
+   operations/cleaning_up_the_swarm
+   operations/updating_bakery_scripts
+   operations/generate_pipeline_config
+   operations/cli
 
-:ref:`operations-updating-the-stack`
-    How to update the stack with the latest changes
+.. toctree::
+   :maxdepth: 2
+   :caption: PDF System
+   :hidden:
 
-Quality Assurance
-=================
+   pdf/overview
+   pdf/steps
+   pdf/backend_architecture
+   pdf/frontend_ui
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Distribution System
+   :hidden:
+
+   distribution/overview
+   distribution/steps
 
 .. toctree::
    :maxdepth: 2
    :caption: Quality Assurance
    :hidden:
 
-   qa/setup_local_qa_cops_test
-
-
-:doc:`qa/setup_local_qa_cops_test`
-    How to setup local qa cops test environs
-
-Extras
-======
+   qa/setup
 
 .. toctree::
    :maxdepth: 2
@@ -82,13 +74,24 @@ Extras
 
    glossary
 
-:doc:`glossary`
-    A glossary of terms used throughout the documentation.
+Tech Resources
+==============
+* `AWS S3 <https://aws.amazon.com/s3/>`_
+* `AWS EC2 <https://aws.amazon.com/ec2/>`_
+* `AWS Cloudfront <https://aws.amazon.com/cloudfront/>`_
+* `Traefik <https://containo.us/traefik/>`_
+* `Docker <https://www.docker.com/>`_
+* `Docker Swarm <https://docs.docker.com/engine/swarm/>`_
+* `Docker Hub <https://hub.docker.com/>`_
+* `FAST API <https://fastapi.tiangolo.com/>`_
+* `VUE.js <https://vuejs.org/>`_
+* `Concourse <https://concourse-ci.org/>`_
+* `Sphinx Docs <https://www.sphinx-doc.org/en/master/>`_
+* `ConEng wiki <https://github.com/openstax/cnx/wiki>`_ 
 
-Indices and tables
+
+Indices and Tables
 ==================
 
-* :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
-* :ref:`glossary`
+* :ref:`genindex`
