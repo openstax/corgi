@@ -39,7 +39,7 @@ def test_empty_modal_field_errors(selenium, base_url):
 @pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_invalid_col_id_error(selenium, base_url):
+def test_invalid_colid_error(selenium, base_url):
     # GIVEN: Selenium driver and the base url
 
     # WHEN: The Home page is fully loaded
