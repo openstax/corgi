@@ -3,6 +3,8 @@ from regions.base import Region
 
 from selenium.webdriver.common.by import By
 
+from time import sleep
+
 
 class Home(Page):
     _create_new_job_button_locator = (By.CLASS_NAME, "create-job-button")
@@ -32,20 +34,24 @@ class Home(Page):
 
         _modal_create_button_locator = (By.CLASS_NAME, "create-button-start-job")
 
+        _modal_collection_id_field_locator = (
+            By.CSS_SELECTOR,
+            ".collection-id-field input",
+        )
+
         _modal_collection_id_field_error_locator = (
             By.CLASS_NAME,
             "collection-id-error-text",
         )
 
-        _modal_style_field_error_locator = (
+        _modal_collection_id_incorrect_field_error_locator = (
             By.CLASS_NAME,
-            "style-error-text",
+            "collection-id-incorrect-error-text",
         )
 
-        _modal_content_server_field_error_locator = (
-            By.CLASS_NAME,
-            "server-error-text",
-        )
+        _modal_style_field_error_locator = (By.CLASS_NAME, "style-error-text")
+
+        _modal_content_server_field_error_locator = (By.CLASS_NAME, "server-error-text")
 
         @property
         def cancel_button(self):
@@ -62,10 +68,17 @@ class Home(Page):
         def click_create_button(self):
             self.create_button.click()
             self.wait.until(lambda _: self.page.create_job_modal_is_open)
+            sleep(2)
 
         @property
         def collection_id_field_error(self):
             return self.find_element(*self._modal_collection_id_field_error_locator)
+
+        @property
+        def collection_id_incorrect_field_error(self):
+            return self.find_element(
+                *self._modal_collection_id_incorrect_field_error_locator
+            )
 
         @property
         def style_field_error(self):
@@ -74,3 +87,10 @@ class Home(Page):
         @property
         def content_server_field_error(self):
             return self.find_element(*self._modal_content_server_field_error_locator)
+
+        @property
+        def collection_id_field(self):
+            return self.find_element(*self._modal_collection_id_field_locator)
+
+        def fill_collection_id_field(self, value):
+            self.collection_id_field.send_keys(value)
