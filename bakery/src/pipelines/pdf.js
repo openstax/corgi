@@ -104,8 +104,7 @@ const pipeline = (env) => {
       pdf_url: 'artifacts/pdf_url'
     }),
     on_failure: reportToOutputProducer(Status.FAILED),
-    // TODO: Uncomment this when upgrading to concourse >=5.0.1
-    // on_error: reportToOutputProducer(Status.FAILED),
+    on_error: reportToOutputProducer(Status.FAILED),
     on_abort: reportToOutputProducer(Status.FAILED)
   }
 
