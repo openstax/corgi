@@ -172,8 +172,10 @@ def test_canonical_list_order():
     canonical_list = os.path.join(SCRIPT_DIR, "canonical-book-list.json")
 
     with open(canonical_list) as canonical:
-        books = json.load(canonical)
-        names = [book["_name"] for book in books["canonical_books"]]
+        book_groups = json.load(canonical)
+        names = [
+            book["_name"] for group in book_groups["canonical_books"] for book in group
+        ]
         assert {"College Algebra", "Precalculus"}.issubset(set(names))
         assert names.index("College Algebra") < names.index("Precalculus")
 

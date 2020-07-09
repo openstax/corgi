@@ -1,108 +1,210 @@
 {
     "canonical_books": [
-        {
-            "uuid": "02040312-72c8-441e-a685-20e9333f3e1d",
-            "_name": "Introduction to Sociology 2e"
-        },
-        {
-            "uuid": "02776133-d49d-49cb-bfaa-67c7f61b25a1",
-            "_name": "Intermediate Algebra"
-        },
-        {
-            "uuid": "031da8d3-b525-429c-80cf-6c8ed997733a",
-            "_name": "College Physics"
-        },
-        {
-            "uuid": "14fb4ad7-39a1-4eee-ab6e-3ef2482e3e22",
-            "_name": "Anatomy and Physiology"
-        },
-        {
-            "uuid": "1d39a348-071f-4537-85b6-c98912458c3c",
-            "_name": "Calculus Volume 2"
-        },
-        {
-            "uuid": "2e737be8-ea65-48c3-aa0a-9f35b4c6a966",
-            "_name": "Astronomy"
-        },
-        {
-            "uuid": "30189442-6998-4686-ac05-ed152b91b9de",
-            "_name": "Introductory Statistics"
-        },
-        {
-            "uuid": "4abf04bf-93a0-45c3-9cbc-2cefd46e68cc",
-            "_name": "Psychology"
-        },
-        {
-            "uuid": "4e09771f-a8aa-40ce-9063-aa58cc24e77f",
-            "_name": "Introduction to Business"
-        },
-        {
-            "uuid": "7a0f9770-1c44-4acd-9920-1cd9a99f2a1e",
-            "_name": "University Physics Volume 2"
-        },
-        {
-            "uuid": "7fccc9cf-9b71-44f6-800b-f9457fd64335",
-            "_name": "Chemistry 2e "
-        },
-        {
-            "uuid": "8b89d172-2927-466f-8661-01abc7ccdba4",
-            "_name": "Calculus Volume 1"
-        },
-        {
-            "uuid": "8d50a0af-948b-4204-a71d-4826cba765b8",
-            "_name": "Biology 2e"
-        },
-        {
-            "uuid": "914ac66e-e1ec-486d-8a9c-97b0f7a99774",
-            "_name": "Business Ethics"
-        },
-        {
-            "uuid": "920d1c8a-606c-4888-bfd4-d1ee27ce1795",
-            "_name": "Principles of Accounting, Volume 2: Managerial Accounting"
-        },
-        {
-            "uuid": "9ab4ba6d-1e48-486d-a2de-38ae1617ca84",
-            "_name": "Principles of Accounting, Volume 1: Financial Accounting"
-        },
-        {
-            "uuid": "9b08c294-057f-4201-9f48-5d6ad992740d",
-            "_name": "College Algebra"
-        },
-        {
-            "uuid": "9d8df601-4f12-4ac1-8224-b450bf739e5f",
-            "_name": "American Government 2e"
-        },
-        {
-            "uuid": "a31cd793-2162-4e9e-acb5-6e6bbd76a5fa",
-            "_name": "Calculus Volume 3"
-        },
-        {
-            "uuid": "a7ba2fb8-8925-4987-b182-5f4429d48daa",
-            "_name": "U.S. History"
-        },
-        {
-            "uuid": "af275420-6050-4707-995c-57b9cc13c358",
-            "_name": "University Physics Volume 3"
-        },
-        {
-            "uuid": "bc498e1f-efe9-43a0-8dea-d3569ad09a82",
-            "_name": "Principles of Economics 2e"
-        },
-        {
-            "uuid": "c3acb2ab-7d5c-45ad-b3cd-e59673fedd4e",
-            "_name": "Principles of Management"
-        },
-        {
-            "uuid": "d50f6e32-0fda-46ef-a362-9bd36ca7c97d",
-            "_name": "University Physics Volume 1"
-        },
-        {
-            "uuid": "e42bd376-624b-4c0f-972f-e0c57998e765",
-            "_name": "Microbiology"
-        },
-        {
-            "uuid": "fd53eae1-fa23-47c7-bb1b-972349835c3c",
-            "_name": "Precalculus"
-        }
+        [
+            {
+                "_name": "College Algebra",
+                "uuid": "9b08c294-057f-4201-9f48-5d6ad992740d"
+            },
+            {
+                "_name": "Precalculus",
+                "uuid": "fd53eae1-fa23-47c7-bb1b-972349835c3c"
+            },
+            {
+                "_name": "Algebra & Trigonometry",
+                "uuid": "13ac107a-f15f-49d2-97e8-60ab2e3b519c"
+            }
+        ],
+        [
+            {
+                "_name": "Principles of Economics 2e",
+                "uuid": "bc498e1f-efe9-43a0-8dea-d3569ad09a82"
+            },
+            {
+                "_name": "Principles of Macroeconomics 2e",
+                "uuid": "27f59064-990e-48f1-b604-5188b9086c29"
+            },
+            {
+                "_name": "Principles of Microeconomics 2e",
+                "uuid": "5c09762c-b540-47d3-9541-dda1f44f16e5"
+            },
+            {
+                "_name": "Principles of Macroeconomics for AP Courses 2e",
+                "uuid": "9117cf8c-a8a3-4875-8361-9cb0f1fc9362"
+            },
+            {
+                "_name": "Principles of Microeconomics for AP Courses 2e",
+                "uuid": "636cbfd9-4e37-4575-83ab-9dec9029ca4e"
+            }
+        ],
+        [
+            {
+                "_name": "American Government 2e",
+                "uuid": "9d8df601-4f12-4ac1-8224-b450bf739e5f"
+            }
+        ],
+        [
+            {
+                "_name": "Anatomy and Physiology",
+                "uuid": "14fb4ad7-39a1-4eee-ab6e-3ef2482e3e22"
+            }
+        ],
+        [
+            {
+                "_name": "Astronomy",
+                "uuid": "2e737be8-ea65-48c3-aa0a-9f35b4c6a966"
+            }
+        ],
+        [
+            {
+                "_name": "Biology 2e",
+                "uuid": "8d50a0af-948b-4204-a71d-4826cba765b8"
+            },
+            {
+                "_name": "Biology for AP Courses",
+                "uuid": "6c322e32-9fb0-4c4d-a1d7-20c95c5c7af2"
+            }
+        ],
+        [
+            {
+                "_name": "Business Ethics",
+                "uuid": "914ac66e-e1ec-486d-8a9c-97b0f7a99774"
+            }
+        ],
+        [
+            {
+                "_name": "Calculus Volume 1",
+                "uuid": "8b89d172-2927-466f-8661-01abc7ccdba4"
+            }
+        ],
+        [
+            {
+                "_name": "Calculus Volume 2",
+                "uuid": "1d39a348-071f-4537-85b6-c98912458c3c"
+            }
+        ],
+        [
+            {
+                "_name": "Calculus Volume 3",
+                "uuid": "a31cd793-2162-4e9e-acb5-6e6bbd76a5fa"
+            }
+        ],
+        [
+            {
+                "_name": "Chemistry 2e",
+                "uuid": "7fccc9cf-9b71-44f6-800b-f9457fd64335"
+            },
+            {
+                "_name": "Chemistry Atoms-First 2e",
+                "uuid": "d9b85ee6-c57f-4861-8208-5ddf261e9c5f"
+            }
+        ],
+        [
+            {
+                "_name": "College Physics",
+                "uuid": "031da8d3-b525-429c-80cf-6c8ed997733a"
+            },
+            {
+                "_name": "College Physics for AP Courses",
+                "uuid": "8d04a686-d5e8-4798-a27d-c608e4d0e187"
+            }
+        ],
+        [
+            {
+                "_name": "Intermediate Algebra",
+                "uuid": "02776133-d49d-49cb-bfaa-67c7f61b25a1"
+            },
+            {
+                "_name": "Elementary Algebra",
+                "uuid": "0889907c-f0ef-496a-bcb8-2a5bb121717f"
+            },
+            {
+                "_name": "Prealgebra",
+                "uuid": "caa57dab-41c7-455e-bd6f-f443cda5519c"
+            }
+        ],
+        [
+            {
+                "_name": "Introduction to Business",
+                "uuid": "4e09771f-a8aa-40ce-9063-aa58cc24e77f"
+            }
+        ],
+        [
+            {
+                "_name": "Introduction to Sociology 2e",
+                "uuid": "02040312-72c8-441e-a685-20e9333f3e1d"
+            }
+        ],
+        [
+            {
+                "_name": "Introductory Statistics",
+                "uuid": "30189442-6998-4686-ac05-ed152b91b9de"
+            },
+            {
+                "_name": "Introductory Business Statistics",
+                "uuid": "b56bb9e9-5eb8-48ef-9939-88b1b12ce22f"
+            }
+        ],
+        [
+            {
+                "_name": "Microbiology",
+                "uuid": "e42bd376-624b-4c0f-972f-e0c57998e765"
+            }
+        ],
+        [
+            {
+                "_name": "Principles of Management",
+                "uuid": "c3acb2ab-7d5c-45ad-b3cd-e59673fedd4e"
+            },
+            {
+                "_name": "Organizational Behavior",
+                "uuid": "2d941ab9-ac5b-4eb8-b21c-965d36a4f296"
+            }
+        ],
+        [
+            {
+                "_name": "Principles of Accounting, Volume 1: Financial Accounting",
+                "uuid": "9ab4ba6d-1e48-486d-a2de-38ae1617ca84"
+            }
+        ],
+        [
+            {
+                "_name": "Principles of Accounting, Volume 2: Managerial Accounting",
+                "uuid": "920d1c8a-606c-4888-bfd4-d1ee27ce1795"
+            }
+        ],
+        [
+            {
+                "_name": "Psychology 2e",
+                "uuid": "06aba565-9432-40f6-97ee-b8a361f118a8"
+            },
+            {
+                "_name": "Psychology",
+                "uuid": "4abf04bf-93a0-45c3-9cbc-2cefd46e68cc"
+            }
+        ],
+        [
+            {
+                "_name": "U.S. History",
+                "uuid": "a7ba2fb8-8925-4987-b182-5f4429d48daa"
+            }
+        ],
+        [
+            {
+                "_name": "University Physics Volume 1",
+                "uuid": "d50f6e32-0fda-46ef-a362-9bd36ca7c97d"
+            }
+        ],
+        [
+            {
+                "_name": "University Physics Volume 2",
+                "uuid": "7a0f9770-1c44-4acd-9920-1cd9a99f2a1e"
+            }
+        ],
+        [
+            {
+                "_name": "University Physics Volume 3",
+                "uuid": "af275420-6050-4707-995c-57b9cc13c358"
+            }
+        ]
     ]
 }
