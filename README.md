@@ -148,7 +148,7 @@ Run the script [./scripts/build-push.sh](./scripts/build-push.sh) with the appro
 
 ### Updating the Stack
 
-Refer to the [Updating the stack](http://0.0.0.0:8000/deployment/updating_the_stack.html) section of the docs.
+Refer to the [Updating the stack](http://127.0.0.0:8000/operations/updating_the_stack.html) section of the docs.
 
 ## Load testing for the backend
 
