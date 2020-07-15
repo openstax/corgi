@@ -195,14 +195,14 @@ Deploy to staging using the following script:
 .. warning::
    Deploy script will fail and exit without deploying if any of the required environment variables are not set.
 
-Deploy the corresponding pipeline to ``concourse-v6``:
+Deploy the corresponding pipeline to ``concourse-v6`` (BASH shell):
 
 .. code-block:: bash
 
    fly -t concourse-v6 sp -p cops-pdf-staging -c <(./bakery/build pipeline pdf staging --tag $TAG)
 
 .. warning::
-   Depending upon your environment, you  may need to get the correct version of fly and login first
+   Depending upon your environment, you may need to get the correct version of fly and login first.
 
 
 3. Promote Staging to Production
