@@ -52,6 +52,7 @@
                       <v-text-field
                         v-model="version"
                         label="Version"
+                        class="version-field"
                         hint="e.g. 19.2"
                         optional
                       />
@@ -63,7 +64,7 @@
                         :items="styleItems"
                         hint="e.g. microbiology"
                         label="Style"
-                        class="style-error-text"
+                        class="style-error-text style-field"
                         required
                       />
                     </v-col>
@@ -73,7 +74,7 @@
                         :items="content_servers"
                         :rules="[v => !!v || 'Please select a server']"
                         label="Content Server"
-                        class="server-error-text"
+                        class="server-error-text server-field"
                         required
                       />
                     </v-col>
