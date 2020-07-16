@@ -241,7 +241,7 @@ export default {
         'physics',
         'pl-u-physics',
         'precalculus',
-        'precalculus-coreq'
+        'precalculus-coreq',
         'principles-management',
         'psychology',
         'sociology',
