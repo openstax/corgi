@@ -6,7 +6,7 @@ const task = (taskArgs) => {
   const { awsAccessKeyId, awsSecretAccessKey, distBucket, queueStateBucket, codeVersion } = taskArgs
   const imageDefault = {
     name: 'openstax/cops-bakery-scripts',
-    tag: 'master'
+    tag: 'trunk'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })

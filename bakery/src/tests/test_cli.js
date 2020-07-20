@@ -75,7 +75,7 @@ test('build pipelines', async t => {
   t.pass()
 })
 
-test('default tag is master', async t => {
+test('default tag is trunk', async t => {
   let pipelineOut = ''
   const buildPipeline = spawn('./build', [
     'pipeline',
@@ -90,7 +90,7 @@ test('default tag is master', async t => {
   const obj = yaml.safeLoad(pipelineOut)
   const sources = sourceObjs(obj)
   for (const source of sources) {
-    t.is(source.tag, 'master', formatSubprocessOutput(buildPipelineResult))
+    t.is(source.tag, 'trunk', formatSubprocessOutput(buildPipelineResult))
   }
 })
 

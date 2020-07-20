@@ -17,7 +17,7 @@ const pipeline = (env) => {
   const codeVersionFromTag = env.IMAGE_TAG || 'version-unknown'
   const queueFilename = `${codeVersionFromTag}.${env.QUEUE_FILENAME}`
 
-  const lockedTag = env.IMAGE_TAG || 'master'
+  const lockedTag = env.IMAGE_TAG || 'trunk'
 
   const resources = [
     {

@@ -6,7 +6,7 @@ const task = (taskArgs) => {
   const { inputSource, inputPath } = taskArgs
   const imageDefault = {
     name: 'openstax/xhtml-validator',
-    tag: 'master'
+    tag: 'trunk'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
