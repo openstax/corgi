@@ -719,6 +719,13 @@ const tasks = {
   }
 }
 
+const currentVersion = require('../../package.json').version
+const latestVersion = execFileSync('npm', ['show', '@openstax/bakery-cli', 'version']).toString().trim()
+
+if (currentVersion !== latestVersion) {
+  console.log(`\x1b[33mWarning: bakery-cli version is ${currentVersion} - latest is ${latestVersion}\x1b[0m`)
+}
+
 const yargs = require('yargs')
   .command((() => {
     const commandUsage = 'run'
