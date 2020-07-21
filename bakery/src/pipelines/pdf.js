@@ -7,7 +7,7 @@ const pipeline = (env) => {
   const taskBuildPdf = require('../tasks/build-pdf')
   const taskValidateXhtml = require('../tasks/validate-xhtml')
 
-  const lockedTag = env.IMAGE_TAG || 'master'
+  const lockedTag = env.IMAGE_TAG || 'trunk'
 
   // FIXME: This mapping should be in the COPS resource
   const Status = Object.freeze({
