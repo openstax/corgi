@@ -238,7 +238,7 @@ export default {
         'hs-physics',
         'intro-business',
         'microbiology',
-        'physics',
+        'college-physics',
         'pl-u-physics',
         'precalculus',
         'precalculus-coreq',
