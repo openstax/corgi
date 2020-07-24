@@ -31,7 +31,7 @@ const task = (taskArgs) => {
           collection_id="$(cat book/collection_id)"
           for xhtmlfile in "${inputSource}/$collection_id/"${inputPath}
           do
-            java -cp /xhtml-validator.jar org.openstax.xml.Main "$xhtmlfile" link-to-duplicate-id
+            java -cp /xhtml-validator.jar org.openstax.xml.Main "$xhtmlfile" duplicate-id
           done
         `
         ]
