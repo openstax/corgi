@@ -35,11 +35,27 @@ module.exports.builder = yargs => {
 module.exports.handler = argv => {
   const env = (() => {
     const envFilePath = path.resolve(envDir, `${argv.env}.json`)
-    try {
-      return require(envFilePath)
-    } catch {
-      throw new Error(`Could not find environment file: ${envFilePath}`)
+    const envFileVals = (() => {
+      try {
+        return require(envFilePath)
+      } catch {
+        throw new Error(`Could not find environment file: ${envFilePath}`)
+      }
+    })()
+    // Grab AWS credentials from environment when running locally. If not
+    // available, throw an explicit error for the user
+    if (envFileVals.ENV_NAME === 'local') {
+      envFileVals.S3_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID
+      envFileVals.S3_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY
+      if (envFileVals.S3_ACCESS_KEY_ID === undefined) {
+        throw new Error('Please set AWS_ACCESS_KEY_ID in your environment')
+      }
+      if (envFileVals.S3_SECRET_ACCESS_KEY === undefined) {
+        throw new Error('Please set AWS_SECRET_ACCESS_KEY in your environment')
+      }
     }
+
+    return envFileVals
   }).call()
   const pipeline = (() => {
     const pipelineFilePath = path.resolve(pipelineDir, `${argv.pipelinetype}.js`)
