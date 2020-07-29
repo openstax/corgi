@@ -1,14 +1,14 @@
 import sys
 import json
-import utils
+from scripts import utils
 
 from lxml import etree
 from cnxepub.html_parsers import DocumentMetadataParser
 from cnxepub.collation import reconstitute
 
-raw_metadata_file, baked_xhtml_file, baked_metadata_file = sys.argv[1:4]
+def main():
 
-def capture_book_metadata():
+    raw_metadata_file, baked_xhtml_file, baked_metadata_file = sys.argv[1:4]
 
     with open(baked_xhtml_file, "r") as baked_xhtml:
         html = etree.parse(baked_xhtml)
@@ -44,4 +44,4 @@ def capture_book_metadata():
         )
 
 if __name__ == "__main__":
-    capture_book_metadata()
+    main()
