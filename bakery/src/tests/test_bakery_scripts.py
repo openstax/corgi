@@ -15,7 +15,7 @@ SCRIPT_DIR = os.path.join(HERE, "../scripts")
 
 def test_jsonify_book(tmp_path):
     """Test basic input / output for jsonify-book script"""
-    jsonify_book_script = os.path.join(SCRIPT_DIR, "jsonify-book.py")
+    jsonify_book_cmd = "jsonify"
 
     html_content = "<html><body>test body</body></html>"
     toc_content = "<nav>TOC</nav>"
@@ -45,7 +45,7 @@ def test_jsonify_book(tmp_path):
     jsonified_output_dir.mkdir()
 
     subprocess.run(
-        ["python", jsonify_book_script, disassembled_input_dir, tmp_path / "jsonified"],
+        [jsonify_book_cmd, disassembled_input_dir, tmp_path / "jsonified"],
         cwd=HERE,
         check=True,
     )
@@ -64,7 +64,7 @@ def test_jsonify_book(tmp_path):
 
 def test_disassemble_book(tmp_path):
     """Test basic input / output for disassemble-book script"""
-    disassemble_book_script = os.path.join(SCRIPT_DIR, "disassemble-book.py")
+    disassemble_book_cmd = "disassemble"
     input_baked_xhtml = os.path.join(TEST_DATA_DIR, "collection.baked.xhtml")
     input_baked_metadata = os.path.join(TEST_DATA_DIR, "collection.baked-metadata.json")
 
@@ -84,7 +84,7 @@ def test_disassemble_book(tmp_path):
     mock_ident_hash = f"{mock_uuid}@{mock_version}"
 
     subprocess.run(
-        ["python", disassemble_book_script, input_dir, mock_uuid, mock_version],
+        [disassemble_book_cmd, input_dir, mock_uuid, mock_version],
         cwd=HERE,
         check=True,
     )
@@ -132,7 +132,7 @@ def test_disassemble_book_empty_baked_metadata(tmp_path):
     """Test case for disassemble where there may not be associated metadata
     from previous steps in collection.baked-metadata.json
     """
-    disassemble_book_script = os.path.join(SCRIPT_DIR, "disassemble-book.py")
+    disassemble_book_cmd = "disassemble"
     input_baked_xhtml = os.path.join(TEST_DATA_DIR, "collection.baked.xhtml")
 
     input_dir = tmp_path / "book"
@@ -151,7 +151,7 @@ def test_disassemble_book_empty_baked_metadata(tmp_path):
     mock_ident_hash = f"{mock_uuid}@{mock_version}"
 
     subprocess.run(
-        ["python", disassemble_book_script, input_dir, mock_uuid, mock_version],
+        [disassemble_book_cmd, input_dir, mock_uuid, mock_version],
         cwd=HERE,
         check=True,
     )
@@ -180,15 +180,14 @@ def test_canonical_list_order():
 
 def test_assemble_book(tmp_path):
     """Test basic input / output for assemble-book script"""
-    assemble_book_script = os.path.join(SCRIPT_DIR, "assemble-book-metadata.py")
+    assemble_book_cmd = "assemble-meta"
     input_assembled_book = os.path.join(TEST_DATA_DIR, "assembled-book")
 
     assembled_metadata_output = tmp_path / "collection.assembed-metadata.json"
 
     subprocess.run(
         [
-            "python",
-            assemble_book_script,
+            assemble_book_cmd,
             input_assembled_book,
             assembled_metadata_output,
         ],
@@ -210,7 +209,7 @@ def test_assemble_book(tmp_path):
 
 def test_bake_book(tmp_path):
     """Test basic input / output for bake-book script"""
-    bake_book_script = os.path.join(SCRIPT_DIR, "bake-book-metadata.py")
+    bake_book_cmd = "bake-meta"
     input_raw_metadata = os.path.join(
         TEST_DATA_DIR, "collection.assembled-metadata.json"
     )
@@ -223,8 +222,7 @@ def test_bake_book(tmp_path):
 
     subprocess.run(
         [
-            "python",
-            bake_book_script,
+            bake_book_cmd,
             input_raw_metadata,
             input_baked_xhtml,
             output_baked_book_metadata,
