@@ -49,7 +49,7 @@ const task = (taskArgs) => {
           for jsonfile in "$book_dir/"*@*.json; do cp "$jsonfile" "$target_dir/$(basename $jsonfile)"; done;
           for xhtmlfile in "$book_dir/"*@*.xhtml; do cp "$xhtmlfile" "$target_dir/$(basename $xhtmlfile)"; done;
           aws s3 cp --recursive "$target_dir" "s3://${distBucket}/${distBucketPrefix}/contents"
-          python /code/scripts/copy-resources-s3.py "$resources_dir" "${distBucket}" "${distBucketPrefix}/resources"
+          copy-resources-s3 "$resources_dir" "${distBucket}" "${distBucketPrefix}/resources"
           complete_filename=".$collection_id@$book_legacy_version.complete"
           date -Iseconds > "/tmp/$complete_filename"
           aws s3 cp "/tmp/$complete_filename" "s3://${queueStateBucket}/${codeVersion}/$complete_filename"

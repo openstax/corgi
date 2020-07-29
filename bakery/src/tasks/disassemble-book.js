@@ -39,7 +39,7 @@ const task = (taskArgs) => {
           cp "baked-book-metadata/$collection_id/collection.baked-metadata.json" "disassembled-book/$collection_id/collection.baked-metadata.json"
           book_dir="disassembled-book/$collection_id"
           mkdir "$book_dir/disassembled"
-          python /code/scripts/disassemble-book.py "$book_dir" "$book_uuid" "$book_version"
+          disassemble "$book_dir" "$book_uuid" "$book_version"
         `
         ]
       }
