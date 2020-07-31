@@ -48,7 +48,7 @@ const task = (taskArgs) => {
               --arg legacy_id "$book_legacy_id" --arg legacy_version "$book_legacy_version" \
               '. + {($ident_hash): {id: $uuid, version: $version, license: $license, legacy_id: $legacy_id, legacy_version: $legacy_version}}' > "/tmp/collection.baked-input-metadata.json"
           cd "$target_dir"
-          python /code/scripts/bake-book-metadata.py /tmp/collection.baked-input-metadata.json collection.baked.xhtml collection.baked-metadata.json
+          bake-meta /tmp/collection.baked-input-metadata.json collection.baked.xhtml collection.baked-metadata.json
           `
         ]
       }

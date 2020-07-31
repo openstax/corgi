@@ -112,4 +112,9 @@ Both the Bakery CLI and the Pipeline Config Generator allow you to specify a tag
 #### Testing
 `npm run lint` will lint the JS files in `bakery` and `npm run test` will run regression tests on `bakery` via the CLI.
 
-There are basic tests for the Python scripts used in some of the bakery tasks in `bakery/src/tests` which can be run using `pytest bakery` after installing scripts dependencies
+There are basic tests for the Python scripts used in some of the bakery tasks in `bakery/src/tests` which can be run as follows:
+
+```
+pip install bakery/src/scripts/.[test]
+pytest bakery
+```

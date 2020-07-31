@@ -34,7 +34,7 @@ const task = (taskArgs) => {
           book_dir="checksum-book/$collection_id"
           mkdir "$book_dir/baked"
           find "baked-book/$collection_id/" -maxdepth 1 -type f -exec cp {} $book_dir/baked \;
-          python /code/scripts/checksum-resources.py "$book_dir"
+          checksum "$book_dir"
         `
         ]
       }

@@ -1,6 +1,6 @@
 import sys
 import json
-import utils
+from scripts import utils
 from pathlib import Path
 from datetime import datetime
 

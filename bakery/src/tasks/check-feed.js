@@ -29,7 +29,7 @@ const task = (taskArgs) => {
           '-cxe',
           dedent`
           curl ${feedFileUrl} -o book-feed.json
-          python /code/scripts/check-feed.py book-feed.json "${codeVersion}" "${queueStateBucket}" "${queueFilename}" "${maxBooksPerRun}"
+          check-feed book-feed.json "${codeVersion}" "${queueStateBucket}" "${queueFilename}" "${maxBooksPerRun}"
         `
         ]
       }

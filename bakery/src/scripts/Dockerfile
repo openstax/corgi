@@ -5,10 +5,10 @@ LABEL maintainer="OpenStax Content Engineering"
 RUN apt update
 RUN apt install -y build-essential libicu-dev pkg-config libmagic1 mime-support wget curl
 
-COPY ./requirements.txt /code/
+COPY ./requirements.txt /code/scripts/
 WORKDIR /code/
 
-RUN pip install -r requirements.txt
+RUN pip install -r scripts/requirements.txt
 
 ENV JQ_VERSION='1.6'
 
@@ -24,3 +24,4 @@ RUN wget --no-check-certificate https://raw.githubusercontent.com/stedolan/jq/ma
     rm -f /tmp/jq-linux64
 
 COPY ./*.py ./*.json /code/scripts/
+RUN pip install /code/scripts/.
