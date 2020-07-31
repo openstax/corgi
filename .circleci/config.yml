@@ -78,6 +78,11 @@ jobs:
             pip install bakery/src/scripts/.[test]
 
       - run:
+          name: Lint bakery Python scripts
+          command: |
+            flake8 bakery/src/**/**.py
+
+      - run:
           name: Run bakery scripts tests
           command: |
             pytest bakery -vvv --junitxml=/tmp/test-reports/junit.xml

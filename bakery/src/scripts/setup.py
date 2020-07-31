@@ -17,7 +17,8 @@ def parse_requirements(req_file):
 
 install_requires = parse_requirements(os.path.join(HERE, 'requirements.txt'))
 tests_require = [
-    'pytest'
+    'pytest',
+    'flake8'
 ]
 extras_require = {
     'test': tests_require,
