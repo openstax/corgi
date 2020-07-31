@@ -66,13 +66,42 @@ test('build pipelines', async t => {
           'pipeline',
           pipeline,
           env
-        ]))
+        ],
+        {
+          // Include credentials in environment for local pipelines
+          env: env === 'local' ? {
+            ...process.env,
+            ...{
+              AWS_ACCESS_KEY_ID: 'accesskey',
+              AWS_SECRET_ACCESS_KEY: 'secret'
+            }
+          } : process.env
+        }
+        ))
       )
     }
   }
 
   await Promise.all(processes)
   t.pass()
+})
+
+test('local pipelines error without credentials', async t => {
+  const pipelines = (await fs.readdir('src/pipelines')).map(file => path.basename(file, '.js'))
+
+  for (const pipeline of pipelines) {
+    const subproc = completion(spawn('./build', [
+      'pipeline',
+      pipeline,
+      'local'
+    ]
+    ))
+
+    await t.throwsAsync(
+      subproc,
+      { message: /Please set AWS_ACCESS_KEY_ID in your environment/ }
+    )
+  }
 })
 
 test('default tag is trunk', async t => {

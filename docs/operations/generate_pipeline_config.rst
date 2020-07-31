@@ -20,9 +20,9 @@ Prerequisites
 
 3. Install Concourse fly cli
 ============================
-  
+
 - For Linux, `Download the cli command binary <https://concourse-ci.org/quick-start.html>`_
-- For Mac, Install with ``brew cask install fly``.  
+- For Mac, Install with ``brew cask install fly``.
 
 [There is better way to do this with CLI now]
 
@@ -31,6 +31,13 @@ Prerequisites
 ***************************
 Generate Configuration File
 ***************************
+
+When running locally, you need to set appropriate AWS credentials in your environment if you don't have them set already:
+
+.. code-block:: bash
+
+    $ export AWS_ACCESS_KEY_ID="VALUE"
+    $ export AWS_SECRET_ACCESS_KEY="VALUE"
 
 Generate pipeline configuration file with output flag ``-o``. If no output file is given it will stdout.
 
