@@ -4,7 +4,6 @@ uuids from the target module and corresponding canonical book.
 """
 
 import sys
-import os
 import json
 from lxml import etree
 import requests
@@ -43,7 +42,8 @@ def main():
 
         content = req.json(req.content)
         containing_books = {
-            book["ident_hash"].split("@")[0]: book["title"] for book in content["books"]
+            book["ident_hash"].split("@")[0]: book["title"]
+            for book in content["books"]
         }
 
         # match uuid in canonical book list
@@ -53,7 +53,7 @@ def main():
                 match = book_uuid
                 break
 
-        if match == None:
+        if match is None:
             if len(containing_books) > 1:
                 # TODO: more specific exception
                 raise Exception(
