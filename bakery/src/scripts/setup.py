@@ -4,6 +4,7 @@ import os
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
+
 def parse_requirements(req_file):
     """Parse a requirements.txt file to a list of requirements"""
     with open(req_file, 'r') as fb:
@@ -12,6 +13,7 @@ def parse_requirements(req_file):
             if req.strip() and not req.startswith('#')
         ]
     return list(reqs)
+
 
 install_requires = parse_requirements(os.path.join(HERE, 'requirements.txt'))
 tests_require = [
@@ -41,6 +43,7 @@ setup(
     entry_points={
         'console_scripts': [
             'assemble-meta = scripts.assemble_book_metadata:main',
+            'link-extras = scripts.link_extras:main',
             'bake-meta = scripts.bake_book_metadata:main',
             'disassemble = scripts.disassemble_book:main',
             'checksum = scripts.checksum_resource:main',

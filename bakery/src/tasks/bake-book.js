@@ -20,7 +20,7 @@ const task = (taskArgs) => {
       },
       inputs: [
         { name: 'book' },
-        { name: 'assembled-book' },
+        { name: 'linked-extras' },
         { name: 'cnx-recipes-output' }
       ],
       outputs: [{ name: 'baked-book' }],
@@ -30,9 +30,9 @@ const task = (taskArgs) => {
           '-cxe',
           dedent`
           exec 2> >(tee baked-book/stderr >&2)
-          cp -r assembled-book/* baked-book
+          cp -r linked-extras/* baked-book
           book_dir="baked-book/$(cat book/collection_id)"
-          cnx-easybake -q "cnx-recipes-output/rootfs/recipes/$(cat book/style).css" "$book_dir/collection.assembled.xhtml" "$book_dir/collection.baked.xhtml"
+          cnx-easybake -q "cnx-recipes-output/rootfs/recipes/$(cat book/style).css" "$book_dir/collection.linked.xhtml" "$book_dir/collection.baked.xhtml"
           style_file="cnx-recipes-output/rootfs/styles/$(cat book/style)-pdf.css"
           if [ -f "$style_file" ]
           then
