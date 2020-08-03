@@ -672,13 +672,13 @@ const tasks = {
     }
   },
   'validate-xhtml': (parentCommand) => {
-    const commandUsage = 'validate-xhtml <collid> <inputsource> <inputpath>'
+    const commandUsage = 'validate-xhtml <collid> <inputsource> <inputpath> <validationname>'
     const handler = async argv => {
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = [`--taskargs=${JSON.stringify(
-        { ...imageDetails, ...{ inputSource: argv.inputsource, inputPath: argv.inputpath } }
+        { ...imageDetails, ...{ inputSource: argv.inputsource, inputPath: argv.inputpath, validationName: argv.validationname } }
       )}`]
       const taskContent = execFileSync(buildExec, ['task', 'validate-xhtml', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
