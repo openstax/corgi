@@ -8,6 +8,7 @@ from cnxepub.html_parsers import DocumentMetadataParser
 
 ASSEMBLED_FILENAME = 'collection.assembled.xhtml'
 
+
 def get_module_xhtml_metadata(module_xhtml):
     """Parse module metadata using XHTML file"""
     with open(module_xhtml, "r") as module_xhtml_file:
@@ -15,6 +16,7 @@ def get_module_xhtml_metadata(module_xhtml):
         metadata = DocumentMetadataParser(html)
 
     return metadata
+
 
 def main():
     in_dir = Path(sys.argv[1]).resolve(strict=True)
@@ -43,6 +45,7 @@ def main():
 
     with open(output_file_path, "w") as out_file:
         json.dump(json_data, out_file)
+
 
 if __name__ == "__main__":
     main()

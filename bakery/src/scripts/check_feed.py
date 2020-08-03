@@ -5,6 +5,7 @@ from datetime import datetime
 import boto3
 import botocore
 
+
 def main():
     feed_json = Path(sys.argv[1]).resolve(strict=True)
     code_version = sys.argv[2]
@@ -19,7 +20,7 @@ def main():
     books_queued = 0
 
     # Iterate through feed and check for a book that is not completed based
-    # upon the existence of a {code_version}/.{collection_id}@{version}.complete
+    # upon existence of a {code_version}/.{collection_id}@{version}.complete
     # file in S3 bucket. If the book is not complete, check pending and retry
     # states to see whether or not it has errored or timed out too many times
     # to be queued again.
@@ -71,7 +72,9 @@ def main():
                     s3_client.put_object(
                         Bucket=queue_state_bucket,
                         Key=state_key,
-                        Body=datetime.now().astimezone().isoformat(timespec='seconds')
+                        Body=datetime.now().astimezone().isoformat(
+                            timespec='seconds'
+                        )
                     )
                     books_queued += 1
                     # Book was queued, don't try to queue it again
@@ -81,6 +84,7 @@ def main():
                     raise
 
     print(f"Queued {books_queued} books")
+
 
 if __name__ == "__main__":
     main()

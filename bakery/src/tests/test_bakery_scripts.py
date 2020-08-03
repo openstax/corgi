@@ -56,7 +56,8 @@ def test_jsonify_book(tmp_path):
     jsonified_toc_data = json.loads(jsonified_toc_output.read_text())
 
     assert jsonified_output_data.get("title") == json_metadata_content["title"]
-    assert jsonified_output_data.get("abstract") == json_metadata_content["abstract"]
+    assert jsonified_output_data.get("abstract") == \
+        json_metadata_content["abstract"]
     assert jsonified_output_data.get("slug") == json_metadata_content["slug"]
     assert jsonified_output_data.get("content") == html_content
     assert jsonified_toc_data.get("content") == toc_content
@@ -66,7 +67,8 @@ def test_disassemble_book(tmp_path):
     """Test basic input / output for disassemble-book script"""
     disassemble_book_cmd = "disassemble"
     input_baked_xhtml = os.path.join(TEST_DATA_DIR, "collection.baked.xhtml")
-    input_baked_metadata = os.path.join(TEST_DATA_DIR, "collection.baked-metadata.json")
+    input_baked_metadata = os.path.join(
+        TEST_DATA_DIR, "collection.baked-metadata.json")
 
     input_dir = tmp_path / "book"
     input_dir.mkdir()
@@ -74,7 +76,9 @@ def test_disassemble_book(tmp_path):
     input_baked_xhtml_file = input_dir / "collection.baked.xhtml"
     input_baked_xhtml_file.write_bytes(open(input_baked_xhtml, "rb").read())
     input_baked_metadata_file = input_dir / "collection.baked-metadata.json"
-    input_baked_metadata_file.write_text(open(input_baked_metadata, "r").read())
+    input_baked_metadata_file.write_text(
+        open(input_baked_metadata, "r").read()
+    )
 
     disassembled_output = input_dir / "disassembled"
     disassembled_output.mkdir()
@@ -94,18 +98,23 @@ def test_disassemble_book(tmp_path):
     json_output_files = glob(f"{disassembled_output}/*-metadata.json")
     assert len(json_output_files) == 3
 
-    # Check for expected files and metadata that should be generated in this step
-    json_output_m42119 = disassembled_output / f"{mock_ident_hash}:m42119-metadata.json"
-    json_output_m42092 = disassembled_output / f"{mock_ident_hash}:m42092-metadata.json"
+    # Check for expected files and metadata that should be generated in
+    # this step
+    json_output_m42119 = \
+        disassembled_output / f"{mock_ident_hash}:m42119-metadata.json"
+    json_output_m42092 = \
+        disassembled_output / f"{mock_ident_hash}:m42092-metadata.json"
     m42119_data = json.load(open(json_output_m42119, "r"))
     m42092_data = json.load(open(json_output_m42092, "r"))
     assert (
         m42119_data.get("title")
-        == "Introduction to Science and the Realm of Physics, Physical Quantities, and Units"
+        == "Introduction to Science and the Realm of Physics, "
+           "Physical Quantities, and Units"
     )
     assert (
         m42119_data.get("slug")
-        == "1-introduction-to-science-and-the-realm-of-physics-physical-quantities-and-units"
+        == "1-introduction-to-science-and-the-realm-of-physics-physical-"
+           "quantities-and-units"
     )
     assert m42119_data["abstract"] is None
     assert m42119_data["revised"] == "2018/08/03 15:49:52 -0500"
@@ -120,7 +129,10 @@ def test_disassemble_book(tmp_path):
     toc_output = disassembled_output / "collection.toc.xhtml"
     assert toc_output.exists()
     toc_output_tree = etree.parse(open(toc_output))
-    nav = toc_output_tree.xpath("//xhtml:nav", namespaces=HTML_DOCUMENT_NAMESPACES)
+    nav = toc_output_tree.xpath(
+        "//xhtml:nav",
+        namespaces=HTML_DOCUMENT_NAMESPACES
+    )
     assert len(nav) == 1
     toc_metadata_output = disassembled_output / "collection.toc-metadata.json"
     assert toc_metadata_output.exists()
@@ -156,9 +168,12 @@ def test_disassemble_book_empty_baked_metadata(tmp_path):
         check=True,
     )
 
-    # Check for expected files and metadata that should be generated in this step
-    json_output_m42119 = disassembled_output / f"{mock_ident_hash}:m42119-metadata.json"
-    json_output_m42092 = disassembled_output / f"{mock_ident_hash}:m42092-metadata.json"
+    # Check for expected files and metadata that should be generated in this
+    # step
+    json_output_m42119 = \
+        disassembled_output / f"{mock_ident_hash}:m42119-metadata.json"
+    json_output_m42092 = \
+        disassembled_output / f"{mock_ident_hash}:m42092-metadata.json"
     m42119_data = json.load(open(json_output_m42119, "r"))
     m42092_data = json.load(open(json_output_m42092, "r"))
     assert m42119_data["abstract"] is None
@@ -202,9 +217,13 @@ def test_assemble_book(tmp_path):
         in assembled_metadata["m42092@1.10"]["abstract"]
     )
     assert (
-        assembled_metadata["m42092@1.10"]["revised"] == "2018/09/18 09:55:13.413 GMT-5"
+        assembled_metadata["m42092@1.10"]["revised"] ==
+        "2018/09/18 09:55:13.413 GMT-5"
     )
-    assert assembled_metadata["m42119@1.6"]["revised"] == "2018/08/03 15:49:52 -0500"
+    assert (
+        assembled_metadata["m42119@1.6"]["revised"] ==
+        "2018/08/03 15:49:52 -0500"
+    )
 
 
 def test_bake_book(tmp_path):
@@ -237,7 +256,7 @@ def test_bake_book(tmp_path):
     assert "contents" in baked_metadata[book_ident_hash]["tree"].keys()
     assert "license" in baked_metadata[book_ident_hash].keys()
     assert (
-        baked_metadata[book_ident_hash]["revised"] == "2019-08-30T16:35:37.569966-05:00"
+        baked_metadata[book_ident_hash]["revised"] ==
+        "2019-08-30T16:35:37.569966-05:00"
     )
     assert "College Physics" in baked_metadata[book_ident_hash]["title"]
-

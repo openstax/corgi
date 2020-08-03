@@ -3,6 +3,7 @@ from glob import glob
 from os.path import basename
 import json
 
+
 def main():
     book_dir, out_dir = sys.argv[1:3]
 
@@ -26,6 +27,7 @@ def main():
 
         with open(f"{out_dir}/{path}.xhtml", 'w') as outfile:
             outfile.write(json_data["content"])
+
 
 if __name__ == "__main__":
     main()

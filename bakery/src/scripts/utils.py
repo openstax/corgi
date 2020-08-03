@@ -1,6 +1,7 @@
 from cnxepub.models import TRANSLUCENT_BINDER_ID, TranslucentBinder
 from cnxcommon.urlslug import generate_slug
 
+
 # Based upon amend_tree_with_slugs from cnx-publishing
 # (https://github.com/openstax/cnx-publishing/blob/master/cnxpublishing/utils.py#L64)
 def amend_tree_with_slugs(tree, title_seq=[]):
@@ -10,6 +11,7 @@ def amend_tree_with_slugs(tree, title_seq=[]):
     if 'contents' in tree:
         for node in tree['contents']:
             amend_tree_with_slugs(node, title_seq)
+
 
 # Based upon model_to_tree from cnx-epub
 # (https://github.com/openstax/cnx-epub/blob/master/cnxepub/models.py#L108)
@@ -32,8 +34,9 @@ def model_to_tree(model, title=None, lucent_id=TRANSLUCENT_BINDER_ID):
     amend_tree_with_slugs(tree)
     return tree
 
+
 def parse_uri(uri):
-    if not uri.startswith('col', 0, 3): return None
+    if not uri.startswith('col', 0, 3):
+        return None
     legacy_id, legacy_version = uri.split('@')
     return legacy_id, legacy_version
-

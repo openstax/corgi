@@ -6,6 +6,7 @@ from lxml import etree
 from cnxepub.html_parsers import DocumentMetadataParser
 from cnxepub.collation import reconstitute
 
+
 def main():
 
     raw_metadata_file, baked_xhtml_file, baked_metadata_file = sys.argv[1:4]
@@ -18,9 +19,11 @@ def main():
     required_metadata = ('title', 'revised')
     for required_data in required_metadata:
         if getattr(metadata, required_data) is None:
-            raise ValueError("A value for '{}' could not be found.".format(required_data))
+            raise ValueError(
+                "A value for '{}' could not be found.".format(required_data)
+            )
 
-    with open(raw_metadata_file, "r") as raw_json :
+    with open(raw_metadata_file, "r") as raw_json:
         baked_metadata = json.load(raw_json)
 
     tree = utils.model_to_tree(binder)
@@ -42,6 +45,7 @@ def main():
             baked_metadata,
             json_out
         )
+
 
 if __name__ == "__main__":
     main()

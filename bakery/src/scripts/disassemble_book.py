@@ -10,7 +10,8 @@ from lxml.builder import ElementMaker, E
 from cnxepub.collation import reconstitute
 from cnxepub.html_parsers import HTML_DOCUMENT_NAMESPACES
 from cnxepub.formatters import DocumentContentFormatter
-from cnxepub.models import flatten_to_documents, Document, content_to_etree
+from cnxepub.models import flatten_to_documents, content_to_etree
+
 
 def extract_slugs_from_tree(tree, data):
     """Given a tree with slugs create a flattened structure where slug data
@@ -23,6 +24,7 @@ def extract_slugs_from_tree(tree, data):
         for node in tree["contents"]:
             extract_slugs_from_tree(node, data)
 
+
 def extract_slugs_from_binder(binder):
     """Given a binder return a dictionary that allows caller to retrieve
     computed slugs using ident_hash values"""
@@ -34,13 +36,15 @@ def extract_slugs_from_binder(binder):
     extract_slugs_from_tree(tree, slugs)
     return slugs
 
+
 def main():
     """Main function"""
     in_dir = Path(sys.argv[1]).resolve(strict=True)
     out_dir = (in_dir / "disassembled").resolve(strict=True)
     collection_uuid, collection_version = sys.argv[2:4]
     baked_file = (in_dir / "collection.baked.xhtml").resolve(strict=True)
-    baked_metdata_file = (in_dir / "collection.baked-metadata.json").resolve(strict=True)
+    baked_metdata_file = \
+        (in_dir / "collection.baked-metadata.json").resolve(strict=True)
 
     with open(baked_file, "rb") as file:
         html_root = etree.parse(file)
@@ -52,7 +56,8 @@ def main():
         baked_metadata = json.load(baked_json)
         book_toc_metadata = baked_metadata.get(binder.ident_hash)
 
-    nav = html_root.xpath("//xhtml:nav", namespaces=HTML_DOCUMENT_NAMESPACES)[0]
+    nav = html_root.xpath(
+        "//xhtml:nav", namespaces=HTML_DOCUMENT_NAMESPACES)[0]
 
     toc_maker = ElementMaker(namespace=None,
                              nsmap={None: "http://www.w3.org/1999/xhtml"})
@@ -69,7 +74,10 @@ def main():
             link_href = link.attrib['href']
             if not link_href.startswith('#'):
                 continue
-            if module_etree.xpath(f"/xhtml:body/xhtml:div[@id='{link_href[1:]}']", namespaces=HTML_DOCUMENT_NAMESPACES):
+            if module_etree.xpath(
+                f"/xhtml:body/xhtml:div[@id='{link_href[1:]}']",
+                namespaces=HTML_DOCUMENT_NAMESPACES
+            ):
                 link.attrib['href'] = f'./{id_with_context}.xhtml'
 
         # Inject some styling and JS for QA
@@ -105,7 +113,10 @@ def main():
             }
 
             /* Style footnotes so that they stand out */
-            [role="doc-footnote"] { background-color: #ffcccc; border: 1px dashed #ff0000; }
+            [role="doc-footnote"] {
+                background-color: #ffcccc;
+                border: 1px dashed #ff0000;
+            }
             [role="doc-footnote"]:before { content: "FOOTNOTE " ; }
 
             /* Show a permalink when hovering over a heading or paragraph */
@@ -129,11 +140,20 @@ def main():
                     parent.appendChild(link)
                 }
 
-                const paragraphs = Array.from(document.querySelectorAll('p[id]'))
+                const paragraphs = Array.from(
+                    document.querySelectorAll('p[id]')
+                )
                 paragraphs.forEach(p => addPermalink(p, p.getAttribute('id')) )
 
-                const headings = Array.from(document.querySelectorAll('*[id] > h1, *[id] > h2, *[id] > h3, *[id] > h4, *[id] > h5, *[id] > h6'))
-                headings.forEach(h => addPermalink(h, h.parentElement.getAttribute('id')) )
+                const headings = Array.from(
+                    document.querySelectorAll(
+                        '*[id] > h1, *[id] > h2, *[id] > h3, ' +
+                        '*[id] > h4, *[id] > h5, *[id] > h6'
+                    )
+                )
+                headings.forEach(h => addPermalink(
+                    h, h.parentElement.getAttribute('id'))
+                )
             })
         // ]]>'''
 
@@ -143,7 +163,9 @@ def main():
         with open(f"{out_dir / id_with_context}.xhtml", "wb") as out:
             out.write(etree.tostring(root))
 
-        with open(f"{out_dir / id_with_context}-metadata.json", "w") as json_out:
+        with open(
+            f"{out_dir / id_with_context}-metadata.json", "w"
+        ) as json_out:
             # Incorporate metadata from disassemble step while setting defaults
             # for cases like composite pages which may not have metadata from
             # previous stages
@@ -168,6 +190,7 @@ def main():
 
     with open(f"{out_dir}/collection.toc-metadata.json", "w") as toc_json:
         json.dump(book_toc_metadata, toc_json)
+
 
 if __name__ == "__main__":
     main()

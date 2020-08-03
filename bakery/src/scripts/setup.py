@@ -33,7 +33,8 @@ SETUP_KWARGS = dict(
     include_package_data=True,
 )
 
-# Note, this package is not to be released to PyPI and is for interal usage only
+# Note, this package is not to be released to PyPI and is for interal usage
+# only
 setup(
     name='cops-bakery-scripts',
     version='0.0.1',
