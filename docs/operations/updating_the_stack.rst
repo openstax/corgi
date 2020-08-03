@@ -222,30 +222,6 @@ Deploy the corresponding pipeline to ``concourse-v6``:
 
    fly -t concourse-v6 sp -p cops-pdf-prod -c <(./bakery/build pipeline pdf prod --tag $TAG)
 
-4. Build & Push New Docker Images
-=================================
-
-Get Latest Codez
-----------------
-**In a fresh terminal window, pull latest codez:**
-
-.. code-block:: bash
-
-   cd output-producer-service
-   git checkout master && git pull origin master
-
-Build Images with Tag and Push to Dockerhub
--------------------------------------------
-**In same terminal window as above, run script:**
-
-.. code-block:: bash
-
-   DOMAIN=$DOMAIN TAG=$TAG ./scripts/build-push.sh
-
-.. note:: This script builds the images with ``--no-cache`` so may take several minutes.
-
-**Keep terminal open until the end of the deployment process.**
-
 ----
 
 Cleanup
