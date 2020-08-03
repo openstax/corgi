@@ -160,7 +160,8 @@ test('stable flow in pdf and distribution pipeline', async t => {
     'validate-xhtml',
     bookId,
     'assembled-book',
-    'collection.assembled.xhtml'
+    'collection.assembled.xhtml',
+    'link-to-duplicate-id'
   ])
   await completion(assembleValidateXhtml)
 
@@ -191,7 +192,8 @@ test('stable flow in pdf and distribution pipeline', async t => {
     'validate-xhtml',
     bookId,
     'baked-book',
-    'collection.baked.xhtml'
+    'collection.baked.xhtml',
+    'link-to-duplicate-id'
   ])
   await completion(bakeValidateXhtml)
 
@@ -223,7 +225,8 @@ test('stable flow in pdf and distribution pipeline', async t => {
       'validate-xhtml',
       bookId,
       'mathified-book',
-      'collection.mathified.xhtml'
+      'collection.mathified.xhtml',
+      'link-to-duplicate-id'
     ])
     await completion(mathifyValidateXhtml)
 
@@ -249,7 +252,8 @@ test('stable flow in pdf and distribution pipeline', async t => {
       'validate-xhtml',
       bookId,
       'checksum-book',
-      'collection.baked.xhtml'
+      'collection.baked.xhtml',
+      'link-to-duplicate-id'
     ])
     await completion(checksumValidateXhtml)
 
@@ -279,7 +283,8 @@ test('stable flow in pdf and distribution pipeline', async t => {
       'validate-xhtml',
       bookId,
       'disassembled-book',
-      'disassembled/*@*.xhtml'
+      'disassembled/*@*.xhtml',
+      'duplicate-id'
     ])
     await completion(disassembleValidateXhtml)
 
@@ -299,7 +304,8 @@ test('stable flow in pdf and distribution pipeline', async t => {
       'validate-xhtml',
       bookId,
       'jsonified-book',
-      'jsonified/*@*.xhtml'
+      'jsonified/*@*.xhtml',
+      'duplicate-id'
     ])
     await completion(jsonifyValidateXhtml)
   })

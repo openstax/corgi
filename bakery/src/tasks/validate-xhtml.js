@@ -3,7 +3,7 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
-  const { inputSource, inputPath } = taskArgs
+  const { inputSource, inputPath, validationName } = taskArgs
   const imageDefault = {
     name: 'openstax/xhtml-validator',
     tag: 'trunk'
@@ -31,7 +31,7 @@ const task = (taskArgs) => {
           collection_id="$(cat book/collection_id)"
           for xhtmlfile in "${inputSource}/$collection_id/"${inputPath}
           do
-            java -cp /xhtml-validator.jar org.openstax.xml.Main "$xhtmlfile" duplicate-id
+            java -cp /xhtml-validator.jar org.openstax.xml.Main "$xhtmlfile" ${validationName}
           done
         `
         ]
