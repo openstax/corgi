@@ -3,6 +3,7 @@ const pipeline = (env) => {
   const taskDequeueBook = require('../tasks/dequeue-book')
   const taskFetchBook = require('../tasks/fetch-book')
   const taskAssembleBook = require('../tasks/assemble-book')
+  const taskLinkExtras = require('../tasks/link-extras')
   const taskAssembleBookMeta = require('../tasks/assemble-book-metadata')
   const taskBakeBook = require('../tasks/bake-book')
   const taskBakeBookMeta = require('../tasks/bake-book-metadata')
@@ -77,6 +78,7 @@ const pipeline = (env) => {
       }),
       taskFetchBook({ image: { tag: lockedTag } }),
       taskAssembleBook({ image: { tag: lockedTag } }),
+      taskLinkExtras({ image: { tag: lockedTag } }),
       taskAssembleBookMeta({ image: { tag: lockedTag } }),
       taskBakeBook({ image: { tag: lockedTag } }),
       taskBakeBookMeta({ image: { tag: lockedTag } }),

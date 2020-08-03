@@ -2,6 +2,7 @@ const pipeline = (env) => {
   const taskLookUpBook = require('../tasks/look-up-book')
   const taskFetchBook = require('../tasks/fetch-book')
   const taskAssembleBook = require('../tasks/assemble-book')
+  const taskLinkExtras = require('../tasks/link-extras')
   const taskBakeBook = require('../tasks/bake-book')
   const taskMathifyBook = require('../tasks/mathify-book')
   const taskBuildPdf = require('../tasks/build-pdf')
@@ -83,6 +84,7 @@ const pipeline = (env) => {
       reportToOutputProducer(Status.PROCESSING),
       taskFetchBook({ image: { tag: lockedTag } }),
       taskAssembleBook({ image: { tag: lockedTag } }),
+      taskLinkExtras({ image: { tag: lockedTag } }),
       taskBakeBook({ image: { tag: lockedTag } }),
       taskMathifyBook({ image: { tag: lockedTag } }),
       taskValidateXhtml({

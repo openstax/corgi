@@ -151,7 +151,7 @@ test('stable flow in pdf and distribution pipeline', async t => {
   const dataDir = 'src/tests/data'
   try {
     await fs.rmdir(outputDir, { recursive: true })
-  } catch {}
+  } catch { }
   await fs.copy(`${dataDir}/${bookId}`, `${outputDir}/${bookId}`)
 
   const commonArgs = [
@@ -203,6 +203,17 @@ test('stable flow in pdf and distribution pipeline', async t => {
   ])
   const assembleMetaResult = await completion(assembleMeta)
   t.truthy(fs.existsSync(`${outputDir}/${bookId}/assembled-book-metadata/${bookId}/collection.assembled-metadata.json`), formatSubprocessOutput(assembleMetaResult))
+
+  const linkExtras = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+    'link-extras',
+    bookId,
+    'dummy-archive'
+  ])
+  const linkResult = await completion(linkExtras)
+  t.truthy(fs.existsSync(`${outputDir}/${bookId}/linked-extras/${bookId}/collection.linked.xhtml`), formatSubprocessOutput(linkResult))
 
   const bake = spawn('node', [
     'src/cli/execute.js',

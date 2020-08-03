@@ -325,6 +325,53 @@ const tasks = {
       }
     }
   },
+  'link-extras': (parentCommand) => {
+    const commandUsage = 'link-extras <collid> <server>'
+    const handler = async argv => {
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
+
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify({
+          ...imageDetails, ...{ server: argv.server }
+        })}`]
+
+      const taskContent = execFileSync(buildExec, ['task', 'link-extras', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
+
+      const dataDir = path.resolve(argv.data, argv.collid)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'assembled-book'),
+        output(dataDir, 'linked-extras')
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'l',
+      describe: 'amend external book links',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
+        yargs.positional('collid', {
+          describe: 'collection id of collection to work on',
+          type: 'string'
+        }).positional('server', {
+          describe: 'archive server',
+          type: 'string'
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
+  },
   bake: (parentCommand) => {
     const commandUsage = 'bake <collid> <recipefile> <stylefile>'
     const handler = async argv => {
@@ -354,7 +401,7 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'assembled-book'),
+        input(dataDir, 'linked-extras'),
         `--input=cnx-recipes-output=${tmpRecipesDir.name}`,
         output(dataDir, 'baked-book')
       ], { image: argv.image, persist: argv.persist })
@@ -737,6 +784,7 @@ const yargs = require('yargs')
         return yargs
           .command(tasks.fetch(commandUsage))
           .command(tasks.assemble(commandUsage))
+          .command(tasks['link-extras'](commandUsage))
           .command(tasks.bake(commandUsage))
           .command(tasks.mathify(commandUsage))
           .command(tasks['build-pdf'](commandUsage))
