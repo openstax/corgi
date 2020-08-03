@@ -17,7 +17,8 @@ def parse_requirements(req_file):
 
 install_requires = parse_requirements(os.path.join(HERE, 'requirements.txt'))
 tests_require = [
-    'pytest'
+    'pytest',
+    'flake8'
 ]
 extras_require = {
     'test': tests_require,
@@ -32,7 +33,8 @@ SETUP_KWARGS = dict(
     include_package_data=True,
 )
 
-# Note, this package is not to be released to PyPI and is for interal usage only
+# Note, this package is not to be released to PyPI and is for interal usage
+# only
 setup(
     name='cops-bakery-scripts',
     version='0.0.1',

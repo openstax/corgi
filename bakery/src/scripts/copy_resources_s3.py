@@ -9,14 +9,15 @@ import traceback
 from pathlib import Path
 from timeit import default_timer as timer
 
-# After research and benchmarking 64 seems to be the best speed without big trade-offs.
+# After research and benchmarking 64 seems to be the best speed without big
+# trade-offs.
 MAX_THREAD_CHECK_S3 = 64
 MAX_THREAD_UPLOAD_S3 = 64
 
 
 class ThreadPoolExecutorStackTraced(concurrent.futures.ThreadPoolExecutor):
-    # Stack traced ThreadPoolExecutor for better error messages on exceptions on threads
-    # https://stackoverflow.com/a/24457608/756056
+    # Stack traced ThreadPoolExecutor for better error messages on exceptions
+    # on threads https://stackoverflow.com/a/24457608/756056
 
     def submit(self, fn, *args, **kwargs):
         """Submits the wrapped function instead of `fn`"""
@@ -32,7 +33,8 @@ class ThreadPoolExecutorStackTraced(concurrent.futures.ThreadPoolExecutor):
         try:
             return fn(*args, **kwargs)
         except Exception:
-            # Creates an exception of the same type with the traceback as message
+            # Creates an exception of the same type with the traceback as
+            # message
             raise sys.exc_info()[0](traceback.format_exc())
 
 
@@ -55,15 +57,17 @@ def is_s3_folder_empty(aws_key, aws_secret, bucket, key):
     try:
         response = s3_client.list_objects(
             Bucket=bucket, Prefix=prefix, Delimiter='/')
-        if not 'Contents' in response:
+        if 'Contents' not in response:
             result = True   # folder is empty
     except botocore.exceptions.ClientError as e:
-        print('That should not happen. Empty folder check should not cause a boto ClientError.')
+        print('That should not happen. Empty folder check should not cause '
+              'a boto ClientError.')
         raise(e)
     return result
 
 
-def check_s3_existence(aws_key, aws_secret, bucket, resource, disable_check=False):
+def check_s3_existence(aws_key, aws_secret, bucket, resource,
+                       disable_check=False):
     """ check if resource is already existing or needs uploading """
     def s3_md5sum(s3_client, bucket_name, resource_name):
         """ get (special) md5 of S3 resource or None when not existing """
@@ -91,7 +95,8 @@ def check_s3_existence(aws_key, aws_secret, bucket, resource, disable_check=Fals
                 's3',
                 aws_access_key_id=aws_key,
                 aws_secret_access_key=aws_secret)
-            if data['s3_md5'] != s3_md5sum(s3_client, bucket, resource['output_s3']):
+            if data['s3_md5'] != s3_md5sum(s3_client, bucket,
+                                           resource['output_s3']):
                 upload_resource = resource
                 upload_resource['mime_type'] = data['mime_type']
         return upload_resource
@@ -137,7 +142,8 @@ def upload(in_dir, bucket, bucket_folder):
     # environment variables mandatory for ThreadPoolExecutor
     if aws_key is None or aws_secret is None:
         raise EnvironmentError(
-            'Failed because AWS_ACCESS_KEY_ID and/or AWS_SECRET_ACCESS_KEY environment variable missing.')
+            'Failed because AWS_ACCESS_KEY_ID and/or AWS_SECRET_ACCESS_KEY '
+            'environment variable missing.')
 
     sha1_filepattern = '?' * 40  # sha1 hexdigest as 40 characters
 
@@ -150,15 +156,17 @@ def upload(in_dir, bucket, bucket_folder):
         resource['input_metadata_file'] = resource['input_file'] + '.json'
         resource['output_s3'] = slash_join(
             bucket_folder, os.path.basename(resource['input_file']))
-        resource['output_s3_metadata'] = slash_join(bucket_folder,
-                                                    os.path.basename(resource['input_file']) + '-unused.json')
+        resource['output_s3_metadata'] = slash_join(
+            bucket_folder,
+            os.path.basename(resource['input_file']) + '-unused.json')
         all_resources.append(resource)
 
     # check which resources are missing (with ThreadPoolExecutor)
     start = timer()
     upload_resources = []
     check_futures = []
-    with ThreadPoolExecutorStackTraced(max_workers=MAX_THREAD_CHECK_S3) as executor:
+    with ThreadPoolExecutorStackTraced(max_workers=MAX_THREAD_CHECK_S3) \
+            as executor:
         print('Checking which files to upload ', end='', flush=True)
         for resource in all_resources:
             check_futures.append(
@@ -189,7 +197,7 @@ def upload(in_dir, bucket, bucket_folder):
                 else:
                     if not disable_deep_folder_check:
                         print('x', end='', flush=True)
-            except:
+            except Exception:
                 halt_all_threads(executor)
                 raise
     if disable_deep_folder_check:
@@ -204,7 +212,8 @@ def upload(in_dir, bucket, bucket_folder):
     start = timer()
     upload_count = 0
     upload_futures = []
-    with ThreadPoolExecutorStackTraced(max_workers=MAX_THREAD_UPLOAD_S3) as executor:
+    with ThreadPoolExecutorStackTraced(max_workers=MAX_THREAD_UPLOAD_S3) \
+            as executor:
         print('Uploading to S3 ', end='', flush=True)
         for resource in upload_resources:
             # upload metadata first (because this is not checked)
@@ -244,7 +253,7 @@ def upload(in_dir, bucket, bucket_folder):
                 if result is not None:
                     upload_count = upload_count + 1
                     print('.', end='', flush=True)
-            except:
+            except Exception:
                 halt_all_threads(executor)
                 raise
     # divide by 2, don't count json metadata
@@ -254,8 +263,9 @@ def upload(in_dir, bucket, bucket_folder):
     elapsed = (timer() - start)
     print('Time it took to upload: {}s'.format(elapsed))
     if (upload_count) != len(upload_resources):
-        print('ERROR: Uploaded counted and needed to upload mismatch: {} != {}'.format(
-            upload_count, len(upload_resources)))
+        print('ERROR: Uploaded counted and needed to upload '
+              'mismatch: {} != {}'.format(
+                  upload_count, len(upload_resources)))
         sys.exit(1)
     print('FINISHED uploading resources.')
 

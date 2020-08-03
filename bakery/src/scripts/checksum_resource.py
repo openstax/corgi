@@ -73,13 +73,17 @@ def create_json_metadata(output_dir, sha1, mime_type, s3_md5, original_name):
 
 
 def generate_checksum_resources_from_xhtml(filename, output_dir):
-    """ Go through HTML and checksum/copy/mime type all <img> and <a> resources """
+    """ Go through HTML and checksum/copy/mime type all <img> and <a>
+    resources
+    """
     doc = etree.parse(filename)
     source_path = os.path.dirname(filename)
     basename = os.path.basename(filename)
     module_name = os.path.splitext(basename)[0]
     # get all img @src resources
-    for node in doc.xpath('//x:img[@src and not(starts-with(@src, "http") or starts-with(@src, "//"))]',
+    img_xpath = '//x:img[@src and not(starts-with(@src, "http") or ' \
+        'starts-with(@src, "//"))]'
+    for node in doc.xpath(img_xpath,
                           namespaces={'x': 'http://www.w3.org/1999/xhtml'}):
         img_filename = node.attrib['src']
         img_filename = os.path.join(source_path, img_filename)
@@ -92,15 +96,19 @@ def generate_checksum_resources_from_xhtml(filename, output_dir):
             node.attrib['src'] = '../' + RESOURCES_DIR + '/' + sha1
 
             create_symlink(img_filename, output_dir, sha1)
-            create_json_metadata(output_dir, sha1, mime_type, s3_md5, img_basename)
+            create_json_metadata(output_dir, sha1, mime_type, s3_md5,
+                                 img_basename)
 
     # get all a @href resources
-    for node in doc.xpath('//x:a[@href and not(starts-with(@href, "http") or starts-with(@href, "//") or starts-with(@href, "#"))]',
+    href_xpath = '//x:a[@href and not(starts-with(@href, "http") or ' \
+        'starts-with(@href, "//") or starts-with(@href, "#"))]'
+    for node in doc.xpath(href_xpath,
                           namespaces={'x': 'http://www.w3.org/1999/xhtml'}):
         img_filename = node.attrib['href']
 
         # fix a @href links to module_name directories
-        # they are pointing relatively to ./image.jpg but need to point to ./m123/image.jpg
+        # they are pointing relatively to ./image.jpg but need to point
+        # to ./m123/image.jpg
         img_filename = os.path.join(source_path, module_name, img_filename)
         img_basename = os.path.basename(img_filename)
 
@@ -111,7 +119,8 @@ def generate_checksum_resources_from_xhtml(filename, output_dir):
             node.attrib['href'] = '../' + RESOURCES_DIR + '/' + sha1
 
             create_symlink(img_filename, output_dir, sha1)
-            create_json_metadata(output_dir, sha1, mime_type, s3_md5, img_basename)
+            create_json_metadata(output_dir, sha1, mime_type, s3_md5,
+                                 img_basename)
 
     output_file = os.path.join(output_dir, basename)
     # note: non self closing tags in xhtml are probably not respected here
@@ -127,7 +136,7 @@ def mkdir_resources(path):
 def main():
     """Main function"""
     in_dir = Path(sys.argv[1]).resolve(strict=True)
-    out_dir = in_dir # overwrite baked book xhtml files
+    out_dir = in_dir  # overwrite baked book xhtml files
     mkdir_resources(out_dir)
     for xhtml_file in Path(in_dir).glob('*.xhtml'):
         generate_checksum_resources_from_xhtml(str(xhtml_file), out_dir)
