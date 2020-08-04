@@ -1,6 +1,6 @@
 import sys
 import json
-from scripts import utils
+from . import utils
 
 from lxml import etree
 from cnxepub.html_parsers import DocumentMetadataParser
