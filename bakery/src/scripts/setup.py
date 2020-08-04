@@ -19,6 +19,7 @@ install_requires = parse_requirements(os.path.join(HERE, 'requirements.txt'))
 tests_require = [
     'pytest',
     'pytest-mock',
+    'pytest-cov',
     'flake8'
 ]
 extras_require = {
