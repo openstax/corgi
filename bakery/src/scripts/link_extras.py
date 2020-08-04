@@ -62,7 +62,6 @@ def main():
 
         node.attrib["href"] = f"/contents/{module_uuid}"
         node.attrib["data-book-uuid"] = match
-        break
 
     linked_collection = f"{data_dir}/collection.linked.xhtml"
     with open(f"{linked_collection}", "wb") as f:
