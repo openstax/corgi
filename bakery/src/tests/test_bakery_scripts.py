@@ -1,5 +1,4 @@
 """Tests to validate JSON metadata extraction and file generation pipeline"""
-import subprocess
 import os
 import json
 from glob import glob
@@ -7,15 +6,16 @@ from lxml import etree
 
 from cnxepub.html_parsers import HTML_DOCUMENT_NAMESPACES
 from cnxepub.collation import reconstitute
+from bakery_scripts import jsonify_book, disassemble_book, \
+    assemble_book_metadata, bake_book_metadata
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(HERE, "data")
 SCRIPT_DIR = os.path.join(HERE, "../scripts")
 
 
-def test_jsonify_book(tmp_path):
-    """Test basic input / output for jsonify-book script"""
-    jsonify_book_cmd = "jsonify"
+def test_jsonify_book(tmp_path, mocker):
+    """Test jsonify_book script"""
 
     html_content = "<html><body>test body</body></html>"
     toc_content = "<nav>TOC</nav>"
@@ -44,11 +44,11 @@ def test_jsonify_book(tmp_path):
     jsonified_output_dir = tmp_path / "jsonified"
     jsonified_output_dir.mkdir()
 
-    subprocess.run(
-        [jsonify_book_cmd, disassembled_input_dir, tmp_path / "jsonified"],
-        cwd=HERE,
-        check=True,
+    mocker.patch(
+        'sys.argv',
+        ['', disassembled_input_dir, tmp_path / "jsonified"]
     )
+    jsonify_book.main()
 
     jsonified_output = jsonified_output_dir / f"{mock_ident_hash}:m00001.json"
     jsonified_output_data = json.loads(jsonified_output.read_text())
@@ -63,9 +63,8 @@ def test_jsonify_book(tmp_path):
     assert jsonified_toc_data.get("content") == toc_content
 
 
-def test_disassemble_book(tmp_path):
-    """Test basic input / output for disassemble-book script"""
-    disassemble_book_cmd = "disassemble"
+def test_disassemble_book(tmp_path, mocker):
+    """Test disassemble_book script"""
     input_baked_xhtml = os.path.join(TEST_DATA_DIR, "collection.baked.xhtml")
     input_baked_metadata = os.path.join(
         TEST_DATA_DIR, "collection.baked-metadata.json")
@@ -87,11 +86,11 @@ def test_disassemble_book(tmp_path):
     mock_version = "0.0"
     mock_ident_hash = f"{mock_uuid}@{mock_version}"
 
-    subprocess.run(
-        [disassemble_book_cmd, input_dir, mock_uuid, mock_version],
-        cwd=HERE,
-        check=True,
+    mocker.patch(
+        'sys.argv',
+        ['', input_dir, mock_uuid, mock_version]
     )
+    disassemble_book.main()
 
     xhtml_output_files = glob(f"{disassembled_output}/*.xhtml")
     assert len(xhtml_output_files) == 3
@@ -140,11 +139,10 @@ def test_disassemble_book(tmp_path):
     assert toc_metadata.get("title") == "College Physics"
 
 
-def test_disassemble_book_empty_baked_metadata(tmp_path):
+def test_disassemble_book_empty_baked_metadata(tmp_path, mocker):
     """Test case for disassemble where there may not be associated metadata
     from previous steps in collection.baked-metadata.json
     """
-    disassemble_book_cmd = "disassemble"
     input_baked_xhtml = os.path.join(TEST_DATA_DIR, "collection.baked.xhtml")
 
     input_dir = tmp_path / "book"
@@ -162,11 +160,11 @@ def test_disassemble_book_empty_baked_metadata(tmp_path):
     mock_version = "0.0"
     mock_ident_hash = f"{mock_uuid}@{mock_version}"
 
-    subprocess.run(
-        [disassemble_book_cmd, input_dir, mock_uuid, mock_version],
-        cwd=HERE,
-        check=True,
+    mocker.patch(
+        'sys.argv',
+        ['', input_dir, mock_uuid, mock_version]
     )
+    disassemble_book.main()
 
     # Check for expected files and metadata that should be generated in this
     # step
@@ -193,22 +191,17 @@ def test_canonical_list_order():
         assert names.index("College Algebra") < names.index("Precalculus")
 
 
-def test_assemble_book(tmp_path):
-    """Test basic input / output for assemble-book script"""
-    assemble_book_cmd = "assemble-meta"
+def test_assemble_book_metadata(tmp_path, mocker):
+    """Test assemble_book_metadata script"""
     input_assembled_book = os.path.join(TEST_DATA_DIR, "assembled-book")
 
     assembled_metadata_output = tmp_path / "collection.assembed-metadata.json"
 
-    subprocess.run(
-        [
-            assemble_book_cmd,
-            input_assembled_book,
-            assembled_metadata_output,
-        ],
-        cwd=HERE,
-        check=True,
+    mocker.patch(
+        'sys.argv',
+        ['', input_assembled_book, assembled_metadata_output]
     )
+    assemble_book_metadata.main()
 
     assembled_metadata = json.loads(assembled_metadata_output.read_text())
     assert assembled_metadata["m42119@1.6"]["abstract"] is None
@@ -226,9 +219,8 @@ def test_assemble_book(tmp_path):
     )
 
 
-def test_bake_book(tmp_path):
-    """Test basic input / output for bake-book script"""
-    bake_book_cmd = "bake-meta"
+def test_bake_book_metadata(tmp_path, mocker):
+    """Test bake_book_metadata script"""
     input_raw_metadata = os.path.join(
         TEST_DATA_DIR, "collection.assembled-metadata.json"
     )
@@ -239,16 +231,16 @@ def test_bake_book(tmp_path):
         binder = reconstitute(baked_xhtml)
         book_ident_hash = binder.ident_hash
 
-    subprocess.run(
+    mocker.patch(
+        'sys.argv',
         [
-            bake_book_cmd,
+            '',
             input_raw_metadata,
             input_baked_xhtml,
             output_baked_book_metadata,
-        ],
-        cwd=HERE,
-        check=True,
+        ]
     )
+    bake_book_metadata.main()
 
     baked_metadata = json.loads(output_baked_book_metadata.read_text())
 
