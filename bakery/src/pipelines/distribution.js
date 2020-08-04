@@ -78,7 +78,10 @@ const pipeline = (env) => {
       }),
       taskFetchBook({ image: { tag: lockedTag } }),
       taskAssembleBook({ image: { tag: lockedTag } }),
-      taskLinkExtras({ image: { tag: lockedTag } }),
+      taskLinkExtras({
+        image: { tag: lockedTag },
+        server: 'archive.cnx.org'
+      }),
       taskAssembleBookMeta({ image: { tag: lockedTag } }),
       taskBakeBook({ image: { tag: lockedTag } }),
       taskBakeBookMeta({ image: { tag: lockedTag } }),
