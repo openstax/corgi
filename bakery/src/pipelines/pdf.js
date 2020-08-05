@@ -84,7 +84,10 @@ const pipeline = (env) => {
       reportToOutputProducer(Status.PROCESSING),
       taskFetchBook({ image: { tag: lockedTag } }),
       taskAssembleBook({ image: { tag: lockedTag } }),
-      taskLinkExtras({ image: { tag: lockedTag } }),
+      taskLinkExtras({
+        image: { tag: lockedTag },
+        server: 'archive.cnx.org'
+      }),
       taskBakeBook({ image: { tag: lockedTag } }),
       taskMathifyBook({ image: { tag: lockedTag } }),
       taskValidateXhtml({
