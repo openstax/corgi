@@ -3,11 +3,13 @@ import os
 import json
 from glob import glob
 from lxml import etree
+import boto3
+import botocore.stub
 
 from cnxepub.html_parsers import HTML_DOCUMENT_NAMESPACES
 from cnxepub.collation import reconstitute
 from bakery_scripts import jsonify_book, disassemble_book, \
-    assemble_book_metadata, bake_book_metadata
+    assemble_book_metadata, bake_book_metadata, check_feed
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(HERE, "data")
@@ -252,3 +254,197 @@ def test_bake_book_metadata(tmp_path, mocker):
         "2019-08-30T16:35:37.569966-05:00"
     )
     assert "College Physics" in baked_metadata[book_ident_hash]["title"]
+
+
+def test_check_feed(tmp_path, mocker):
+    """Test check_feed script"""
+    input_book_feed = [
+        {
+            "name": "Introduction to Sociology 2e",
+            "collection_id": "col11762",
+            "style": "sociology",
+            "version": "1.14.1",
+            "server": "cnx.foobar.org",
+            "uuid": "02040312-72c8-441e-a685-20e9333f3e1d"
+        },
+        {
+            "name": "College Physics",
+            "collection_id": "col11406",
+            "style": "college-physics",
+            "version": "1.20.15",
+            "server": "cnx.foobar.org",
+            "uuid": "031da8d3-b525-429c-80cf-6c8ed997733a"
+        }
+    ]
+
+    json_feed_input = (
+        tmp_path / "book-feed.json"
+    )
+    json_feed_input.write_text(json.dumps(input_book_feed))
+
+    # We'll use the botocore stubber to play out a simple scenario to test the
+    # script where we'll trigger multiple invocations to "build" all books
+    # above. Documenting this in words just to help with readability and
+    # maintainability.
+    #
+    # Expected s3 requests / responses by invocation:
+    #
+    # Invocation 1:
+    #   - book 1
+    #       - Initial check for .complete: head_object => Return a 404
+    #       - Check for .pending: head_object => Return a 404
+    #       - put_object by script with book data
+    #       - put_object by script with .pending state
+
+    # Invocation 2:
+    #   - book 1 (emulate a failure from first invocation)
+    #       - Check for .complete => head_object => Return a 404
+    #       - Check for .pending: head_object => Return data
+    #       - Check for .retry: head_object => Return 404
+    #       - put_object by script with book data
+    #       - put_object by script with .retry state
+    #
+    # Invocation 3:
+    #   - book 1
+    #       - Check for .complete => head_object return object
+    #   - book 2
+    #       - Initial check for .complete: head_object => Return a 404
+    #       - Check for .pending head_object => Return a 404
+    #       - put_object by script with book data
+    #       - put_object by script with .pending state
+
+    queue_state_bucket = 'queue-state-bucket'
+    queue_filename = 'queue-state-filename.json'
+    code_version = 'code-version'
+    book1 = input_book_feed[0]
+    book1_col = book1['collection_id']
+    book1_vers = book1['version']
+    book2 = input_book_feed[1]
+    book2_col = book2['collection_id']
+    book2_vers = book2['version']
+
+    s3_client = boto3.client('s3')
+    s3_stubber = botocore.stub.Stubber(s3_client)
+
+    def _stubber_add_head_object_404(expected_key):
+        s3_stubber.add_client_error(
+            'head_object',
+            service_error_meta={
+                'Code': '404'
+            },
+            expected_params={
+                'Bucket': queue_state_bucket,
+                'Key': expected_key
+            }
+        )
+
+    def _stubber_add_head_object(expected_key):
+        s3_stubber.add_response(
+            'head_object',
+            {},
+            expected_params={
+                'Bucket': queue_state_bucket,
+                'Key': expected_key
+            }
+        )
+
+    def _stubber_add_put_object(expected_key, expected_body):
+        s3_stubber.add_response(
+            'put_object',
+            {},
+            expected_params={
+                'Bucket': queue_state_bucket,
+                'Key': expected_key,
+                'Body': expected_body
+            }
+        )
+
+    # Book 1: Check for .complete file
+    _stubber_add_head_object_404(
+        f"{code_version}/.{book1_col}@{book1_vers}.complete"
+    )
+
+    # Book 1: Check for .pending file
+    _stubber_add_head_object_404(
+        f"{code_version}/.{book1_col}@{book1_vers}.pending"
+    )
+
+    # Book 1: Put book data
+    _stubber_add_put_object(queue_filename, json.dumps(book1))
+
+    # Book 1: Put book .pending
+    _stubber_add_put_object(
+        f"{code_version}/.{book1_col}@{book1_vers}.pending",
+        botocore.stub.ANY
+    )
+
+    # Book 1: Check for .complete file
+    _stubber_add_head_object_404(
+        f"{code_version}/.{book1_col}@{book1_vers}.complete"
+    )
+
+    # Book 1: Check for .pending file (return as though it exists)
+    _stubber_add_head_object(
+        f"{code_version}/.{book1_col}@{book1_vers}.pending"
+    )
+
+    # Book 1: Check for .retry file
+    _stubber_add_head_object_404(
+        f"{code_version}/.{book1_col}@{book1_vers}.retry"
+    )
+
+    # Book 1: Put book data again
+    _stubber_add_put_object(queue_filename, json.dumps(book1))
+
+    # Book 1: Put book .retry
+    _stubber_add_put_object(
+        f"{code_version}/.{book1_col}@{book1_vers}.retry",
+        botocore.stub.ANY
+    )
+
+    # Book 1: Check for .complete file
+    _stubber_add_head_object(
+        f"{code_version}/.{book1_col}@{book1_vers}.complete"
+    )
+
+    # Book 2: Check for .complete file
+    _stubber_add_head_object_404(
+        f"{code_version}/.{book2_col}@{book2_vers}.complete"
+    )
+
+    # Book 2: Check for .pending file
+    _stubber_add_head_object_404(
+        f"{code_version}/.{book2_col}@{book2_vers}.pending"
+    )
+
+    # Book 2: Put book data
+    _stubber_add_put_object(queue_filename, json.dumps(book2))
+
+    # Book 2: Put book .pending
+    _stubber_add_put_object(
+        f"{code_version}/.{book2_col}@{book2_vers}.pending",
+        botocore.stub.ANY
+    )
+
+    s3_stubber.activate()
+
+    mocker.patch(
+        'boto3.client',
+        lambda service: s3_client
+    )
+    mocker.patch(
+        'sys.argv',
+        [
+            '',
+            json_feed_input,
+            code_version,
+            queue_state_bucket,
+            queue_filename,
+            1
+        ]
+    )
+
+    for _ in range(3):
+        check_feed.main()
+
+    s3_stubber.assert_no_pending_responses()
