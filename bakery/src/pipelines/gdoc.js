@@ -88,6 +88,7 @@ const pipeline = (env) => {
         inputPath: 'jsonified/*@*.xhtml',
         validationName: 'duplicate-id'
       })
+      // Add task: Patch inter/intra-book links
       // Add task: Do Google Docs conversion
       // Add task: Upload to google storage
     ]
