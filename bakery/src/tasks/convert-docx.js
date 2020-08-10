@@ -27,6 +27,7 @@ const task = (taskArgs) => {
         path: '/bin/bash',
         args: [
           '-cxe',
+          /* eslint-disable no-template-curly-in-string */
           dedent`
           exec 2> >(tee docx-book/stderr >&2)
           cp -r jsonified-book/* docx-book
@@ -44,6 +45,7 @@ const task = (taskArgs) => {
             pandoc --reference-doc="/code/gdoc/custom-reference.docx" --from=html --to=docx --output="../../../$target_dir/$docx_filename" "$wrapped_tempfile"
           done
         `
+        /* eslint-enable no-template-curly-in-string */
         ]
       }
     }
