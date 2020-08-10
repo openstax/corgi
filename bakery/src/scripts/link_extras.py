@@ -5,8 +5,10 @@ uuids from the target module and corresponding canonical book.
 
 import sys
 import json
-from lxml import etree
 import requests
+
+from lxml import etree
+from urllib.parse import unquote
 
 
 def load_canonical_list(canonical_list):
@@ -26,7 +28,9 @@ def load_assembled_collection(input_dir):
 def find_legacy_id(node):
     """find legacy module id"""
     link = node.attrib["href"]
-    return link.lstrip("/contents/")
+    parsed = unquote(link)
+
+    return parsed.lstrip("/contents/").rstrip()
 
 
 def get_target_uuid(server, legacy_id):
