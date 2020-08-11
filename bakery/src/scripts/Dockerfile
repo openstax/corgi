@@ -3,7 +3,7 @@ FROM python:3.7-slim
 LABEL maintainer="OpenStax Content Engineering"
 
 RUN apt update
-RUN apt install -y build-essential libicu-dev pkg-config libmagic1 mime-support wget curl
+RUN apt install -y build-essential libicu-dev pkg-config libmagic1 mime-support wget curl xsltproc pandoc
 
 COPY ./requirements.txt /code/scripts/
 WORKDIR /code/
@@ -24,4 +24,5 @@ RUN wget --no-check-certificate https://raw.githubusercontent.com/stedolan/jq/ma
     rm -f /tmp/jq-linux64
 
 COPY ./*.py ./*.json /code/scripts/
+COPY ./gdoc/ /code/gdoc/
 RUN pip install /code/scripts/.

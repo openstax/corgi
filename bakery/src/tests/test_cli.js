@@ -348,6 +348,17 @@ test('stable flow in pdf and distribution pipeline', async t => {
       'duplicate-id'
     ])
     await completion(jsonifyValidateXhtml)
+
+    const convertDocx = spawn('node', [
+      'src/cli/execute.js',
+      ...commonArgs,
+      '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+      'convert-docx',
+      bookId
+    ])
+    const convertDocxResult = await completion(convertDocx)
+    t.truthy(fs.existsSync(`${outputDir}/${bookId}/docx-book/${bookId}/docx/preface.docx`), formatSubprocessOutput(convertDocxResult))
+    t.truthy(fs.existsSync(`${outputDir}/${bookId}/docx-book/${bookId}/docx/1-introduction.docx`), formatSubprocessOutput(convertDocxResult))
   })
 
   await Promise.all([branchPdf, branchDistribution])
