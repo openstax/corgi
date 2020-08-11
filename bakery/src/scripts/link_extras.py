@@ -45,7 +45,7 @@ def init_requests_session(max_retries):
 
 def get_target_uuid(session, server, legacy_id):
     """get target module uuid"""
-    req = requests.get(f"https://{server}/content/{legacy_id}")
+    req = session.get(f"https://{server}/content/{legacy_id}")
     req.raise_for_status()
 
     return req.url.split("/")[-1]
@@ -53,7 +53,7 @@ def get_target_uuid(session, server, legacy_id):
 
 def get_containing_books(session, server, module_uuid):
     """get list of books containing module"""
-    req = requests.get(f"https://{server}/extras/{module_uuid}")
+    req = session.get(f"https://{server}/extras/{module_uuid}")
     req.raise_for_status()
 
     content = req.json()
