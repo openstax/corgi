@@ -11,6 +11,9 @@ from lxml import etree
 from urllib.parse import unquote
 
 
+MAX_RETRIES = 2
+
+
 def load_canonical_list(canonical_list):
     with open(canonical_list) as canonical_file:
         canonical_books = json.load(canonical_file)["canonical_books"]
@@ -33,17 +36,24 @@ def find_legacy_id(node):
     return parsed.lstrip("/contents/").rstrip()
 
 
-def get_target_uuid(server, legacy_id):
+def init_requests_session(max_retries):
+    session = requests.Session()
+    adapter = requests.adapters.HTTPAdapter(max_retries=max_retries)
+    session.mount("https://", adapter)
+    return session
+
+
+def get_target_uuid(session, server, legacy_id):
     """get target module uuid"""
-    req = requests.get(f"https://{server}/content/{legacy_id}")
+    req = session.get(f"https://{server}/content/{legacy_id}")
     req.raise_for_status()
 
     return req.url.split("/")[-1]
 
 
-def get_containing_books(server, module_uuid):
+def get_containing_books(session, server, module_uuid):
     """get list of books containing module"""
-    req = requests.get(f"https://{server}/extras/{module_uuid}")
+    req = session.get(f"https://{server}/extras/{module_uuid}")
     req.raise_for_status()
 
     content = req.json()
@@ -97,8 +107,10 @@ def main():
 
         legacy_id = find_legacy_id(node)
 
-        module_uuid = get_target_uuid(server, legacy_id)
-        containing_books = get_containing_books(server, module_uuid)
+        session = init_requests_session(MAX_RETRIES)
+
+        module_uuid = get_target_uuid(session, server, legacy_id)
+        containing_books = get_containing_books(session, server, module_uuid)
 
         match = match_canonical_book(canonical_ids, containing_books)
         patch_link(node, module_uuid, match)
