@@ -11,7 +11,7 @@ from lxml import etree
 from urllib.parse import unquote
 
 
-MAX_RETRIES = 20
+MAX_RETRIES = 2
 
 
 def load_canonical_list(canonical_list):
