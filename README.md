@@ -8,6 +8,12 @@ Follow the instructions to install [Docker](https://docs.docker.com/install/).
 
 Follow the instructions to install [Docker Compose](https://docs.docker.com/compose/install/).
 
+**A note for Mac and PC users**
+
+After installing Docker, navigate to the Docker Desktop GUI preferences and increase the `Memory` value to at least `8GiB`.
+ 
+[Here's where you can find the Docker Desktop GUI settings](https://docs.docker.com/docker-for-windows/#resources)
+
 ## Architecture
 
 The output-producer-service contains of two parts:
