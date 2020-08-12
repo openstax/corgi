@@ -168,7 +168,7 @@
               size="12"
               color="white"
               indeterminate
-              class="ml-2 status-message"
+              class="ml-2"
             />
           </v-chip>
         </template>

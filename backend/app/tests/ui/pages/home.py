@@ -68,7 +68,10 @@ class Home(Page):
 
         _modal_content_server_field_error_locator = (By.CLASS_NAME, "server-error-text")
 
-        _modal_status_message_locator = (By.CLASS_NAME, "status-message")
+        _modal_status_message_locator = (
+            By.XPATH,
+            "/html/body/div/div/div/div/main/div/div/div/div/div[3]/div/table/tbody/tr[1]/td[7]/span/span/span",
+        )
 
         @property
         def cancel_button(self):

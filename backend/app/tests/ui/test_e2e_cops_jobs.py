@@ -2,8 +2,6 @@ import pytest
 
 from pages.home import Home
 
-from time import sleep
-
 
 @pytest.mark.smoke
 @pytest.mark.ui
@@ -23,15 +21,10 @@ def test_e2e_cops_jobs(selenium, base_url):
     modal.fill_style_field("astronomy")
     modal.fill_server_field("qa")
 
-    sleep(2)
-
     # AND: Create button is clicked
     modal.click_create_button()
-    sleep(2)
     modal.click_create_button()
-
-    sleep(6)
 
     # THEN: The modal does not close and remains open
     assert home.is_create_new_job_button_displayed
-    assert modal.status_message.text == "assigned"
+    assert modal.status_message.text == "queued"
