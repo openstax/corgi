@@ -69,10 +69,11 @@ def match_canonical_book(canonical_ids, containing_books):
     if len(containing_books) == 1:
         return containing_books[0]
 
-    match = next(uuid for uuid in canonical_ids if uuid in containing_books)
-
-    # handle multiple containing books with no canonical match
-    if match is None:
+    try:
+        match = next(uuid
+                     for uuid in canonical_ids
+                     if uuid in containing_books)
+    except StopIteration:
         raise Exception("Multiple containing books, no canonical match!")
 
     return match
