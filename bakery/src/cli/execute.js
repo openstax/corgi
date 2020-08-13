@@ -12,7 +12,7 @@ tmp.setGracefulCleanup()
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 const checkDockerMemoryLimit = () => {
-  const dockerSettingsPath = path.join(process.env['HOME'], 'Library/Group Containers/group.com.docker/settings.json')
+  const dockerSettingsPath = path.join(process.env.HOME, 'Library/Group Containers/group.com.docker/settings.json')
   if (fs.existsSync(dockerSettingsPath)) {
     const settings = JSON.parse(fs.readFileSync(dockerSettingsPath))
     if (!(settings.memoryMiB > 4096)) {
