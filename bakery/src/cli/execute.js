@@ -779,13 +779,13 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'jsonified-book'),
+        input(dataDir, 'gdocified-book'),
         output(dataDir, 'docx-book')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
       command: commandUsage,
-      describe: 'build docx files from jsonified book',
+      describe: 'build docx files from gdocified book',
       builder: yargs => {
         yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
         yargs.positional('collid', {
