@@ -349,6 +349,15 @@ test('stable flow in pdf and distribution pipeline', async t => {
     ])
     await completion(jsonifyValidateXhtml)
 
+    const gdocify = spawn('node', [
+      'src/cli/execute.js',
+      ...commonArgs,
+      '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+      'gdocify',
+      bookId
+    ])
+    await completion(gdocify)
+
     const convertDocx = spawn('node', [
       'src/cli/execute.js',
       ...commonArgs,
