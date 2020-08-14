@@ -3,13 +3,15 @@ const pipeline = (env) => {
   const taskDequeueBook = require('../tasks/dequeue-book')
   const taskFetchBook = require('../tasks/fetch-book')
   const taskAssembleBook = require('../tasks/assemble-book')
+  const taskLinkExtras = require('../tasks/link-extras')
   const taskAssembleBookMeta = require('../tasks/assemble-book-metadata')
   const taskBakeBook = require('../tasks/bake-book')
   const taskBakeBookMeta = require('../tasks/bake-book-metadata')
   const taskChecksumBook = require('../tasks/checksum-book')
   const taskDisassembleBook = require('../tasks/disassemble-book')
-  const taskJsonifyBook = require('../tasks/jsonify-book')
   const taskValidateXhtml = require('../tasks/validate-xhtml')
+  const taskGdocifyBook = require('../tasks/gdocify-book')
+  const taskConvertDocx = require('../tasks/convert-docx')
 
   const awsAccessKeyId = env.ENV_NAME === 'local' ? env.S3_ACCESS_KEY_ID : '((aws-sandbox-secret-key-id))'
   const awsSecretAccessKey = env.ENV_NAME === 'local' ? env.S3_SECRET_ACCESS_KEY : '((aws-sandbox-secret-access-key))'
@@ -76,20 +78,23 @@ const pipeline = (env) => {
       }),
       taskFetchBook({ image: { tag: lockedTag } }),
       taskAssembleBook({ image: { tag: lockedTag } }),
+      taskLinkExtras({
+        image: { tag: lockedTag },
+        server: 'archive.cnx.org'
+      }),
       taskAssembleBookMeta({ image: { tag: lockedTag } }),
       taskBakeBook({ image: { tag: lockedTag } }),
       taskBakeBookMeta({ image: { tag: lockedTag } }),
       taskChecksumBook({ image: { tag: lockedTag } }),
       taskDisassembleBook({ image: { tag: lockedTag } }),
-      taskJsonifyBook({ image: { tag: lockedTag } }),
       taskValidateXhtml({
         image: { tag: lockedTag },
-        inputSource: 'jsonified-book',
-        inputPath: 'jsonified/*@*.xhtml',
+        inputSource: 'disassembled-book',
+        inputPath: 'disassembled/*@*.xhtml',
         validationName: 'duplicate-id'
-      })
-      // Add task: Patch inter/intra-book links
-      // Add task: Do Google Docs conversion
+      }),
+      taskGdocifyBook({ image: { tag: lockedTag } }),
+      taskConvertDocx({ image: { tag: lockedTag } })
       // Add task: Upload to google storage
     ]
   }
