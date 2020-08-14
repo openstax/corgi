@@ -34,6 +34,8 @@ Prerequisites
 =================================================================================
 This will ensure proper labels are applied to the docker swarm nodes.
 
+**It is recommended to install docker-auto-labels, deploy to staging, and promote to production in a virtual enviornment.**
+
 .. code-block:: bash
 
    pip install docker-auto-labels
@@ -116,7 +118,7 @@ We will refer to this as our **Docker Talker** window. Keep terminal open until 
 2. Deploy to Staging
 ====================
 
-Ensure SSH tunnel to COPS is set up and you are in a *new terminal* to communicate with the swarm manager node with previous steps.
+Ensure SSH tunnel to COPS is set up and you are in the **Docker Talker** window to communicate with the swarm manager node from the previous step.
 
 Load Environment Variables
 --------------------------
@@ -194,6 +196,12 @@ Deploy to staging using the following script:
 
 .. warning::
    Deploy script will fail and exit without deploying if any of the required environment variables are not set.
+
+Login to Concourse via fly
+
+.. code-block:: bash
+
+   fly login -t concourse-v6 -c https://concourse-v6.openstax.org/ -n CE
 
 Deploy the corresponding pipeline to ``concourse-v6`` (BASH shell):
 
