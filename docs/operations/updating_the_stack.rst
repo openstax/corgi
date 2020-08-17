@@ -34,7 +34,7 @@ Prerequisites
 =================================================================================
 This will ensure proper labels are applied to the docker swarm nodes.
 
-**It is recommended to install docker-auto-labels, deploy to staging, and promote to production in a virtual enviornment.**
+**It is recommended to install docker-auto-labels, deploy to staging, and promote to production in a python virtual enviornment.**
 
 .. code-block:: bash
 
