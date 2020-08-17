@@ -20,14 +20,47 @@ To use the CLI, you must have all of the following already installed:
 getting the above software installed is outside the scope of this documentation.
 
 #### Installation
+For installation inside the `output-producer-service` directory: 
+
 A simple `npm install`
 
+To install the npm package:
+
+`npm -g i @openstax/bakery-cli`
+
 #### Usage
-For now, the file `src/cli/execute.js` is the entry point for the CLI, and must be called as an argument to `node` e.g. `node ./src/cli/execute.js`. Calling it without arguments will yield a help message. Each task in the pipeline should have a corresponding subcommand in this CLI so that one may run it individually and locally.
+For now, when inside `/bakery` the file `src/cli/execute.js` is the entry point for the CLI, and must be called as an argument to `node` e.g. `node ./src/cli/execute.js`. Calling it without arguments will yield a help message. Each task in the pipeline should have a corresponding subcommand in this CLI so that one may run it individually and locally.
 
 For example, to fetch a book and have its contents appear in the directory `/tmp/data`, one could use the following command, with `bakery` as their working directory:
 
 `node ./src/cli/execute.js run fetch -d /tmp/data staging.cnx.org col30149 latest`
+
+When using the npm package, `bakery` is the entry point for the CLI. Calling it without arguments will yield a help message. 
+Calling `bakery run` will yeild all possible subcommands in this CLI. 
+
+For example, to fetch a book and have its contents appear in the directory `/data/prealgebra-2e`, one could use the following command:
+
+`bakery run fetch katalyst01.cnx.org col30939 latest -d ./data/prealgebra-2e`
+
+To assemble the book: 
+
+`bakery run assemble col30939 -d ./data/prealgebra-2e`
+
+To link extras: 
+
+`bakery run link-extras col30939 archive.cnx.org -d ./data/prealgebra-2e`
+
+To bake the book: 
+
+`bakery run bake col30939 {path-to-recipe} {path-to-style} -d ./data/prealgebra-2e/`
+
+To mathify the book: 
+
+`bakery run mathify col30939 -d ./data/prealgebra-2e/`
+
+To build the PDF: 
+
+`bakery run build-pdf col30939 -d ./data/prealgebra-2e/`
 
 ### Bakery Concourse Pipeline Config Generator
 
