@@ -11,6 +11,23 @@ tmp.setGracefulCleanup()
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
+const checkDockerMemoryLimit = () => {
+  const dockerSettingsPath = path.join(process.env.HOME, 'Library/Group Containers/group.com.docker/settings.json')
+  if (fs.existsSync(dockerSettingsPath)) {
+    const settings = JSON.parse(fs.readFileSync(dockerSettingsPath))
+    if (!(settings.memoryMiB > 4096)) {
+      console.warn(`
+==============================================
+WARNING: Your docker is configured to use less than 4GB of memory.
+This causes problems with larger textbooks during the PDF building step.
+Consider changing the Docker settings to increase the memory limit
+==============================================
+`)
+    }
+  }
+}
+checkDockerMemoryLimit()
+
 const completion = subprocess => {
   const error = new Error()
   return new Promise((resolve, reject) => {
