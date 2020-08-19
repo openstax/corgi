@@ -54,7 +54,8 @@ setup(
             'jsonify = bakery_scripts.jsonify_book:main',
             'check-feed = bakery_scripts.check_feed:main',
             'copy-resources-s3 = bakery_scripts.copy_resources_s3:main',
-            'gdocify = bakery_scripts.gdocify_book:main'
+            'gdocify = bakery_scripts.gdocify_book:main',
+            'upload-docx = bakery_scripts.upload_docx:main'
         ]
     },
     **SETUP_KWARGS,
