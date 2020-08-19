@@ -20,7 +20,8 @@ tests_require = [
     'pytest',
     'pytest-mock',
     'pytest-cov',
-    'flake8'
+    'flake8',
+    'requests-mock'
 ]
 extras_require = {
     'test': tests_require,
