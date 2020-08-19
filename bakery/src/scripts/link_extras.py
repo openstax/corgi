@@ -1,6 +1,6 @@
 """
 Replaces legacy module ids in links to external modules with
-uuids from the target module and corresponding canonical book.
+uuids from the target module and corresponding canonical book       .
 """
 
 import sys
@@ -36,28 +36,26 @@ def find_legacy_id(node):
     return parsed.lstrip("/contents/").rstrip()
 
 
-def init_requests_session(max_retries):
+def init_requests_session(adapter):
     session = requests.Session()
-    adapter = requests.adapters.HTTPAdapter(max_retries=max_retries)
     session.mount("https://", adapter)
     return session
 
 
 def get_target_uuid(session, server, legacy_id):
     """get target module uuid"""
-    req = session.get(f"https://{server}/content/{legacy_id}")
-    req.raise_for_status()
+    response = session.get(f"https://{server}/content/{legacy_id}")
+    response.raise_for_status()
 
-    return req.url.split("/")[-1]
+    return response.url.split("/")[-1]
 
 
 def get_containing_books(session, server, module_uuid):
     """get list of books containing module"""
-    req = session.get(f"https://{server}/extras/{module_uuid}")
-    req.raise_for_status()
+    response = session.get(f"https://{server}/extras/{module_uuid}")
+    response.raise_for_status()
 
-    content = req.json()
-
+    content = response.json()
     return [book["ident_hash"].split("@")[0] for book in content["books"]]
 
 
@@ -70,11 +68,14 @@ def match_canonical_book(canonical_ids, containing_books):
         return containing_books[0]
 
     try:
-        match = next(uuid
-                     for uuid in canonical_ids
-                     if uuid in containing_books)
+        match = next(
+            uuid for uuid in canonical_ids if uuid in containing_books
+        )
     except StopIteration:
-        raise Exception("Multiple containing books, no canonical match!")
+        raise Exception(
+            "Multiple containing books, no canonical match!\n"
+            + f"{containing_books}"
+        )
 
     return match
 
@@ -92,13 +93,13 @@ def save_linked_collection(output_dir, doc):
         doc.write(f, encoding="utf-8", xml_declaration=True)
 
 
-def main():
-    data_dir, server, canonical_list = sys.argv[1:4]
-
+def transform_links(data_dir, server, canonical_list, adapter):
     # define the canonical books
     canonical_ids = load_canonical_list(canonical_list)
 
     doc = load_assembled_collection(data_dir)
+
+    session = init_requests_session(adapter)
 
     # look up uuids for external module links
     for node in doc.xpath(
@@ -108,8 +109,6 @@ def main():
 
         legacy_id = find_legacy_id(node)
 
-        session = init_requests_session(MAX_RETRIES)
-
         module_uuid = get_target_uuid(session, server, legacy_id)
         containing_books = get_containing_books(session, server, module_uuid)
 
@@ -117,6 +116,12 @@ def main():
         patch_link(node, module_uuid, match)
 
     save_linked_collection(data_dir, doc)
+
+
+def main():
+    data_dir, server, canonical_list = sys.argv[1:4]
+    adapter = requests.adapters.HTTPAdapter(max_retries=MAX_RETRIES)
+    transform_links(data_dir, server, canonical_list, adapter)
 
 
 if __name__ == "__main__":
