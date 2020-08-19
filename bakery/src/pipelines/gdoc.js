@@ -99,7 +99,11 @@ const pipeline = (env) => {
       taskConvertDocx({ image: { tag: lockedTag } }),
       taskUploadDocx({
         image: { tag: lockedTag },
-        parentGoogleFolderId: parentGoogleFolderId
+        parentGoogleFolderId: parentGoogleFolderId,
+        awsAccessKeyId: awsAccessKeyId,
+        awsSecretAccessKey: awsSecretAccessKey,
+        queueStateBucket: env.S3_QUEUE_STATE_BUCKET,
+        codeVersion: codeVersionFromTag
       })
     ]
   }

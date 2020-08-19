@@ -3,7 +3,7 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
-  const { parentGoogleFolderId } = taskArgs
+  const { parentGoogleFolderId, awsAccessKeyId, awsSecretAccessKey, queueStateBucket, codeVersion } = taskArgs
   const imageDefault = {
     name: 'openstax/cops-bakery-scripts',
     tag: 'trunk'
@@ -20,7 +20,9 @@ const task = (taskArgs) => {
         source: imageSource
       },
       params: {
-        GOOGLE_SERVICE_ACCOUNT_CREDENTIALS: '((google-service-account-credentials))'
+        GOOGLE_SERVICE_ACCOUNT_CREDENTIALS: '((google-service-account-credentials))',
+        AWS_ACCESS_KEY_ID: `${awsAccessKeyId}`,
+        AWS_SECRET_ACCESS_KEY: `${awsSecretAccessKey}`
       },
       inputs: [
         { name: 'book' },
@@ -33,10 +35,14 @@ const task = (taskArgs) => {
           dedent`
           echo "$GOOGLE_SERVICE_ACCOUNT_CREDENTIALS" > /tmp/service_account_credentials.json
           collection_id="$(cat book/collection_id)"
+          book_legacy_version="$(cat book/version)"
           docx_dir="docx-book/$collection_id/docx"
           book_metadata="docx-book/$collection_id/raw/metadata.json"
           book_title="$(cat $book_metadata | jq -r '.title')"
           upload-docx "$docx_dir" "$book_title" "${parentGoogleFolderId}" /tmp/service_account_credentials.json
+          complete_filename=".$collection_id@$book_legacy_version.complete"
+          date -Iseconds > "/tmp/$complete_filename"
+          aws s3 cp "/tmp/$complete_filename" "s3://${queueStateBucket}/${codeVersion}/$complete_filename"
         `
         ]
       }
