@@ -58,6 +58,12 @@ module.exports.handler = argv => {
         S3_SECRET_ACCESS_KEY: localSAK
       }
     }
+    if (argv.pipelinetype === 'pdf') {
+      return {
+        S3_ACCESS_KEY_ID: env.PDF_BUCKET_AKI_SECRET_NAME,
+        S3_SECRET_ACCESS_KEY: env.PDF_BUCKET_SAK_SECRET_NAME
+      }
+    }
     return {
       S3_ACCESS_KEY_ID: env.DIST_BUCKET_AKI_SECRET_NAME,
       S3_SECRET_ACCESS_KEY: env.DIST_BUCKET_SAK_SECRET_NAME
