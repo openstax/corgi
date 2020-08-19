@@ -19,11 +19,90 @@ from bakery_scripts import (
     bake_book_metadata,
     check_feed,
     gdocify_book,
+    checksum_resource
 )
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(HERE, "data")
 SCRIPT_DIR = os.path.join(HERE, "../scripts")
+
+
+def test_checksum_resource(tmp_path, mocker):
+    book_dir = tmp_path / "col00000"
+    book_dir.mkdir()
+    html_file = book_dir / "0.xhtml"
+    module_dir = book_dir / "0"
+    module_dir.mkdir()
+    image_src = module_dir / "image_src.svg"
+    image_href = module_dir / "image_href.svg"
+    image_none = module_dir / "image_none.svg"
+
+    image_src_content = ('<svg height="30" width="120">'
+                         '<text x="0" y="15" fill="red">'
+                         'checksum me!'
+                         '</text>'
+                         '</svg>')
+    image_src_sha1_expected = "b462debf828d38a785a4a89b1d07149d1a716eef"
+    image_src_md5_expected = "03dd6146468907c18030c1c6450617f4"
+    image_src.write_text(image_src_content)
+
+    image_href_content = ('<svg height="30" width="120">'
+                          '<text x="0" y="15" fill="red">'
+                          'checksum me too!'
+                          '</text>'
+                          '</svg>')
+    image_href_sha1_expected = "4e582b2ca1ea7e70c0e5b56f64dd5ef731bf69a5"
+    image_href_md5_expected = "86d2472f841a84f0e1467bd31eb888b4"
+    image_href.write_text(image_href_content)
+
+    image_none_content = ('<svg height="30" width="120">'
+                          '<text x="0" y="15" fill="red">'
+                          'nope.'
+                          '</text>'
+                          '</svg>')
+    image_none.write_text(image_none_content)
+
+    html_content = ('<html xmlns="http://www.w3.org/1999/xhtml">'
+                    '<img src="0/image_src.svg"/>'
+                    '<a href="image_href.svg">linko</a>'
+                    '</html>')
+    html_file.write_text(html_content)
+
+    mocker.patch(
+        "sys.argv",
+        ["", book_dir]
+    )
+    checksum_resource.main()
+
+    resource_dir = book_dir / "resources"
+    image_src_meta = f"{image_src_sha1_expected}.json"
+    image_href_meta = f"{image_href_sha1_expected}.json"
+    assert set(path.name for path in resource_dir.glob("*")) == set([
+        image_src_meta,
+        image_href_meta,
+        image_src_sha1_expected,
+        image_href_sha1_expected
+    ])
+    assert json.load((resource_dir / image_src_meta).open("r")) == {
+        'mime_type': 'image/svg+xml',
+        'original_name': 'image_src.svg',
+        's3_md5': image_src_md5_expected,
+        'sha1': image_src_sha1_expected
+    }
+    assert json.load((resource_dir / image_href_meta).open("r")) == {
+        'mime_type': 'image/svg+xml',
+        'original_name': 'image_href.svg',
+        's3_md5': image_href_md5_expected,
+        'sha1': image_href_sha1_expected
+    }
+    assert resource_dir.exists()
+
+    tree = etree.parse(str(html_file))
+    expected = (f'<html xmlns="http://www.w3.org/1999/xhtml">'
+                f'<img src="../resources/{image_src_sha1_expected}"/>'
+                f'<a href="../resources/{image_href_sha1_expected}">linko</a>'
+                f'</html>')
+    assert etree.tostring(tree, encoding="utf8") == expected.encode("utf8")
 
 
 def test_jsonify_book(tmp_path, mocker):
