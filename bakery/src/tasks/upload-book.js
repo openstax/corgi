@@ -44,12 +44,20 @@ const task = (taskArgs) => {
           mkdir "$target_dir"
           book_uuid="$(cat $book_metadata | jq -r '.id')"
           book_version="$(cat $book_metadata | jq -r '.version')"
-          cp "$book_dir/collection.toc.json" "$target_dir/$book_uuid@$book_version.json"
-          cp "$book_dir/collection.toc.xhtml" "$target_dir/$book_uuid@$book_version.xhtml"
           for jsonfile in "$book_dir/"*@*.json; do cp "$jsonfile" "$target_dir/$(basename $jsonfile)"; done;
           for xhtmlfile in "$book_dir/"*@*.xhtml; do cp "$xhtmlfile" "$target_dir/$(basename $xhtmlfile)"; done;
           aws s3 cp --recursive "$target_dir" "s3://${distBucket}/${distBucketPrefix}/contents"
           copy-resources-s3 "$resources_dir" "${distBucket}" "${distBucketPrefix}/resources"
+
+          #######################################
+          # UPLOAD BOOK LEVEL FILES LAST
+          # so that if an error is encountered
+          # on prior upload steps, those files
+          # will not be found by watchers
+          #######################################
+          aws s3 cp "$book_dir/collection.toc.json" "s3://${distBucket}/${distBucketPrefix}/contents/$book_uuid@$book_version.json"
+          aws s3 cp "$book_dir/collection.toc.xhtml" "s3://${distBucket}/${distBucketPrefix}/contents/$book_uuid@$book_version.xhtml"
+
           complete_filename=".$collection_id@$book_legacy_version.complete"
           date -Iseconds > "/tmp/$complete_filename"
           aws s3 cp "/tmp/$complete_filename" "s3://${queueStateBucket}/${codeVersion}/$complete_filename"
