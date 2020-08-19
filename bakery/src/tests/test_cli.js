@@ -107,6 +107,37 @@ test('build pipelines', async t => {
   t.pass()
 })
 
+test('non-local pipelines do not use credentials in env vars', async t => {
+  const pipelines = (await fs.readdir('src/pipelines')).map(file => path.basename(file, '.js'))
+
+  for (const pipeline of pipelines) {
+    for (const env of ['staging', 'prod']) {
+      const fakeAKI = 'testaccesskeyidtest'
+      const fakeSAK = 'testsecretaccesskeytest'
+      const result = await completion(spawn('./build', [
+        'pipeline',
+        pipeline,
+        env
+      ],
+      {
+        // Pretend environment variables are set
+        env: {
+          ...process.env,
+          ...{
+            AWS_ACCESS_KEY_ID: fakeAKI,
+            AWS_SECRET_ACCESS_KEY: fakeSAK
+          }
+        }
+      }
+      ))
+      t.false(result.stdout.includes(fakeAKI))
+      t.false(result.stderr.includes(fakeAKI))
+      t.false(result.stdout.includes(fakeSAK))
+      t.false(result.stderr.includes(fakeSAK))
+    }
+  }
+})
+
 test('local pipelines error without credentials', async t => {
   const pipelines = (await fs.readdir('src/pipelines')).map(file => path.basename(file, '.js'))
 
