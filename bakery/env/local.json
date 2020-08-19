@@ -7,5 +7,6 @@
   "QUEUE_FILENAME": "",
   "FEED_FILE_URL": "",
   "PIPELINE_TICK_INTERVAL": "",
-  "MAX_BOOKS_PER_TICK": ""
+  "MAX_BOOKS_PER_TICK": "",
+  "GOOGLE_FOLDER_ID": ""
 }

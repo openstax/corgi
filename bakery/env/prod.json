@@ -11,5 +11,6 @@
   "DIST_BUCKET_AKI_SECRET_NAME": "((prod-web-hosting-content-gatekeeper-access-key-id))",
   "DIST_BUCKET_SAK_SECRET_NAME": "((prod-web-hosting-content-gatekeeper-secret-access-key))",
   "PDF_BUCKET_AKI_SECRET_NAME": "((aws-sandbox-secret-key-id))",
-  "PDF_BUCKET_SAK_SECRET_NAME": "((aws-sandbox-secret-access-key))"
+  "PDF_BUCKET_SAK_SECRET_NAME": "((aws-sandbox-secret-access-key))",
+  "GOOGLE_FOLDER_ID": ""
 }

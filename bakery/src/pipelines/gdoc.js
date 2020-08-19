@@ -12,11 +12,13 @@ const pipeline = (env) => {
   const taskValidateXhtml = require('../tasks/validate-xhtml')
   const taskGdocifyBook = require('../tasks/gdocify-book')
   const taskConvertDocx = require('../tasks/convert-docx')
+  const taskUploadDocx = require('../tasks/upload-docx')
 
   const awsAccessKeyId = env.S3_ACCESS_KEY_ID
   const awsSecretAccessKey = env.S3_SECRET_ACCESS_KEY
   const codeVersionFromTag = env.IMAGE_TAG || 'version-unknown'
   const queueFilename = `${codeVersionFromTag}.${env.QUEUE_FILENAME}`
+  const parentGoogleFolderId = env.GOOGLE_FOLDER_ID
 
   const lockedTag = env.IMAGE_TAG || 'trunk'
 
@@ -94,8 +96,11 @@ const pipeline = (env) => {
         validationName: 'duplicate-id'
       }),
       taskGdocifyBook({ image: { tag: lockedTag } }),
-      taskConvertDocx({ image: { tag: lockedTag } })
-      // Add task: Upload to google storage
+      taskConvertDocx({ image: { tag: lockedTag } }),
+      taskUploadDocx({
+        image: { tag: lockedTag },
+        parentGoogleFolderId: parentGoogleFolderId
+      })
     ]
   }
 
