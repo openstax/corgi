@@ -10,6 +10,6 @@ require('yargs')
     if (err) throw err
     console.error(yargs.help())
     console.error(`\nError: ${msg}`)
-    process.exit(1)
+    process.exit(2)
   })
   .argv

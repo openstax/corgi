@@ -35,27 +35,39 @@ module.exports.builder = yargs => {
 module.exports.handler = argv => {
   const env = (() => {
     const envFilePath = path.resolve(envDir, `${argv.env}.json`)
-    const envFileVals = (() => {
-      try {
-        return require(envFilePath)
-      } catch {
-        throw new Error(`Could not find environment file: ${envFilePath}`)
-      }
-    })()
+    try {
+      return require(envFilePath)
+    } catch {
+      throw new Error(`Could not find environment file: ${envFilePath}`)
+    }
+  }).call()
+  const s3Keys = (() => {
     // Grab AWS credentials from environment when running locally. If not
     // available, throw an explicit error for the user
-    if (envFileVals.ENV_NAME === 'local') {
-      envFileVals.S3_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID
-      envFileVals.S3_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY
-      if (envFileVals.S3_ACCESS_KEY_ID === undefined) {
+    if (env.ENV_NAME === 'local') {
+      const localAKI = process.env.AWS_ACCESS_KEY_ID
+      const localSAK = process.env.AWS_SECRET_ACCESS_KEY
+      if (localAKI === undefined) {
         throw new Error('Please set AWS_ACCESS_KEY_ID in your environment')
       }
-      if (envFileVals.S3_SECRET_ACCESS_KEY === undefined) {
+      if (localSAK === undefined) {
         throw new Error('Please set AWS_SECRET_ACCESS_KEY in your environment')
       }
+      return {
+        S3_ACCESS_KEY_ID: localAKI,
+        S3_SECRET_ACCESS_KEY: localSAK
+      }
     }
-
-    return envFileVals
+    if (argv.pipelinetype === 'pdf') {
+      return {
+        S3_ACCESS_KEY_ID: env.PDF_BUCKET_AKI_SECRET_NAME,
+        S3_SECRET_ACCESS_KEY: env.PDF_BUCKET_SAK_SECRET_NAME
+      }
+    }
+    return {
+      S3_ACCESS_KEY_ID: env.DIST_BUCKET_AKI_SECRET_NAME,
+      S3_SECRET_ACCESS_KEY: env.DIST_BUCKET_SAK_SECRET_NAME
+    }
   }).call()
   const pipeline = (() => {
     const pipelineFilePath = path.resolve(pipelineDir, `${argv.pipelinetype}.js`)
@@ -69,7 +81,7 @@ module.exports.handler = argv => {
     ? undefined
     : path.resolve(argv.output)
 
-  const pipelineArgs = argv.tag != null ? { ...env, ...{ IMAGE_TAG: argv.tag } } : env
+  const pipelineArgs = { ...env, ...s3Keys, ...(argv.tag == null ? {} : { IMAGE_TAG: argv.tag }) }
   const pipelineConfig = pipeline(pipelineArgs).config
 
   const forward = fs.readFileSync(path.resolve(__dirname, 'forward.yml'), { encoding: 'utf8' })
