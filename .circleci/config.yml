@@ -116,9 +116,9 @@ workflows:
   version: 2
   run-tests:
     jobs:
-      # - integration-test
-      # - cli-functional-test
+      - integration-test
+      - cli-functional-test
       - bakery-scripts-test
-      # - lint-bakery
-      # - shellcheck/check:
-      #     path: ./scripts
+      - lint-bakery
+      - shellcheck/check:
+          path: ./scripts
