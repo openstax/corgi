@@ -86,13 +86,17 @@ def test_checksum_resource(tmp_path, mocker):
     assert json.load((resource_dir / image_src_meta).open("r")) == {
         'mime_type': 'image/svg+xml',
         'original_name': 'image_src.svg',
-        's3_md5': image_src_md5_expected,
+        # AWS needs the MD5 quoted inside the string json value.
+        # Despite looking like a mistake, this is correct behavior.
+        's3_md5': f'"{image_src_md5_expected}"',
         'sha1': image_src_sha1_expected
     }
     assert json.load((resource_dir / image_href_meta).open("r")) == {
         'mime_type': 'image/svg+xml',
         'original_name': 'image_href.svg',
-        's3_md5': image_href_md5_expected,
+        # AWS needs the MD5 quoted inside the string json value.
+        # Despite looking like a mistake, this is correct behavior.
+        's3_md5': f'"{image_href_md5_expected}"',
         'sha1': image_href_sha1_expected
     }
     assert resource_dir.exists()
