@@ -31,9 +31,10 @@ const task = (taskArgs) => {
       run: {
         path: '/bin/bash',
         args: [
-          '-ce', // FIXME: Not including -x to avoid displaying credentials when writing to file.
+          '-ce',
           dedent`
           echo "$GOOGLE_SERVICE_ACCOUNT_CREDENTIALS" > /tmp/service_account_credentials.json
+          set -x
           collection_id="$(cat book/collection_id)"
           book_legacy_version="$(cat book/version)"
           docx_dir="docx-book/$collection_id/docx"
