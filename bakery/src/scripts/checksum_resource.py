@@ -46,6 +46,8 @@ def get_mime_type(filename):
     mime_type = ''
     try:
         mime_type = magic.from_file(filename, mime=True)
+        print(filename)
+        print(mime_type)
     finally:
         return mime_type
 

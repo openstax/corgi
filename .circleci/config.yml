@@ -72,12 +72,6 @@ jobs:
       - checkout
 
       - run:
-          name: Install mime-support
-          command: |
-            sudo apt update
-            sudo apt install mime-support libmagic1
-
-      - run:
           name: Setup test environment
           command: |
             mkdir -p /tmp/test-reports
