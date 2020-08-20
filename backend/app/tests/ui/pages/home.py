@@ -39,6 +39,21 @@ class Home(Page):
             ".collection-id-field input",
         )
 
+        _modal_version_field_locator = (
+            By.CSS_SELECTOR,
+            ".version-field input",
+        )
+
+        _modal_style_field_locator = (
+            By.CSS_SELECTOR,
+            ".style-field input",
+        )
+
+        _modal_server_field_locator = (
+            By.CSS_SELECTOR,
+            ".server-field input",
+        )
+
         _modal_collection_id_field_error_locator = (
             By.CLASS_NAME,
             "collection-id-error-text",
@@ -52,6 +67,11 @@ class Home(Page):
         _modal_style_field_error_locator = (By.CLASS_NAME, "style-error-text")
 
         _modal_content_server_field_error_locator = (By.CLASS_NAME, "server-error-text")
+
+        _modal_status_message_locator = (
+            By.XPATH,
+            "/html/body/div/div/div/div/main/div/div/div/div/div[3]/div/table/tbody/tr[1]/td[7]/span/span/span",
+        )
 
         @property
         def cancel_button(self):
@@ -94,3 +114,28 @@ class Home(Page):
 
         def fill_collection_id_field(self, value):
             self.collection_id_field.send_keys(value)
+
+        @property
+        def version_field(self):
+            return self.find_element(*self._modal_version_field_locator)
+
+        def fill_version_field(self, value):
+            self.version_field.send_keys(value)
+
+        @property
+        def style_field(self):
+            return self.find_element(*self._modal_style_field_locator)
+
+        def fill_style_field(self, value):
+            self.style_field.send_keys(value)
+
+        @property
+        def server_field(self):
+            return self.find_element(*self._modal_server_field_locator)
+
+        def fill_server_field(self, value):
+            self.server_field.send_keys(value)
+
+        @property
+        def status_message(self):
+            return self.find_element(*self._modal_status_message_locator)
