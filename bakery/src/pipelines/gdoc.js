@@ -19,6 +19,7 @@ const pipeline = (env) => {
   const codeVersionFromTag = env.IMAGE_TAG || 'version-unknown'
   const queueFilename = `${codeVersionFromTag}.${env.GDOC_QUEUE_FILENAME}`
   const parentGoogleFolderId = env.GOOGLE_FOLDER_ID
+  const queueStatePrefix = 'gdoc'
 
   const lockedTag = env.IMAGE_TAG || 'trunk'
 
@@ -63,6 +64,7 @@ const pipeline = (env) => {
         queueFilename: queueFilename,
         codeVersion: codeVersionFromTag,
         maxBooksPerRun: env.MAX_BOOKS_PER_TICK,
+        statePrefix: queueStatePrefix,
         image: { tag: lockedTag }
       })
     ]
@@ -103,7 +105,8 @@ const pipeline = (env) => {
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
         queueStateBucket: env.S3_QUEUE_STATE_BUCKET,
-        codeVersion: codeVersionFromTag
+        codeVersion: codeVersionFromTag,
+        statePrefix: queueStatePrefix
       })
     ]
   }

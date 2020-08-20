@@ -3,7 +3,7 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
-  const { parentGoogleFolderId, awsAccessKeyId, awsSecretAccessKey, queueStateBucket, codeVersion } = taskArgs
+  const { parentGoogleFolderId, awsAccessKeyId, awsSecretAccessKey, queueStateBucket, codeVersion, statePrefix } = taskArgs
   const imageDefault = {
     name: 'openstax/cops-bakery-scripts',
     tag: 'trunk'
@@ -41,7 +41,7 @@ const task = (taskArgs) => {
           book_metadata="docx-book/$collection_id/raw/metadata.json"
           book_title="$(cat $book_metadata | jq -r '.title')"
           upload-docx "$docx_dir" "$book_title" "${parentGoogleFolderId}" /tmp/service_account_credentials.json
-          complete_filename=".$collection_id@$book_legacy_version.complete"
+          complete_filename=".${statePrefix}.$collection_id@$book_legacy_version.complete"
           date -Iseconds > "/tmp/$complete_filename"
           aws s3 cp "/tmp/$complete_filename" "s3://${queueStateBucket}/${codeVersion}/$complete_filename"
         `

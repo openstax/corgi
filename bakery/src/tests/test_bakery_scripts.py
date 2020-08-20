@@ -591,6 +591,7 @@ def test_check_feed(tmp_path, mocker):
     queue_state_bucket = "queue-state-bucket"
     queue_filename = "queue-state-filename.json"
     code_version = "code-version"
+    state_prefix = "foobar"
     book1 = input_book_feed[0]
     book1_col = book1["collection_id"]
     book1_vers = book1["version"]
@@ -634,12 +635,12 @@ def test_check_feed(tmp_path, mocker):
 
     # Book 1: Check for .complete file
     _stubber_add_head_object_404(
-        f"{code_version}/.{book1_col}@{book1_vers}.complete"
+        f"{code_version}/.{state_prefix}.{book1_col}@{book1_vers}.complete"
     )
 
     # Book 1: Check for .pending file
     _stubber_add_head_object_404(
-        f"{code_version}/.{book1_col}@{book1_vers}.pending"
+        f"{code_version}/.{state_prefix}.{book1_col}@{book1_vers}.pending"
     )
 
     # Book 1: Put book data
@@ -647,22 +648,23 @@ def test_check_feed(tmp_path, mocker):
 
     # Book 1: Put book .pending
     _stubber_add_put_object(
-        f"{code_version}/.{book1_col}@{book1_vers}.pending", botocore.stub.ANY
+        f"{code_version}/.{state_prefix}.{book1_col}@{book1_vers}.pending",
+        botocore.stub.ANY
     )
 
     # Book 1: Check for .complete file
     _stubber_add_head_object_404(
-        f"{code_version}/.{book1_col}@{book1_vers}.complete"
+        f"{code_version}/.{state_prefix}.{book1_col}@{book1_vers}.complete"
     )
 
     # Book 1: Check for .pending file (return as though it exists)
     _stubber_add_head_object(
-        f"{code_version}/.{book1_col}@{book1_vers}.pending"
+        f"{code_version}/.{state_prefix}.{book1_col}@{book1_vers}.pending"
     )
 
     # Book 1: Check for .retry file
     _stubber_add_head_object_404(
-        f"{code_version}/.{book1_col}@{book1_vers}.retry"
+        f"{code_version}/.{state_prefix}.{book1_col}@{book1_vers}.retry"
     )
 
     # Book 1: Put book data again
@@ -670,22 +672,23 @@ def test_check_feed(tmp_path, mocker):
 
     # Book 1: Put book .retry
     _stubber_add_put_object(
-        f"{code_version}/.{book1_col}@{book1_vers}.retry", botocore.stub.ANY
+        f"{code_version}/.{state_prefix}.{book1_col}@{book1_vers}.retry",
+        botocore.stub.ANY
     )
 
     # Book 1: Check for .complete file
     _stubber_add_head_object(
-        f"{code_version}/.{book1_col}@{book1_vers}.complete"
+        f"{code_version}/.{state_prefix}.{book1_col}@{book1_vers}.complete"
     )
 
     # Book 2: Check for .complete file
     _stubber_add_head_object_404(
-        f"{code_version}/.{book2_col}@{book2_vers}.complete"
+        f"{code_version}/.{state_prefix}.{book2_col}@{book2_vers}.complete"
     )
 
     # Book 2: Check for .pending file
     _stubber_add_head_object_404(
-        f"{code_version}/.{book2_col}@{book2_vers}.pending"
+        f"{code_version}/.{state_prefix}.{book2_col}@{book2_vers}.pending"
     )
 
     # Book 2: Put book data
@@ -693,7 +696,8 @@ def test_check_feed(tmp_path, mocker):
 
     # Book 2: Put book .pending
     _stubber_add_put_object(
-        f"{code_version}/.{book2_col}@{book2_vers}.pending", botocore.stub.ANY
+        f"{code_version}/.{state_prefix}.{book2_col}@{book2_vers}.pending",
+        botocore.stub.ANY
     )
 
     s3_stubber.activate()
@@ -708,6 +712,7 @@ def test_check_feed(tmp_path, mocker):
             queue_state_bucket,
             queue_filename,
             1,
+            state_prefix
         ],
     )
 
