@@ -37,25 +37,31 @@ def test_checksum_resource(tmp_path, mocker):
     image_href = module_dir / "image_href.svg"
     image_none = module_dir / "image_none.svg"
 
-    image_src_content = ('<svg height="30" width="120">'
+    # libmagic yields image/svg without the xml declaration
+    image_src_content = ('<?xml version=1.0 ?>'
+                         '<svg height="30" width="120">'
                          '<text x="0" y="15" fill="red">'
                          'checksum me!'
                          '</text>'
                          '</svg>')
-    image_src_sha1_expected = "b462debf828d38a785a4a89b1d07149d1a716eef"
-    image_src_md5_expected = "03dd6146468907c18030c1c6450617f4"
+    image_src_sha1_expected = "527617b308327b8773c5105edc8c28bcbbe62553"
+    image_src_md5_expected = "420c64c8dbe981f216989328f9ad97e7"
     image_src.write_text(image_src_content)
 
-    image_href_content = ('<svg height="30" width="120">'
+    # libmagic yields image/svg without the xml declaration
+    image_href_content = ('<?xml version=1.0 ?>'
+                          '<svg height="30" width="120">'
                           '<text x="0" y="15" fill="red">'
                           'checksum me too!'
                           '</text>'
                           '</svg>')
-    image_href_sha1_expected = "4e582b2ca1ea7e70c0e5b56f64dd5ef731bf69a5"
-    image_href_md5_expected = "86d2472f841a84f0e1467bd31eb888b4"
+    image_href_sha1_expected = "ad32bb3de1c805920a0ab50ab1333f39df8687a1"
+    image_href_md5_expected = "46137319b2adb8b09c8f432343b8bcca"
     image_href.write_text(image_href_content)
 
-    image_none_content = ('<svg height="30" width="120">'
+    # libmagic yields image/svg without the xml declaration
+    image_none_content = ('<?xml version=1.0 ?>'
+                          '<svg height="30" width="120">'
                           '<text x="0" y="15" fill="red">'
                           'nope.'
                           '</text>'
