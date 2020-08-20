@@ -12,5 +12,7 @@
   "DIST_BUCKET_SAK_SECRET_NAME": "((aws-sandbox-secret-access-key))",
   "PDF_BUCKET_AKI_SECRET_NAME": "((aws-sandbox-secret-key-id))",
   "PDF_BUCKET_SAK_SECRET_NAME": "((aws-sandbox-secret-access-key))",
-  "GOOGLE_FOLDER_ID": ""
+  "GOOGLE_FOLDER_ID": "",
+  "GDOC_QUEUE_FILENAME": "",
+  "GDOC_FEED_FILE_URL": ""
 }

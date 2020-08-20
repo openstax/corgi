@@ -17,7 +17,7 @@ const pipeline = (env) => {
   const awsAccessKeyId = env.S3_ACCESS_KEY_ID
   const awsSecretAccessKey = env.S3_SECRET_ACCESS_KEY
   const codeVersionFromTag = env.IMAGE_TAG || 'version-unknown'
-  const queueFilename = `${codeVersionFromTag}.${env.QUEUE_FILENAME}`
+  const queueFilename = `${codeVersionFromTag}.${env.GDOC_QUEUE_FILENAME}`
   const parentGoogleFolderId = env.GOOGLE_FOLDER_ID
 
   const lockedTag = env.IMAGE_TAG || 'trunk'
@@ -58,7 +58,7 @@ const pipeline = (env) => {
       taskCheckFeed({
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
-        feedFileUrl: env.FEED_FILE_URL,
+        feedFileUrl: env.GDOC_FEED_FILE_URL,
         queueStateBucket: env.S3_QUEUE_STATE_BUCKET,
         queueFilename: queueFilename,
         codeVersion: codeVersionFromTag,
