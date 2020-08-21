@@ -34,6 +34,7 @@ const task = (taskArgs) => {
           '-ce',
           dedent`
           echo "$GOOGLE_SERVICE_ACCOUNT_CREDENTIALS" > /tmp/service_account_credentials.json
+          # Secret credentials above, do not use set -x above this line.
           set -x
           collection_id="$(cat book/collection_id)"
           book_legacy_version="$(cat book/version)"
