@@ -19,6 +19,7 @@ from bakery_scripts import (
     bake_book_metadata,
     check_feed,
     gdocify_book,
+    copy_resources_s3,
     checksum_resource
 )
 
@@ -857,3 +858,49 @@ def test_gdocify_book(tmp_path, mocker):
         "//x:a[@href]", namespaces={"x": "http://www.w3.org/1999/xhtml"},
     ):
         assert expected_links_by_id[node.attrib["id"]] == node.attrib["href"]
+
+
+def test_copy_resource_s3(tmp_path, mocker):
+
+    input_dir = tmp_path / "resource_directory"
+    input_dir.mkdir()
+    bucket = 'bucket'
+    bucket_folder = 'bucket_folder'
+
+    s3_client = boto3.client('s3')
+    s3_stubber = botocore.stub.Stubber(s3_client)
+
+    s3_stubber.add_response(
+        'list_objects',
+        {},
+        expected_params={
+            'Bucket': bucket,
+            'Prefix': bucket_folder + '/',
+            'Delimiter': '/'
+        }
+    )
+
+    s3_stubber.activate()
+    from unittest.mock import MagicMock
+    mocked_session = boto3.session.Session
+    mocked_session.client = MagicMock(return_value=s3_client)
+
+    mocker.patch(
+        'boto3.session.Session',
+        mocked_session
+    )
+
+    mocker.patch(
+        'sys.argv',
+        ['', input_dir, bucket, bucket_folder]
+    )
+
+    os.environ['AWS_ACCESS_KEY_ID'] = 'dummy-key'
+    os.environ['AWS_SECRET_ACCESS_KEY'] = 'dummy-secret'
+
+    copy_resources_s3.main()
+
+    del os.environ['AWS_ACCESS_KEY_ID']
+    del os.environ['AWS_SECRET_ACCESS_KEY']
+
+    assert True == False
