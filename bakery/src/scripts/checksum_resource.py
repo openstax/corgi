@@ -25,6 +25,9 @@ def get_checksums(filename):
                 md5s.append(hashlib.md5(data))
         # chunked calculation for AWS S3 MD5 etag
         # https://stackoverflow.com/a/43819225/756056
+        #
+        # AWS needs the MD5 quoted inside the string json value.
+        # Despite looking like a mistake, this is correct behavior.
         if len(md5s) < 1:
             s3_md5 = '"{}"'.format(hashlib.md5().hexdigest())
         elif len(md5s) == 1:
