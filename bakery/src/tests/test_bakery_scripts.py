@@ -8,6 +8,9 @@ import botocore.stub
 import requests_mock
 import pytest
 import re
+from googleapiclient.discovery import build
+import google.auth
+from googleapiclient.http import RequestMockBuilder
 
 from cnxepub.html_parsers import HTML_DOCUMENT_NAMESPACES
 from cnxepub.collation import reconstitute
@@ -19,6 +22,7 @@ from bakery_scripts import (
     bake_book_metadata,
     check_feed,
     gdocify_book,
+    upload_docx,
     checksum_resource
 )
 
@@ -676,6 +680,7 @@ def test_check_feed(tmp_path, mocker):
     queue_state_bucket = "queue-state-bucket"
     queue_filename = "queue-state-filename.json"
     code_version = "code-version"
+    state_prefix = "foobar"
     book1 = input_book_feed[0]
     book1_col = book1["collection_id"]
     book1_vers = book1["version"]
@@ -719,12 +724,12 @@ def test_check_feed(tmp_path, mocker):
 
     # Book 1: Check for .complete file
     _stubber_add_head_object_404(
-        f"{code_version}/.{book1_col}@{book1_vers}.complete"
+        f"{code_version}/.{state_prefix}.{book1_col}@{book1_vers}.complete"
     )
 
     # Book 1: Check for .pending file
     _stubber_add_head_object_404(
-        f"{code_version}/.{book1_col}@{book1_vers}.pending"
+        f"{code_version}/.{state_prefix}.{book1_col}@{book1_vers}.pending"
     )
 
     # Book 1: Put book data
@@ -732,22 +737,23 @@ def test_check_feed(tmp_path, mocker):
 
     # Book 1: Put book .pending
     _stubber_add_put_object(
-        f"{code_version}/.{book1_col}@{book1_vers}.pending", botocore.stub.ANY
+        f"{code_version}/.{state_prefix}.{book1_col}@{book1_vers}.pending",
+        botocore.stub.ANY
     )
 
     # Book 1: Check for .complete file
     _stubber_add_head_object_404(
-        f"{code_version}/.{book1_col}@{book1_vers}.complete"
+        f"{code_version}/.{state_prefix}.{book1_col}@{book1_vers}.complete"
     )
 
     # Book 1: Check for .pending file (return as though it exists)
     _stubber_add_head_object(
-        f"{code_version}/.{book1_col}@{book1_vers}.pending"
+        f"{code_version}/.{state_prefix}.{book1_col}@{book1_vers}.pending"
     )
 
     # Book 1: Check for .retry file
     _stubber_add_head_object_404(
-        f"{code_version}/.{book1_col}@{book1_vers}.retry"
+        f"{code_version}/.{state_prefix}.{book1_col}@{book1_vers}.retry"
     )
 
     # Book 1: Put book data again
@@ -755,22 +761,23 @@ def test_check_feed(tmp_path, mocker):
 
     # Book 1: Put book .retry
     _stubber_add_put_object(
-        f"{code_version}/.{book1_col}@{book1_vers}.retry", botocore.stub.ANY
+        f"{code_version}/.{state_prefix}.{book1_col}@{book1_vers}.retry",
+        botocore.stub.ANY
     )
 
     # Book 1: Check for .complete file
     _stubber_add_head_object(
-        f"{code_version}/.{book1_col}@{book1_vers}.complete"
+        f"{code_version}/.{state_prefix}.{book1_col}@{book1_vers}.complete"
     )
 
     # Book 2: Check for .complete file
     _stubber_add_head_object_404(
-        f"{code_version}/.{book2_col}@{book2_vers}.complete"
+        f"{code_version}/.{state_prefix}.{book2_col}@{book2_vers}.complete"
     )
 
     # Book 2: Check for .pending file
     _stubber_add_head_object_404(
-        f"{code_version}/.{book2_col}@{book2_vers}.pending"
+        f"{code_version}/.{state_prefix}.{book2_col}@{book2_vers}.pending"
     )
 
     # Book 2: Put book data
@@ -778,7 +785,8 @@ def test_check_feed(tmp_path, mocker):
 
     # Book 2: Put book .pending
     _stubber_add_put_object(
-        f"{code_version}/.{book2_col}@{book2_vers}.pending", botocore.stub.ANY
+        f"{code_version}/.{state_prefix}.{book2_col}@{book2_vers}.pending",
+        botocore.stub.ANY
     )
 
     s3_stubber.activate()
@@ -793,6 +801,7 @@ def test_check_feed(tmp_path, mocker):
             queue_state_bucket,
             queue_filename,
             1,
+            state_prefix
         ],
     )
 
@@ -857,3 +866,161 @@ def test_gdocify_book(tmp_path, mocker):
         "//x:a[@href]", namespaces={"x": "http://www.w3.org/1999/xhtml"},
     ):
         assert expected_links_by_id[node.attrib["id"]] == node.attrib["href"]
+
+
+def test_upload_docx(tmp_path, mocker):
+    """Test upload-docx script"""
+
+    mock_creds = mocker.Mock(spec=google.auth.credentials.Credentials)
+    parent_google_folder_id = "parentfolderID"
+    book_folder = "How to be awesome"
+    book_folder_id = "bookfolderID"
+
+    # Test find_or_create_folder_by_name when folder does not exist
+    request_builder = RequestMockBuilder(
+        {
+            "drive.files.list": (None, json.dumps({"files": []})),
+            "drive.files.create": (
+                None,
+                json.dumps({"id": book_folder_id}),
+                {
+                    "name": book_folder,
+                    "parents": [parent_google_folder_id],
+                    "mimeType": "application/vnd.google-apps.folder"
+                }
+            )
+        },
+        check_unexpected=True
+    )
+
+    mock_drive_service = build(
+        "drive", "v3", requestBuilder=request_builder, credentials=mock_creds
+    )
+
+    result = upload_docx.find_or_create_folder_by_name(
+        mock_drive_service,
+        parent_google_folder_id,
+        book_folder
+    )
+    assert result == book_folder_id
+
+    # Test find_or_create_folder_by_name when multiple folders returned
+    request_builder = RequestMockBuilder(
+        {
+            "drive.files.list": (
+                None,
+                json.dumps({"files": [{"id": ""}, {"id": ""}]})
+            )
+        },
+        check_unexpected=True
+    )
+
+    mock_drive_service = build(
+        "drive", "v3", requestBuilder=request_builder, credentials=mock_creds
+    )
+
+    with pytest.raises(Exception):
+        upload_docx.find_or_create_folder_by_name(
+            mock_drive_service,
+            parent_google_folder_id,
+            book_folder
+        )
+
+    # Test find_or_create_folder_by_name when folder exists
+    request_builder = RequestMockBuilder(
+        {
+            "drive.files.list": (
+                None,
+                json.dumps({"files": [{"id": book_folder_id}]})
+            )
+        },
+        check_unexpected=True
+    )
+
+    mock_drive_service = build(
+        "drive", "v3", requestBuilder=request_builder, credentials=mock_creds
+    )
+
+    result = upload_docx.find_or_create_folder_by_name(
+        mock_drive_service,
+        parent_google_folder_id,
+        book_folder
+    )
+
+    assert result == book_folder_id
+
+    # Test get_gdocs_in_folder
+    request_builder = RequestMockBuilder(
+        {
+            "drive.files.list": (
+                None,
+                json.dumps({
+                    "files": [
+                        {"id": "gdoc1", "name": "gdoc1"},
+                        {"id": "gdoc2", "name": "gdoc2"}
+                    ]
+                })
+            )
+        },
+        check_unexpected=True
+    )
+
+    mock_drive_service = build(
+        "drive", "v3", requestBuilder=request_builder, credentials=mock_creds
+    )
+
+    result = upload_docx.get_gdocs_in_folder(
+        mock_drive_service,
+        book_folder_id
+    )
+
+    assert result == [
+        {"id": "gdoc1", "name": "gdoc1"},
+        {"id": "gdoc2", "name": "gdoc2"}
+    ]
+
+    # Test upsert_docx_to_folder
+    input_dir = tmp_path / "docx-book" / "col12345" / "docx"
+    input_dir.mkdir(parents=True)
+    input_docx = []
+    for doc_name in ["chapter1", "chapter2"]:
+        docx = input_dir / f"{doc_name}.docx"
+        docx.write_text("Test")
+        input_docx.append(docx)
+
+    request_builder = RequestMockBuilder(
+        {
+            "drive.files.list": (
+                None,
+                json.dumps({
+                    "files": [
+                        {"id": "ch1exists", "name": "chapter1"}
+                    ]
+                })
+            ),
+            "drive.files.create": (
+                None,
+                json.dumps({"id": "ch2new"})
+            ),
+            "drive.files.update": (
+                None,
+                json.dumps({})
+            )
+        },
+        check_unexpected=True
+    )
+
+    mock_drive_service = build(
+        "drive", "v3", requestBuilder=request_builder, credentials=mock_creds
+    )
+
+    results = upload_docx.upsert_docx_to_folder(
+        mock_drive_service,
+        input_docx,
+        book_folder_id
+    )
+
+    assert results == [
+        {"id": "ch1exists", "name": "chapter1"},
+        {"id": "ch2new", "name": "chapter2"},
+    ]

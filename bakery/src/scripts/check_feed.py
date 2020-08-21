@@ -12,6 +12,7 @@ def main():
     queue_state_bucket = sys.argv[3]
     queue_filename = sys.argv[4]
     max_books_per_run = int(sys.argv[5])
+    state_prefix = sys.argv[6]
 
     with open(feed_json, 'r') as feed_file:
         feed_data = json.load(feed_file)
@@ -29,7 +30,8 @@ def main():
         if books_queued >= max_books_per_run:
             break
 
-        book_prefix = f".{book['collection_id']}@{book['version']}"
+        book_prefix = \
+            f".{state_prefix}.{book['collection_id']}@{book['version']}"
 
         complete_filename = f"{book_prefix}.complete"
         complete_key = f"{code_version}/{complete_filename}"

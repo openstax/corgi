@@ -3,7 +3,7 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
-  const { awsAccessKeyId, awsSecretAccessKey, distBucket, queueStateBucket, codeVersion } = taskArgs
+  const { awsAccessKeyId, awsSecretAccessKey, distBucket, queueStateBucket, codeVersion, statePrefix } = taskArgs
   const imageDefault = {
     name: 'openstax/cops-bakery-scripts',
     tag: 'trunk'
@@ -58,7 +58,7 @@ const task = (taskArgs) => {
           aws s3 cp "$book_dir/collection.toc.json" "s3://${distBucket}/${distBucketPrefix}/contents/$book_uuid@$book_version.json"
           aws s3 cp "$book_dir/collection.toc.xhtml" "s3://${distBucket}/${distBucketPrefix}/contents/$book_uuid@$book_version.xhtml"
 
-          complete_filename=".$collection_id@$book_legacy_version.complete"
+          complete_filename=".${statePrefix}.$collection_id@$book_legacy_version.complete"
           date -Iseconds > "/tmp/$complete_filename"
           aws s3 cp "/tmp/$complete_filename" "s3://${queueStateBucket}/${codeVersion}/$complete_filename"
         `
