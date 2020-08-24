@@ -309,7 +309,7 @@ def mock_link_extras(tmp_path, content_dict, extras_dict, page_content):
 
     def content_callback(request, context):
         module_uuid = content_dict[request.url.split("/")[-1]]
-        request.url = f"https://{server}/content/{module_uuid}"
+        request.url = f"https://{server}/contents/{module_uuid}"
         return
 
     adapter.register_uri("GET", content_matcher, json=content_callback)
@@ -332,10 +332,10 @@ def test_link_extras_single_match(tmp_path, mocker):
     """Test for link_extras script case with single
     containing book and a canonical match"""
 
-    content_dict = {"m1234": "1234-5678-1234-5678"}
+    content_dict = {"m1234": "1234-5678-1234-5678@version"}
 
     extras_dict = {
-        "1234-5678-1234-5678": {
+        "1234-5678-1234-5678@version": {
             "books": [{"ident_hash": "00000000-0000-0000-0000-000000000000"}]
         }
     }
@@ -395,10 +395,10 @@ def test_link_extras_single_no_match(tmp_path, mocker):
     """Test for link_extras script case with single
     containing book and no canonical match"""
 
-    content_dict = {"m1234": "1234-5678-1234-5678"}
+    content_dict = {"m1234": "1234-5678-1234-5678@version"}
 
     extras_dict = {
-        "1234-5678-1234-5678": {
+        "1234-5678-1234-5678@version": {
             "books": [{"ident_hash": "02776133-d49d-49cb-bfaa-67c7f61b25a1"}]
         }
     }
@@ -458,10 +458,10 @@ def test_link_extras_multi_match(tmp_path, mocker):
     """Test for link_extras script case with multiple
     containing book and a canonical match"""
 
-    content_dict = {"m1234": "1234-5678-1234-5678"}
+    content_dict = {"m1234": "1234-5678-1234-5678@version"}
 
     extras_dict = {
-        "1234-5678-1234-5678": {
+        "1234-5678-1234-5678@version": {
             "books": [
                 {"ident_hash": "00000000-0000-0000-0000-000000000000"},
                 {"ident_hash": "02776133-d49d-49cb-bfaa-67c7f61b25a1"},
@@ -524,10 +524,10 @@ def test_link_extras_multi_no_match(tmp_path, mocker):
     """Test for link_extras script case with multiple
     containing book and a canonical match"""
 
-    content_dict = {"m1234": "1234-5678-1234-5678"}
+    content_dict = {"m1234": "1234-5678-1234-5678@version"}
 
     extras_dict = {
-        "1234-5678-1234-5678": {
+        "1234-5678-1234-5678@version": {
             "books": [
                 {"ident_hash": "00000000-0000-0000-0000-000000000000"},
                 {"ident_hash": "11111111-1111-1111-1111-111111111111"},

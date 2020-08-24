@@ -82,7 +82,7 @@ def match_canonical_book(canonical_ids, containing_books):
 
 def patch_link(node, module_uuid, match):
     """replace legacy link"""
-    node.attrib["href"] = f"/contents/{module_uuid}"
+    node.attrib["href"] = f"/contents/{module_uuid.split('@')[0]}"
     node.attrib["data-book-uuid"] = match
 
 
