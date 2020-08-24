@@ -861,11 +861,25 @@ def test_gdocify_book(tmp_path, mocker):
 
 
 def test_copy_resource_s3(tmp_path, mocker):
+    from pathlib import Path
 
-    input_dir = tmp_path / "resource_directory"
-    input_dir.mkdir()
-    bucket = 'bucket'
-    bucket_folder = 'bucket_folder'
+    resource_name = "fffe62254ef635871589a848b65db441318171eb"
+
+    test_resource = os.path.join(
+        TEST_DATA_DIR, resource_name)
+
+    book_dir = tmp_path / "col11762"
+    book_dir.mkdir()
+
+    resources_dir = book_dir / "resources"
+    resources_dir.mkdir()
+
+    resource = resources_dir / "fffe62254ef635871589a848b65db441318171eb.json"
+    resource.write_bytes(open(test_resource, "rb").read())
+
+    dist_bucket = 'ce-contents-cops-distribution-12345'
+    dist_bucket_prefix = 'apps/archive/master'
+    key = dist_bucket_prefix + resource_name
 
     s3_client = boto3.client('s3')
     s3_stubber = botocore.stub.Stubber(s3_client)
@@ -874,13 +888,32 @@ def test_copy_resource_s3(tmp_path, mocker):
         'list_objects',
         {},
         expected_params={
-            'Bucket': bucket,
-            'Prefix': bucket_folder + '/',
+            'Bucket': dist_bucket,
+            'Prefix': dist_bucket_prefix + '/',
             'Delimiter': '/'
         }
     )
 
+    s3_stubber.add_client_error(
+        "head_object",
+        service_error_meta={"Code": "404"},
+        expected_params={
+            "Bucket": dist_bucket,
+            "Key": key,
+        },
+    )
+
+    s3_stubber.add_response(
+        "head_object",
+        {},
+        expected_params={
+            "Bucket": dist_bucket,
+            "Key": key,
+        },
+    )
+
     s3_stubber.activate()
+
     from unittest.mock import MagicMock
     mocked_session = boto3.session.Session
     mocked_session.client = MagicMock(return_value=s3_client)
@@ -892,15 +925,19 @@ def test_copy_resource_s3(tmp_path, mocker):
 
     mocker.patch(
         'sys.argv',
-        ['', input_dir, bucket, bucket_folder]
+        ['',
+         TEST_DATA_DIR,
+         dist_bucket,
+         dist_bucket_prefix]
     )
 
     os.environ['AWS_ACCESS_KEY_ID'] = 'dummy-key'
     os.environ['AWS_SECRET_ACCESS_KEY'] = 'dummy-secret'
 
-    copy_resources_s3.main()
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        copy_resources_s3.main()
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
 
     del os.environ['AWS_ACCESS_KEY_ID']
     del os.environ['AWS_SECRET_ACCESS_KEY']
-
-    assert True == False
