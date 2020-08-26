@@ -4,7 +4,7 @@ backcall==0.1.0
 bleach==3.1.4
 certifi==2019.11.28
 chardet==3.0.4
-chromedriver-binary==83.0.4103.39.0
+chromedriver-binary==85.0.4183.83.0
 decorator==4.4.1
 defusedxml==0.6.0
 entrypoints==0.3
