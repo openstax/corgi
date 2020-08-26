@@ -59,7 +59,7 @@ def get_containing_books(session, server, module_uuid):
     return [book["ident_hash"].split("@")[0] for book in content["books"]]
 
 
-def match_canonical_book(canonical_ids, containing_books):
+def match_canonical_book(canonical_ids, containing_books, module_uuid):
     """match uuid in canonical book list"""
     if len(containing_books) == 0:
         raise Exception("No containing books")
@@ -73,8 +73,9 @@ def match_canonical_book(canonical_ids, containing_books):
         )
     except StopIteration:
         raise Exception(
-            "Multiple containing books, no canonical match!\n"
-            + f"{containing_books}"
+            "Multiple containing books, no canonical match!\n" +
+            f"module: {module_uuid}\n" +
+            f"containing books: {containing_books}"
         )
 
     return match
@@ -109,11 +110,11 @@ def transform_links(data_dir, server, canonical_list, adapter):
 
         legacy_id = find_legacy_id(node)
 
-        module_uuid = get_target_uuid(session, server, legacy_id)
-        containing_books = get_containing_books(session, server, module_uuid)
+        module = get_target_uuid(session, server, legacy_id)
+        containing_books = get_containing_books(session, server, module)
 
-        match = match_canonical_book(canonical_ids, containing_books)
-        patch_link(node, module_uuid, match)
+        match = match_canonical_book(canonical_ids, containing_books, module)
+        patch_link(node, module, match)
 
     save_linked_collection(data_dir, doc)
 
