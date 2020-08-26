@@ -90,7 +90,7 @@ const pipeline = (env) => {
         image: { tag: lockedTag },
         inputSource: 'mathified-book',
         inputPath: 'collection.mathified.xhtml',
-        validationName: 'link-to-duplicate-id'
+        validationNames: ['link-to-duplicate-id']
       }),
       taskBuildPdf({ bucketName: env.S3_PDF_BUCKET, image: { tag: lockedTag } }),
       {
