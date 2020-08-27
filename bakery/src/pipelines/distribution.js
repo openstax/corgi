@@ -94,7 +94,7 @@ const pipeline = (env) => {
         image: { tag: lockedTag },
         inputSource: 'jsonified-book',
         inputPath: 'jsonified/*@*.xhtml',
-        validationName: 'duplicate-id'
+        validationNames: ['duplicate-id', 'broken-link']
       }),
       taskUploadBook({
         distBucket: env.S3_DIST_BUCKET,

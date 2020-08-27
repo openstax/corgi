@@ -95,7 +95,7 @@ const pipeline = (env) => {
         image: { tag: lockedTag },
         inputSource: 'disassembled-book',
         inputPath: 'disassembled/*@*.xhtml',
-        validationName: 'duplicate-id'
+        validationNames: ['duplicate-id']
       }),
       taskGdocifyBook({ image: { tag: lockedTag } }),
       taskConvertDocx({ image: { tag: lockedTag } }),
