@@ -5,10 +5,6 @@
             "_name": "Introduction to Sociology 2e"
         },
         {
-            "uuid": "02776133-d49d-49cb-bfaa-67c7f61b25a1",
-            "_name": "Intermediate Algebra"
-        },
-        {
             "uuid": "031da8d3-b525-429c-80cf-6c8ed997733a",
             "_name": "College Physics"
         },
@@ -27,6 +23,10 @@
         {
             "uuid": "30189442-6998-4686-ac05-ed152b91b9de",
             "_name": "Introductory Statistics"
+        },
+        {
+            "uuid": "4664c267-cd62-4a99-8b28-1cb9b3aee347",
+            "_name": "Intermediate Algebra 2e"
         },
         {
             "uuid": "4abf04bf-93a0-45c3-9cbc-2cefd46e68cc",
