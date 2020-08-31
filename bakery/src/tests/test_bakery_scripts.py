@@ -863,76 +863,80 @@ def test_gdocify_book(tmp_path, mocker):
 
 def test_copy_resource_s3(tmp_path, mocker):
     """Test copy_resource_s3 script"""
-    resource_name = "fffe62254ef635871589a848b65db441318171eb"
 
-    test_resource = os.path.join(TEST_DATA_DIR, resource_name)
+    resource_sha = 'fffe62254ef635871589a848b65db441318171eb'
+    resource_a_name = resource_sha
+    resource_b_name = resource_sha + '.json'
 
     book_dir = tmp_path / "col11762"
     book_dir.mkdir()
-
     resources_dir = book_dir / "resources"
     resources_dir.mkdir()
-    resource = resources_dir / "fffe62254ef635871589a848b65db441318171eb.json"
 
-    test_data_one = open(test_resource, "rb").read()
-    resource.write_bytes(test_data_one)
+    resource_a = resources_dir / resource_a_name
+    resource_b = resources_dir / resource_b_name
 
-    dist_bucket = 'distribution-bucket-1234'
-    dist_bucket_prefix = 'master/resources'
-    key = dist_bucket_prefix + '/' + resource_name
+    # copy over the test data a to the tmp_path
+    resource_a_data = os.path.join(TEST_DATA_DIR, resource_a_name)
+    resource_a_data = open(resource_a_data, "rb").read()
+    resource_a.write_bytes(resource_a_data)
+
+    # copy over the test data b to the tmp_path
+    resource_b_data = os.path.join(TEST_DATA_DIR, resource_b_name)
+    resource_b_data = open(resource_b_data, "rb").read()
+    resource_b.write_bytes(resource_b_data)
+
+    bucket = 'distribution-bucket-1234'
+    prefix = 'master/resources'
+
+    key_a = prefix + '/' + resource_a_name
+    key_b = prefix + '/' + resource_sha + '-unused.json'
 
     s3_client = boto3.client('s3')
     s3_stubber = botocore.stub.Stubber(s3_client)
-
     s3_stubber.add_response(
         'list_objects',
         {},
         expected_params={
-            'Bucket': dist_bucket,
-            'Prefix': dist_bucket_prefix + '/',
+            'Bucket': bucket,
+            'Prefix': prefix + '/',
             'Delimiter': '/'
         }
     )
-
     s3_stubber.add_response(
         "put_object",
         {},
         expected_params={
             'Body': botocore.stub.ANY,
-            'Bucket': dist_bucket,
+            'Bucket': bucket,
             'ContentType': 'application/json',
-            'Key': 'master/resources/fffe62254ef635871589a848b65db441318171eb-unused.json',
+            'Key': key_b,
         }
     )
-
     s3_stubber.add_response(
         "put_object",
         {},
         expected_params={
             'Body':  botocore.stub.ANY,
-            'Bucket': dist_bucket,
+            'Bucket': bucket,
             'ContentType': 'image/jpeg',
-            'Key': key,
+            'Key': key_a,
         }
     )
-
     s3_stubber.activate()
 
-    from unittest.mock import MagicMock
     mocked_session = boto3.session.Session
-    mocked_session.client = MagicMock(return_value=s3_client)
-
+    mocked_session.client = mocker.MagicMock(return_value=s3_client)
     mocker.patch(
         'boto3.session.Session',
         mocked_session
     )
-
     mocker.patch(
         'sys.argv',
         ['',
-         TEST_DATA_DIR,
-         dist_bucket,
-         dist_bucket_prefix]
+         resources_dir,
+         bucket,
+         prefix]
     )
 
     os.environ['AWS_ACCESS_KEY_ID'] = 'dummy-key'
@@ -950,26 +954,16 @@ def test_copy_resource_s3(tmp_path, mocker):
 def test_copy_resource_s3_environment(tmp_path, mocker):
     """Test copy_resource_s3 script errors without aws credentials"""
 
-    resource_name = "fffe62254ef635871589a848b65db441318171eb"
-
-    test_resource = os.path.join(TEST_DATA_DIR, resource_name)
-
     book_dir = tmp_path / "col11762"
     book_dir.mkdir()
-
     resources_dir = book_dir / "resources"
     resources_dir.mkdir()
-    resource = resources_dir / "fffe62254ef635871589a848b65db441318171eb.json"
-
-    test_data_one = open(test_resource, "rb").read()
-    resource.write_bytes(test_data_one)
 
     dist_bucket = 'distribution-bucket-1234'
     dist_bucket_prefix = 'master/resources'
 
     s3_client = boto3.client('s3')
     s3_stubber = botocore.stub.Stubber(s3_client)
-
     s3_stubber.add_response(
         'list_objects',
         {},
@@ -979,12 +973,10 @@ def test_copy_resource_s3_environment(tmp_path, mocker):
             'Delimiter': '/'
         }
     )
-
     s3_stubber.activate()
 
-    from unittest.mock import MagicMock
     mocked_session = boto3.session.Session
-    mocked_session.client = MagicMock(return_value=s3_client)
+    mocked_session.client = mocker.MagicMock(return_value=s3_client)
 
     mocker.patch(
         'boto3.session.Session',
@@ -994,7 +986,7 @@ def test_copy_resource_s3_environment(tmp_path, mocker):
     mocker.patch(
         'sys.argv',
         ['',
-         TEST_DATA_DIR,
+         resources_dir,
          dist_bucket,
          dist_bucket_prefix]
     )
@@ -1008,32 +1000,21 @@ def test_copy_resource_s3_environment(tmp_path, mocker):
 
 def test_s3_existence(tmp_path, mocker):
     """Test copy_resource_s3.test_s3_existence function"""
+
     resource_name = "fffe62254ef635871589a848b65db441318171eb.json"
-
-    test_resource = os.path.join(TEST_DATA_DIR, resource_name)
-
-    book_dir = tmp_path / "col11762"
-    book_dir.mkdir()
-
-    resources_dir = book_dir / "resources"
-    resources_dir.mkdir()
-    resource = resources_dir / "fffe62254ef635871589a848b65db441318171eb.json"
-
-    test_data_one = open(test_resource, "rb").read()
-    resource.write_bytes(test_data_one)
-
     bucket = 'distribution-bucket-1234'
-    dist_bucket_prefix = 'master/resources'
-    key = dist_bucket_prefix + '/' + resource_name
-
-    resource_for_test = {
-        "input_metadata_file": test_resource,
+    key = 'master/resources/' + resource_name
+    resource = os.path.join(TEST_DATA_DIR, resource_name)
+    test_resource = {
+        "input_metadata_file": resource,
         "output_s3": key,
     }
 
+    aws_key = 'dummy-key'
+    aws_secret = 'dummy-secret'
+
     s3_client = boto3.client('s3')
     s3_stubber = botocore.stub.Stubber(s3_client)
-
     s3_stubber.add_response(
         "head_object",
         {"ETag": '14e273e6f416c4b90a071f59ac01206a'},
@@ -1042,20 +1023,21 @@ def test_s3_existence(tmp_path, mocker):
             "Key": key,
         },
     )
-
     s3_stubber.activate()
-
-    aws_key = 'dummy-key'
-    aws_secret = 'dummy-secret'
 
     upload_resource = copy_resources_s3.check_s3_existence(
         aws_key, aws_secret,
-        bucket, resource_for_test,
+        bucket, test_resource,
         disable_check=False
     )
 
-    assert resource_for_test['input_metadata_file'] == upload_resource['input_metadata_file']
-    assert resource_for_test['output_s3'] == upload_resource['output_s3']
+    test_input_metadata = test_resource['input_metadata_file']
+    test_output_s3 = test_resource['output_s3']
+    uploaded_input_metadata = upload_resource['input_metadata_file']
+    uploaded_output_s3 = upload_resource['output_s3']
+
+    assert test_input_metadata == uploaded_input_metadata
+    assert test_output_s3 == uploaded_output_s3
 
     s3_stubber.deactivate()
 
@@ -1064,33 +1046,23 @@ def test_s3_existence_404(tmp_path, mocker):
     """Test copy_resource_s3.test_s3_existence
     function errors with wrong file name"""
 
-    resource_name = "fffe62254ef635871589a848b65db441318171eb.json"
-    wrong_resource_name = "babybeluga.json"
-
-    test_resource = os.path.join(TEST_DATA_DIR, wrong_resource_name)
-
-    book_dir = tmp_path / "col11762"
-    book_dir.mkdir()
-
-    resources_dir = book_dir / "resources"
-    resources_dir.mkdir()
-
+    resource_name = "fffe62254ef635871589a848b65db441318171eb"
     bucket = 'distribution-bucket-1234'
-    dist_bucket_prefix = 'master/resources'
-    key = dist_bucket_prefix + '/' + resource_name
+    key = 'master/resources/' + resource_name
 
+    wrong_resource = "babybeluga.json"
+    test_resource = os.path.join(TEST_DATA_DIR, wrong_resource)
     resource_for_test = {
         "input_metadata_file": test_resource,
         "output_s3": key,
     }
 
-    s3_client = boto3.client('s3')
-    s3_stubber = botocore.stub.Stubber(s3_client)
-
-    s3_stubber.activate()
-
     aws_key = 'dummy-key'
     aws_secret = 'dummy-secret'
+
+    s3_client = boto3.client('s3')
+    s3_stubber = botocore.stub.Stubber(s3_client)
+    s3_stubber.activate()
 
     with pytest.raises(FileNotFoundError):
         copy_resources_s3.check_s3_existence(
