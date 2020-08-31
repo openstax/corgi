@@ -45,6 +45,7 @@ setup(
     url="https://github.com/openstax/output-producer-service",
     license='AGPLv3.0',
     package_dir={"bakery_scripts": "."},
+    package_data={"bakery_scripts": ["book-slugs.json"]},
     entry_points={
         'console_scripts': [
             'assemble-meta = bakery_scripts.assemble_book_metadata:main',

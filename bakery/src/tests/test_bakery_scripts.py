@@ -23,7 +23,8 @@ from bakery_scripts import (
     check_feed,
     gdocify_book,
     upload_docx,
-    checksum_resource
+    checksum_resource,
+    utils
 )
 
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -1024,3 +1025,11 @@ def test_upload_docx(tmp_path, mocker):
         {"id": "ch1exists", "name": "chapter1"},
         {"id": "ch2new", "name": "chapter2"},
     ]
+
+
+def test_utils_book_slugs():
+    """Test book_uuid_to_slug utility function"""
+    slug = utils.book_uuid_to_slug("dummy-uuid")
+    assert slug is None
+    slug = utils.book_uuid_to_slug("4abf04bf-93a0-45c3-9cbc-2cefd46e68cc")
+    assert slug == "psychology"

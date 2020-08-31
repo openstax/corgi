@@ -1,5 +1,10 @@
+import pkg_resources
+import json
 from cnxepub.models import TRANSLUCENT_BINDER_ID, TranslucentBinder
 from cnxcommon.urlslug import generate_slug
+
+
+BOOK_SLUGS_RESOURCE = "book-slugs.json"
 
 
 # Based upon amend_tree_with_slugs from cnx-publishing
@@ -40,3 +45,10 @@ def parse_uri(uri):
         return None
     legacy_id, legacy_version = uri.split('@')
     return legacy_id, legacy_version
+
+
+def book_uuid_to_slug(book_uuid):
+    """Given a book UUID, return the corresponding slug"""
+    stream = pkg_resources.resource_stream(__name__, BOOK_SLUGS_RESOURCE)
+    book_slug_data = json.load(stream)
+    return book_slug_data.get(book_uuid)
