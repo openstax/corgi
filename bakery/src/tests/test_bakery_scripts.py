@@ -400,7 +400,7 @@ def test_link_extras_single_no_match(tmp_path, mocker):
 
     extras_dict = {
         "1234-5678-1234-5678@version": {
-            "books": [{"ident_hash": "02776133-d49d-49cb-bfaa-67c7f61b25a1"}]
+            "books": [{"ident_hash": "4664c267-cd62-4a99-8b28-1cb9b3aee347"}]
         }
     }
 
@@ -435,7 +435,7 @@ def test_link_extras_single_no_match(tmp_path, mocker):
             ("id", "l2"),
             ("href", "/contents/1234-5678-1234-5678"),
             ("class", "target-chapter"),
-            ("data-book-uuid", "02776133-d49d-49cb-bfaa-67c7f61b25a1"),
+            ("data-book-uuid", "4664c267-cd62-4a99-8b28-1cb9b3aee347"),
         ],
     ]
 
@@ -465,7 +465,7 @@ def test_link_extras_multi_match(tmp_path, mocker):
         "1234-5678-1234-5678@version": {
             "books": [
                 {"ident_hash": "00000000-0000-0000-0000-000000000000"},
-                {"ident_hash": "02776133-d49d-49cb-bfaa-67c7f61b25a1"},
+                {"ident_hash": "4664c267-cd62-4a99-8b28-1cb9b3aee347"},
             ]
         }
     }
@@ -501,7 +501,7 @@ def test_link_extras_multi_match(tmp_path, mocker):
             ("id", "l2"),
             ("href", "/contents/1234-5678-1234-5678"),
             ("class", "target-chapter"),
-            ("data-book-uuid", "02776133-d49d-49cb-bfaa-67c7f61b25a1"),
+            ("data-book-uuid", "4664c267-cd62-4a99-8b28-1cb9b3aee347"),
         ],
     ]
 
