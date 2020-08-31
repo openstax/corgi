@@ -17,6 +17,7 @@ const pipeline = (env) => {
   const awsSecretAccessKey = env.S3_SECRET_ACCESS_KEY
   const codeVersionFromTag = env.IMAGE_TAG || 'version-unknown'
   const queueFilename = `${codeVersionFromTag}.${env.QUEUE_FILENAME}`
+  const queueStatePrefix = 'dist'
 
   const lockedTag = env.IMAGE_TAG || 'trunk'
 
@@ -61,6 +62,7 @@ const pipeline = (env) => {
         queueFilename: queueFilename,
         codeVersion: codeVersionFromTag,
         maxBooksPerRun: env.MAX_BOOKS_PER_TICK,
+        statePrefix: queueStatePrefix,
         image: { tag: lockedTag }
       })
     ]
@@ -92,7 +94,7 @@ const pipeline = (env) => {
         image: { tag: lockedTag },
         inputSource: 'jsonified-book',
         inputPath: 'jsonified/*@*.xhtml',
-        validationName: 'duplicate-id'
+        validationNames: ['duplicate-id', 'broken-link']
       }),
       taskUploadBook({
         distBucket: env.S3_DIST_BUCKET,
@@ -100,6 +102,7 @@ const pipeline = (env) => {
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
         codeVersion: codeVersionFromTag,
+        statePrefix: queueStatePrefix,
         image: { tag: lockedTag }
       })
     ]

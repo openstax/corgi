@@ -2,14 +2,17 @@
   "ENV_NAME": "staging",
   "COPS_TARGET": "https://cops-staging.openstax.org/api",
   "S3_PDF_BUCKET": "ce-cops-staging",
-  "S3_DIST_BUCKET": "sandbox-web-hosting-content-gatekeeper",
-  "S3_QUEUE_STATE_BUCKET": "sandbox-web-hosting-content-queue-state",
+  "S3_DIST_BUCKET": "openstax-sandbox-web-hosting-content-gatekeeper",
+  "S3_QUEUE_STATE_BUCKET": "openstax-sandbox-web-hosting-content-queue-state",
   "QUEUE_FILENAME": "distribution-queue.json",
   "FEED_FILE_URL": "https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/approved-books.json",
-  "PIPELINE_TICK_INTERVAL": "24h",
+  "PIPELINE_TICK_INTERVAL": "12h",
   "MAX_BOOKS_PER_TICK": "50",
   "DIST_BUCKET_AKI_SECRET_NAME": "((aws-sandbox-secret-key-id))",
   "DIST_BUCKET_SAK_SECRET_NAME": "((aws-sandbox-secret-access-key))",
   "PDF_BUCKET_AKI_SECRET_NAME": "((aws-sandbox-secret-key-id))",
-  "PDF_BUCKET_SAK_SECRET_NAME": "((aws-sandbox-secret-access-key))"
+  "PDF_BUCKET_SAK_SECRET_NAME": "((aws-sandbox-secret-access-key))",
+  "GOOGLE_FOLDER_ID": "",
+  "GDOC_QUEUE_FILENAME": "",
+  "GDOC_FEED_FILE_URL": ""
 }

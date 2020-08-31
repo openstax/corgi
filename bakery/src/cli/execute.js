@@ -816,13 +816,15 @@ const tasks = {
     }
   },
   'validate-xhtml': (parentCommand) => {
-    const commandUsage = 'validate-xhtml <collid> <inputsource> <inputpath> <validationname>'
+    const commandUsage = 'validate-xhtml <collid> <inputsource> <inputpath> [validationnames...]'
     const handler = async argv => {
+      console.log(argv.inputpath)
+      console.log(argv.validationnames)
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = [`--taskargs=${JSON.stringify(
-        { ...imageDetails, ...{ inputSource: argv.inputsource, inputPath: argv.inputpath, validationName: argv.validationname } }
+        { ...imageDetails, ...{ inputSource: argv.inputsource, inputPath: argv.inputpath, validationNames: argv.validationnames } }
       )}`]
       const taskContent = execFileSync(buildExec, ['task', 'validate-xhtml', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
@@ -849,11 +851,14 @@ const tasks = {
           describe: 'collection id of collection to work on',
           type: 'string'
         }).positional('inputsource', {
-          describe: 'input source to consume data from',
+          describe: 'input source to consume data from. e.g. baked-book, assembled-book, ...',
           type: 'string'
         }).positional('inputpath', {
           describe: 'path with task outputs for XHTML files to validate',
           type: 'string'
+        }).positional('validationnames', {
+          describe: 'a list of validations to run on the XHTML files',
+          type: 'array'
         })
       },
       handler: argv => {

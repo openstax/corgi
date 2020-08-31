@@ -12,11 +12,14 @@ const pipeline = (env) => {
   const taskValidateXhtml = require('../tasks/validate-xhtml')
   const taskGdocifyBook = require('../tasks/gdocify-book')
   const taskConvertDocx = require('../tasks/convert-docx')
+  const taskUploadDocx = require('../tasks/upload-docx')
 
   const awsAccessKeyId = env.S3_ACCESS_KEY_ID
   const awsSecretAccessKey = env.S3_SECRET_ACCESS_KEY
   const codeVersionFromTag = env.IMAGE_TAG || 'version-unknown'
-  const queueFilename = `${codeVersionFromTag}.${env.QUEUE_FILENAME}`
+  const queueFilename = `${codeVersionFromTag}.${env.GDOC_QUEUE_FILENAME}`
+  const parentGoogleFolderId = env.GOOGLE_FOLDER_ID
+  const queueStatePrefix = 'gdoc'
 
   const lockedTag = env.IMAGE_TAG || 'trunk'
 
@@ -56,11 +59,12 @@ const pipeline = (env) => {
       taskCheckFeed({
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
-        feedFileUrl: env.FEED_FILE_URL,
+        feedFileUrl: env.GDOC_FEED_FILE_URL,
         queueStateBucket: env.S3_QUEUE_STATE_BUCKET,
         queueFilename: queueFilename,
         codeVersion: codeVersionFromTag,
         maxBooksPerRun: env.MAX_BOOKS_PER_TICK,
+        statePrefix: queueStatePrefix,
         image: { tag: lockedTag }
       })
     ]
@@ -91,11 +95,19 @@ const pipeline = (env) => {
         image: { tag: lockedTag },
         inputSource: 'disassembled-book',
         inputPath: 'disassembled/*@*.xhtml',
-        validationName: 'duplicate-id'
+        validationNames: ['duplicate-id']
       }),
       taskGdocifyBook({ image: { tag: lockedTag } }),
-      taskConvertDocx({ image: { tag: lockedTag } })
-      // Add task: Upload to google storage
+      taskConvertDocx({ image: { tag: lockedTag } }),
+      taskUploadDocx({
+        image: { tag: lockedTag },
+        parentGoogleFolderId: parentGoogleFolderId,
+        awsAccessKeyId: awsAccessKeyId,
+        awsSecretAccessKey: awsSecretAccessKey,
+        queueStateBucket: env.S3_QUEUE_STATE_BUCKET,
+        codeVersion: codeVersionFromTag,
+        statePrefix: queueStatePrefix
+      })
     ]
   }
 
