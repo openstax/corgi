@@ -17,6 +17,15 @@ class ContentServers(Base):
 
     jobs = relationship("Jobs", back_populates="content_server")
 
+class JobTypes(Base):
+    id = sa.Column(sa.Integer, primary_key=True, index=True)
+    name = sa.Column(sa.String, nullable=False)
+    created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow, index=True)
+    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
+                           onupdate=datetime.utcnow)
+
+    jobs = relationship("Jobs", back_populates="job_type")
+
 
 class Jobs(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
@@ -25,6 +34,7 @@ class Jobs(Base):
     pdf_url = sa.Column(sa.String)
     version = sa.Column(sa.String)
     style = sa.Column(sa.String)
+    job_type_id = sa.Column(sa.Integer, sa.ForeignKey("job_types.id"))
     content_server_id = sa.Column(sa.Integer, sa.ForeignKey("content_servers.id"))
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow, index=True)
     updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
@@ -32,6 +42,7 @@ class Jobs(Base):
 
     status = relationship("Status", back_populates="jobs", lazy="joined")
     content_server = relationship("ContentServers", back_populates="jobs", lazy="joined")
+    job_type = relationship("JobTypes", back_populates="jobs", lazy="joined")
 
 
 class Status(Base):
