@@ -27,6 +27,17 @@ class ContentServer(ContentServerBase):
         orm_mode = True
 
 
+class JobTypeBase(BaseModel):
+    name: str
+
+
+class JobType(JobTypeBase):
+    id: str
+
+    class Config:
+        orm_mode = True
+
+
 class JobBase(BaseModel):
     collection_id: str
     status_id: str
@@ -34,6 +45,7 @@ class JobBase(BaseModel):
     content_server_id: str
     version: str = None
     style: str = None
+    job_type_id: str = "1"
 
 
 class JobCreate(JobBase):
@@ -51,6 +63,7 @@ class Job(JobBase):
     updated_at: datetime
     status: Status
     content_server: ContentServer
+    job_type: JobType
 
     class Config:
         orm_mode = True
