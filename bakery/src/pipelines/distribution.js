@@ -98,6 +98,7 @@ const pipeline = (env) => {
       }),
       taskUploadBook({
         distBucket: env.S3_DIST_BUCKET,
+        distBucketPath: 'apps/archive/',
         queueStateBucket: env.S3_QUEUE_STATE_BUCKET,
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,

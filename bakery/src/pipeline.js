@@ -71,11 +71,7 @@ module.exports.handler = argv => {
   }).call()
   const pipeline = (() => {
     const pipelineFilePath = path.resolve(pipelineDir, `${argv.pipelinetype}.js`)
-    try {
-      return require(pipelineFilePath)
-    } catch {
-      throw new Error(`Could not find pipeline file: ${pipelineFilePath}`)
-    }
+    return require(pipelineFilePath)
   }).call()
   const outputFile = argv.output == null
     ? undefined

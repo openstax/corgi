@@ -14,5 +14,6 @@
   "PDF_BUCKET_SAK_SECRET_NAME": "((aws-sandbox-secret-access-key))",
   "GOOGLE_FOLDER_ID": "",
   "GDOC_QUEUE_FILENAME": "",
-  "GDOC_FEED_FILE_URL": ""
+  "GDOC_FEED_FILE_URL": "",
+  "S3_DIST_PREVIEW_BUCKET": "ce-cops-dist-preview-staging"
 }

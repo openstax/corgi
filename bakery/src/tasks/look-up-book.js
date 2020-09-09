@@ -7,7 +7,8 @@ const task = (taskArgs) => {
     name: 'openstax/nebuchadnezzar',
     tag: 'trunk'
   }
-  const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
+  const { inputSource, image } = taskArgs
+  const imageOverrides = image != null ? image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
   return {
@@ -18,7 +19,7 @@ const task = (taskArgs) => {
         type: 'docker-image',
         source: imageSource
       },
-      inputs: [{ name: 'output-producer' }],
+      inputs: [{ name: inputSource }],
       outputs: [{ name: 'book' }],
       run: {
         path: '/bin/bash',
@@ -27,14 +28,14 @@ const task = (taskArgs) => {
           /* eslint-disable no-template-curly-in-string */
           dedent`
           exec 2> >(tee book/stderr >&2)
-          tail output-producer/*
-          cp output-producer/id book/job_id
-          cp output-producer/collection_id book/collection_id
-          cp output-producer/version book/version
-          cp output-producer/collection_style book/style
-          cp output-producer/content_server book/server
+          tail ${inputSource}/*
+          cp ${inputSource}/id book/job_id
+          cp ${inputSource}/collection_id book/collection_id
+          cp ${inputSource}/version book/version
+          cp ${inputSource}/collection_style book/style
+          cp ${inputSource}/content_server book/server
           wget -q -O jq 'https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64' && chmod +x jq
-          server_shortname="$(cat output-producer/job.json | ./jq -r '.content_server.name')"
+          server_shortname="$(cat ${inputSource}/job.json | ./jq -r '.content_server.name')"
           echo "$server_shortname" >book/server_shortname
           pdf_filename="$(cat book/collection_id)-$(cat book/version)-$(cat book/server_shortname)-$(cat book/job_id).pdf"
           echo "$pdf_filename" > book/pdf_filename
