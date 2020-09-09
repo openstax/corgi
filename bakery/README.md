@@ -1,6 +1,6 @@
 ## Bakery Concourse Pipeline Config Generator and Bakery CLI
 
-This directory contains the code necessary to both generate and run our content distribution and pdf pipelines, either in individual steps or as a whole. Effort has been put in to paramaterize code pieces so that:
+This directory contains the code necessary to both generate and run our content distribution and cops pipelines, either in individual steps or as a whole. Effort has been put in to paramaterize code pieces so that:
 - A downstream user (user of the Bakery CLI)
 - A developer making pipeline changes or debugging
 - A production or staging node
@@ -104,7 +104,7 @@ The choices for `<env>` are the basenames of the `.json` files in the `env/` dir
 
 Examples:
 - `./build pipeline distribution prod` -> Build the distribution pipeline with prod environment variables and output on stdout.
-- `./build pipeline pdf staging -o pdf-pipeline.staging.yml` -> Build the pdf pipeline with staging environment variables and output to file `pdf-pipeline.staging.yml`, overwriting the file if it exists.
+- `./build pipeline cops staging -o cops-pipeline.staging.yml` -> Build the cops pipeline with staging environment variables and output to file `cops-pipeline.staging.yml`, overwriting the file if it exists.
 
 #### Generate a standalone task file suitable for `fly execute`
 Run `./build task <taskname> [options]...`
@@ -119,7 +119,7 @@ Note: The `--args` option (shorthand, `-a`) must be valid `yaml` (or `json`, sin
 
 #### I don't like generating intermediate files to run `set-pipeline` or `execute`!
 Use process substitution!
-Example: `fly -t dev sp -p bakery -c <(./build pipeline pdf staging)`
+Example: `fly -t dev sp -p bakery -c <(./build pipeline cops staging)`
 
 ### Development and QA
 
@@ -139,7 +139,7 @@ Note: This is probably most useful for the `cops-bakery-scripts` image, but you 
 #### Tip for development, deployment, and QA
 
 Both the Bakery CLI and the Pipeline Config Generator allow you to specify a tag of a remote image to use with the `--tag`. For example, if a tag, `important-tag`, has been released for each of our images, one can:
-1. Generate a pipeline pinning all versions of images to that tag with usage like `./build pipeline pdf staging --tag=important-tag`
+1. Generate a pipeline pinning all versions of images to that tag with usage like `./build pipeline cops staging --tag=important-tag`
 2. Run an individual task with the Bakery CLI using the image of that tag as the image_resource with usage like `node ./src/cli/execute.js run fetch -d /tmp/data staging.cnx.org col30149 latest --tag=important-tag`
 
 #### Testing

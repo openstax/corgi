@@ -200,7 +200,7 @@ test('default tag is trunk', async t => {
   let pipelineOut = ''
   const buildPipeline = spawn('./build', [
     'pipeline',
-    'pdf',
+    'cops',
     'prod'
   ])
   buildPipeline.stdout.on('data', (data) => {
@@ -220,7 +220,7 @@ test('pin pipeline tasks to versions', async t => {
   let pipelineOut = ''
   const buildPipeline = spawn('./build', [
     'pipeline',
-    'pdf',
+    'cops',
     'prod',
     `--tag=${customTag}`
   ])

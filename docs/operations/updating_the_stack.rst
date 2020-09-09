@@ -207,7 +207,7 @@ Deploy the corresponding pipeline to ``concourse-v6`` (BASH shell):
 
 .. code-block:: bash
 
-   fly -t concourse-v6 sp -p cops-pdf-staging -c <(./bakery/build pipeline pdf staging --tag $TAG)
+   fly -t concourse-v6 sp -p cops-staging -c <(./bakery/build pipeline cops staging --tag $TAG)
 
 .. warning::
    Depending upon your environment, you may need to get the correct version of fly and login first.
@@ -228,7 +228,7 @@ Deploy the corresponding pipeline to ``concourse-v6``:
 
 .. code-block:: bash
 
-   fly -t concourse-v6 sp -p cops-pdf-prod -c <(./bakery/build pipeline pdf prod --tag $TAG)
+   fly -t concourse-v6 sp -p cops-prod -c <(./bakery/build pipeline cops prod --tag $TAG)
 
 ----
 

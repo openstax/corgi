@@ -3,14 +3,17 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
-  const { awsAccessKeyId, awsSecretAccessKey, distBucket, queueStateBucket, codeVersion, statePrefix } = taskArgs
+  const { awsAccessKeyId, awsSecretAccessKey, distBucket, queueStateBucket, codeVersion, statePrefix, distBucketPath, updateQueueState = true } = taskArgs
   const imageDefault = {
     name: 'openstax/cops-bakery-scripts',
     tag: 'trunk'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
-  const distBucketPrefix = `apps/archive/${codeVersion}`
+  if (!distBucketPath.endsWith('/') || distBucketPath.length === 0) {
+    throw Error('distBucketPath must represent some directory-like path in s3')
+  }
+  const distBucketPrefix = `${distBucketPath}${codeVersion}`
 
   return {
     task: 'upload book',
@@ -55,12 +58,17 @@ const task = (taskArgs) => {
           # on prior upload steps, those files
           # will not be found by watchers
           #######################################
-          aws s3 cp "$book_dir/collection.toc.json" "s3://${distBucket}/${distBucketPrefix}/contents/$book_uuid@$book_version.json"
-          aws s3 cp "$book_dir/collection.toc.xhtml" "s3://${distBucket}/${distBucketPrefix}/contents/$book_uuid@$book_version.xhtml"
+          toc_s3_link_json="s3://${distBucket}/${distBucketPrefix}/contents/$book_uuid@$book_version.json"
+          toc_s3_link_xhtml="s3://${distBucket}/${distBucketPrefix}/contents/$book_uuid@$book_version.xhtml"
+          aws s3 cp "$book_dir/collection.toc.json" "$toc_s3_link_json"
+          aws s3 cp "$book_dir/collection.toc.xhtml" "$toc_s3_link_xhtml"
 
-          complete_filename=".${statePrefix}.$collection_id@$book_legacy_version.complete"
+          echo "$toc_s3_link_json" > upload-book/toc-s3-link-json
+          echo "$toc_s3_link_xhtml" > upload-book/toc-s3-link-xhtml
+
+          ${updateQueueState ? `complete_filename=".${statePrefix}.$collection_id@$book_legacy_version.complete"
           date -Iseconds > "/tmp/$complete_filename"
-          aws s3 cp "/tmp/$complete_filename" "s3://${queueStateBucket}/${codeVersion}/$complete_filename"
+          aws s3 cp "/tmp/$complete_filename" "s3://${queueStateBucket}/${codeVersion}/$complete_filename"` : ''}
         `
         ]
       }
