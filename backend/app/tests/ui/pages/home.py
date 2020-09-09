@@ -70,7 +70,7 @@ class Home(Page):
 
         _modal_status_message_locator = (
             By.XPATH,
-            "/html/body/div/div/div/div/main/div/div/div/div/div[3]/div/table/tbody/tr[1]/td[7]/span/span/span",
+            "/html/body/div/div/div/div/main/div/div/div/div/div[3]/div/table/tbody/tr[1]/td[8]/span/span/span",
         )
 
         @property
