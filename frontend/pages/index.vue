@@ -21,7 +21,7 @@
               large
               tile
             >
-              <span>Create a new PDF job</span>
+              <span>Create a new job</span>
               <v-icon class="ml-2">
                 mdi-file-document-box-plus-outline
               </v-icon>
@@ -32,11 +32,17 @@
               <v-icon class="mr-1" large>
                 mdi-file-document-box-plus-outline
               </v-icon>
-              <span>Create a new PDF</span>
+              <span>Create a new job</span>
             </v-card-title>
             <v-card-text>
               <v-container>
                 <v-form ref="form" v-model="valid" lazy-validation>
+                  <v-row>
+                    <v-radio-group v-model="jobType" row mandatory :default="jobTypes.PDF">
+                      <v-radio label="PDF" :value="jobTypes.PDF"></v-radio>
+                      <v-radio label="Distribution Preview" :value="jobTypes.DIST_PREVIEW"></v-radio>
+                    </v-radio-group>
+                  </v-row>
                   <v-row>
                     <v-col cols="12" sm="3" md="3">
                       <v-text-field
@@ -91,7 +97,7 @@
               <v-btn @click="closeDialog()" class="job-cancel-button" color="blue darken-1" text>
                 Cancel
               </v-btn>
-              <v-btn @click="clickCollection(collectionId, contentServerId, version, style)" class="create-button-start-job" color="blue darken-1" text>
+              <v-btn @click="clickCollection(collectionId, contentServerId, version, style, jobType)" class="create-button-start-job" color="blue darken-1" text>
                 Create
               </v-btn>
             </v-card-actions>
@@ -186,6 +192,8 @@
 
 export default {
   data () {
+    // This value corresponds to the seeded id in the backend
+    this.jobTypes = { PDF: 1, DIST_PREVIEW: 2 }
     return {
       headers: [
         {
@@ -194,6 +202,7 @@ export default {
           sortable: true,
           value: 'id'
         },
+        { text: 'Job Type', value: 'job_type_name' },
         { text: 'Collection ID', value: 'collection_id' },
         { text: 'Version', value: 'version' },
         { text: 'Style', value: 'style' },
@@ -207,6 +216,7 @@ export default {
       collectionId: '',
       version: '',
       style: '',
+      jobType: this.jobTypes.PDF,
       polling: null,
       contentServerId: null,
       browserReady: false,
@@ -311,14 +321,14 @@ export default {
       this.goto_page_limit = `${this.page_limit}`
       this.getJobsImmediate()
     },
-    clickCollection (collectionId, contentServerId, version, style) {
+    clickCollection (collectionId, contentServerId, version, style, jobType) {
       if (this.$refs.form.validate()) {
         console.log('POSTing ' + collectionId + ' now!')
-        this.submitCollection(collectionId, contentServerId, version, style)
+        this.submitCollection(collectionId, contentServerId, version, style, jobType)
         this.closeDialog()
       }
     },
-    async submitCollection (collectionId, contentServerId, version, astyle) {
+    async submitCollection (collectionId, contentServerId, version, astyle, jobType) {
       try {
         const data = {
           collection_id: collectionId,
@@ -326,6 +336,7 @@ export default {
           pdf_url: null,
           version: version || null,
           style: astyle,
+          job_type_id: jobType,
           content_server_id: contentServerId
         }
         await this.$axios.$post('/api/jobs/', data)
