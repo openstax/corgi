@@ -340,6 +340,7 @@ export default {
           content_server_id: contentServerId
         }
         await this.$axios.$post('/api/jobs/', data)
+        setTimeout(() => { this.getJobsImmediate() }, 1000)
       } catch (error) {
         console.log(error)
       }
