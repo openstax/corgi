@@ -61,7 +61,11 @@ def get_containing_books(session, server, module_uuid):
 def match_canonical_book(canonical_ids, containing_books, module_uuid, link):
     """match uuid in canonical book list"""
     if len(containing_books) == 0:
-        raise Exception("No containing books")
+        raise Exception(
+            "No containing books.\n"
+            f"content: {module_uuid}\n"
+            f"module link: {link}"
+        )
 
     if len(containing_books) == 1:
         return containing_books[0]
@@ -72,8 +76,9 @@ def match_canonical_book(canonical_ids, containing_books, module_uuid, link):
         )
     except StopIteration:
         raise Exception(
-            "Multiple containing books, no canonical match!\n" +
-            f"module link: {link}\n" +
+            "Multiple containing books, no canonical match!\n"
+            f"content: {module_uuid}\n"
+            f"module link: {link}\n"
             f"containing books: {containing_books}"
         )
 
