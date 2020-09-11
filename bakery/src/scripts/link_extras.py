@@ -28,9 +28,8 @@ def load_assembled_collection(input_dir):
     return etree.parse(assembled_collection)
 
 
-def find_legacy_id(node):
+def find_legacy_id(link):
     """find legacy module id"""
-    link = node.attrib["href"]
     parsed = unquote(link)
 
     return parsed.lstrip("/contents/").rstrip()
@@ -59,7 +58,7 @@ def get_containing_books(session, server, module_uuid):
     return [book["ident_hash"].split("@")[0] for book in content["books"]]
 
 
-def match_canonical_book(canonical_ids, containing_books):
+def match_canonical_book(canonical_ids, containing_books, module_uuid, link):
     """match uuid in canonical book list"""
     if len(containing_books) == 0:
         raise Exception("No containing books")
@@ -73,8 +72,9 @@ def match_canonical_book(canonical_ids, containing_books):
         )
     except StopIteration:
         raise Exception(
-            "Multiple containing books, no canonical match!\n"
-            + f"{containing_books}"
+            "Multiple containing books, no canonical match!\n" +
+            f"module link: {link}\n" +
+            f"containing books: {containing_books}"
         )
 
     return match
@@ -107,13 +107,20 @@ def transform_links(data_dir, server, canonical_list, adapter):
         namespaces={"x": "http://www.w3.org/1999/xhtml"},
     ):
 
-        legacy_id = find_legacy_id(node)
+        link = node.attrib["href"]
+        legacy_id = find_legacy_id(link)
 
-        module_uuid = get_target_uuid(session, server, legacy_id)
-        containing_books = get_containing_books(session, server, module_uuid)
+        module = get_target_uuid(session, server, legacy_id)
+        containing_books = get_containing_books(session, server, module)
 
-        match = match_canonical_book(canonical_ids, containing_books)
-        patch_link(node, module_uuid, match)
+        match = match_canonical_book(
+            canonical_ids,
+            containing_books,
+            module,
+            link
+        )
+
+        patch_link(node, module, match)
 
     save_linked_collection(data_dir, doc)
 
