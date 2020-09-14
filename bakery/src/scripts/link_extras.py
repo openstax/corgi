@@ -4,6 +4,7 @@ uuids from the target module and corresponding canonical book       .
 """
 
 import sys
+import re
 import json
 import requests
 
@@ -32,7 +33,7 @@ def find_legacy_id(link):
     """find legacy module id"""
     parsed = unquote(link)
 
-    return parsed.lstrip("/contents/").rstrip()
+    return re.search(r'\/contents\/(m\d{5})', parsed).group(1)
 
 
 def init_requests_session(adapter):
@@ -85,9 +86,11 @@ def match_canonical_book(canonical_ids, containing_books, module_uuid, link):
     return match
 
 
-def patch_link(node, module_uuid, match):
+def patch_link(node, legacy_id, module_uuid, match):
     """replace legacy link"""
-    node.attrib["href"] = f"/contents/{module_uuid.split('@')[0]}"
+    original_href = node.attrib["href"]
+    uuid = module_uuid.split('@')[0]
+    node.attrib["href"] = original_href.replace(legacy_id, uuid)
     node.attrib["data-book-uuid"] = match
 
 
@@ -115,17 +118,17 @@ def transform_links(data_dir, server, canonical_list, adapter):
         link = node.attrib["href"]
         legacy_id = find_legacy_id(link)
 
-        module = get_target_uuid(session, server, legacy_id)
-        containing_books = get_containing_books(session, server, module)
+        module_uuid = get_target_uuid(session, server, legacy_id)
+        containing_books = get_containing_books(session, server, module_uuid)
 
         match = match_canonical_book(
             canonical_ids,
             containing_books,
-            module,
+            module_uuid,
             link
         )
 
-        patch_link(node, module, match)
+        patch_link(node, legacy_id, module_uuid, match)
 
     save_linked_collection(data_dir, doc)
 
