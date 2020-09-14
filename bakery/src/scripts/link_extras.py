@@ -44,10 +44,13 @@ def init_requests_session(adapter):
 
 def get_target_uuid(session, server, legacy_id):
     """get target module uuid"""
-    response = session.get(f"https://{server}/content/{legacy_id}")
+    response = session.get(
+        f"https://{server}/content/{legacy_id}",
+        allow_redirects=False
+    )
     response.raise_for_status()
 
-    return response.url.split("/")[-1]
+    return response.headers["Location"].split("/")[-1]
 
 
 def get_containing_books(session, server, module_uuid):

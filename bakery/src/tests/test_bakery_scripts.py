@@ -310,7 +310,9 @@ def mock_link_extras(tmp_path, content_dict, extras_dict, page_content):
 
     def content_callback(request, context):
         module_uuid = content_dict[request.url.split("/")[-1]]
-        request.url = f"https://{server}/contents/{module_uuid}"
+        context.status_code = 301
+        context.headers['Location'] = \
+            f"https://{server}/contents/{module_uuid}"
         return
 
     adapter.register_uri("GET", content_matcher, json=content_callback)
