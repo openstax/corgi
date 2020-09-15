@@ -6,6 +6,7 @@ from lxml import etree
 import boto3
 import botocore.stub
 import requests_mock
+import requests
 import pytest
 import re
 from googleapiclient.discovery import build
@@ -296,7 +297,8 @@ def test_canonical_list_order():
         assert names.index("College Algebra") < names.index("Precalculus")
 
 
-def mock_link_extras(tmp_path, content_dict, extras_dict, page_content):
+def mock_link_extras(tmp_path, content_dict, contents_dict, extras_dict,
+                     page_content):
     input_dir = tmp_path / "linked-extras"
     input_dir.mkdir()
 
@@ -324,6 +326,13 @@ def mock_link_extras(tmp_path, content_dict, extras_dict, page_content):
 
     adapter.register_uri("GET", extras_matcher, json=extras_callback)
 
+    contents_matcher = re.compile(f"https://{server}/contents/")
+
+    def contents_callback(request, context):
+        return contents_dict[request.url.split("/")[-1]]
+
+    adapter.register_uri("GET", contents_matcher, json=contents_callback)
+
     collection_name = "collection.assembled.xhtml"
     collection_input = input_dir / collection_name
     collection_input.write_text(page_content)
@@ -337,9 +346,24 @@ def test_link_extras_single_match(tmp_path, mocker):
 
     content_dict = {"m12345": "1234-5678-1234-5678@version"}
 
+    contents_dict = {
+        "00000000-0000-0000-0000-000000000000": {
+            "tree": {
+                "id": "",
+                "slug": "",
+                "contents": [
+                    {
+                        "id": "1234-5678-1234-5678@version",
+                        "slug": "1234-slug"
+                    }
+                ]
+            }
+        }
+    }
+
     extras_dict = {
         "1234-5678-1234-5678@version": {
-            "books": [{"ident_hash": "00000000-0000-0000-0000-000000000000"}]
+            "books": [{"ident_hash": "00000000-0000-0000-0000-000000000000@1"}]
         }
     }
 
@@ -379,16 +403,19 @@ def test_link_extras_single_match(tmp_path, mocker):
             ("href", "/contents/1234-5678-1234-5678"),
             ("class", "target-chapter"),
             ("data-book-uuid", "00000000-0000-0000-0000-000000000000"),
+            ("data-page-slug", "1234-slug"),
         ],
         [
             ("id", "l5"),
             ("href", "/contents/1234-5678-1234-5678#fragment"),
             ("class", "target-chapter"),
             ("data-book-uuid", "00000000-0000-0000-0000-000000000000"),
+            ("data-page-slug", "1234-slug"),
         ],
     ]
 
-    mock_link_extras(tmp_path, content_dict, extras_dict, page_content)
+    mock_link_extras(tmp_path, content_dict, contents_dict, extras_dict,
+                     page_content)
 
     output_dir = tmp_path / "linked-extras"
 
@@ -409,6 +436,8 @@ def test_link_extras_no_containing(tmp_path, mocker):
     containing books"""
 
     content_dict = {"m12345": "1234-5678-1234-5678@version"}
+
+    contents_dict = {}
 
     extras_dict = {
         "1234-5678-1234-5678@version": {
@@ -441,7 +470,8 @@ def test_link_extras_no_containing(tmp_path, mocker):
         Exception,
         match=r'(No containing books).*\n(content).*\n(module link)'
     ):
-        mock_link_extras(tmp_path, content_dict, extras_dict, page_content)
+        mock_link_extras(tmp_path, content_dict, contents_dict, extras_dict,
+                         page_content)
 
 
 def test_link_extras_single_no_match(tmp_path, mocker):
@@ -450,9 +480,24 @@ def test_link_extras_single_no_match(tmp_path, mocker):
 
     content_dict = {"m12345": "1234-5678-1234-5678@version"}
 
+    contents_dict = {
+        "4664c267-cd62-4a99-8b28-1cb9b3aee347": {
+            "tree": {
+                "id": "",
+                "slug": "",
+                "contents": [
+                    {
+                        "id": "1234-5678-1234-5678@version",
+                        "slug": "1234-slug"
+                    }
+                ]
+            }
+        }
+    }
+
     extras_dict = {
         "1234-5678-1234-5678@version": {
-            "books": [{"ident_hash": "4664c267-cd62-4a99-8b28-1cb9b3aee347"}]
+            "books": [{"ident_hash": "4664c267-cd62-4a99-8b28-1cb9b3aee347@1"}]
         }
     }
 
@@ -488,10 +533,12 @@ def test_link_extras_single_no_match(tmp_path, mocker):
             ("href", "/contents/1234-5678-1234-5678"),
             ("class", "target-chapter"),
             ("data-book-uuid", "4664c267-cd62-4a99-8b28-1cb9b3aee347"),
+            ("data-page-slug", "1234-slug"),
         ],
     ]
 
-    mock_link_extras(tmp_path, content_dict, extras_dict, page_content)
+    mock_link_extras(tmp_path, content_dict, contents_dict, extras_dict,
+                     page_content)
 
     output_dir = tmp_path / "linked-extras"
 
@@ -513,11 +560,26 @@ def test_link_extras_multi_match(tmp_path, mocker):
 
     content_dict = {"m12345": "1234-5678-1234-5678@version"}
 
+    contents_dict = {
+        "4664c267-cd62-4a99-8b28-1cb9b3aee347": {
+            "tree": {
+                "id": "",
+                "slug": "",
+                "contents": [
+                    {
+                        "id": "1234-5678-1234-5678@version",
+                        "slug": "1234-slug"
+                    }
+                ]
+            }
+        }
+    }
+
     extras_dict = {
         "1234-5678-1234-5678@version": {
             "books": [
-                {"ident_hash": "00000000-0000-0000-0000-000000000000"},
-                {"ident_hash": "4664c267-cd62-4a99-8b28-1cb9b3aee347"},
+                {"ident_hash": "00000000-0000-0000-0000-000000000000@1"},
+                {"ident_hash": "4664c267-cd62-4a99-8b28-1cb9b3aee347@1"},
             ]
         }
     }
@@ -554,10 +616,12 @@ def test_link_extras_multi_match(tmp_path, mocker):
             ("href", "/contents/1234-5678-1234-5678"),
             ("class", "target-chapter"),
             ("data-book-uuid", "4664c267-cd62-4a99-8b28-1cb9b3aee347"),
+            ("data-page-slug", "1234-slug"),
         ],
     ]
 
-    mock_link_extras(tmp_path, content_dict, extras_dict, page_content)
+    mock_link_extras(tmp_path, content_dict, contents_dict, extras_dict,
+                     page_content)
 
     output_dir = tmp_path / "linked-extras"
 
@@ -579,11 +643,13 @@ def test_link_extras_multi_no_match(tmp_path, mocker):
 
     content_dict = {"m12345": "1234-5678-1234-5678@version"}
 
+    contents_dict = {}
+
     extras_dict = {
         "1234-5678-1234-5678@version": {
             "books": [
-                {"ident_hash": "00000000-0000-0000-0000-000000000000"},
-                {"ident_hash": "11111111-1111-1111-1111-111111111111"},
+                {"ident_hash": "00000000-0000-0000-0000-000000000000@1"},
+                {"ident_hash": "11111111-1111-1111-1111-111111111111@1"},
             ]
         }
     }
@@ -613,7 +679,105 @@ def test_link_extras_multi_no_match(tmp_path, mocker):
         Exception,
         match=r'(no canonical).*\n.*(content).*\n.*(link).*\n.*(containing)'
     ):
-        mock_link_extras(tmp_path, content_dict, extras_dict, page_content)
+        mock_link_extras(tmp_path, content_dict, contents_dict, extras_dict,
+                         page_content)
+
+
+def test_link_extras_page_slug_not_found(tmp_path):
+    """Test for exception if page slug is not found"""
+    content_dict = {"m12345": "1234-5678-1234-5678@version"}
+
+    contents_dict = {
+        "00000000-0000-0000-0000-000000000000": {
+            "tree": {
+                "id": "",
+                "slug": "",
+                "contents": [
+                    {
+                        "id": "",
+                        "slug": ""
+                    }
+                ]
+            }
+        }
+    }
+
+    extras_dict = {
+        "1234-5678-1234-5678@version": {
+            "books": [{"ident_hash": "00000000-0000-0000-0000-000000000000@1"}]
+        }
+    }
+
+    page_content = """
+        <html xmlns="http://www.w3.org/1999/xhtml">
+        <body>
+        <div data-type="page">
+        <p><a id="l1"
+            href="/contents/m12345"
+            class="target-chapter"
+            data-book-uuid="otheruuid">Inter-book module link</a></p>
+        </div>
+        </body>
+        </html>
+    """
+
+    with pytest.raises(
+        Exception,
+        match=r'(Could not find page slug for module)'
+    ):
+        mock_link_extras(tmp_path, content_dict, contents_dict, extras_dict,
+                         page_content)
+
+
+def test_link_extras_page_slug_resolver(requests_mock):
+    """Test page slug resolver in link_extras script"""
+    requests_mock.get(
+        "/contents/4664c267-cd62-4a99-8b28-1cb9b3aee347",
+        json={
+            "tree": {
+                "id": "",
+                "slug": "",
+                "contents": [
+                    {
+                        "id": "1234-5678-1234-5678@version",
+                        "slug": "1234-slug"
+                    },
+                    {
+                        "id": "1111-2222-3333-4444@version",
+                        "slug": "1111-slug"
+                    }
+                ]
+            }
+        }
+    )
+
+    page_slug_resolver = link_extras.gen_page_slug_resolver(
+        requests.Session(),
+        "mock.archive"
+    )
+
+    res = page_slug_resolver(
+        "4664c267-cd62-4a99-8b28-1cb9b3aee347",
+        "1234-5678-1234-5678@version"
+    )
+    assert res == "1234-slug"
+    assert requests_mock.call_count == 1
+    # Query slug for different page in same book to ensure the mocker isn't
+    # called again
+    requests_mock.reset_mock()
+    res = page_slug_resolver(
+        "4664c267-cd62-4a99-8b28-1cb9b3aee347",
+        "1111-2222-3333-4444@version"
+    )
+    assert res == "1111-slug"
+    assert requests_mock.call_count == 0
+
+    # Test for unmatched slug
+    res = page_slug_resolver(
+        "4664c267-cd62-4a99-8b28-1cb9b3aee347",
+        "foobar@version"
+    )
+    assert res is None
 
 
 def test_assemble_book_metadata(tmp_path, mocker):

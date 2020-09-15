@@ -62,6 +62,43 @@ def get_containing_books(session, server, module_uuid):
     return [book["ident_hash"].split("@")[0] for book in content["books"]]
 
 
+def gen_page_slug_resolver(session, server):
+    """Generate a page slug resolver function"""
+
+    book_tree_by_uuid = {}
+
+    def _get_page_slug(book_uuid, page_uuid):
+        """Get page slug from book"""
+        def _parse_tree_for_slug(tree, page_uuid):
+            """Recursively walk through tree to find page slug"""
+            curr_slug = tree["slug"]
+            curr_id = tree["id"]
+            if curr_id == page_uuid:
+                return curr_slug
+            if "contents" in tree:
+                for node in tree["contents"]:
+                    slug = _parse_tree_for_slug(node, page_uuid)
+                    if slug:
+                        return slug
+            return None
+
+        cached_tree = book_tree_by_uuid.get(book_uuid)
+        if cached_tree:
+            book_metadata = cached_tree
+        else:
+            response = session.get(f"https://{server}/contents/{book_uuid}")
+            response.raise_for_status()
+
+            book_metadata = response.json()
+            book_tree_by_uuid[book_uuid] = book_metadata
+
+        page_slug = _parse_tree_for_slug(book_metadata["tree"], page_uuid)
+
+        return page_slug
+
+    return _get_page_slug
+
+
 def match_canonical_book(canonical_ids, containing_books, module_uuid, link):
     """match uuid in canonical book list"""
     if len(containing_books) == 0:
@@ -89,12 +126,13 @@ def match_canonical_book(canonical_ids, containing_books, module_uuid, link):
     return match
 
 
-def patch_link(node, legacy_id, module_uuid, match):
+def patch_link(node, legacy_id, module_uuid, match, page_slug):
     """replace legacy link"""
     original_href = node.attrib["href"]
     uuid = module_uuid.split('@')[0]
     node.attrib["href"] = original_href.replace(legacy_id, uuid)
     node.attrib["data-book-uuid"] = match
+    node.attrib["data-page-slug"] = page_slug
 
 
 def save_linked_collection(output_dir, doc):
@@ -111,6 +149,8 @@ def transform_links(data_dir, server, canonical_list, adapter):
     doc = load_assembled_collection(data_dir)
 
     session = init_requests_session(adapter)
+
+    page_slug_resolver = gen_page_slug_resolver(session, server)
 
     # look up uuids for external module links
     for node in doc.xpath(
@@ -131,7 +171,13 @@ def transform_links(data_dir, server, canonical_list, adapter):
             link
         )
 
-        patch_link(node, legacy_id, module_uuid, match)
+        page_slug = page_slug_resolver(match, module_uuid)
+        if page_slug is None:
+            raise Exception(
+                f"Could not find page slug for module {legacy_id} "
+                f"in canonical book UUID {match}"
+            )
+        patch_link(node, legacy_id, module_uuid, match, page_slug)
 
     save_linked_collection(data_dir, doc)
 
