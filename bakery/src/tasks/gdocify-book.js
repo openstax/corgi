@@ -33,8 +33,9 @@ const task = (taskArgs) => {
           collection_id="$(cat book/collection_id)"
           book_dir="gdocified-book/$collection_id/disassembled"
           target_dir="gdocified-book/$collection_id/gdocified"
+          book_slugs_file="gdocified-book/$collection_id/book-slugs.json"
           mkdir "$target_dir"
-          gdocify "$book_dir" "$target_dir"
+          gdocify "$book_dir" "$target_dir" "$book_slugs_file"
           cp "$book_dir"/*@*-metadata.json "$target_dir"
         `
         ]
