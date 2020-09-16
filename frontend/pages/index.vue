@@ -39,8 +39,8 @@
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-row>
                     <v-radio-group v-model="jobType" row mandatory :default="jobTypes.PDF">
-                      <v-radio label="PDF" :value="jobTypes.PDF"></v-radio>
-                      <v-radio label="Distribution Preview" :value="jobTypes.DIST_PREVIEW"></v-radio>
+                      <v-radio label="PDF" :value="jobTypes.PDF" class="pdf-radio-button"></v-radio>
+                      <v-radio label="Distribution Preview" :value="jobTypes.DIST_PREVIEW" class="preview-radio-button"></v-radio>
                     </v-radio-group>
                   </v-row>
                   <v-row>
