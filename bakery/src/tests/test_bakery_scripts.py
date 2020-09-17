@@ -1141,6 +1141,20 @@ def test_gdocify_book(tmp_path, mocker):
         assert expected_links_by_id[node.attrib["id"]] == node.attrib["href"]
 
 
+class ANY_OF:
+    def __init__(self, items):
+        self.items = items
+
+    def __eq__(self, other):
+        return other in self.items
+
+    def __ne__(self, other):
+        return other not in self.items
+
+    def __repr__(self):
+        return f'<ANY OF {self.items}>'
+
+
 def test_copy_resource_s3(tmp_path, mocker):
     """Test copy_resource_s3 script"""
 
@@ -1189,8 +1203,8 @@ def test_copy_resource_s3(tmp_path, mocker):
         expected_params={
             'Body': botocore.stub.ANY,
             'Bucket': bucket,
-            'ContentType': 'application/json',
-            'Key': key_b,
+            'ContentType': ANY_OF(['application/json', 'image/jpeg']),
+            'Key': ANY_OF([key_b, key_a]),
         }
     )
     s3_stubber.add_response(
@@ -1199,8 +1213,8 @@ def test_copy_resource_s3(tmp_path, mocker):
         expected_params={
             'Body':  botocore.stub.ANY,
             'Bucket': bucket,
-            'ContentType': 'image/jpeg',
-            'Key': key_a,
+            'ContentType': ANY_OF(['application/json', 'image/jpeg']),
+            'Key': ANY_OF([key_b, key_a]),
         }
     )
     s3_stubber.activate()
