@@ -100,7 +100,6 @@ class Home(Page):
 
         def click_distribution_preview_radio_button(self):
             self.distribution_preview_radio_button.click()
-            # self.wait.until(lambda _: self.page.create_job_modal_is_open)
 
         @property
         def collection_id_field_error(self):
