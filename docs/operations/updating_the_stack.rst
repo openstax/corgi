@@ -86,7 +86,21 @@ You can copy down your ``cops.pem`` into your ``~/.ssh`` from bastion2 by:
 Steps
 *****
 
-1. Set Up SSH Tunnel
+1. Update your buildout and JS dependencies
+===========================================
+
+Keep sure you are on the latest master branch.
+
+Update/install JS libraries regularly for the fly command later:
+
+.. code-block:: bash
+
+   cd bakery
+   # run yarn or npm install
+   yarn
+   cd ..
+
+2. Set Up SSH Tunnel
 ====================
 
 Port Forward COPS Server to Local Docker Socket
@@ -115,7 +129,7 @@ We will refer to this as our **Docker Talker** window. Keep terminal open until 
 .. note:: This window should only be used to run the deploy script.
    All docker commands you run in this window will be like running them on the remote host.
 
-2. Deploy to Staging
+3. Deploy to Staging
 ====================
 
 Ensure SSH tunnel to COPS is set up and you are in the **Docker Talker** window to communicate with the swarm manager node from the previous step.
@@ -213,7 +227,7 @@ Deploy the corresponding pipeline to ``concourse-v6`` (BASH shell):
    Depending upon your environment, you may need to get the correct version of fly and login first.
 
 
-3. Promote Staging to Production
+4. Promote Staging to Production
 ================================
 Ensure SSH tunnel to COPS is set up and you are in a *new terminal* to communicate with the swarm manager node with previous steps.
 
