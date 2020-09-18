@@ -156,6 +156,11 @@ Run the script [./scripts/build-push.sh](./scripts/build-push.sh) with the appro
 
 Refer to the [Updating the stack](http://127.0.0.0:8000/operations/updating_the_stack.html) section of the docs.
 
+### Deploying Web Hosting Pipeline
+
+The web-hosting pipeline infrastructure is hosted in AWS. Instructions on [How to Deploy Web Hosting Pipeline](https://openstax.atlassian.net/wiki/spaces/CE/pages/573538307/Deploying+the+web-hosting+pipeline). Deploying the Web Hosting Pipeline
+is a joint effort between DevOps, CE, and Unified.
+
 ## Load testing for the backend
 
 Load testing with Locust.io is in the directory `./backend/app/tests/performance/`
