@@ -96,8 +96,8 @@ Update/install JS libraries regularly for the fly command later:
 .. code-block:: bash
 
    cd bakery
-   # run yarn or npm install
-   yarn
+   # yarn v1.x also works
+   npm install
    cd ..
 
 2. Set Up SSH Tunnel
