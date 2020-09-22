@@ -38,3 +38,4 @@ services:
         - traefik.enable=true
         - traefik.port=80
         - traefik.tags=${TRAEFIK_TAG}
+        - traefik.frontend.auth.basic.usersFile=/run/secrets/basic-auth-users
