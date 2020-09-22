@@ -41,14 +41,14 @@ const task = (taskArgs) => {
           book_license="$(cat $book_metadata | jq '.license')"
           book_dir="baked-book/$collection_id"
           target_dir="baked-book-metadata/$collection_id"
+          book_slugs_file="$book_dir/book-slugs.json"
           mkdir "$target_dir"
           cp "$book_dir/collection.baked.xhtml" "$target_dir/collection.baked.xhtml"
           cat "assembled-book-metadata/$collection_id/collection.assembled-metadata.json" | \
               jq --arg ident_hash "$book_ident_hash" --arg uuid "$book_uuid" --arg version "$book_version" --argjson license "$book_license" \
               --arg legacy_id "$book_legacy_id" --arg legacy_version "$book_legacy_version" \
               '. + {($ident_hash): {id: $uuid, version: $version, license: $license, legacy_id: $legacy_id, legacy_version: $legacy_version}}' > "/tmp/collection.baked-input-metadata.json"
-          cd "$target_dir"
-          bake-meta /tmp/collection.baked-input-metadata.json collection.baked.xhtml collection.baked-metadata.json
+          bake-meta /tmp/collection.baked-input-metadata.json "$target_dir/collection.baked.xhtml" "$book_uuid" "$book_slugs_file" "$target_dir/collection.baked-metadata.json"
           `
         ]
       }

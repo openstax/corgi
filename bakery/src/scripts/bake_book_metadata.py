@@ -9,7 +9,8 @@ from cnxepub.collation import reconstitute
 
 def main():
 
-    raw_metadata_file, baked_xhtml_file, baked_metadata_file = sys.argv[1:4]
+    raw_metadata_file, baked_xhtml_file, collection_uuid, book_slugs_file, \
+        baked_metadata_file = sys.argv[1:6]
 
     with open(baked_xhtml_file, "r") as baked_xhtml:
         html = etree.parse(baked_xhtml)
@@ -26,12 +27,20 @@ def main():
     with open(raw_metadata_file, "r") as raw_json:
         baked_metadata = json.load(raw_json)
 
+    with open(book_slugs_file, "r") as json_file:
+        json_data = json.load(json_file)
+        book_slugs_by_uuid = {
+            elem["uuid"]: elem["slug"] for elem in json_data
+        }
+        book_slug = book_slugs_by_uuid[collection_uuid]
+
     tree = utils.model_to_tree(binder)
 
     baked_book_json = {
         "title": metadata.title,
         "revised": metadata.revised,
-        "tree": tree
+        "tree": tree,
+        "slug": book_slug
     }
 
     # If there is existing book metadata provided, update with data above

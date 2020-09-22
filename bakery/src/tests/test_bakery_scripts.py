@@ -814,6 +814,15 @@ def test_bake_book_metadata(tmp_path, mocker):
     )
     input_baked_xhtml = os.path.join(TEST_DATA_DIR, "collection.baked.xhtml")
     output_baked_book_metadata = tmp_path / "collection.toc-metadata.json"
+    book_uuid = "031da8d3-b525-429c-80cf-6c8ed997733a"
+    book_slugs = [
+        {
+            "uuid": book_uuid,
+            "slug": "test-book-slug"
+        }
+    ]
+    book_slugs_input = tmp_path / "book-slugs.json"
+    book_slugs_input.write_text(json.dumps(book_slugs))
 
     with open(input_baked_xhtml, "r") as baked_xhtml:
         binder = reconstitute(baked_xhtml)
@@ -825,6 +834,8 @@ def test_bake_book_metadata(tmp_path, mocker):
             "",
             input_raw_metadata,
             input_baked_xhtml,
+            book_uuid,
+            book_slugs_input,
             output_baked_book_metadata,
         ],
     )
@@ -840,6 +851,7 @@ def test_bake_book_metadata(tmp_path, mocker):
         == "2019-08-30T16:35:37.569966-05:00"
     )
     assert "College Physics" in baked_metadata[book_ident_hash]["title"]
+    assert baked_metadata[book_ident_hash]["slug"] == "test-book-slug"
 
 
 def test_check_feed(tmp_path, mocker):
