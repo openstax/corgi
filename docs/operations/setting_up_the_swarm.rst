@@ -203,3 +203,16 @@ Create Main Traefik Service
      --entrypoints='Name:https Address::443 TLS:/etc/ssl/certs/openstax.crt,/etc/ssl/private/openstax.pem' \
      --logLevel=INFO \
      --accessLog
+
+----
+
+***********************
+Set Up Required Secrets
+***********************
+
+The stack requires that the docker secret ``basic-auth-users`` is set in the swarm to work properly.
+An example of creating basic auth credentials with a single user is the following, when ``DOCKER_HOST`` is properly pointing to the running swarm:
+
+.. code-block:: bash
+
+  htpasswd -nbB <username> <password> | docker secret create basic-auth-users -
