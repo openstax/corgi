@@ -4,7 +4,7 @@ set -e
 [[ -z "$COPS_HTACCESS_FILE" ]] && echo "Error: COPS_HTACCESS_FILE not set" && exit 1
 [[ -s "$COPS_HTACCESS_FILE" ]] || ( echo "Error: COPS_HTACCESS_FILE does not exist or is empty" && exit 1 )
 
-docker secret create basic-auth-users-temp $COPS_HTACCESS_FILE
+docker secret create basic-auth-users-temp "$COPS_HTACCESS_FILE"
 set +e
 
 cops_test_proxy_target="cops_stag_proxy"
@@ -27,7 +27,7 @@ echo "Creating a temp rotation on staging for acceptance..."
 docker service update --secret-rm $auth_secret_name $cops_test_proxy_target
 docker service update --secret-add "source=${auth_secret_name_temp},target=${auth_secret_name}" $cops_test_proxy_target
 echo "Temp rotation in place on staging. Try it: https://cops-staging.openstax.org"
-read  -n 1 -p "(R)evert | (a)ccept: " accept_char
+read -r -n 1 -p "(R)evert | (a)ccept: " accept_char
 
 echo
 
@@ -46,7 +46,7 @@ if [[ "$accept_char" = "a" ]] || [[ "$accept_char" = "A" ]]; then
     docker service update --secret-rm $auth_secret_name $cops_proxy_target
   done
   docker secret rm $auth_secret_name
-  docker secret create $auth_secret_name $COPS_HTACCESS_FILE
+  docker secret create $auth_secret_name "$COPS_HTACCESS_FILE"
   for cops_proxy_target in cops_stag_proxy cops_prod_proxy; do
     docker service update --secret-add $auth_secret_name $cops_proxy_target
   done
