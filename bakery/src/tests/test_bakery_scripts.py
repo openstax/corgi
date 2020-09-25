@@ -1072,6 +1072,11 @@ def test_gdocify_book(tmp_path, mocker):
         <p><a id="l5"
             href="/contents/internal-uuid#foobar"
             class="target-chapter">Intra-book module link with fragment</a></p>
+        <math>
+            <mrow>
+                <mtext mathvariant="bold-italic">x</mtext>
+            </mrow>
+        </math>
         </div>
         </body>
         </html>
@@ -1151,6 +1156,12 @@ def test_gdocify_book(tmp_path, mocker):
         "//x:a[@href]", namespaces={"x": "http://www.w3.org/1999/xhtml"},
     ):
         assert expected_links_by_id[node.attrib["id"]] == node.attrib["href"]
+
+    for node in updated_doc.xpath(
+        '//x:*[@mathvariant="bold-italic"]',
+        namespaces={"x": "http://www.w3.org/1999/xhtml"},
+    ):
+        assert "mi" == node.tag.split("}")[1]
 
 
 class ANY_OF:

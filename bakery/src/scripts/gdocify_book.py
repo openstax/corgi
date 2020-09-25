@@ -72,6 +72,19 @@ def update_doc_links(doc, book_uuid, book_slugs_by_uuid, page_slug_resolver):
             )
 
 
+def patch_math(doc):
+    """Patch MathML as needed for the conversion process used for gdocs"""
+
+    # It seems texmath used by pandoc has issues when the mathvariant
+    # attribute value of "bold-italic" is used with <mtext>, but these convert
+    # okay when the element is <mi>.
+    for node in doc.xpath(
+        '//x:mtext[@mathvariant="bold-italic"]',
+        namespaces={"x": "http://www.w3.org/1999/xhtml"}
+    ):
+        node.tag = "mi"
+
+
 def main():
     in_dir = Path(sys.argv[1]).resolve(strict=True)
     out_dir = Path(sys.argv[2]).resolve(strict=True)
@@ -105,6 +118,7 @@ def main():
             book_slugs_by_uuid,
             page_slug_resolver
         )
+        patch_math(doc)
         doc.write(str(out_dir / xhtml_file.name), encoding="utf8")
 
 
