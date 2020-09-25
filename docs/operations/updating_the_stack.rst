@@ -246,6 +246,24 @@ Deploy the corresponding pipeline to ``concourse-v6``:
 
 ----
 
-Cleanup
+5. Cleanup
 =======
 Close all terminal windows when deployment is complete.
+
+
+----
+
+***************************
+Rotating Basic Auth Secrets
+***************************
+
+To update basic auth secrets for COPS, a dev must copy an ``htaccess`` file sourced from AWS SecretsManager and rotate the secret in the swarm with:
+
+.. code-block:: bash
+   # ... Properly target the COPS swarm through ssh and set DOCKER_HOST
+   # And then:
+   export COPS_HTACCESS_FILE=</path/to/file>
+   ./scripts/rotate-auth-secrets.sh
+
+This script will rotate the secrets temporarily on COPS staging (so that the caller can ensure that the rotation works as expected) and then the caller can accept the change, in which case the secret is propagated to both staging and prod in a more permanent fashion (and the old secret will be removed).
+Rotation in the manner above will likely lead to inability to login for a very brief period of time (less than 30sec).
