@@ -4,12 +4,12 @@ set -e
 [[ -z "$COPS_HTACCESS_FILE" ]] && echo "Error: COPS_HTACCESS_FILE not set" && exit 1
 [[ -s "$COPS_HTACCESS_FILE" ]] || ( echo "Error: COPS_HTACCESS_FILE does not exist or is empty" && exit 1 )
 
-docker secret create basic-auth-users-temp "$COPS_HTACCESS_FILE"
-set +e
-
 cops_test_proxy_target="cops_stag_proxy"
 auth_secret_name="basic-auth-users"
 auth_secret_name_temp="${auth_secret_name}-temp"
+
+docker secret create $auth_secret_name_temp "$COPS_HTACCESS_FILE"
+set +e
 
 revert_any_temp() {
   echo "Cleaning up (conflicting target errors are ok)..."
