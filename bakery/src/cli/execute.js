@@ -253,6 +253,56 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
 }
 
 const tasks = {
+  'fetch-group': (parentCommand) => {
+    const commandUsage = 'fetch-group <collid> <version> <gh-creds>'
+    const handler = async argv => {
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
+
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify({...imageDetails, ...{githubSecretCreds: argv.ghCreds}})}`]
+      const taskContent = execFileSync(buildExec, ['task', 'fetch-book-group', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'version'), argv.version)
+
+      const dataDir = path.resolve(argv.data, argv.collid)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        output(dataDir, 'fetched-book')
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'f',
+      describe: 'fetch a group of books from git',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
+        yargs.positional('server', {
+          describe: 'content server to fetch from',
+          type: 'string'
+        }).positional('repo', {
+          describe: 'collection id of collection to fetch',
+          type: 'string'
+        }).positional('version', {
+          describe: 'version of collection to fetch',
+          type: 'string'
+        }).positional('gh-creds', {
+          describe: 'gh creds to use',
+          type: 'string'
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
+  },
   fetch: (parentCommand) => {
     const commandUsage = 'fetch <server> <collid> <version>'
     const handler = async argv => {
@@ -889,6 +939,7 @@ const yargs = require('yargs')
         yargs.usage(`Usage: ${process.env.CALLER || '$0'} ${commandUsage}`)
         return yargs
           .command(tasks.fetch(commandUsage))
+          .command(tasks['fetch-group'](commandUsage))
           .command(tasks.assemble(commandUsage))
           .command(tasks['link-extras'](commandUsage))
           .command(tasks.bake(commandUsage))
