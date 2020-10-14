@@ -103,6 +103,50 @@
         {
             "uuid": "fd53eae1-fa23-47c7-bb1b-972349835c3c",
             "_name": "Precalculus"
+        },
+        {
+            "uuid": "5bcc0e59-7345-421d-8507-a1e4608685e8",
+            "_name": "American Government 1e"
+        },
+        {
+            "uuid": "185cbf87-c72e-48f5-b51e-f14f21b5eabd",
+            "_name": "Biology 1e"
+        },
+        {
+            "uuid": "85abf193-2bd2-4908-8563-90b8a7ac8df6",
+            "_name": "Chemistry 1e"
+        },
+        {
+            "uuid": "4539ae23-1ccc-421e-9b25-843acbb6c4b0",
+            "_name": "Chemistry: Atoms First 1e"
+        },
+        {
+            "uuid": "b3c1e1d2-839c-42b0-a314-e119a8aafbdd",
+            "_name": "Concepts of Biology"
+        },
+        {
+            "uuid": "afe4332a-c97f-4fc4-be27-4e4d384a32d8",
+            "_name": "Introduction to Sociology 1e"
+        },
+        {
+            "uuid": "69619d2b-68f0-44b0-b074-a9b2bf90b2c6",
+            "_name": "Principles of Economics 1e"
+        },
+        {
+            "uuid": "4061c832-098e-4b3c-a1d9-7eb593a2cb31",
+            "_name": "Principles of Macroeconomics 1e"
+        },
+        {
+            "uuid": "33076054-ec1d-4417-8824-ce354efe42d0",
+            "_name": "Principles of Macroeconomics for AP Courses 1e"
+        },
+        {
+            "uuid": "ea2f225e-6063-41ca-bcd8-36482e15ef65",
+            "_name": "Principles of Microeconomics 1e"
+        },
+        {
+            "uuid": "ca344e2d-6731-43cd-b851-a7b3aa0b37aa",
+            "_name": "Principles of Microeconomics for AP Courses 1e"
         }
     ]
 }

@@ -295,6 +295,26 @@ def test_canonical_list_order():
         names = [book["_name"] for book in books["canonical_books"]]
         assert {"College Algebra", "Precalculus"}.issubset(set(names))
         assert names.index("College Algebra") < names.index("Precalculus")
+        assert names.index("American Government 2e") < \
+            names.index("American Government 1e")
+        assert names.index("Biology 2e") < names.index("Biology 1e")
+        assert names.index("Chemistry 2e") < names.index("Chemistry 1e")
+        assert names.index("Chemistry 2e") < \
+            names.index("Chemistry: Atoms First 1e")
+        assert names.index("Biology 2e") < \
+            names.index("Concepts of Biology")
+        assert names.index("Introduction to Sociology 2e") < \
+            names.index("Introduction to Sociology 1e")
+        assert names.index("Principles of Economics 2e") < \
+            names.index("Principles of Economics 1e")
+        assert names.index("Principles of Economics 2e") < \
+            names.index("Principles of Macroeconomics 1e")
+        assert names.index("Principles of Economics 2e") < \
+            names.index("Principles of Macroeconomics for AP Courses 1e")
+        assert names.index("Principles of Economics 2e") < \
+            names.index("Principles of Microeconomics 1e")
+        assert names.index("Principles of Economics 2e") < \
+            names.index("Principles of Microeconomics for AP Courses 1e")
 
 
 def mock_link_extras(tmp_path, content_dict, contents_dict, extras_dict,
