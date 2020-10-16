@@ -11,8 +11,11 @@ const task = (taskArgs) => {
     const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
     const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
+    const bakedInput = 'baked-book-group'
+    const bakedMetaInput = 'baked-book-metadata-group'
+
     return {
-        task: 'link extras',
+        task: 'link group',
         config: {
             platform: 'linux',
             image_resource: {
@@ -20,9 +23,8 @@ const task = (taskArgs) => {
                 source: imageSource
             },
             inputs: [
-                { name: 'book' },
-                { name: 'fetched-book-group' },
-                { name: 'baked-book-metadata-group' }
+                { name: bakedInput },
+                { name: bakedMetaInput }
             ],
             outputs: [{ name: 'linked-extras' }],
             run: {
@@ -31,11 +33,8 @@ const task = (taskArgs) => {
                     '-cxe',
                     dedent`
                     exec 2> >(tee linked-extras/stderr >&2)
-                    cp -r assembled-book/* linked-extras
-                    cd linked-extras
-                    book_dir="./$(cat ../book/slug)"
-                    for collection in $(find "$book_dir/*.assembled.xhtml" -type f); do
-                        link-extras "$book_dir" ${server} "/code/scripts/canonical-book-list.json"
+                    for collection in $(find "${bakedInput}/" -path *.baked.xhtml -type f); do
+                        link-extras "${bakedInput}" ${server} "/code/scripts/canonical-book-list.json"
                     done
                     `
                 ]

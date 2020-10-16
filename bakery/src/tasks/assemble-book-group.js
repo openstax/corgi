@@ -10,7 +10,8 @@ const task = (taskArgs) => {
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
   const inputName = 'fetched-book-group'
-  const outputName = 'assembled-book-group'
+  const assembledOutput = 'assembled-book-group'
+  const symlinkOutput = 'module-symlinks'
   const rawCollectionDir = `${inputName}/raw`
 
   return {
@@ -22,23 +23,33 @@ const task = (taskArgs) => {
         source: imageSource
       },
       inputs: [
-        { name: 'book' },
         { name: inputName }
       ],
-      outputs: [{ name: outputName }],
+      outputs: [
+        { name: assembledOutput },
+        { name: symlinkOutput }
+      ],
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee ${outputName}/stderr >&2)
-          # use 'tmp' not '/tmp' so we dont modify outside cwd
-          mkdir -p "tmp/data/"
+          exec 2> >(tee ${assembledOutput}/stderr >&2)
           for collection in $(find "${rawCollectionDir}/collections/" -type f); do
             slug_name=$(basename "$collection" | awk -F'[.]' '{ print $1; }')
+            rm -rf temp-assembly
+
             mv "$collection" "${rawCollectionDir}/modules/collection.xml"
-            neb assemble "${rawCollectionDir}/modules" "tmp/data/$slug_name"
-            cp "tmp/data/$slug_name/collection.assembled.xhtml" "${outputName}/$slug_name.assembled.xhtml"
+            
+            # Assembly destination must nested EXACTLY one level under cwd for symlinks to work 
+            neb assemble "${rawCollectionDir}/modules" temp-assembly/
+
+            # We shouldn't we need this symlink
+            rm temp-assembly/collection.xml
+
+            find temp-assembly -type l | xargs -I{} cp -P {} "${symlinkOutput}"
+            find "${symlinkOutput}" -type l | xargs -I{} cp -P {} "${assembledOutput}"
+            cp "temp-assembly/collection.assembled.xhtml" "${assembledOutput}/$slug_name.assembled.xhtml"
           done
           `
         ]

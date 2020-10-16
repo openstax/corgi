@@ -9,9 +9,9 @@ const task = (taskArgs) => {
     }
     const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
     const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
-    const inputName = 'assembled-book-group'
+    const assembledInput = 'assembled-book-group'
     const outputName = 'assembled-book-metadata-group'
-    const rawCollectionDir = `${inputName}/$(cat book/slug)/raw`
+
     return {
         task: 'assemble book metadata',
         config: {
@@ -21,8 +21,7 @@ const task = (taskArgs) => {
                 source: imageSource
             },
             inputs: [
-                { name: 'book' },
-                { name: inputName }
+                { name: assembledInput }
             ],
             outputs: [{ name: outputName }],
             run: {
@@ -31,7 +30,7 @@ const task = (taskArgs) => {
                     '-cxe',
                     dedent`
                     exec 2> >(tee ${outputName}/stderr >&2)
-                    for collection in $(find "${inputName}/*.assembled.xhtml" -type f); do
+                    for collection in $(find "${assembledInput}/" -path *.assembled.xhtml -type f); do
                         slug_name=$(basename "$collection" | awk -F'[.]' '{ print $1; }')
                         assemble-meta "$slug_name.assembled.xhtml" "${outputName}/$slug_name.assembled-metadata.json"
                     done
