@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 const path = require('path')
 const fs = require('fs')
 const http = require('http')
@@ -361,7 +360,7 @@ const tasks = {
       const taskArgs = imageDetails == null
         ? []
         : [`--taskargs=${JSON.stringify(imageDetails)}`]
-      const taskContent = execFileSync(buildExec, ['task', 'assemble-book', ...taskArgs])
+      const taskContent = execFileSync(buildExec, ['task', 'assemble-book-group', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -651,6 +650,47 @@ const tasks = {
         yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
+          type: 'string'
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
+  },
+  'assemble-meta-group': (parentCommand) => {
+    const commandUsage = 'assemble-meta-group <slug>'
+    const handler = async argv => {
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
+
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'assemble-book-metadata-group', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'slug'), argv.slug)
+
+      const dataDir = path.resolve(argv.data, argv.slug)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'assembled-book-group'),
+        output(dataDir, 'assembled-book-metadata-group')
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'amg',
+      describe: 'build metadata files from an assembled book',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
+        yargs.positional('slug', {
+          describe: 'slug of collection to work on',
           type: 'string'
         })
       },
@@ -989,6 +1029,7 @@ const yargs = require('yargs')
           .command(tasks.mathify(commandUsage))
           .command(tasks['build-pdf'](commandUsage))
           .command(tasks['assemble-meta'](commandUsage))
+          .command(tasks['assemble-meta-group'](commandUsage))
           .command(tasks.checksum(commandUsage))
           .command(tasks['bake-meta'](commandUsage))
           .command(tasks.disassemble(commandUsage))

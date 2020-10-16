@@ -3,17 +3,16 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
+    const { server } = taskArgs
     const imageDefault = {
         name: 'openstax/cops-bakery-scripts',
         tag: 'trunk'
     }
     const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
     const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
-    const inputName = 'assembled-book-group'
-    const outputName = 'assembled-book-metadata-group'
-    const rawCollectionDir = `${inputName}/$(cat book/slug)/raw`
+
     return {
-        task: 'assemble book metadata',
+        task: 'link extras',
         config: {
             platform: 'linux',
             image_resource: {
@@ -22,18 +21,21 @@ const task = (taskArgs) => {
             },
             inputs: [
                 { name: 'book' },
-                { name: inputName }
+                { name: 'fetched-book-group' },
+                { name: 'baked-book-metadata-group' }
             ],
-            outputs: [{ name: outputName }],
+            outputs: [{ name: 'linked-extras' }],
             run: {
                 path: '/bin/bash',
                 args: [
                     '-cxe',
                     dedent`
-                    exec 2> >(tee ${outputName}/stderr >&2)
-                    for collection in $(find "${inputName}/*.assembled.xhtml" -type f); do
-                        slug_name=$(basename "$collection" | awk -F'[.]' '{ print $1; }')
-                        assemble-meta "$slug_name.assembled.xhtml" "${outputName}/$slug_name.assembled-metadata.json"
+                    exec 2> >(tee linked-extras/stderr >&2)
+                    cp -r assembled-book/* linked-extras
+                    cd linked-extras
+                    book_dir="./$(cat ../book/slug)"
+                    for collection in $(find "$book_dir/*.assembled.xhtml" -type f); do
+                        link-extras "$book_dir" ${server} "/code/scripts/canonical-book-list.json"
                     done
                     `
                 ]

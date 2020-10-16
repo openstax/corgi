@@ -6,8 +6,6 @@ from cnxepub.collation import reconstitute
 from cnxepub.models import flatten_to_documents
 from cnxepub.html_parsers import DocumentMetadataParser
 
-ASSEMBLED_FILENAME = 'collection.assembled.xhtml'
-
 
 def get_module_xhtml_metadata(module_xhtml):
     """Parse module metadata using XHTML file"""
@@ -19,10 +17,8 @@ def get_module_xhtml_metadata(module_xhtml):
 
 
 def main():
-    in_dir = Path(sys.argv[1]).resolve(strict=True)
+    input_assembled_file = Path(sys.argv[1]).resolve(strict=True)
     output_file_path = sys.argv[2]
-
-    input_assembled_file = in_dir / ASSEMBLED_FILENAME
 
     json_data = {}
 
@@ -32,7 +28,7 @@ def main():
     for doc in flatten_to_documents(binder):
         # Parse the metadata from the supporting module XHTML files generated
         # by neb during assemble to gain access to metadata that is in the
-        # head and doesn't get incorporated into the colllection assembled
+        # head and doesn't get incorporated into the collection assembled
         # XHTML
         module_xhtml_metadata = get_module_xhtml_metadata(
             in_dir / f"{doc.id}.xhtml"

@@ -31,17 +31,14 @@ const task = (taskArgs) => {
         args: [
           '-cxe',
           dedent`
-          book_info=$(cd book && pwd)
-          book_dir="./${outputName}/$(cat $book_info/slug)"
-          mkdir "$book_dir"
-          reference=$(cat $book_info/version)
+          reference=$(cat book/version)
           [[ "$reference" = latest ]] && reference=master
           set +x
           # Do not show creds
-          remote="https://${'${GH_SECRET_CREDS}'}@github.com/openstax/$(cat $book_info/repo).git"
-          git clone --depth 1 "$remote" --branch "$reference" "$book_dir/raw"
+          remote="https://${'${GH_SECRET_CREDS}'}@github.com/openstax/$(cat book/repo).git"
+          git clone --depth 1 "$remote" --branch "$reference" "${outputName}/raw"
           set -x
-          wget ${bookSlugsUrl} -O "$book_dir/book-slugs.json"
+          wget ${bookSlugsUrl} -O "${outputName}/book-slugs.json"
         `
         ]
       }

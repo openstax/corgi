@@ -11,9 +11,8 @@ const task = (taskArgs) => {
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
   const inputName = 'fetched-book-group'
   const outputName = 'assembled-book-group'
-  const rawCollectionDir = `${inputName}/$(cat ../book/slug)/raw`
+  const rawCollectionDir = `${inputName}/raw`
 
-  const slug = 'precalculus'
   return {
     task: 'assemble book',
     config: {
@@ -33,12 +32,15 @@ const task = (taskArgs) => {
           '-cxe',
           dedent`
           exec 2> >(tee ${outputName}/stderr >&2)
-          book_dir="${outputName}/$(cat ../book/slug)"
+          # use 'tmp' not '/tmp' so we dont modify outside cwd
+          mkdir -p "tmp/data/"
           for collection in $(find "${rawCollectionDir}/collections/" -type f); do
+            slug_name=$(basename "$collection" | awk -F'[.]' '{ print $1; }')
             mv "$collection" "${rawCollectionDir}/modules/collection.xml"
-            neb assemble "${rawCollectionDir}/modules" "$book_dir/$(basename "$collection" | awk -F'[.]' '{ print $1; }')"
+            neb assemble "${rawCollectionDir}/modules" "tmp/data/$slug_name"
+            cp "tmp/data/$slug_name/collection.assembled.xhtml" "${outputName}/$slug_name.assembled.xhtml"
           done
-        `
+          `
         ]
       }
     }
