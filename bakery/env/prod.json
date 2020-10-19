@@ -1,7 +1,6 @@
 {
   "ENV_NAME": "production",
   "COPS_TARGET": "https://cops.openstax.org/api",
-  "S3_PDF_BUCKET": "ce-pdf-spike",
   "S3_DIST_BUCKET": "openstax-web-hosting-content-gatekeeper",
   "S3_QUEUE_STATE_BUCKET": "openstax-web-hosting-content-queue-state",
   "QUEUE_FILENAME": "distribution-queue.json",
@@ -15,5 +14,5 @@
   "GOOGLE_FOLDER_ID": "",
   "GDOC_QUEUE_FILENAME": "",
   "GDOC_FEED_FILE_URL": "",
-  "S3_DIST_PREVIEW_BUCKET": "ce-cops-dist-preview-prod"
+  "S3_COPS_ARTIFACTS_BUCKET": "openstax-cops-artifacts"
 }

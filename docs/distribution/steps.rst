@@ -108,10 +108,9 @@ S3 to host your feed file):
     {
         "ENV_NAME": "local",
         "COPS_TARGET": "http://backend/api",
-        "S3_PDF_BUCKET": "ce-rap-dev-pdf",
+        "S3_COPS_ARTIFACTS_BUCKET": "artifacts-bucket",
         "S3_ACCESS_KEY_ID": "MODIFY ME",
         "S3_SECRET_ACCESS_KEY": "MODIFY_ME",
-        "S3_DIST_BUCKET": "ce-rap-dev-dist1",
         "S3_QUEUE_STATE_BUCKET": "ce-rap-dev-dist2",
         "QUEUE_FILENAME": "distribution-queue-abc-1.json",
         "FEED_FILE_URL": "https://ce-rap-dev-dist2.s3.amazonaws.com/distribution-feed.json",
