@@ -11,7 +11,7 @@ const task = (taskArgs) => {
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
   return {
-    task: 'assemble book metadata',
+    task: 'disassemble book',
     config: {
       platform: 'linux',
       image_resource: {
@@ -20,26 +20,26 @@ const task = (taskArgs) => {
       },
       inputs: [
         { name: 'book' },
-        { name: 'assembled-book' }
+        { name: 'fetched-book' },
+        { name: 'checksum-book' },
+        { name: 'baked-book-metadata' }
       ],
-      outputs: [{ name: 'assembled-book-metadata' }],
+      outputs: [{ name: 'disassembled-book' }],
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee assembled-book-metadata/stderr >&2)
+          exec 2> >(tee disassembled-book/stderr >&2)
           collection_id="$(cat book/collection_id)"
-          book_dir="assembled-book/$collection_id"
-          target_dir="assembled-book-metadata/$collection_id"
-          mkdir "$target_dir"
-
-          echo "{" > uuid-to-revised-map.json
-          find assembled-book/$collection_id/raw/ -path */m*/metadata.json | xargs cat | jq -r '. | "\"\(.id)\": \"\(.revised)\","' >> uuid-to-revised-map.json
-          echo '"dummy": "dummy"' >> uuid-to-revised-map.json
-          echo "}" >> uuid-to-revised-map.json
-
-          assemble-meta "$book_dir/collection.assembled.xhtml" uuid-to-revised-map.json "$target_dir/collection.assembled-metadata.json"
+          book_metadata="fetched-book/$collection_id/raw/metadata.json"
+          book_uuid="$(cat $book_metadata | jq -r '.id')"
+          book_version="$(cat $book_metadata | jq -r '.version')"
+          cp -r checksum-book/* disassembled-book
+          cp "baked-book-metadata/$collection_id/collection.baked-metadata.json" "disassembled-book/$collection_id/collection.baked-metadata.json"
+          book_dir="disassembled-book/$collection_id"
+          mkdir "$book_dir/disassembled"
+          disassemble "$book_dir" "$book_uuid" "$book_version"
         `
         ]
       }

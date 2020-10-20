@@ -11,8 +11,11 @@ const task = (taskArgs) => {
     const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
     const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
+    const bookInput = 'book'
+    const fetchedInput = 'fetched-book-group'
     const bakedInput = 'baked-book-group'
     const bakedMetaInput = 'baked-book-metadata-group'
+    const linkedOutput = 'linked-single'
 
     return {
         task: 'link group',
@@ -23,19 +26,24 @@ const task = (taskArgs) => {
                 source: imageSource
             },
             inputs: [
+                { name:  },
+                { name: fetchedInput },
                 { name: bakedInput },
                 { name: bakedMetaInput }
             ],
-            outputs: [{ name: 'linked-extras' }],
+            outputs: [{ name: linkedOutput }],
             run: {
                 path: '/bin/bash',
                 args: [
                     '-cxe',
                     dedent`
-                    exec 2> >(tee linked-extras/stderr >&2)
-                    for collection in $(find "${bakedInput}/" -path *.baked.xhtml -type f); do
-                        link-extras "${bakedInput}" ${server} "/code/scripts/canonical-book-list.json"
-                    done
+                    exec 2> >(tee ${linkedOutput}/stderr >&2)
+                    echo "{" > module-canonicals.json
+                    find ${fetchedInput}/raw/modules/ -path *metadata.json | xargs cat | jq -r '. | "\"\(.id)\": \"\(.canonical)\","' >> module-canonicals.json
+                    echo '"dummy": "dummy"' >> module-canonicals.json
+                    echo "}" >> module-canonicals.json
+
+                    link-single "${bakedInput}" "${bakedMetaInput}" "$(cat ${bookInput}/slug)" "${fetchedInput}/book-slugs.json" module-canonicals.json "${linkedOutput}/$(cat ${bookInput}/slug).linked.xhtml"
                     `
                 ]
             }

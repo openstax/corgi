@@ -49,6 +49,7 @@ setup(
         'console_scripts': [
             'assemble-meta = bakery_scripts.assemble_book_metadata:main',
             'link-extras = bakery_scripts.link_extras:main',
+            'link-single = bakery_scripts.link_single:main',
             'bake-meta = bakery_scripts.bake_book_metadata:main',
             'disassemble = bakery_scripts.disassemble_book:main',
             'checksum = bakery_scripts.checksum_resource:main',

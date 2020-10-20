@@ -10,6 +10,12 @@ const task = (taskArgs) => {
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
+  const bookInput = 'book'
+  const fetchedInput = 'fetched-book-group'
+  const symlinkInput = 'module-symlinks'
+  const linkedInput = 'linked-single'
+  const resourcesOutput = 'checksum-resources'
+
   return {
     task: 'checksum book',
     config: {
@@ -19,23 +25,23 @@ const task = (taskArgs) => {
         source: imageSource
       },
       inputs: [
-        { name: 'book' },
-        { name: 'baked-book' }
+        { name: bookInput },
+        { name: fetchedInput },
+        { name: symlinkInput },
+        { name: linkedInput }
       ],
-      outputs: [{ name: 'checksum-book' }],
+      outputs: [{ name: resourcesOutput }],
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
           exec 2> >(tee checksum-book/stderr >&2)
-          collection_id="$(cat book/collection_id)"
-          cp -r baked-book/* checksum-book
-          book_dir="checksum-book/$collection_id"
-          mkdir "$book_dir/baked"
-          echo test
-          find "baked-book/$collection_id/" -maxdepth 1 -type f -exec cp {} $book_dir/baked \;
-          checksum "$book_dir" "$book_dir"
+
+          # Add symlinks to fetched-book-group to be able to find images
+          find "${symlinkInput}" -type l | xargs -I{} cp -P {} "${linkedInput}"
+
+          checksum "${linkedInput}" "${resourcesOutput}"
         `
         ]
       }

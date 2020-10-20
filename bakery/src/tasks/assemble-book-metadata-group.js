@@ -9,6 +9,7 @@ const task = (taskArgs) => {
     }
     const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
     const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
+    const fetchedInput = 'fetched-book-group'
     const assembledInput = 'assembled-book-group'
     const outputName = 'assembled-book-metadata-group'
 
@@ -21,6 +22,7 @@ const task = (taskArgs) => {
                 source: imageSource
             },
             inputs: [
+                { name: fetchedInput },
                 { name: assembledInput }
             ],
             outputs: [{ name: outputName }],
@@ -32,7 +34,14 @@ const task = (taskArgs) => {
                     exec 2> >(tee ${outputName}/stderr >&2)
                     for collection in $(find "${assembledInput}/" -path *.assembled.xhtml -type f); do
                         slug_name=$(basename "$collection" | awk -F'[.]' '{ print $1; }')
-                        assemble-meta "$slug_name.assembled.xhtml" "${outputName}/$slug_name.assembled-metadata.json"
+
+
+                        echo "{" > uuid-to-revised-map.json
+                        find ${fetchedInput}/raw/ -path */m*/metadata.json | xargs cat | jq -r '. | "\"\(.id)\": \"\(.revised)\","' >> uuid-to-revised-map.json
+                        echo '"dummy": "dummy"' >> uuid-to-revised-map.json
+                        echo "}" >> uuid-to-revised-map.json
+
+                        assemble-meta "${assembledInput}/$slug_name.assembled.xhtml" uuid-to-revised-map.json "${outputName}/$slug_name.assembled-metadata.json"
                     done
                     `
                 ]

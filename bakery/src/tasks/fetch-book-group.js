@@ -10,8 +10,11 @@ const task = (taskArgs) => {
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
+
+  const bookInput = 'book'
   const bookSlugsUrl = 'https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/book-slugs.json'
   const outputName = 'fetched-book-group'
+
   return {
     task: 'fetch book',
     config: {
@@ -20,7 +23,7 @@ const task = (taskArgs) => {
         type: 'docker-image',
         source: imageSource
       },
-      inputs: [{ name: 'book' }],
+      inputs: [{ name: bookInput }],
       outputs: [{ name: outputName }],
       params: {
         COLUMNS: 80,
@@ -31,11 +34,11 @@ const task = (taskArgs) => {
         args: [
           '-cxe',
           dedent`
-          reference=$(cat book/version)
+          reference=$(cat ${bookInput}/version)
           [[ "$reference" = latest ]] && reference=master
           set +x
           # Do not show creds
-          remote="https://${'${GH_SECRET_CREDS}'}@github.com/openstax/$(cat book/repo).git"
+          remote="https://${'${GH_SECRET_CREDS}'}@github.com/openstax/$(cat ${bookInput}/repo).git"
           git clone --depth 1 "$remote" --branch "$reference" "${outputName}/raw"
           set -x
           wget ${bookSlugsUrl} -O "${outputName}/book-slugs.json"

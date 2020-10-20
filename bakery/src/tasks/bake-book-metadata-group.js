@@ -12,7 +12,7 @@ const task = (taskArgs) => {
 
   const fetchedInput = 'fetched-book-group'
   const bakedInput = 'baked-book-group'
-  const assembledMetaInput = 'assembled-book-metadata'
+  const assembledMetaInput = 'assembled-book-metadata-group'
   const bakedMetaOutput = 'baked-book-metadata-group'
 
   return {
@@ -35,7 +35,7 @@ const task = (taskArgs) => {
           '-cxe',
           dedent`
           exec 2> >(tee ${bakedMetaOutput}/stderr >&2)
-          for collection in $(find "${baked}/" -path *.baked.xhtml -type f); do
+          for collection in $(find "${bakedInput}/" -path *.baked.xhtml -type f); do
             slug_name=$(basename "$collection" | awk -F'[.]' '{ print $1; }')
 
             book_metadata="${fetchedInput}/raw/metadata/$slug_name.metadata.json"

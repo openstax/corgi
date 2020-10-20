@@ -533,8 +533,8 @@ const tasks = {
       }
     }
   },
-  'link-group': (parentCommand) => {
-    const commandUsage = 'link-group <slug>'
+  'link-single': (parentCommand) => {
+    const commandUsage = 'link-single <slug>'
     const handler = async argv => {
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
@@ -545,7 +545,7 @@ const tasks = {
           ...imageDetails, ...{ server: argv.server }
         })}`]
 
-      const taskContent = execFileSync(buildExec, ['task', 'link-group', ...taskArgs])
+      const taskContent = execFileSync(buildExec, ['task', 'link-single', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
@@ -557,8 +557,10 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'assembled-book'),
-        output(dataDir, 'linked-book')
+        input(dataDir, 'fetched-book-group'),
+        input(dataDir, 'baked-book-group'),
+        input(dataDir, 'baked-book-metadata-group'),
+        output(dataDir, 'linked-single')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
@@ -768,14 +770,11 @@ const tasks = {
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
-      const tmpBookDir = tmp.dirSync()
-      fs.writeFileSync(path.resolve(tmpBookDir.name, 'slug'), argv.slug)
-
       const dataDir = path.resolve(argv.data, argv.slug)
 
       await flyExecute([
         '-c', tmpTaskFile.name,
-        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'fetched-book-group'),
         input(dataDir, 'assembled-book-group'),
         output(dataDir, 'assembled-book-metadata-group')
       ], { image: argv.image, persist: argv.persist })
@@ -852,14 +851,10 @@ const tasks = {
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
-      const tmpBookDir = tmp.dirSync()
-      fs.writeFileSync(path.resolve(tmpBookDir.name, 'slug'), argv.slug)
-
       const dataDir = path.resolve(argv.data, argv.slug)
 
       await flyExecute([
         '-c', tmpTaskFile.name,
-        `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'fetched-book-group'),
         input(dataDir, 'baked-book-group'),
         input(dataDir, 'assembled-book-metadata-group'),
@@ -905,6 +900,49 @@ const tasks = {
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'baked-book'),
         output(dataDir, 'checksum-book')
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'cb',
+      describe: 'checksum resources from a baked book',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
+        yargs.positional('collid', {
+          describe: 'collection id of collection to work on',
+          type: 'string'
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
+  },
+  'checksum-single': (parentCommand) => {
+    const commandUsage = 'checksum-single <slug>'
+    const handler = async argv => {
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
+
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'checksum-single', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'slug'), argv.slug)
+
+      const dataDir = path.resolve(argv.data, argv.slug)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'fetched-book-group'),
+        input(dataDir, 'module-symlinks'),
+        input(dataDir, 'linked-single'),
+        output(dataDir, 'checksum-resources')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
@@ -1165,6 +1203,7 @@ const yargs = require('yargs')
           .command(tasks.assemble(commandUsage))
           .command(tasks['assemble-group'](commandUsage))
           .command(tasks['link-extras'](commandUsage))
+          .command(tasks['link-single'](commandUsage))
           .command(tasks.bake(commandUsage))
           .command(tasks['bake-group'](commandUsage))
           .command(tasks.mathify(commandUsage))
@@ -1172,6 +1211,7 @@ const yargs = require('yargs')
           .command(tasks['assemble-meta'](commandUsage))
           .command(tasks['assemble-meta-group'](commandUsage))
           .command(tasks.checksum(commandUsage))
+          .command(tasks['checksum-single'](commandUsage))
           .command(tasks['bake-meta'](commandUsage))
           .command(tasks['bake-meta-group'](commandUsage))
           .command(tasks.disassemble(commandUsage))

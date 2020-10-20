@@ -9,6 +9,8 @@ const task = (taskArgs) => {
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
+
+  const bookInput = 'book'
   const assembledInput = 'assembled-book-group'
   const recipeInput = 'cnx-recipes-output'
   const symlinkInput = 'module-symlinks'
@@ -23,7 +25,7 @@ const task = (taskArgs) => {
         source: imageSource
       },
       inputs: [
-        { name: 'book' },
+        { name: bookInput },
         { name: symlinkInput },
         { name: assembledInput },
         { name: recipeInput }
@@ -44,8 +46,8 @@ const task = (taskArgs) => {
           # especially since they shouldn't care about link-extras correctness during their
           # work cycle.
 
-          style_file="cnx-recipes-output/rootfs/styles/$(cat book/style)-pdf.css"
-          recipe_file="cnx-recipes-output/rootfs/recipes/$(cat book/style).css"
+          style_file="cnx-recipes-output/rootfs/styles/$(cat ${bookInput}/style)-pdf.css"
+          recipe_file="cnx-recipes-output/rootfs/recipes/$(cat ${bookInput}/style).css"
 
           find "${symlinkInput}" -type l | xargs -I{} cp -P {} "${bakedOutput}"
 

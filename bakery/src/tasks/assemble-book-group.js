@@ -40,6 +40,7 @@ const task = (taskArgs) => {
             rm -rf temp-assembly
 
             mv "$collection" "${rawCollectionDir}/modules/collection.xml"
+            mv "${rawCollectionDir}/metadata/$slug_name.metadata.json" "${rawCollectionDir}/modules/metadata.json"
             
             # Assembly destination must nested EXACTLY one level under cwd for symlinks to work 
             neb assemble "${rawCollectionDir}/modules" temp-assembly/
