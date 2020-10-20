@@ -14,5 +14,5 @@
   "GOOGLE_FOLDER_ID": "",
   "GDOC_QUEUE_FILENAME": "",
   "GDOC_FEED_FILE_URL": "",
-  "S3_COPS_ARTIFACTS_BUCKET": "openstax-cops-artifacts"
+  "S3_COPS_ARTIFACTS_BUCKET": "ce-pdf-spike"
 }
