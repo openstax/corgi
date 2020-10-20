@@ -103,12 +103,12 @@ COPS Stack Deploy Steps
 0. Update Buildout and JS Dependencies
 ===========================================
 
-Make sure you are on the latest master branch.
+Make sure you are checked out to the `git-ref` of the latest tagged deploy output-producer-service.
 
 .. code-block:: bash
 
    $ cd output-producer-service
-   $ git checkout master
+   $ git checkout <git-ref>
    $ git pull
 
 Update/install JS libraries regularly for the fly command later:
