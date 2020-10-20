@@ -103,7 +103,7 @@ COPS Stack Deploy Steps
 0. Update Buildout and JS Dependencies
 ===========================================
 
-Make sure you are checked out to the `git-ref` of the latest tagged deploy output-producer-service.
+**Make sure you are checked out to the** `git-ref` **of the latest output-producer-service tagged deploy.**  
 
 .. code-block:: bash
 
@@ -111,7 +111,9 @@ Make sure you are checked out to the `git-ref` of the latest tagged deploy outpu
    $ git checkout <git-ref>
    $ git pull
 
-Update/install JS libraries regularly for the fly command later:
+Refer to :ref:`operations-find-git-ref` to find a git-ref with given TAG.
+
+**Update/install JS libraries regularly for the fly command later:**
 
 .. code-block:: bash
 
@@ -163,7 +165,7 @@ The above script will set the staging environment variables for your deploy.
 
 The above command will set the environment variable for the code version of your choice.    
 
-Refer to :ref:`operations-select-code-version-tag` to find a code version tag.  
+Refer to :ref:`operations-select-code-version-tag` to find a tag.  
 
 **Continue in terminal window, deploy to staging:**
 
