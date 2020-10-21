@@ -3,17 +3,32 @@
 ############################
 Update and Deploy COPS Stack
 ############################
-The entire COPS system is deployed using `Docker Swarm <https://docs.docker.com/engine/swarm/>`_. The deployment process is currently done manually (hopefully will be automated in the future) but is fairly straightforward.
 
-Docker Swarm provides a ``docker stack`` command that will deploy and update a set of services based on a docker-compose file.
+**********************
+The 2-Part Stack Story 
+**********************
+The COPS Stack is composed of 2 parts, the **COPS System** (Backend, Frontend, etc.) and **COPS Pipeline**.
+The parts can be deployed separately, but we've decided to keep the entire COPS stack 
+in sync, by making sure they are always deployed together.  
+
+Therefore, if changes are only made to the COPS Pipeline the COPS System (Docker Swarm) will still need a deployed . 
+Vice versa, if changes are made to the COPS System a new COPS Pipeline will need to be set. 
+
+1. The COPS System is deployed using `Docker Swarm <https://docs.docker.com/engine/swarm/>`_. 
+=============================================================================================
+
+Docker Swarm provides a ``docker stack`` command that will deploy and update a set of services based on a docker-compose file.  
 
 Refer to :ref:`operations-setting-up-the-swarm` to do the initial setup of the servers with swarm.
 
-After updates have been made to the Stack, the following need to happen -
+2. The COPS Pipeline is set on a Concourse server.
+==================================================
 
-********
-Overview
-********
+The COPS pipeline is set up using Concourse through the use ``fly`` commands, Concourse's CLI.
+
+*****************
+Overview of Steps
+*****************
 
 Set Up SSH Tunnel
    - Set up Portforwarding to AWS by Tunneling through Bastion2. Bastion2 is the only with permission to talk to the AWS Server. Where our COPS Stack is deployed.
@@ -79,32 +94,35 @@ You can copy down your ``cops.pem`` into your ``~/.ssh`` from bastion2 by:
 .. note:: Example above assumes that a copy of ``cops.pem`` for  **IdentityFile** is copied to where your ssh keys are.
 
 
-
 ----
 
-*****
-Steps
-*****
+***********************
+COPS Stack Deploy Steps
+***********************
 
-1. Update your buildout and JS dependencies
+0. Update Buildout and JS Dependencies
 ===========================================
 
-Keep sure you are on the latest master branch.
-
-Update/install JS libraries regularly for the fly command later:
+**Make sure you are checked out to the** `git-ref` **of the latest output-producer-service tagged deploy.**  
 
 .. code-block:: bash
 
-   cd bakery
-   # yarn v1.x also works
-   npm install
-   cd ..
+   $ cd output-producer-service
+   $ git checkout <git-ref>
+   $ git pull
 
-2. Set Up SSH Tunnel
-====================
+Refer to :ref:`operations-find-git-ref` to find a git-ref with given TAG.
 
-Port Forward COPS Server to Local Docker Socket
------------------------------------------------
+**Update/install JS libraries regularly for the fly command later:**
+
+.. code-block:: bash
+
+   $ cd bakery 
+   $ npm install    # yarn v1.x also works
+   $ cd ..
+
+1. Set Up SSH Tunnel to COPS
+============================  
 
 **In a fresh terminal window, establish an SSH tunnel to a manager node in AWS:**
 
@@ -112,133 +130,87 @@ Port Forward COPS Server to Local Docker Socket
 
    ssh cops -NL 9999:/var/run/docker.sock
 
-This command doesn't produce any output unless there is an error.
+This will port forward COPS Server to Local Docker Socket. This command doesn't produce any output unless there is an error.
 
 **Keep terminal open until the end of the deployment process. No other commands will be typed into this window.**
 
-Setup Terminal for Communicating with Docker Swarm Manager Node
----------------------------------------------------------------
+2. Deploy COPS System to Staging Swarm
+======================================
+
+.. note:: This window should only be used to run the deploy script.
+   All docker commands you run in this window will be like running them on the remote host.
+
 **In a fresh terminal window, configure Docker to use the remote host (established prior):**
 
 .. code-block:: bash
 
    $ export DOCKER_HOST="localhost:9999"
 
-We will refer to this as our **Docker Talker** window. Keep terminal open until the end of the deployment process.
+The above command will set up the terminal window to communicate with Docker Swarm Manager Node 
+that was set up in the previous step.  
 
-.. note:: This window should only be used to run the deploy script.
-   All docker commands you run in this window will be like running them on the remote host.
-
-3. Deploy to Staging
-====================
-
-Ensure SSH tunnel to COPS is set up and you are in the **Docker Talker** window to communicate with the swarm manager node from the previous step.
-
-Load Environment Variables
---------------------------
-
-Load staging environment variables (DOMAIN, STACK_NAME, TRAEFIK_TAG) with script:
+**Continue in terminal window, set staging environment variables:**
 
 .. code-block:: bash
 
    $ source ./scripts/vars.staging.sh
 
-Check the staging environment variables:
+The above script will set the staging environment variables for your deploy.
 
-.. code-block:: bash
-
-   $ env
-
-Select Tag to Pin Images
-------------------------
-
-Docker Image Tags are autogenerated. Whenever code is merged to a COPS-related repository,
-the change triggers the `ce-image-autotag concourse pipeline <https://concourse-v6.openstax.org/teams/CE/pipelines/ce-image-autotag>`_.
-
-To Find a Tag:
-
-   - Go to the `ce-image-autotag concourse pipeline <https://concourse-v6.openstax.org/teams/CE/pipelines/ce-image-autotag>`_.
-   - Click into the 'build-and-push-images' job.
-   - Click on a job number (Defaults to the latest job)
-   - Click on ``report-versions-and-create-tag`` task
-
-   You will see output similar to the following which prints out the generated tag value:
-
-   .. code-block:: bash
-
-      ...
-      + git '--git-dir=source-code-nebuchadnezzar/.git' rev-parse --short HEAD
-      + git '--git-dir=source-code-output-producer-service/.git' rev-parse --short HEAD
-      + git '--git-dir=source-code-cnx-easybake/.git' rev-parse --short HEAD
-      + git '--git-dir=source-code-mathify/.git' rev-parse --short HEAD
-      + git '--git-dir=source-code-princexml/.git' rev-parse --short HEAD
-      + git '--git-dir=source-code-output-producer-resource/.git' rev-parse --short HEAD
-      + git '--git-dir=source-code-cnx-recipes/.git' describe
-      + git '--git-dir=source-code-xhtml-validator/.git' rev-parse --short HEAD
-      + date '+%Y%m%d.%H%M%S'
-      + tag=20200612.204804
-      + echo 20200612.204804
-      + echo master
-      + echo trunk
-
-   .. note::
-
-      Above Example Shows:
-
-         - **Tag**: ``20200612.204804``
-
-   - Copy selected Tag: ``20200612.204804``
-
-Export Image Tag
-----------------
-
-Export image tag as staging environment variable:
+**Continue in terminal window, set code version tag environment variable:**
 
 .. code-block:: bash
 
    export TAG="tag-of-your-choosing"  ## i.e. 20200612.204804
 
+The above command will set the environment variable for the code version of your choice.    
 
-Deploy
-------
+Refer to :ref:`operations-select-code-version-tag` to find a tag.  
 
-Deploy to staging using the following script:
+**Continue in terminal window, deploy to staging:**
 
 .. code-block:: bash
 
    ./scripts/deploy.sh
 
-.. warning::
-   Deploy script will fail and exit without deploying if any of the required environment variables are not set.
+The above script will deploy the Docker Swarm System with the previously set staging environment variables.
 
-Login to Concourse via fly
+.. warning::
+   The deploy script will fail and exit without deploying if any of the required environment variables are not set.
+
+3. Set up COPS Pipeline, on Concourse
+=====================================
+
+**Continue in the same terminal from deploy, login to Concourse via** ``fly`` **:**
 
 .. code-block:: bash
 
    fly login -t concourse-v6 -c https://concourse-v6.openstax.org/ -n CE
 
-Deploy the corresponding pipeline to ``concourse-v6`` (BASH shell):
+**Continue in terminal window, deploy the corresponding pipeline to** ``concourse-v6`` **(BASH shell):**
 
 .. code-block:: bash
 
    fly -t concourse-v6 sp -p cops-staging -c <(./bakery/build pipeline cops staging --tag $TAG)
 
-.. warning::
-   Depending upon your environment, you may need to get the correct version of fly and login first.
-
+The above ``fly`` command will set a new pipeline named ``cops-staging`` with staging pipeline variables.
+The above assumes ``fly`` is installed. Depending on your environment, you may need to get the correct 
+version of fly from the UI.
 
 4. Promote Staging to Production
 ================================
-Ensure SSH tunnel to COPS is set up and you are in a *new terminal* to communicate with the swarm manager node with previous steps.
+Once Staging COPS stack looks good (Steps 3 & 4) ensure SSH tunnel to COPS is still up (Step 2).
 
-There is no need to set any environment variables for production or pick a tag.
-The promotion script will automatically detect the tag deployed to staging and deploy it to production:
+**Continue in terminal window, promote staging to deploy:**
 
 .. code-block:: bash
 
    ./scripts/promote-deploy.sh
 
-Deploy the corresponding pipeline to ``concourse-v6``:
+The above deployment script will automatically detect the tag deployed to staging and deploy it to production.
+There is no need to set any environment variables for production or pick a tag.
+
+**Continue in terminal window, deploy the corresponding pipeline to** ``concourse-v6`` **:**
 
 .. code-block:: bash
 
@@ -246,10 +218,11 @@ Deploy the corresponding pipeline to ``concourse-v6``:
 
 ----
 
-5. Cleanup
-=======
-Close all terminal windows when deployment is complete.
+The above ``fly`` command will set a new pipeline named ``cops-prod`` with production pipeline variables.
 
+5. Cleanup
+==========
+Close all terminal windows when deployment is complete.
 
 ----
 

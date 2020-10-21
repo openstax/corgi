@@ -1,4 +1,4 @@
-FROM openstax/selenium-chrome-debug:3.141.59
+FROM openstax/selenium-chrome-debug:latest
 
 USER root
 
