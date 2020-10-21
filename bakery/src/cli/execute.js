@@ -461,7 +461,8 @@ const tasks = {
         input(dataDir, 'assembled-book-group'),
         input(dataDir, 'module-symlinks'),
         `--input=cnx-recipes-output=${tmpRecipesDir.name}`,
-        output(dataDir, 'baked-book-group')
+        output(dataDir, 'baked-book-group'),
+        output(dataDir, 'group-style')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
@@ -570,7 +571,7 @@ const tasks = {
       builder: yargs => {
         yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
         yargs.positional('slug', {
-          describe: 'collection id of collection to work on',
+          describe: 'slug of collection to work on',
           type: 'string'
         })
       },
@@ -676,6 +677,49 @@ const tasks = {
       }
     }
   },
+  'mathify-single': (parentCommand) => {
+    const commandUsage = 'mathify-single <slug>'
+    const handler = async argv => {
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
+
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'mathify-single', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'slug'), argv.slug)
+
+      const dataDir = path.resolve(argv.data, argv.slug)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'module-symlinks'),
+        input(dataDir, 'group-style'),
+        input(dataDir, 'linked-single'),
+        output(dataDir, 'mathified-single')
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'ms',
+      describe: 'mathify a book',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
+        yargs.positional('slug', {
+          describe: 'slug of collection to work on',
+          type: 'string'
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
+  },
   'build-pdf': (parentCommand) => {
     const commandUsage = 'build-pdf <collid>'
     const handler = async argv => {
@@ -708,6 +752,49 @@ const tasks = {
         yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
+          type: 'string'
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
+  },
+  'pdfify-single': (parentCommand) => {
+    const commandUsage = 'pdfify-single <slug>'
+    const handler = async argv => {
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
+
+      const imageDetails = imageDetailsFromArgs(argv) || {}
+      const taskArgs = [`--taskargs=${JSON.stringify({ ...imageDetails, ...{ bucketName: 'none' } })}`]
+      const taskContent = execFileSync(buildExec, ['task', 'pdfify-single', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'slug'), argv.slug)
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'pdf_filename'), 'collection.pdf')
+
+      const dataDir = path.resolve(argv.data, argv.slug)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'mathified-single'),
+        input(dataDir, 'module-symlinks'),
+        input(dataDir, 'group-style'),
+        input(dataDir, 'fetched-book-group'),
+        output(dataDir, 'artifacts-single')
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'ps',
+      describe: 'build a pdf from a book',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
+        yargs.positional('slug', {
+          describe: 'slug of collection to work on',
           type: 'string'
         })
       },
@@ -942,17 +1029,18 @@ const tasks = {
         input(dataDir, 'fetched-book-group'),
         input(dataDir, 'module-symlinks'),
         input(dataDir, 'linked-single'),
-        output(dataDir, 'checksum-resources')
+        output(dataDir, 'checksum-resources'),
+        output(dataDir, 'resource-linked-single')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
       command: commandUsage,
-      aliases: 'cb',
+      aliases: 'cs',
       describe: 'checksum resources from a baked book',
       builder: yargs => {
         yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
-        yargs.positional('collid', {
-          describe: 'collection id of collection to work on',
+        yargs.positional('slug', {
+          describe: 'slug of collection to work on',
           type: 'string'
         })
       },
@@ -1004,6 +1092,48 @@ const tasks = {
       }
     }
   },
+  'disassemble-single': (parentCommand) => {
+    const commandUsage = 'disassemble-single <slug>'
+    const handler = async argv => {
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
+
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'disassemble-single', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'slug'), argv.slug)
+
+      const dataDir = path.resolve(argv.data, argv.slug)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'resource-linked-single'),
+        input(dataDir, 'baked-book-metadata-group'),
+        output(dataDir, 'disassembled-single')
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'ds',
+      describe: 'disassemble a checksummed book',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
+        yargs.positional('slug', {
+          describe: 'slug of collection to work on',
+          type: 'string'
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
+  },
   jsonify: (parentCommand) => {
     const commandUsage = 'jsonify <collid>'
     const handler = async argv => {
@@ -1037,6 +1167,47 @@ const tasks = {
         yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
+          type: 'string'
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
+  },
+  'jsonify-single': (parentCommand) => {
+    const commandUsage = 'jsonify-single <slug>'
+    const handler = async argv => {
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
+
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'jsonify-single', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'slug'), argv.slug)
+
+      const dataDir = path.resolve(argv.data, argv.slug)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'disassembled-single'),
+        output(dataDir, 'jsonified-single')
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'js',
+      describe: 'build metadata from disassembled book',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
+        yargs.positional('slug', {
+          describe: 'slug of collection to work on',
           type: 'string'
         })
       },
@@ -1207,7 +1378,9 @@ const yargs = require('yargs')
           .command(tasks.bake(commandUsage))
           .command(tasks['bake-group'](commandUsage))
           .command(tasks.mathify(commandUsage))
+          .command(tasks['mathify-single'](commandUsage))
           .command(tasks['build-pdf'](commandUsage))
+          .command(tasks['pdfify-single'](commandUsage))
           .command(tasks['assemble-meta'](commandUsage))
           .command(tasks['assemble-meta-group'](commandUsage))
           .command(tasks.checksum(commandUsage))
@@ -1215,7 +1388,9 @@ const yargs = require('yargs')
           .command(tasks['bake-meta'](commandUsage))
           .command(tasks['bake-meta-group'](commandUsage))
           .command(tasks.disassemble(commandUsage))
+          .command(tasks['disassemble-single'](commandUsage))
           .command(tasks.jsonify(commandUsage))
+          .command(tasks['jsonify-single'](commandUsage))
           .command(tasks.gdocify(commandUsage))
           .command(tasks['convert-docx'](commandUsage))
           .command(tasks['validate-xhtml'](commandUsage))

@@ -1,24 +1,24 @@
 const dedent = require('dedent')
+const { symlink } = require('fs-extra')
 
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
   const imageDefault = {
-    name: 'openstax/cops-bakery-scripts',
+    name: 'openstax/mathify',
     tag: 'trunk'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
   const bookInput = 'book'
-  const fetchedInput = 'fetched-book-group'
   const symlinkInput = 'module-symlinks'
   const linkedInput = 'linked-single'
-  const resourcesOutput = 'checksum-resources'
-  const resourceLinkedSingleOutput = 'resource-linked-single'
+  const styleInput = 'group-style'
+  const mathifiedOutput = 'mathified-single'
 
   return {
-    task: 'checksum book',
+    task: 'mathify book',
     config: {
       platform: 'linux',
       image_resource: {
@@ -27,28 +27,26 @@ const task = (taskArgs) => {
       },
       inputs: [
         { name: bookInput },
-        { name: fetchedInput },
         { name: symlinkInput },
+        { name: styleInput },
         { name: linkedInput }
       ],
-      outputs: [
-        { name: resourcesOutput },
-        { name: resourceLinkedSingleOutput }
-      ],
+      outputs: [{ name: mathifiedOutput }],
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee checksum-book/stderr >&2)
+          exec 2> >(tee ${mathifiedOutput}/stderr >&2)
+          slug_name="$(cat ${bookInput}/slug)"
 
-          # Add symlinks to fetched-book-group to be able to find images
-          find "${symlinkInput}" -type l | xargs -I{} cp -P {} "${linkedInput}"
+          # FIXME: symlinks should only be needed to preview intermediate state
+          find "${symlinkInput}" -type l | xargs -I{} cp -P {} "${mathifiedOutput}"
 
-          checksum "${linkedInput}" "${resourcesOutput}"
+          # Style needed because mathjax will size converted math according to surrounding text
+          cp ${styleInput}/* ${linkedInput}
 
-          slug_name=$(cat ${bookInput}/slug)
-          mv "${resourcesOutput}/$slug_name.linked.xhtml" "${resourceLinkedSingleOutput}/$slug_name.resource-linked.xhtml"
+          node /src/typeset/start -i "${linkedInput}/$slug_name.linked.xhtml" -o "${mathifiedOutput}/$slug_name.mathified.xhtml" -f svg  
         `
         ]
       }

@@ -37,7 +37,7 @@ const task = (taskArgs) => {
 
 
                         echo "{" > uuid-to-revised-map.json
-                        find ${fetchedInput}/raw/ -path */m*/metadata.json | xargs cat | jq -r '. | "\"\(.id)\": \"\(.revised)\","' >> uuid-to-revised-map.json
+                        find ${fetchedInput}/raw/modules -path */m*/metadata.json | xargs cat | jq -r '. | "\"\(.id)\": \"\(.revised)\","' >> uuid-to-revised-map.json
                         echo '"dummy": "dummy"' >> uuid-to-revised-map.json
                         echo "}" >> uuid-to-revised-map.json
 

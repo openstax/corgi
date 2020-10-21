@@ -26,7 +26,7 @@ const task = (taskArgs) => {
                 source: imageSource
             },
             inputs: [
-                { name:  },
+                { name: bookInput },
                 { name: fetchedInput },
                 { name: bakedInput },
                 { name: bakedMetaInput }

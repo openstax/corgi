@@ -15,6 +15,7 @@ const task = (taskArgs) => {
   const recipeInput = 'cnx-recipes-output'
   const symlinkInput = 'module-symlinks'
   const bakedOutput = 'baked-book-group'
+  const styleOutput = 'group-style'
 
   return {
     task: 'bake book',
@@ -30,7 +31,10 @@ const task = (taskArgs) => {
         { name: assembledInput },
         { name: recipeInput }
       ],
-      outputs: [{ name: bakedOutput }],
+      outputs: [
+        { name: bakedOutput },
+        { name: styleOutput }
+      ],
       run: {
         path: '/bin/bash',
         args: [
@@ -46,14 +50,18 @@ const task = (taskArgs) => {
           # especially since they shouldn't care about link-extras correctness during their
           # work cycle.
 
+          # FIXME: Separate style injection step from baking step. This is way too much work to change a line injected into the head tag
           style_file="cnx-recipes-output/rootfs/styles/$(cat ${bookInput}/style)-pdf.css"
+
           recipe_file="cnx-recipes-output/rootfs/recipes/$(cat ${bookInput}/style).css"
 
+          # FIXME: symlinks should only be needed to preview intermediate state
           find "${symlinkInput}" -type l | xargs -I{} cp -P {} "${bakedOutput}"
 
           if [[ -f "$style_file" ]]
           then
             cp "$style_file" ${bakedOutput}
+            cp "$style_file" ${styleOutput}
           else
             echo "Warning: Style Not Found" > ${bakedOutput}/stderr
           fi
