@@ -142,7 +142,7 @@ def main():
         source_book_slug,
         book_slugs_path,
         module_canonicals_path,
-        output_path) = sys.argv[    1:7]
+        output_path) = sys.argv[1:7]
     transform_links(
         baked_content_dir, baked_meta_dir, source_book_slug, book_slugs_path,
         module_canonicals_path, output_path)
