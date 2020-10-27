@@ -8,6 +8,7 @@ import hashlib
 import struct
 
 DENSITY_DPI = 900
+IMG_SNIPPET = '<img src="{}" alt="{}" width="{}" height="{}" />'
 
 
 def force_math_namespace_only(doc):
@@ -163,7 +164,7 @@ def main():
                     png_file.close()
                     display_width = round(png_width / (DENSITY_DPI / 75 - 1))
                     display_height = round(png_height / (DENSITY_DPI / 75 - 1))
-                    img_xhtml = '<img src="{}" alt="{}" width="{}" height="{}" />'.format(
+                    img_xhtml = IMG_SNIPPET.format(
                         relative_resource_filename, mathspeak,
                         display_width, display_height)
                     img_formatted = etree.fromstring(img_xhtml)
@@ -171,7 +172,8 @@ def main():
                     r.getparent().replace(r, img_formatted)
                 else:
                     raise Exception(
-                        'Failed to get PNG image dimensions of equation' + equation)
+                        'Failed to get PNG image dimensions of equation'
+                        + equation)
             else:
                 raise Exception(
                     'Failed to generate PNG from SVG of equation: ' + equation)
