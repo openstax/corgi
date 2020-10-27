@@ -90,17 +90,18 @@ def mathml2svg_jsonrpc(equation):
 
     response = requests.post(url, json=payload).json()
 
-    if not 'result' in response:
-        # something went terrible wrong with calling the jsonrpc server and running the command
-        print('No result in calling mml2svg jayson/json-rpc server!')
-        sys.exit(1)
-        return '', ''
-    else:
+    if 'result' in response:
         svg = response['result'][0]
         mathspeak = response['result'][1]
         if len(svg) > 0:
             svg = strip_mathjax_container(svg)
         return svg, mathspeak
+    else:
+        # something went terrible wrong with calling
+        # the jsonrpc server and running the command
+        print('No result in calling mml2svg jayson/json-rpc server!')
+        sys.exit(1)
+        return '', ''
 
 
 def svg2png_jsonrpc(svg):
@@ -114,17 +115,19 @@ def svg2png_jsonrpc(svg):
 
     response = requests.post(url, json=payload).json()
 
-    if not 'result' in response:
-        # something went terrible wrong with calling the jsonrpc server and running the command
-        print('No result in calling mml2svg jayson/json-rpc server!')
-        sys.exit(1)
-        return ''
-    else:
+    if 'result' in response:
         png_base64 = response['result']
         png_bytes = b''
         if len(png_base64) > 0:
             png_bytes = base64.b64decode(png_base64)
         return png_bytes
+    else:
+        # something went terrible wrong with calling
+        # the jsonrpc server and running the command
+        print('No result in calling mml2svg jayson/json-rpc server!')
+        sys.exit(1)
+        return ''
+
 
 # argument 1: xhtml file with mathml mtable equations
 # argument 2: resource folder
@@ -135,7 +138,9 @@ def main():
     ns = {"h": "http://www.w3.org/1999/xhtml",
           "m": "http://www.w3.org/1998/Math/MathML"}
 
-    for r in f.xpath('//h:math[descendant::h:mtable]|//m:math[descendant::m:mtable]', namespaces=ns):
+    for r in f.xpath(
+            '//h:math[descendant::h:mtable]|//m:math[descendant::m:mtable]',
+            namespaces=ns):
         math_etree = force_math_namespace_only(r)
         bytes_equation = etree.tostring(
             math_etree, with_tail=False, inclusive_ns_prefixes=None)
@@ -151,25 +156,31 @@ def main():
                 if png_width > 0 and png_height > 0:
                     sha1 = hashlib.sha1(png)
                     png_filename = os.path.join(sys.argv[2], sha1.hexdigest())
-                    relative_resource_filename = '../resources/' + os.path.basename(png_filename)
+                    relative_resource_filename = '../resources/' + \
+                        os.path.basename(png_filename)
                     png_file = open(png_filename, 'wb')
                     png_file.write(png)
                     png_file.close()
                     display_width = round(png_width / (DENSITY_DPI / 75 - 1))
                     display_height = round(png_height / (DENSITY_DPI / 75 - 1))
                     img_xhtml = '<img src="{}" alt="{}" width="{}" height="{}" />'.format(
-                        relative_resource_filename, mathspeak, display_width, display_height)
+                        relative_resource_filename, mathspeak,
+                        display_width, display_height)
                     img_formatted = etree.fromstring(img_xhtml)
                     # replace MathML with img tag
                     r.getparent().replace(r, img_formatted)
                 else:
-                    raise Exception('Failed to get PNG image dimensions of equation' + equation)
+                    raise Exception(
+                        'Failed to get PNG image dimensions of equation' + equation)
             else:
-                raise Exception('Failed to generate PNG from SVG of equation: ' + equation)
+                raise Exception(
+                    'Failed to generate PNG from SVG of equation: ' + equation)
         else:
-            raise Exception('Failed to generate SVG from MathML of equation: ' + equation)
+            raise Exception(
+                'Failed to generate SVG from MathML of equation: ' + equation)
 
     print(etree.tostring(f, pretty_print=False).decode('utf-8'))
+
 
 if __name__ == "__main__":
     main()

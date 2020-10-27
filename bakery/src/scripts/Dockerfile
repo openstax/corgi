@@ -30,8 +30,6 @@ RUN wget https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pando
 
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
 RUN apt-get install -y nodejs
-RUN node --version
-RUN npm --version
 
 COPY ./*.py ./*.js ./*.json /code/scripts/
 COPY ./gdoc/ /code/gdoc/
