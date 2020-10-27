@@ -80,7 +80,7 @@ jobs:
       - run:
           name: Lint bakery Python scripts
           command: |
-            flake8 bakery/src/**/**.py
+            flake8 bakery/src/**/**.py --max-line-length=100
 
       - run:
           name: Run bakery scripts tests

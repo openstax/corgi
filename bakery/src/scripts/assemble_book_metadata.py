@@ -1,9 +1,9 @@
 import sys
 import json
-from lxml import etree
 from pathlib import Path
 from cnxepub.collation import reconstitute
 from cnxepub.models import flatten_to_documents
+
 
 def main():
     input_assembled_file = Path(sys.argv[1]).resolve(strict=True)
