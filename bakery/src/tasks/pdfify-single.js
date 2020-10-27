@@ -1,5 +1,4 @@
 const dedent = require('dedent')
-const { symlink } = require('fs-extra')
 
 const { constructImageSource } = require('../task-util/task-util')
 

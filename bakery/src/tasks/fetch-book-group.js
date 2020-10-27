@@ -38,7 +38,7 @@ const task = (taskArgs) => {
           [[ "$reference" = latest ]] && reference=master
           set +x
           # Do not show creds
-          remote="https://${'${GH_SECRET_CREDS}'}@github.com/openstax/$(cat ${bookInput}/repo).git"
+          remote="https://$GH_SECRET_CREDS@github.com/openstax/$(cat ${bookInput}/repo).git"
           git clone --depth 1 "$remote" --branch "$reference" "${outputName}/raw"
           set -x
           wget ${bookSlugsUrl} -O "${outputName}/book-slugs.json"
