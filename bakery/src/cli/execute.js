@@ -566,7 +566,7 @@ const tasks = {
     }
     return {
       command: commandUsage,
-      aliases: 'l',
+      aliases: 'ls',
       describe: 'amend external book links',
       builder: yargs => {
         yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
@@ -950,7 +950,7 @@ const tasks = {
     }
     return {
       command: commandUsage,
-      aliases: 'bm',
+      aliases: 'bmg',
       describe: 'build metadata files from a baked book group',
       builder: yargs => {
         yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
