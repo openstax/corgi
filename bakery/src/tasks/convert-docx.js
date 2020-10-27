@@ -30,6 +30,9 @@ const task = (taskArgs) => {
           /* eslint-disable no-template-curly-in-string */
           dedent`
           exec 2> >(tee docx-book/stderr >&2)
+          pushd /code/scripts
+          nohup nohup node -r esm mml2svg-json-rpc.js > /dev/null 2>&1 &
+          popd
           cp -r gdocified-book/* docx-book
           collection_id="$(cat book/collection_id)"
           book_dir="docx-book/$collection_id/gdocified"
@@ -40,10 +43,13 @@ const task = (taskArgs) => {
             xhtmlfile_basename=$(basename "$xhtmlfile")
             metadata_filename="${'${xhtmlfile_basename%.*}'}"-metadata.json
             docx_filename=$(cat "$metadata_filename" | jq -r '.slug').docx
-            wrapped_tempfile="${'${xhtmlfile}'}.tmp"
-            xsltproc --output "$wrapped_tempfile" /code/gdoc/wrap-in-greybox.xsl "$xhtmlfile"
+            mathmltable_tempfile="${'${xhtmlfile}'}.mathmltable.tmp"
+            mathmltable2png "$xhtmlfile" "../resources" >$mathmltable_tempfile
+            wrapped_tempfile="${'${xhtmlfile}'}.greybox.tmp"
+            xsltproc --output "$wrapped_tempfile" /code/gdoc/wrap-in-greybox.xsl "$mathmltable_tempfile"
             pandoc --reference-doc="/code/gdoc/custom-reference.docx" --from=html --to=docx --output="../../../$target_dir/$docx_filename" "$wrapped_tempfile"
           done
+          pkill -f mml2svg-json-rpc
         `
         /* eslint-enable no-template-curly-in-string */
         ]

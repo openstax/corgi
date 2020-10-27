@@ -2,8 +2,8 @@ FROM python:3.7-slim
 
 LABEL maintainer="OpenStax Content Engineering"
 
-RUN apt update
-RUN apt install -y build-essential libicu-dev pkg-config libmagic1 mime-support wget curl xsltproc
+RUN apt-get update
+RUN apt-get install -y build-essential libicu-dev pkg-config libmagic1 mime-support wget curl xsltproc lsb-release procps
 
 COPY ./requirements.txt /code/scripts/
 WORKDIR /code/
@@ -28,6 +28,13 @@ RUN wget https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pando
     dpkg -i /tmp/pandoc.deb && \
     rm -f /tmp/pandoc.deb
 
-COPY ./*.py ./*.json /code/scripts/
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+RUN apt-get install -y nodejs
+RUN node --version
+RUN npm --version
+
+COPY ./*.py ./*.js ./*.json /code/scripts/
 COPY ./gdoc/ /code/gdoc/
 RUN pip install /code/scripts/.
+
+RUN npm --prefix /code/scripts install /code/scripts
