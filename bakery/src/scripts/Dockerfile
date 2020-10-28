@@ -33,7 +33,7 @@ RUN apt-get install -y nodejs
 
 COPY ./*.py ./*.js ./*.json /code/scripts/
 COPY ./gdoc/ /code/gdoc/
-RUN pip install /code/scripts/.
 
 RUN npm --prefix /code/scripts install /code/scripts
 RUN npm install forever@3.0.2 -g
+RUN pip install /code/scripts/.
