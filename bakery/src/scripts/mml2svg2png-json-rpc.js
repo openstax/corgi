@@ -1,7 +1,7 @@
 /* global MathJax:true */
 
 // run with:
-// node -r esm mml2svg-json-rpc.js
+// node -r esm mml2svg2png-json-rpc.js
 
 //
 // Mathjax options

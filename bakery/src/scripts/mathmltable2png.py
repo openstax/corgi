@@ -105,8 +105,8 @@ def mathml2svg_jsonrpc(equation):
     else:
         # something went terrible wrong with calling
         # the jsonrpc server and running the command
-        print('No result in calling mml2svg jayson/json-rpc server!')
-        sys.exit(1)
+        raise Exception(
+            'No result in calling mml2svg2png jayson/json-rpc server!')
         return '', ''
 
 
@@ -130,8 +130,8 @@ def svg2png_jsonrpc(svg):
     else:
         # something went terrible wrong with calling
         # the jsonrpc server and running the command
-        print('No result in calling mml2svg jayson/json-rpc server!')
-        sys.exit(1)
+        raise Exception(
+            'No result in calling mml2svg2png jayson/json-rpc server!')
         return ''
 
 
