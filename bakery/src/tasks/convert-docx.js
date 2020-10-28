@@ -49,7 +49,9 @@ const task = (taskArgs) => {
             xsltproc --output "$wrapped_tempfile" /code/gdoc/wrap-in-greybox.xsl "$mathmltable_tempfile"
             pandoc --reference-doc="/code/gdoc/custom-reference.docx" --from=html --to=docx --output="../../../$target_dir/$docx_filename" "$wrapped_tempfile"
           done
+          pushd /code/scripts
           forever stop mml2svg2png-json-rpc.js
+          popd
         `
         /* eslint-enable no-template-curly-in-string */
         ]
