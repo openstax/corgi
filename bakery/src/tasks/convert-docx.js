@@ -31,7 +31,7 @@ const task = (taskArgs) => {
           dedent`
           exec 2> >(tee docx-book/stderr >&2)
           pushd /code/scripts
-          nohup nohup node -r esm mml2svg-json-rpc.js > /dev/null 2>&1 &
+          nohup node -r esm mml2svg-json-rpc.js > /dev/null 2>&1 &
           popd
           cp -r gdocified-book/* docx-book
           collection_id="$(cat book/collection_id)"
