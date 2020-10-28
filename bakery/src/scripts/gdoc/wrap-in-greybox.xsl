@@ -114,6 +114,19 @@
   </div>
 </xsl:template>
 
+<!-- make block math to inline also for non grey background math -->
+<!-- note: pandoc ignores text center property https://github.com/jgm/pandoc/issues/719 -->
+<xsl:template match="h:math[@display='block']">
+  <div>
+  <p style="text-align:center">
+    <xsl:copy>
+      <xsl:attribute name="display">inline</xsl:attribute>
+      <xsl:apply-templates select="@*[name()!='display']|node()" mode="grey"/>
+    </xsl:copy>
+  </p>
+  </div>
+</xsl:template>
+
 <xsl:template match="@*|node()" mode="grey">
   <xsl:copy>
     <xsl:apply-templates select="@*|node()" mode="grey"/>

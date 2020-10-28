@@ -70,7 +70,7 @@ def create_json_metadata(output_dir, sha1, mime_type, s3_md5, original_name):
     data['mime_type'] = mime_type
     data['s3_md5'] = s3_md5
     data['sha1'] = sha1
-    json_filename = os.path.join(output_dir, RESOURCES_DIR, sha1+'.json')
+    json_filename = os.path.join(output_dir, RESOURCES_DIR, sha1 + '.json')
     with open(json_filename, 'w') as outfile:
         json.dump(data, outfile)
 

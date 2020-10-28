@@ -56,7 +56,8 @@ setup(
             'check-feed = bakery_scripts.check_feed:main',
             'copy-resources-s3 = bakery_scripts.copy_resources_s3:main',
             'gdocify = bakery_scripts.gdocify_book:main',
-            'upload-docx = bakery_scripts.upload_docx:main'
+            'upload-docx = bakery_scripts.upload_docx:main',
+            'mathmltable2png = bakery_scripts.mathmltable2png:main'
         ]
     },
     **SETUP_KWARGS,
