@@ -21,13 +21,18 @@ const pipeline = (env) => {
 
   const lockedTag = env.IMAGE_TAG || 'trunk'
 
+  const imageOverrides = {
+    tag: lockedTag,
+    ...env.dockerCredentials
+  }
+
   const resources = [
     {
       name: 'cnx-recipes-output',
       type: 'docker-image',
       source: {
         repository: 'openstax/cnx-recipes-output',
-        tag: lockedTag
+        ...imageOverrides
       }
     },
     {
@@ -63,7 +68,7 @@ const pipeline = (env) => {
         codeVersion: codeVersionFromTag,
         maxBooksPerRun: env.MAX_BOOKS_PER_TICK,
         statePrefix: queueStatePrefix,
-        image: { tag: lockedTag }
+        image: imageOverrides
       })
     ]
   }
@@ -76,22 +81,22 @@ const pipeline = (env) => {
       { get: 'cnx-recipes-output' },
       taskDequeueBook({
         queueFilename: queueFilename,
-        image: { tag: lockedTag }
+        image: imageOverrides
       }),
-      taskFetchBook({ image: { tag: lockedTag } }),
-      taskAssembleBook({ image: { tag: lockedTag } }),
+      taskFetchBook({ image: imageOverrides }),
+      taskAssembleBook({ image: imageOverrides }),
       taskLinkExtras({
-        image: { tag: lockedTag },
+        image: imageOverrides,
         server: 'archive.cnx.org'
       }),
-      taskAssembleBookMeta({ image: { tag: lockedTag } }),
-      taskBakeBook({ image: { tag: lockedTag } }),
-      taskBakeBookMeta({ image: { tag: lockedTag } }),
-      taskChecksumBook({ image: { tag: lockedTag } }),
-      taskDisassembleBook({ image: { tag: lockedTag } }),
-      taskJsonifyBook({ image: { tag: lockedTag } }),
+      taskAssembleBookMeta({ image: imageOverrides }),
+      taskBakeBook({ image: imageOverrides }),
+      taskBakeBookMeta({ image: imageOverrides }),
+      taskChecksumBook({ image: imageOverrides }),
+      taskDisassembleBook({ image: imageOverrides }),
+      taskJsonifyBook({ image: imageOverrides }),
       taskValidateXhtml({
-        image: { tag: lockedTag },
+        image: imageOverrides,
         inputSource: 'jsonified-book',
         inputPath: 'jsonified/*@*.xhtml',
         validationNames: ['duplicate-id', 'broken-link']
@@ -104,7 +109,7 @@ const pipeline = (env) => {
         awsSecretAccessKey: awsSecretAccessKey,
         codeVersion: codeVersionFromTag,
         statePrefix: queueStatePrefix,
-        image: { tag: lockedTag }
+        image: imageOverrides
       })
     ]
   }

@@ -75,6 +75,18 @@ module.exports.handler = argv => {
       S3_SECRET_ACCESS_KEY: 'no-secret-resolved'
     }
   }).call()
+  const dockerCredentials = (() => {
+    if ((env.DOCKERHUB_USERNAME != null) && (env.DOCKERHUB_PASSWORD != null)) {
+      return {
+        dockerCredentials: {
+          username: env.DOCKERHUB_USERNAME,
+          password: env.DOCKERHUB_PASSWORD
+        }
+      }
+    } else {
+      return {}
+    }
+  }).call()
   const pipeline = (() => {
     const pipelineFilePath = path.resolve(pipelineDir, `${argv.pipelinetype}.js`)
     return require(pipelineFilePath)
@@ -83,7 +95,7 @@ module.exports.handler = argv => {
     ? undefined
     : path.resolve(argv.output)
 
-  const pipelineArgs = { ...env, ...s3Keys, ...(argv.tag == null ? {} : { IMAGE_TAG: argv.tag }) }
+  const pipelineArgs = { ...env, ...s3Keys, ...dockerCredentials, ...(argv.tag == null ? {} : { IMAGE_TAG: argv.tag }) }
   const pipelineConfig = pipeline(pipelineArgs).config
 
   const forward = fs.readFileSync(path.resolve(__dirname, 'forward.yml'), { encoding: 'utf8' })

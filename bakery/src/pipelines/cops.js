@@ -19,6 +19,10 @@ const pipeline = (env) => {
   const awsAccessKeyId = env.S3_ACCESS_KEY_ID
   const awsSecretAccessKey = env.S3_SECRET_ACCESS_KEY
   const codeVersionFromTag = env.IMAGE_TAG || 'version-unknown'
+  const imageOverrides = {
+    tag: lockedTag,
+    ...env.dockerCredentials
+  }
 
   // FIXME: These mappings should be in the COPS resource
   const JobType = Object.freeze({
@@ -61,7 +65,7 @@ const pipeline = (env) => {
       type: 'docker-image',
       source: {
         repository: 'openstax/output-producer-resource',
-        tag: lockedTag
+        ...imageOverrides
       }
     }
   ]
@@ -72,7 +76,7 @@ const pipeline = (env) => {
       type: 'docker-image',
       source: {
         repository: 'openstax/cnx-recipes-output',
-        tag: lockedTag
+        ...imageOverrides
       }
     },
     {
@@ -111,23 +115,23 @@ const pipeline = (env) => {
       { get: 'output-producer-pdf', trigger: true, version: 'every' },
       reportToOutputProducerPdf(Status.ASSIGNED),
       { get: 'cnx-recipes-output' },
-      taskLookUpBook({ inputSource: 'output-producer-pdf', image: { tag: lockedTag } }),
+      taskLookUpBook({ inputSource: 'output-producer-pdf', image: imageOverrides }),
       reportToOutputProducerPdf(Status.PROCESSING),
-      taskFetchBook({ image: { tag: lockedTag } }),
-      taskAssembleBook({ image: { tag: lockedTag } }),
+      taskFetchBook({ image: imageOverrides }),
+      taskAssembleBook({ image: imageOverrides }),
       taskLinkExtras({
-        image: { tag: lockedTag },
+        image: imageOverrides,
         server: 'archive.cnx.org'
       }),
-      taskBakeBook({ image: { tag: lockedTag } }),
-      taskMathifyBook({ image: { tag: lockedTag } }),
+      taskBakeBook({ image: imageOverrides }),
+      taskMathifyBook({ image: imageOverrides }),
       taskValidateXhtml({
-        image: { tag: lockedTag },
+        image: imageOverrides,
         inputSource: 'mathified-book',
         inputPath: 'collection.mathified.xhtml',
         validationNames: ['link-to-duplicate-id']
       }),
-      taskBuildPdf({ bucketName: env.S3_COPS_ARTIFACTS_BUCKET, image: { tag: lockedTag } }),
+      taskBuildPdf({ bucketName: env.S3_COPS_ARTIFACTS_BUCKET, image: imageOverrides }),
       {
         put: 's3-pdf',
         params: {
@@ -151,22 +155,22 @@ const pipeline = (env) => {
       { get: 'output-producer-dist-preview', trigger: true, version: 'every' },
       reportToOutputProducerDistPreview(Status.ASSIGNED),
       { get: 'cnx-recipes-output' },
-      taskLookUpBook({ inputSource: 'output-producer-dist-preview', image: { tag: lockedTag } }),
+      taskLookUpBook({ inputSource: 'output-producer-dist-preview', image: imageOverrides }),
       reportToOutputProducerDistPreview(Status.PROCESSING),
-      taskFetchBook({ image: { tag: lockedTag } }),
-      taskAssembleBook({ image: { tag: lockedTag } }),
+      taskFetchBook({ image: imageOverrides }),
+      taskAssembleBook({ image: imageOverrides }),
       taskLinkExtras({
-        image: { tag: lockedTag },
+        image: imageOverrides,
         server: 'archive.cnx.org'
       }),
-      taskAssembleBookMeta({ image: { tag: lockedTag } }),
-      taskBakeBook({ image: { tag: lockedTag } }),
-      taskBakeBookMeta({ image: { tag: lockedTag } }),
-      taskChecksumBook({ image: { tag: lockedTag } }),
-      taskDisassembleBook({ image: { tag: lockedTag } }),
-      taskJsonifyBook({ image: { tag: lockedTag } }),
+      taskAssembleBookMeta({ image: imageOverrides }),
+      taskBakeBook({ image: imageOverrides }),
+      taskBakeBookMeta({ image: imageOverrides }),
+      taskChecksumBook({ image: imageOverrides }),
+      taskDisassembleBook({ image: imageOverrides }),
+      taskJsonifyBook({ image: imageOverrides }),
       taskValidateXhtml({
-        image: { tag: lockedTag },
+        image: imageOverrides,
         inputSource: 'jsonified-book',
         inputPath: 'jsonified/*@*.xhtml',
         validationNames: ['duplicate-id', 'broken-link']
@@ -178,7 +182,7 @@ const pipeline = (env) => {
         awsSecretAccessKey: awsSecretAccessKey,
         codeVersion: codeVersionFromTag,
         updateQueueState: false,
-        image: { tag: lockedTag }
+        image: imageOverrides
       })
     ],
     on_success: reportToOutputProducerDistPreview(Status.SUCCEEDED, {
