@@ -86,5 +86,5 @@ MathJax.startup.promise.then(() => {
     }
   })
 
-  server.http().listen(3000)
+  server.http().listen(33001)
 }).catch(err => console.log(err))
