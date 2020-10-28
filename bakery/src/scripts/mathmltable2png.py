@@ -1,4 +1,3 @@
-from lxml import etree
 import os
 import io
 import sys
@@ -6,6 +5,8 @@ import requests
 import base64
 import hashlib
 import struct
+from lxml import etree
+from pathlib import Path
 
 DENSITY_DPI = 900
 IMG_SNIPPET = '<img src="{}" alt="{}" width="{}" height="{}" />'
@@ -138,11 +139,14 @@ def main():
     '''main function
     1. Argument: XHTML file with MathML mtable equations
     2. Argument: resource folder
-    3. Argument: destination XHTML file with PNG converted images
+    3. Argument: destination XHTML file with MathML->PNG converted images
     '''
+    xhtml_file = str(Path(sys.argv[1]).resolve(strict=True))
+    resources_dir = str(Path(sys.argv[2]).resolve(strict=True))
+    result_xhtml_file = sys.argv[3]
     if sys.version_info[0] < 3:
         raise Exception("Must be using Python 3")
-    xhtml = etree.parse(sys.argv[1])
+    xhtml = etree.parse(xhtml_file)
     ns = {"h": "http://www.w3.org/1999/xhtml",
           "m": "http://www.w3.org/1998/Math/MathML"}
 
@@ -163,7 +167,10 @@ def main():
                 png_width, png_height = get_png_dimensions(png)
                 if png_width > 0 and png_height > 0:
                     sha1 = hashlib.sha1(png)
-                    png_filename = os.path.join(sys.argv[2], sha1.hexdigest())
+                    png_filename = os.path.join(resources_dir,
+                                                sha1.hexdigest())
+                    # Note: Assumption is that ../resources/xyz
+                    # is the relative path to all resources of the XHTML.
                     relative_resource_filename = '../resources/' + \
                         os.path.basename(png_filename)
                     png_file = open(png_filename, 'wb')
@@ -188,7 +195,8 @@ def main():
             raise Exception(
                 'Failed to generate SVG from MathML of equation: ' + equation)
 
-    print(etree.tostring(xhtml, pretty_print=False).decode('utf-8'))
+    with open(result_xhtml_file, 'wb') as out:
+        out.write(etree.tostring(xhtml, encoding='utf8', pretty_print=False))
 
 
 if __name__ == "__main__":

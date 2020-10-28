@@ -44,7 +44,7 @@ const task = (taskArgs) => {
             metadata_filename="${'${xhtmlfile_basename%.*}'}"-metadata.json
             docx_filename=$(cat "$metadata_filename" | jq -r '.slug').docx
             mathmltable_tempfile="${'${xhtmlfile}'}.mathmltable.tmp"
-            mathmltable2png "$xhtmlfile" "../resources" >$mathmltable_tempfile
+            mathmltable2png "$xhtmlfile" "../resources" "$mathmltable_tempfile"
             wrapped_tempfile="${'${xhtmlfile}'}.greybox.tmp"
             xsltproc --output "$wrapped_tempfile" /code/gdoc/wrap-in-greybox.xsl "$mathmltable_tempfile"
             pandoc --reference-doc="/code/gdoc/custom-reference.docx" --from=html --to=docx --output="../../../$target_dir/$docx_filename" "$wrapped_tempfile"
