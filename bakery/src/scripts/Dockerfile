@@ -3,7 +3,7 @@ FROM python:3.7-slim
 LABEL maintainer="OpenStax Content Engineering"
 
 RUN apt-get update
-RUN apt-get install -y build-essential libicu-dev pkg-config libmagic1 mime-support wget curl xsltproc lsb-release procps
+RUN apt-get install -y build-essential libicu-dev pkg-config libmagic1 mime-support wget curl xsltproc lsb-release
 
 COPY ./requirements.txt /code/scripts/
 WORKDIR /code/
@@ -36,3 +36,4 @@ COPY ./gdoc/ /code/gdoc/
 RUN pip install /code/scripts/.
 
 RUN npm --prefix /code/scripts install /code/scripts
+RUN npm install forever@3.0.2 -g
