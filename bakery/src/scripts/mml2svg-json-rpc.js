@@ -1,4 +1,7 @@
-#! /usr/bin/env -S node -r esm
+/* global MathJax:true */
+
+// run with:
+// node -r esm mml2svg-json-rpc.js
 
 //
 // Mathjax options
@@ -15,7 +18,7 @@ mjopt.dist = false
 //
 // Configure MathJax
 //
-const MathJax = {
+MathJax = {
   options: {
     enableAssistiveMml: mjopt.assistiveMml,
     enableEnrichment: true, // false to disable enrichment
