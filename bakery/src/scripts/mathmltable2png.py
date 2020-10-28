@@ -142,14 +142,14 @@ def main():
     '''
     if sys.version_info[0] < 3:
         raise Exception("Must be using Python 3")
-    f = etree.parse(sys.argv[1])
+    xhtml = etree.parse(sys.argv[1])
     ns = {"h": "http://www.w3.org/1999/xhtml",
           "m": "http://www.w3.org/1998/Math/MathML"}
 
-    for r in f.xpath(
+    for math_node in xhtml.xpath(
             '//h:math[descendant::h:mtable]|//m:math[descendant::m:mtable]',
             namespaces=ns):
-        math_etree = force_math_namespace_only(r)
+        math_etree = force_math_namespace_only(math_node)
         bytes_equation = etree.tostring(
             math_etree, with_tail=False, inclusive_ns_prefixes=None)
         # convert bytes string from lxml to utf-8
@@ -176,7 +176,7 @@ def main():
                         display_width, display_height)
                     img_formatted = etree.fromstring(img_xhtml)
                     # replace MathML with img tag
-                    r.getparent().replace(r, img_formatted)
+                    math_node.getparent().replace(math_node, img_formatted)
                 else:
                     raise Exception(
                         'Failed to get PNG image dimensions of equation'
@@ -188,7 +188,7 @@ def main():
             raise Exception(
                 'Failed to generate SVG from MathML of equation: ' + equation)
 
-    print(etree.tostring(f, pretty_print=False).decode('utf-8'))
+    print(etree.tostring(xhtml, pretty_print=False).decode('utf-8'))
 
 
 if __name__ == "__main__":
