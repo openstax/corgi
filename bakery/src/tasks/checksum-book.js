@@ -33,7 +33,6 @@ const task = (taskArgs) => {
           cp -r baked-book/* checksum-book
           book_dir="checksum-book/$collection_id"
           mkdir "$book_dir/baked"
-          echo test
           find "baked-book/$collection_id/" -maxdepth 1 -type f -exec cp {} $book_dir/baked \;
           checksum "$book_dir" "$book_dir"
         `
