@@ -31,7 +31,7 @@ const task = (taskArgs) => {
           dedent`
           exec 2> >(tee docx-book/stderr >&2)
           pushd /code/scripts
-          forever start -c "node -r esm" mml2svg2png-json-rpc.js
+          pm2 start mml2svg2png-json-rpc.js --node-args="-r esm" --wait-ready --listen-timeout 8000
           popd
           cp -r gdocified-book/* docx-book
           collection_id="$(cat book/collection_id)"
@@ -49,9 +49,7 @@ const task = (taskArgs) => {
             xsltproc --output "$wrapped_tempfile" /code/gdoc/wrap-in-greybox.xsl "$mathmltable_tempfile"
             pandoc --reference-doc="/code/gdoc/custom-reference.docx" --from=html --to=docx --output="../../../$target_dir/$docx_filename" "$wrapped_tempfile"
           done
-          pushd /code/scripts
-          forever stop mml2svg2png-json-rpc.js
-          popd
+          pm2 stop mml2svg2png-json-rpc
         `
         /* eslint-enable no-template-curly-in-string */
         ]

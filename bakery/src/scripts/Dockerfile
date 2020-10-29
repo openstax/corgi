@@ -30,7 +30,7 @@ RUN wget https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pando
 
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
 RUN apt-get install -y nodejs
-RUN npm install forever@3.0.2 -g
+RUN npm install pm2@4.5.0 -g
 
 COPY ./*.py ./*.js ./*.json /code/scripts/
 COPY ./gdoc/ /code/gdoc/

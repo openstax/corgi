@@ -10,7 +10,7 @@ from pathlib import Path
 
 DENSITY_DPI = 900
 IMG_SNIPPET = '<img src="{}" alt="{}" width="{}" height="{}" />'
-JSONRPC_URL = 'http://localhost:3000/jsonrpc'
+JSONRPC_URL = 'http://127.0.0.1:33001/jsonrpc'
 
 
 def force_math_namespace_only(doc):

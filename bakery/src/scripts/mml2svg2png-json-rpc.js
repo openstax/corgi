@@ -1,7 +1,13 @@
 /* global MathJax:true */
 
-// run with:
+// How to run server manually:
 // node -r esm mml2svg2png-json-rpc.js
+//
+// How to run server with pm2:
+// pm2 start mml2svg2png-json-rpc.js --node-args="-r esm" --wait-ready --listen-timeout 8000
+
+// listen port
+const listenPort = 33001
 
 //
 // Mathjax options
@@ -86,5 +92,13 @@ MathJax.startup.promise.then(() => {
     }
   })
 
-  server.http().listen(3000)
+  server.http().listen(listenPort, () => {
+    console.log('Listening on *:' + listenPort)
+    // If running with PM2 (try/catch block) we send ready signal to PM2
+    try {
+      process.send('ready')
+    } catch (err) {
+      // do nothing because not running with PM2
+    }
+  })
 }).catch(err => console.log(err))
