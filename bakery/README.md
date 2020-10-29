@@ -65,6 +65,9 @@ To build the PDF:
 ### New Git-Storage Compatible Tasks
 Git-storage compatible tasks are not ready for use outside of the CE Tech yet.
 The following graph represents the (almost) current state of git-storage compatible tasks. Intermediate states are shown in blue, tasks in yellow.
+This graph is created with yED and the source file for it is located [here](./docs/pipelines.graphml).
+
+
 ![Flow for git-storage compatible pipelines](./docs/pipelines.png)
 
 ### Bakery Concourse Pipeline Config Generator
