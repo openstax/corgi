@@ -108,7 +108,7 @@ S3 to host your feed file):
     {
         "ENV_NAME": "local",
         "COPS_TARGET": "http://backend/api",
-        "S3_COPS_ARTIFACTS_BUCKET": "artifacts-bucket",
+        "COPS_ARTIFACTS_S3_BUCKET": "artifacts-bucket",
         "S3_ACCESS_KEY_ID": "MODIFY ME",
         "S3_SECRET_ACCESS_KEY": "MODIFY_ME",
         "S3_QUEUE_STATE_BUCKET": "ce-rap-dev-dist2",

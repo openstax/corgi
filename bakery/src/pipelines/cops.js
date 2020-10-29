@@ -101,7 +101,7 @@ const pipeline = (env) => {
       name: 's3-pdf',
       type: 's3',
       source: {
-        bucket: env.S3_COPS_ARTIFACTS_BUCKET,
+        bucket: env.COPS_ARTIFACTS_S3_BUCKET,
         access_key_id: awsAccessKeyId,
         secret_access_key: awsSecretAccessKey,
         skip_download: true
@@ -131,7 +131,7 @@ const pipeline = (env) => {
         inputPath: 'collection.mathified.xhtml',
         validationNames: ['link-to-duplicate-id']
       }),
-      taskBuildPdf({ bucketName: env.S3_COPS_ARTIFACTS_BUCKET, image: imageOverrides }),
+      taskBuildPdf({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),
       {
         put: 's3-pdf',
         params: {
@@ -176,7 +176,7 @@ const pipeline = (env) => {
         validationNames: ['duplicate-id', 'broken-link']
       }),
       taskUploadBook({
-        distBucket: env.S3_COPS_ARTIFACTS_BUCKET,
+        distBucket: env.COPS_ARTIFACTS_S3_BUCKET,
         distBucketPath: 'apps/archive-preview/',
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,

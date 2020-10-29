@@ -14,7 +14,7 @@
   "GOOGLE_FOLDER_ID": "",
   "GDOC_QUEUE_FILENAME": "",
   "GDOC_FEED_FILE_URL": "",
-  "S3_COPS_ARTIFACTS_BUCKET": "openstax-sandbox-cops-artifacts",
+  "COPS_ARTIFACTS_S3_BUCKET": "openstax-sandbox-cops-artifacts",
   "DOCKERHUB_USERNAME": "((ce-dockerhub-id))",
   "DOCKERHUB_PASSWORD": "((ce-dockerhub-token))"
 }
