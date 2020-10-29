@@ -31,7 +31,7 @@ const task = (taskArgs) => {
           dedent`
           exec 2> >(tee docx-book/stderr >&2)
           pushd /code/scripts
-          pm2 start mml2svg2png-json-rpc.js --node-args="-r esm"
+          pm2 start mml2svg2png-json-rpc.js --node-args="-r esm" --wait-ready --listen-timeout 8000
           popd
           cp -r gdocified-book/* docx-book
           collection_id="$(cat book/collection_id)"
