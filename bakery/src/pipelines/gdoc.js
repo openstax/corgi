@@ -18,7 +18,7 @@ const pipeline = (env) => {
   const awsSecretAccessKey = env.S3_SECRET_ACCESS_KEY
   const codeVersionFromTag = env.IMAGE_TAG || 'version-unknown'
   const queueFilename = `${codeVersionFromTag}.${env.GDOC_QUEUE_FILENAME}`
-  const parentGoogleFolderId = env.GOOGLE_FOLDER_ID
+  const parentGoogleFolderId = env.GDOC_GOOGLE_FOLDER_ID
   const queueStatePrefix = 'gdoc'
 
   const lockedTag = env.IMAGE_TAG || 'trunk'
