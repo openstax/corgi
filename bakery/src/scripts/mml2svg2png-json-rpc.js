@@ -94,11 +94,11 @@ MathJax.startup.promise.then(() => {
 
   server.http().listen(listenPort, () => {
     console.log('Listening on *:' + listenPort)
-    // If run with PM2 (try/catch block) we send ready signal to PM2
+    // If running with PM2 (try/catch block) we send ready signal to PM2
     try {
       process.send('ready')
     } catch (err) {
-      // do nothing because not run with PM2
+      // do nothing because not running with PM2
     }
   })
 }).catch(err => console.log(err))
