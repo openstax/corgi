@@ -76,15 +76,15 @@ while others pertain only to it:
 * ``S3_ACCESS_KEY_ID``: AWS credential for S3 access
 * ``S3_SECRET_ACCESS_KEY``: AWS credential for S3 access
 * ``QUEUE_FILENAME``: A filename to use for the versioned S3 file
-* ``S3_DIST_BUCKET``: The S3 bucket where the pipeline should upload content (e.g. JSON and XHTML files)
-* ``S3_QUEUE_STATE_BUCKET``: The S3 bucket where the pipeline will create files of two forms:
+* ``DIST_S3_BUCKET``: The S3 bucket where the pipeline should upload content (e.g. JSON and XHTML files)
+* ``DIST_QUEUE_STATE_S3_BUCKET``: The S3 bucket where the pipeline will create files of two forms:
 
     * ``<code version>/.<collection_id>@<version>.complete``: These are code version and book specific
       files indicating completion of a build. Their content inludes an ISO-8601 timestamp of when the ``upload-task`` created and uploaded the marker file.
     * ``<code version>.<QUEUE_FILENAME>``: The code version specific instance of a versioned file used
       by the ``feeder`` and ``bakery`` jobs.
 
-* ``FEED_FILE_URL``: The URL for the input JSON feed
+* ``DIST_FEED_FILE_URL``: The URL for the input JSON feed
 * ``PIPELINE_TICK_INTERVAL``: A string that represents the interval for the periodic tick.
   This should be compatible with the format accepted by the `Concourse time resource <https://github.com/concourse/time-resource#source-configuration>`_.
   (examples: ``30m``, ``1h``, ...)
@@ -93,7 +93,7 @@ while others pertain only to it:
 
 .. important::
     The value of ``QUEUE_FILENAME`` should be selected such that the file ``<code version>.<QUEUE_FILENAME>`` in
-    ``S3_QUEUE_STATE_BUCKET`` has never existed prior to the pipeline being created. The reason being otherwise even "deleting"
+    ``DIST_QUEUE_STATE_S3_BUCKET`` has never existed prior to the pipeline being created. The reason being otherwise even "deleting"
     a file will cause Concourse to see a version preceding the delete, and it will pick it up as a
     job. In production this will be less of a  concern since only pipelines will write to the environment.
     However, for development you can adopt a convention such as ``distribution-queue-<your initials>-<nonce>.json``
@@ -111,9 +111,9 @@ S3 to host your feed file):
         "COPS_ARTIFACTS_S3_BUCKET": "artifacts-bucket",
         "S3_ACCESS_KEY_ID": "MODIFY ME",
         "S3_SECRET_ACCESS_KEY": "MODIFY_ME",
-        "S3_QUEUE_STATE_BUCKET": "ce-rap-dev-dist2",
+        "DIST_QUEUE_STATE_S3_BUCKET": "ce-rap-dev-dist2",
         "QUEUE_FILENAME": "distribution-queue-abc-1.json",
-        "FEED_FILE_URL": "https://ce-rap-dev-dist2.s3.amazonaws.com/distribution-feed.json",
+        "DIST_FEED_FILE_URL": "https://ce-rap-dev-dist2.s3.amazonaws.com/distribution-feed.json",
         "PIPELINE_TICK_INTERVAL": "20m",
         "MAX_BOOKS_PER_TICK": "3"
     }
