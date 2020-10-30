@@ -60,8 +60,8 @@ module.exports.handler = argv => {
     }
     if (argv.pipelinetype === 'cops') {
       return {
-        S3_ACCESS_KEY_ID: env.PDF_BUCKET_AKI_SECRET_NAME,
-        S3_SECRET_ACCESS_KEY: env.PDF_BUCKET_SAK_SECRET_NAME
+        S3_ACCESS_KEY_ID: env.COPS_BUCKET_AKI_SECRET_NAME,
+        S3_SECRET_ACCESS_KEY: env.COPS_BUCKET_SAK_SECRET_NAME
       }
     }
     if (['distribution', 'gdoc'].includes(argv.pipelinetype)) {

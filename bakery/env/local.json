@@ -1,14 +1,14 @@
 {
   "ENV_NAME": "local",
   "COPS_TARGET": "http://backend/api",
-  "S3_DIST_BUCKET": "",
-  "S3_QUEUE_STATE_BUCKET": "",
-  "QUEUE_FILENAME": "",
-  "FEED_FILE_URL": "",
+  "COPS_ARTIFACTS_S3_BUCKET": "",
+  "DIST_FEED_FILE_URL": "",
+  "DIST_S3_BUCKET": "",
+  "DIST_QUEUE_STATE_S3_BUCKET": "",
+  "DIST_QUEUE_FILENAME": "",
   "PIPELINE_TICK_INTERVAL": "",
   "MAX_BOOKS_PER_TICK": "",
-  "GOOGLE_FOLDER_ID": "",
+  "GDOC_GOOGLE_FOLDER_ID": "",
   "GDOC_QUEUE_FILENAME": "",
-  "GDOC_FEED_FILE_URL": "",
-  "S3_COPS_ARTIFACTS_BUCKET": "openstax-sandbox-cops-artifacts"
+  "GDOC_FEED_FILE_URL": ""
 }
