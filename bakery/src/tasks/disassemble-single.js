@@ -36,7 +36,7 @@ const task = (taskArgs) => {
           dedent`
           exec 2> >(tee disassembled-book/stderr >&2)
           slug_name=$(cat ${bookInput}/slug)
-          disassemble-single "${resourceLinkedInput}/$slug_name.resource-linked.xhtml" "${bakedBookMetaInput}/$slug_name.baked-metadata.json" "$slug_name" "${disassembledOutput}"
+          disassemble "${resourceLinkedInput}/$slug_name.resource-linked.xhtml" "${bakedBookMetaInput}/$slug_name.baked-metadata.json" "$slug_name" "${disassembledOutput}"
         `
         ]
       }

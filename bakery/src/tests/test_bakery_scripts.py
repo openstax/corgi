@@ -195,7 +195,11 @@ def test_disassemble_book(tmp_path, mocker):
     mock_version = "0.0"
     mock_ident_hash = f"{mock_uuid}@{mock_version}"
 
-    mocker.patch("sys.argv", ["", input_dir, mock_uuid, mock_version])
+    mocker.patch("sys.argv", ["",
+                              str(input_baked_xhtml_file),
+                              str(input_baked_metadata_file),
+                              "collection",
+                              str(disassembled_output)])
     disassemble_book.main()
 
     xhtml_output_files = glob(f"{disassembled_output}/*.xhtml")
@@ -267,7 +271,11 @@ def test_disassemble_book_empty_baked_metadata(tmp_path, mocker):
     mock_version = "0.0"
     mock_ident_hash = f"{mock_uuid}@{mock_version}"
 
-    mocker.patch("sys.argv", ["", input_dir, mock_uuid, mock_version])
+    mocker.patch("sys.argv", ["",
+                              str(input_baked_xhtml_file),
+                              str(input_baked_metadata_file),
+                              "collection",
+                              str(disassembled_output)])
     disassemble_book.main()
 
     # Check for expected files and metadata that should be generated in this

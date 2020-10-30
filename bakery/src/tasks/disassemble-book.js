@@ -36,10 +36,10 @@ const task = (taskArgs) => {
           book_uuid="$(cat $book_metadata | jq -r '.id')"
           book_version="$(cat $book_metadata | jq -r '.version')"
           cp -r checksum-book/* disassembled-book
-          cp "baked-book-metadata/$collection_id/collection.baked-metadata.json" "disassembled-book/$collection_id/collection.baked-metadata.json"
           book_dir="disassembled-book/$collection_id"
+          cp "baked-book-metadata/$collection_id/collection.baked-metadata.json" "$book_dir/collection.baked-metadata.json"
           mkdir "$book_dir/disassembled"
-          disassemble "$book_dir" "$book_uuid" "$book_version"
+          disassemble "$book_dir/collection.baked.xhtml" "$book_dir/collection.baked-metadata.json" "collection" "$book_dir/disassembled"
         `
         ]
       }

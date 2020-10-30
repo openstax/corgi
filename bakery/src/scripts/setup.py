@@ -52,7 +52,6 @@ setup(
             'link-single = bakery_scripts.link_single:main',
             'bake-meta = bakery_scripts.bake_book_metadata:main',
             'disassemble = bakery_scripts.disassemble_book:main',
-            'disassemble-single = bakery_scripts.disassemble_single:main',
             'checksum = bakery_scripts.checksum_resource:main',
             'jsonify = bakery_scripts.jsonify_book:main',
             'check-feed = bakery_scripts.check_feed:main',
