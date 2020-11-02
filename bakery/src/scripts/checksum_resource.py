@@ -139,7 +139,7 @@ def mkdir_resources(path):
 def main():
     """Main function"""
     in_dir = Path(sys.argv[1]).resolve(strict=True)
-    out_dir = in_dir  # overwrite baked book xhtml files
+    out_dir = Path(sys.argv[2])
     mkdir_resources(out_dir)
     for xhtml_file in Path(in_dir).glob('*.xhtml'):
         generate_checksum_resources_from_xhtml(str(xhtml_file), out_dir)

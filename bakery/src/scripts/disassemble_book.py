@@ -39,20 +39,17 @@ def extract_slugs_from_binder(binder):
 
 def main():
     """Main function"""
-    in_dir = Path(sys.argv[1]).resolve(strict=True)
-    out_dir = (in_dir / "disassembled").resolve(strict=True)
-    collection_uuid, collection_version = sys.argv[2:4]
-    baked_file = (in_dir / "collection.baked.xhtml").resolve(strict=True)
-    baked_metdata_file = \
-        (in_dir / "collection.baked-metadata.json").resolve(strict=True)
+    xhtml_file = Path(sys.argv[1]).resolve(strict=True)
+    metadata_file = Path(sys.argv[2]).resolve(strict=True)
+    book_slug = sys.argv[3]
+    out_dir = Path(sys.argv[4])
 
-    with open(baked_file, "rb") as file:
+    with open(xhtml_file, "rb") as file:
         html_root = etree.parse(file)
         binder = reconstitute(file)
-
         slugs = extract_slugs_from_binder(binder)
 
-    with open(baked_metdata_file, "r") as baked_json:
+    with open(metadata_file, "r") as baked_json:
         baked_metadata = json.load(baked_json)
         book_toc_metadata = baked_metadata.get(binder.ident_hash)
 
@@ -67,7 +64,7 @@ def main():
     nav_links = toc.xpath("//xhtml:a", namespaces=HTML_DOCUMENT_NAMESPACES)
 
     for doc in flatten_to_documents(binder):
-        id_with_context = f'{collection_uuid}@{collection_version}:{doc.id}'
+        id_with_context = f'{binder.ident_hash}:{doc.id}'
 
         module_etree = content_to_etree(doc.content)
         for link in nav_links:
@@ -185,10 +182,10 @@ def main():
                 json_out
             )
 
-    with open(f"{out_dir}/collection.toc.xhtml", "wb") as out:
+    with open(f"{out_dir}/{book_slug}.toc.xhtml", "wb") as out:
         out.write(etree.tostring(toc, encoding="utf8", pretty_print=True))
 
-    with open(f"{out_dir}/collection.toc-metadata.json", "w") as toc_json:
+    with open(f"{out_dir}/{book_slug}.toc-metadata.json", "w") as toc_json:
         json.dump(book_toc_metadata, toc_json)
 
 

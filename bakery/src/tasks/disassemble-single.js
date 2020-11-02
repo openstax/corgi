@@ -10,8 +10,13 @@ const task = (taskArgs) => {
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
+  const bookInput = 'book'
+  const resourceLinkedInput = 'resource-linked-single'
+  const bakedBookMetaInput = 'baked-book-metadata-group'
+  const disassembledOutput = 'disassembled-single'
+
   return {
-    task: 'checksum book',
+    task: 'disassemble book',
     config: {
       platform: 'linux',
       image_resource: {
@@ -19,22 +24,19 @@ const task = (taskArgs) => {
         source: imageSource
       },
       inputs: [
-        { name: 'book' },
-        { name: 'baked-book' }
+        { name: bookInput },
+        { name: resourceLinkedInput },
+        { name: bakedBookMetaInput }
       ],
-      outputs: [{ name: 'checksum-book' }],
+      outputs: [{ name: disassembledOutput }],
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee checksum-book/stderr >&2)
-          collection_id="$(cat book/collection_id)"
-          cp -r baked-book/* checksum-book
-          book_dir="checksum-book/$collection_id"
-          mkdir "$book_dir/baked"
-          find "baked-book/$collection_id/" -maxdepth 1 -type f -exec cp {} $book_dir/baked \;
-          checksum "$book_dir" "$book_dir"
+          exec 2> >(tee disassembled-book/stderr >&2)
+          slug_name=$(cat ${bookInput}/slug)
+          disassemble "${resourceLinkedInput}/$slug_name.resource-linked.xhtml" "${bakedBookMetaInput}/$slug_name.baked-metadata.json" "$slug_name" "${disassembledOutput}"
         `
         ]
       }

@@ -10,8 +10,12 @@ const task = (taskArgs) => {
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
+  const bookInput = 'book'
+  const disassembledInput = 'disassembled-single'
+  const jsonifiedOutput = 'jsonified-single'
+
   return {
-    task: 'checksum book',
+    task: 'jsonify book',
     config: {
       platform: 'linux',
       image_resource: {
@@ -19,22 +23,21 @@ const task = (taskArgs) => {
         source: imageSource
       },
       inputs: [
-        { name: 'book' },
-        { name: 'baked-book' }
+        { name: bookInput },
+        { name: disassembledInput }
       ],
-      outputs: [{ name: 'checksum-book' }],
+      outputs: [{ name: jsonifiedOutput }],
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee checksum-book/stderr >&2)
-          collection_id="$(cat book/collection_id)"
-          cp -r baked-book/* checksum-book
-          book_dir="checksum-book/$collection_id"
-          mkdir "$book_dir/baked"
-          find "baked-book/$collection_id/" -maxdepth 1 -type f -exec cp {} $book_dir/baked \;
-          checksum "$book_dir" "$book_dir"
+          exec 2> >(tee jsonified-book/stderr >&2)
+          jsonify "${disassembledInput}" "${jsonifiedOutput}"
+          jsonschema -i "${jsonifiedOutput}/$(cat ${bookInput}/slug).toc.json" /code/scripts/book-schema.json
+          for jsonfile in "${jsonifiedOutput}/"*@*.json; do
+            jsonschema -i "$jsonfile" /code/scripts/page-schema.json
+          done
         `
         ]
       }

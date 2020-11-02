@@ -82,7 +82,7 @@ def test_checksum_resource(tmp_path, mocker):
 
     mocker.patch(
         "sys.argv",
-        ["", book_dir]
+        ["", book_dir, book_dir]
     )
     checksum_resource.main()
 
@@ -195,7 +195,11 @@ def test_disassemble_book(tmp_path, mocker):
     mock_version = "0.0"
     mock_ident_hash = f"{mock_uuid}@{mock_version}"
 
-    mocker.patch("sys.argv", ["", input_dir, mock_uuid, mock_version])
+    mocker.patch("sys.argv", ["",
+                              str(input_baked_xhtml_file),
+                              str(input_baked_metadata_file),
+                              "collection",
+                              str(disassembled_output)])
     disassemble_book.main()
 
     xhtml_output_files = glob(f"{disassembled_output}/*.xhtml")
@@ -267,7 +271,11 @@ def test_disassemble_book_empty_baked_metadata(tmp_path, mocker):
     mock_version = "0.0"
     mock_ident_hash = f"{mock_uuid}@{mock_version}"
 
-    mocker.patch("sys.argv", ["", input_dir, mock_uuid, mock_version])
+    mocker.patch("sys.argv", ["",
+                              str(input_baked_xhtml_file),
+                              str(input_baked_metadata_file),
+                              "collection",
+                              str(disassembled_output)])
     disassemble_book.main()
 
     # Check for expected files and metadata that should be generated in this
@@ -818,12 +826,21 @@ def test_link_extras_page_slug_resolver(requests_mock):
 
 def test_assemble_book_metadata(tmp_path, mocker):
     """Test assemble_book_metadata script"""
-    input_assembled_book = os.path.join(TEST_DATA_DIR, "assembled-book")
+    input_assembled_book = os.path.join(TEST_DATA_DIR,
+                                        "assembled-book",
+                                        "collection.assembled.xhtml")
+
+    input_uuid_to_revised = tmp_path / "uuid-to-revised-map.json"
+    with open(input_uuid_to_revised, 'w') as f:
+        json.dump({
+            "m42119": "2018/08/03 15:49:52 -0500",
+            "m42092": "2018/09/18 09:55:13.413 GMT-5"
+        }, f)
 
     assembled_metadata_output = tmp_path / "collection.assembed-metadata.json"
 
     mocker.patch(
-        "sys.argv", ["", input_assembled_book, assembled_metadata_output]
+        "sys.argv", ["", input_assembled_book, input_uuid_to_revised, assembled_metadata_output]
     )
     assemble_book_metadata.main()
 

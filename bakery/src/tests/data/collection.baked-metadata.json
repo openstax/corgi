@@ -1,13 +1,13 @@
 {
-    "col11406@1.17": {
+    "00000000-0000-0000-0000-000000000000@0.0": {
         "title" : "College Physics",
         "legacy_id" : "col11406",
-        "legacy_version": "1.17",
+        "legacy_version": "0.0",
         "license" : {
             "url": "http://creativecommons.org/licenses/by/4.0/"
         },
         "tree": {
-            "id": "col11406@1.17",
+            "id": "00000000-0000-0000-0000-000000000000@0.0",
             "slug": "college-physics",
             "title": "College Physics",
             "contents": [{
