@@ -309,9 +309,10 @@ const tasks = {
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
+      const nebGetFlags = argv.requestLimit == null ? '' : `--request-limit ${argv.requestLimit}`
       const taskArgs = imageDetails == null
         ? []
-        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+        : [`--taskargs=${JSON.stringify({ ...imageDetails, nebGetFlags: nebGetFlags })}`]
       const taskContent = execFileSync(buildExec, ['task', 'fetch-book', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
@@ -344,6 +345,10 @@ const tasks = {
         }).positional('version', {
           describe: 'version of collection to fetch',
           type: 'string'
+        }).option('l', {
+          alias: 'request-limit',
+          describe: 'maximum number of concurrent requests to make',
+          type: 'number'
         })
       },
       handler: argv => {

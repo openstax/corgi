@@ -8,6 +8,7 @@ const task = (taskArgs) => {
     tag: 'trunk'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
+  const nebGetFlags = taskArgs != null && taskArgs.nebGetFlags != null ? taskArgs.nebGetFlags : ''
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
   const bookSlugsUrl = 'https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/book-slugs.json'
 
@@ -30,7 +31,7 @@ const task = (taskArgs) => {
           exec 2> >(tee fetched-book/stderr >&2)
           cd fetched-book
           book_dir="$(cat ../book/collection_id)"
-          yes | neb get -r -d "$book_dir/raw" "$(cat ../book/server)" "$(cat ../book/collection_id)" "$(cat ../book/version)"
+          yes | neb get ${nebGetFlags} -r -d "$book_dir/raw" "$(cat ../book/server)" "$(cat ../book/collection_id)" "$(cat ../book/version)"
           wget ${bookSlugsUrl} -O "$book_dir/book-slugs.json"
         `
         ]
