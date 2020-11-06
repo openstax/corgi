@@ -23,6 +23,7 @@ const pipeline = (env) => {
     tag: lockedTag,
     ...env.dockerCredentials
   }
+  const buildLogRetentionDays = 14
 
   // FIXME: These mappings should be in the COPS resource
   const JobType = Object.freeze({
@@ -111,6 +112,9 @@ const pipeline = (env) => {
 
   const pdfJob = {
     name: 'PDF',
+    build_log_retention: {
+      days: buildLogRetentionDays
+    },
     plan: [
       { get: 'output-producer-pdf', trigger: true, version: 'every' },
       reportToOutputProducerPdf(Status.ASSIGNED),
@@ -151,6 +155,9 @@ const pipeline = (env) => {
 
   const distPreviewJob = {
     name: 'Distribution Preview',
+    build_log_retention: {
+      days: buildLogRetentionDays
+    },
     plan: [
       { get: 'output-producer-dist-preview', trigger: true, version: 'every' },
       reportToOutputProducerDistPreview(Status.ASSIGNED),
