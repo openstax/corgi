@@ -1,6 +1,6 @@
-const dedent = require('dedent')
-
 const { constructImageSource } = require('../task-util/task-util')
+const fs = require('fs')
+const path = require('path')
 
 const task = (taskArgs) => {
   const { githubSecretCreds } = taskArgs
@@ -14,9 +14,10 @@ const task = (taskArgs) => {
   const bookInput = 'book'
   const bookSlugsUrl = 'https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/book-slugs.json'
   const outputName = 'fetched-book-group'
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/assemble_book_group.sh'), { encoding: "utf-8" })
 
   return {
-    task: 'fetch book',
+    task: 'fetch book group',
     config: {
       platform: 'linux',
       image_resource: {
@@ -29,20 +30,17 @@ const task = (taskArgs) => {
         COLUMNS: 80,
         GH_SECRET_CREDS: githubSecretCreds
       },
+      params: {
+        BOOK_INPUT: bookInput,
+        GH_SECRET_CREDS: githubSecretCreds,
+        OUTPUT_NAME: outputName,
+        BOOK_SLUGS_URL: bookSlugsUrl
+      },
       run: {
         path: '/bin/sh',
         args: [
           '-cxe',
-          dedent`
-          reference=$(cat ${bookInput}/version)
-          [[ "$reference" = latest ]] && reference=master
-          set +x
-          # Do not show creds
-          remote="https://$GH_SECRET_CREDS@github.com/openstax/$(cat ${bookInput}/repo).git"
-          git clone --depth 1 "$remote" --branch "$reference" "${outputName}/raw"
-          set -x
-          wget ${bookSlugsUrl} -O "${outputName}/book-slugs.json"
-        `
+          shellScript
         ]
       }
     }

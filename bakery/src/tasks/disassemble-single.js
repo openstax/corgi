@@ -1,6 +1,7 @@
-const dedent = require('dedent')
-
 const { constructImageSource } = require('../task-util/task-util')
+
+const fs = require('fs')
+const path = require('path')
 
 const task = (taskArgs) => {
   const imageDefault = {
@@ -14,6 +15,7 @@ const task = (taskArgs) => {
   const resourceLinkedInput = 'resource-linked-single'
   const bakedBookMetaInput = 'baked-book-metadata-group'
   const disassembledOutput = 'disassembled-single'
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/disassemble_single.sh'), { encoding: "utf-8" })
 
   return {
     task: 'disassemble book',
@@ -29,15 +31,17 @@ const task = (taskArgs) => {
         { name: bakedBookMetaInput }
       ],
       outputs: [{ name: disassembledOutput }],
+      params: {
+        BOOK_INPUT: bookInput,
+        RESOURCE_LINKED_INPUT: resourceLinkedInput,
+        BAKED_BOOK_META_INPUT: bakedBookMetaInput,
+        DISASSEMBLED_OUTPUT: disassembledOutput
+      },
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
-          dedent`
-          exec 2> >(tee disassembled-book/stderr >&2)
-          slug_name=$(cat ${bookInput}/slug)
-          disassemble "${resourceLinkedInput}/$slug_name.resource-linked.xhtml" "${bakedBookMetaInput}/$slug_name.baked-metadata.json" "$slug_name" "${disassembledOutput}"
-        `
+          shellScript
         ]
       }
     }

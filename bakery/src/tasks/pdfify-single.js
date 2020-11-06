@@ -1,6 +1,7 @@
-const dedent = require('dedent')
-
 const { constructImageSource } = require('../task-util/task-util')
+
+const fs = require('fs')
+const path = require('path')
 
 const task = (taskArgs) => {
   const { bucketName } = taskArgs
@@ -17,6 +18,7 @@ const task = (taskArgs) => {
   const styleInput = 'group-style'
   const mathifiedInput = 'mathified-single'
   const artifactsOutput = 'artifacts-single'
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/pdfify_single.sh'), { encoding: "utf-8" })
 
   return {
     task: 'build pdf',
@@ -34,21 +36,21 @@ const task = (taskArgs) => {
         { name: mathifiedInput }
       ],
       outputs: [{ name: artifactsOutput }],
+      params: {
+        ARTIFACTS_OUTPUT: artifactsOutput,
+        SYMLINK_INPUT: symlinkInput,
+        MATHIFIED_INPUT: mathifiedInput,
+        STYLE_INPUT: styleInput,
+        BUCKET_NAME: bucketName,
+        BOOK_INPUT: bookInput,
+        ARTIFACTS_OUTPUT: artifactsOutput
+      },
       run: {
         user: 'root',
         path: '/bin/bash',
         args: [
           '-cxe',
-          dedent`
-          exec 2> >(tee ${artifactsOutput}/stderr >&2)
-
-          # Inject symlinks and style so that princexml can use them
-          find "${symlinkInput}" -type l | xargs -I{} cp -P {} "${mathifiedInput}"
-          cp ${styleInput}/* ${mathifiedInput}
-
-          echo -n "https://${bucketName}.s3.amazonaws.com/$(cat ${bookInput}/pdf_filename)" > ${artifactsOutput}/pdf_url
-          prince -v --output="${artifactsOutput}/$(cat ${bookInput}/pdf_filename)" "${mathifiedInput}/$(cat ${bookInput}/slug).mathified.xhtml"
-        `
+          shellScript
         ]
       }
     }

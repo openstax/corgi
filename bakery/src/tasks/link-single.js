@@ -1,6 +1,7 @@
-const dedent = require('dedent')
-
 const { constructImageSource } = require('../task-util/task-util')
+
+const fs = require('fs')
+const path = require('path')
 
 const task = (taskArgs) => {
   const imageDefault = {
@@ -15,6 +16,7 @@ const task = (taskArgs) => {
   const bakedInput = 'baked-book-group'
   const bakedMetaInput = 'baked-book-metadata-group'
   const linkedOutput = 'linked-single'
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/link_single.sh'), { encoding: "utf-8" })
 
   return {
     task: 'link group',
@@ -31,19 +33,18 @@ const task = (taskArgs) => {
         { name: bakedMetaInput }
       ],
       outputs: [{ name: linkedOutput }],
+      params: {
+        LINKED_OUTPUT: linkedOutput,
+        FETCHED_INPUT: fetchedInput,
+        BAKED_INPUT: bakedInput,
+        BAKED_META_INPUT: bakedMetaInput,
+        BOOK_INPUT: bookInput,
+      },
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
-          dedent`
-          exec 2> >(tee ${linkedOutput}/stderr >&2)
-          echo "{" > module-canonicals.json
-          find ${fetchedInput}/raw/modules/ -path *metadata.json | xargs cat | jq -r '. | "\"\(.id)\": \"\(.canonical)\","' >> module-canonicals.json
-          echo '"dummy": "dummy"' >> module-canonicals.json
-          echo "}" >> module-canonicals.json
-
-          link-single "${bakedInput}" "${bakedMetaInput}" "$(cat ${bookInput}/slug)" "${fetchedInput}/book-slugs.json" module-canonicals.json "${linkedOutput}/$(cat ${bookInput}/slug).linked.xhtml"
-          `
+          shellScript
         ]
       }
     }
