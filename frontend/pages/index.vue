@@ -152,7 +152,7 @@
         :items="jobs"
         :disable-pagination="true"
         :hide-default-footer="true"
-        class="elevation-1"
+        class="elevation-1 jobs-table"
       >
         <template v-slot:item.created_at="{ item }">
           <span>

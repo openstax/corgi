@@ -50,7 +50,7 @@ class JobBase(BaseModel):
     status_id: str
     pdf_url: Optional[str] = None
     content_server_id: Optional[str] = None
-    version: str = None  # Git: ref
+    version: Optional[str] = None  # Git: ref
     style: Optional[str] = None
     job_type_id: str
 

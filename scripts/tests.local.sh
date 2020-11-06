@@ -15,6 +15,7 @@ docker-compose \
     -f docker-compose.shared.depends.yml \
     -f docker-compose.shared.env.yml \
     -f docker-compose.dev.build.yml \
+    -f docker-compose.dev.command.yml \
     -f docker-compose.dev.images.yml \
     -f docker-compose.dev.env.yml \
     -f docker-compose.dev.labels.yml \
