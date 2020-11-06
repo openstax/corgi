@@ -14,7 +14,7 @@ const task = (taskArgs) => {
   const bookInput = 'book'
   const bookSlugsUrl = 'https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/book-slugs.json'
   const outputName = 'fetched-book-group'
-  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/assemble_book_group.sh'), { encoding: "utf-8" })
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/fetch_book_group.sh'), { encoding: "utf-8" })
 
   return {
     task: 'fetch book group',

@@ -1,7 +1,7 @@
-exec 2> >(tee $linkedOutput/stderr >&2)
+exec 2> >(tee $LINKED_OUTPUT/stderr >&2)
 echo "{" > module-canonicals.json
-find $fetchedInput/raw/modules/ -path *metadata.json | xargs cat | jq -r '. | "\"\(.id)\": \"\(.canonical)\","' >> module-canonicals.json
+find $FETCHED_INPUT/raw/modules/ -path *metadata.json | xargs cat | jq -r '. | "\"\(.id)\": \"\(.canonical)\","' >> module-canonicals.json
 echo '"dummy": "dummy"' >> module-canonicals.json
 echo "}" >> module-canonicals.json
 
-link-single "$bakedInput" "$bakedMetaInput" "$(cat ${bookInput}/slug)" "$fetchedInput/book-slugs.json" module-canonicals.json "$linkedOutput/$(cat $bookInput/slug).linked.xhtml"
+link-single "$BAKED_INPUT" "$BAKED_META_INPUT" "$(cat ${BOOK_INPUT}/slug)" "$FETCHED_INPUT/book-slugs.json" module-canonicals.json "$LINKED_OUTPUT/$(cat $BOOK_INPUT/slug).linked.xhtml"

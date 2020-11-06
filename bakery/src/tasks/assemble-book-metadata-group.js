@@ -33,7 +33,7 @@ const task = (taskArgs) => {
         FETCHED_INPUT: fetchedInput
       },
       run: {
-        path: './task-scripts/assemble_book_metadata_group.sh',
+        path: '/bin/bash',
         args: [
           '-cxe',
           shellScript
