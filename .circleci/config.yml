@@ -122,3 +122,5 @@ workflows:
       - lint-bakery
       - shellcheck/check:
           path: ./scripts
+      - shellcheck/check:
+          path: ./bakery/src/scripts
