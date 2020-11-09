@@ -15,6 +15,7 @@ docker-compose \
     -f docker-compose.shared.depends.yml \
     -f docker-compose.shared.env.yml \
     -f docker-compose.dev.build.yml \
+    -f docker-compose.dev.command.yml \
     -f docker-compose.dev.images.yml \
     -f docker-compose.dev.env.yml \
     -f docker-compose.dev.labels.yml \
@@ -22,8 +23,6 @@ docker-compose \
     -f docker-compose.dev.ports.yml \
     -f docker-compose.dev.volumes.yml \
     config > docker-stack.yml
-
-#    -f docker-compose.dev.command.yml \
 
 docker-compose -f docker-stack.yml build
 docker-compose -f docker-stack.yml down -v --remove-orphans # Remove possibly previous broken stacks left hanging after an error

@@ -28,7 +28,8 @@ def test_jobs_post_request_successful(api_url):
     data = {
         "collection_id": "abc123",
         "status_id": "1",
-        "content_server_id": "1"
+        "content_server_id": "1",
+        "job_type_id": "1"
     }
 
     # WHEN: A POST request is made to the url with data
@@ -43,4 +44,5 @@ def test_jobs_post_request_successful(api_url):
     assert response["collection_id"] == "abc123"
     assert response["content_server"]["hostname"] == "content01.cnx.org"
     assert response["status"]["name"] == "queued"
+    assert response["job_type"]["name"] == "pdf"
 

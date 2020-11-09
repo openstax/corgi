@@ -41,13 +41,15 @@
                     <v-radio-group v-model="jobType" row mandatory :default="jobTypes.PDF">
                       <v-radio label="PDF" :value="jobTypes.PDF" class="pdf-radio-button"></v-radio>
                       <v-radio label="Distribution Preview" :value="jobTypes.DIST_PREVIEW" class="preview-radio-button"></v-radio>
+                      <v-radio disabled label="PDF (git)" :value="jobTypes.GIT_PDF" class="git-pdf-radio-button"></v-radio>
+                      <v-radio disabled label="Distribution Preview (git)" :value="jobTypes.GIT_DIST_PREVIEW" class="git-preview-radio-button"></v-radio>
                     </v-radio-group>
                   </v-row>
                   <v-row>
                     <v-col cols="12" sm="3" md="3">
                       <v-text-field
                         v-model="collectionId"
-                        :rules="[v => !!v || 'Collection ID is required', v => /^col\d*$/.test(v) || 'A valid collection ID is required, e.g. col12345']"
+                        :rules="usingArchive() ? collectionRules : gitCollectionRules"
                         label="Collection ID"
                         class="collection-id-error-text collection-id-incorrect-error-text collection-id-field"
                         hint="e.g. col12345"
@@ -66,8 +68,9 @@
                     <v-col cols="12" sm="3" md="3">
                       <v-combobox
                         v-model="style"
-                        :rules="[v => !!v || 'Style is required']"
+                        :rules="usingArchive() ? styleRules : []"
                         :items="styleItems"
+                        :disabled="!usingArchive()"
                         hint="e.g. microbiology"
                         label="Style"
                         class="style-error-text style-field"
@@ -78,7 +81,8 @@
                       <v-select
                         v-model="contentServerId"
                         :items="content_servers"
-                        :rules="[v => !!v || 'Please select a server']"
+                        :rules="usingArchive() ? serverRules : []"
+                        :disabled="!usingArchive()"
                         label="Content Server"
                         class="server-error-text server-field"
                         required
@@ -97,7 +101,7 @@
               <v-btn @click="closeDialog()" class="job-cancel-button" color="blue darken-1" text>
                 Cancel
               </v-btn>
-              <v-btn @click="clickCollection(collectionId, contentServerId, version, style, jobType)" class="create-button-start-job" color="blue darken-1" text>
+              <v-btn @click="clickCollection(collectionId, maybeContentServerId, version, maybeStyle, jobType)" class="create-button-start-job" color="blue darken-1" text>
                 Create
               </v-btn>
             </v-card-actions>
@@ -148,7 +152,7 @@
         :items="jobs"
         :disable-pagination="true"
         :hide-default-footer="true"
-        class="elevation-1"
+        class="elevation-1 jobs-table"
       >
         <template v-slot:item.created_at="{ item }">
           <span>
@@ -192,26 +196,7 @@
 
 export default {
   data () {
-    // This value corresponds to the seeded id in the backend
-    this.jobTypes = { PDF: 1, DIST_PREVIEW: 2 }
     return {
-      headers: [
-        {
-          text: 'Job ID',
-          align: 'left',
-          sortable: true,
-          value: 'id'
-        },
-        { text: 'Job Type', value: 'job_type_name' },
-        { text: 'Collection ID', value: 'collection_id' },
-        { text: 'Version', value: 'version' },
-        { text: 'Style', value: 'style' },
-        { text: 'Start Date and Time', value: 'created_at' },
-        { text: 'Download URL', value: 'pdf_url' },
-        { text: 'Status', value: 'status_name' },
-        { text: 'Content Server', value: 'content_server_name' },
-        { text: 'Updated at', value: 'updated_at' }
-      ],
       dialog: false,
       collectionId: '',
       version: '',
@@ -225,40 +210,6 @@ export default {
       page_limit: 50,
       goto_page_limit: '50',
       valid: false,
-      collectionRules: [
-        v => !!v || 'Collection ID is required',
-        v => /^col\d*$/.test(v) || 'A valid collection ID is required, e.g. col12345'
-      ],
-      styleItems: [
-        'accounting',
-        'american-government',
-        'anatomy',
-        'ap-biology',
-        'ap-history',
-        'ap-physics',
-        'astronomy',
-        'biology',
-        'business-ethics',
-        'calculus',
-        'chemistry',
-        'college-success',
-        'dev-math',
-        'economics',
-        'entrepreneurship',
-        'history',
-        'hs-physics',
-        'intro-business',
-        'microbiology',
-        'college-physics',
-        'pl-u-physics',
-        'precalculus',
-        'precalculus-coreq',
-        'principles-management',
-        'psychology',
-        'sociology',
-        'statistics',
-        'u-physics'
-      ]
     }
   },
   computed: {
@@ -267,7 +218,76 @@ export default {
     },
     content_servers () {
       return this.$store.getters.content_servers_items
+    },
+    maybeContentServerId () {
+      return this.usingArchive() ? this.contentServerId : null
+    },
+    maybeStyle () {
+      return this.usingArchive() ? this.style : null
     }
+  },
+  // Init non-reactive data
+  beforeCreate () {
+    this.styleItems = [
+      'accounting',
+      'american-government',
+      'anatomy',
+      'ap-biology',
+      'ap-history',
+      'ap-physics',
+      'astronomy',
+      'biology',
+      'business-ethics',
+      'calculus',
+      'chemistry',
+      'college-success',
+      'dev-math',
+      'economics',
+      'entrepreneurship',
+      'history',
+      'hs-physics',
+      'intro-business',
+      'microbiology',
+      'college-physics',
+      'pl-u-physics',
+      'precalculus',
+      'precalculus-coreq',
+      'principles-management',
+      'psychology',
+      'sociology',
+      'statistics',
+      'u-physics'
+    ]
+    this.collectionRules = [
+      v => !!v || 'Collection ID is required',
+      v => /^col\d*$/.test(v) || 'A valid collection ID is required, e.g. col12345'
+    ],
+    this.styleRules = [v => !!v || 'Style is required']
+    this.serverRules = [v => !!v || 'Please select a server']
+    this.gitCollectionRules = [
+      v => !!v || 'Repo and slug are required',
+      v => /[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+/.test(v) || 'repo-name/slug-name'
+    ]
+    this.usingArchive = () => [1,2].includes(this.jobType)
+    this.headers = [
+      {
+        text: 'Job ID',
+        align: 'left',
+        sortable: true,
+        value: 'id'
+      },
+      { text: 'Job Type', value: 'job_type_name' },
+      { text: 'Collection ID', value: 'collection_id' },
+      { text: 'Version', value: 'version' },
+      { text: 'Style', value: 'style' },
+      { text: 'Start Date and Time', value: 'created_at' },
+      { text: 'Download URL', value: 'pdf_url' },
+      { text: 'Status', value: 'status_name' },
+      { text: 'Content Server', value: 'content_server_name' },
+      { text: 'Updated at', value: 'updated_at' }
+    ],
+    // This value corresponds to the seeded id in the backend
+    this.jobTypes = { PDF: 1, DIST_PREVIEW: 2, GIT_PDF: 3, GIT_DIST_PREVIEW: 4 }
   },
   created () {
     this.getJobsImmediate()

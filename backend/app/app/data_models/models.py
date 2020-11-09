@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from pydantic import BaseModel
+from typing import Optional
 
 
 class StatusBase(BaseModel):
@@ -30,7 +31,13 @@ class ContentServer(ContentServerBase):
 class JobTypeBase(BaseModel):
     name: str
 
-
+# Types:
+### Archive
+# 1: pdf
+# 2: distribution-preview
+### Git
+# 3: git-pdf
+# 4: git-distribution-preview
 class JobType(JobTypeBase):
     id: str
 
@@ -39,13 +46,13 @@ class JobType(JobTypeBase):
 
 
 class JobBase(BaseModel):
-    collection_id: str
+    collection_id: str  # Git: '{repo}/{slug}'
     status_id: str
-    pdf_url: str = None
-    content_server_id: str
-    version: str = None
-    style: str = None
-    job_type_id: str = "1"
+    pdf_url: Optional[str] = None
+    content_server_id: Optional[str] = None
+    version: Optional[str] = None  # Git: ref
+    style: Optional[str] = None
+    job_type_id: str
 
 
 class JobCreate(JobBase):
@@ -62,7 +69,7 @@ class Job(JobBase):
     created_at: datetime
     updated_at: datetime
     status: Status
-    content_server: ContentServer
+    content_server: Optional[ContentServer]
     job_type: JobType
 
     class Config:
