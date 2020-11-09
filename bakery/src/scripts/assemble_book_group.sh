@@ -1,4 +1,7 @@
-exec 2> >(tee ${ASSEMBLED_OUTPUT}/stderr >&2)
+#!/bin/bash
+
+exec 2> >(tee "${ASSEMBLED_OUTPUT}/stderr" >&2)
+
 for collection in $(find "${RAW_COLLECTION_DIR}/collections/" -type f); do
     slug_name=$(basename "$collection" | awk -F'[.]' '{ print $1; }')
     rm -rf temp-assembly

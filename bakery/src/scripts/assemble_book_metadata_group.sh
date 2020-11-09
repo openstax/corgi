@@ -1,4 +1,7 @@
-exec 2> >(tee ${OUTPUT_NAME}/stderr >&2)
+#!/bin/bash
+
+exec 2> >(tee "${OUTPUT_NAME}/stderr" >&2)
+
 for collection in $(find "${ASSEMBLED_INPUT}/" -path *.assembled.xhtml -type f); do
     slug_name=$(basename "$collection" | awk -F'[.]' '{ print $1; }')
 

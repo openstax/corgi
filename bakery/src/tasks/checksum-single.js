@@ -17,7 +17,7 @@ const task = (taskArgs) => {
   const linkedInput = 'linked-single'
   const resourcesOutput = 'checksum-resources'
   const resourceLinkedSingleOutput = 'resource-linked-single'
-  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/checksum_single.sh'), { encoding: "utf-8" })
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/checksum_single.sh'), { encoding: 'utf-8' })
 
   return {
     task: 'checksum book',

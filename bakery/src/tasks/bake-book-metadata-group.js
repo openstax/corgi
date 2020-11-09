@@ -15,7 +15,7 @@ const task = (taskArgs) => {
   const bakedInput = 'baked-book-group'
   const assembledMetaInput = 'assembled-book-metadata-group'
   const bakedMetaOutput = 'baked-book-metadata-group'
-  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/bake_book_metadata_group.sh'), { encoding: "utf-8" })
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/bake_book_metadata_group.sh'), { encoding: 'utf-8' })
 
   return {
     task: 'bake book metadata',

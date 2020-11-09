@@ -1,4 +1,6 @@
-exec 2> >(tee ${BAKED_OUTPUT}/stderr >&2)
+#!/bin/bash
+
+exec 2> >(tee "${BAKED_OUTPUT}/stderr" >&2)
 
 # FIXME: We assume that every book in the group uses the same style
 # This assumption will not hold true forever, and book style + recipe name should
@@ -18,10 +20,10 @@ find "${SYMLINK_INPUT}" -type l | xargs -I{} cp -P {} "${BAKED_OUTPUT}"
 
 if [[ -f "$style_file" ]]
     then
-        cp "$style_file" ${BAKED_OUTPUT}
-        cp "$style_file" ${STYLE_OUTPUT}
+        cp "$style_file" "${BAKED_OUTPUT}"
+        cp "$style_file" "${STYLE_OUTPUT}"
     else
-        echo "Warning: Style Not Found" > ${BAKED_OUTPUT}/stderr
+        echo "Warning: Style Not Found" > "${BAKED_OUTPUT}/stderr"
 fi
 
 for collection in $(find "${ASSEMBLED_INPUT}/" -path *.assembled.xhtml -type f); do
@@ -29,6 +31,6 @@ for collection in $(find "${ASSEMBLED_INPUT}/" -path *.assembled.xhtml -type f);
     cnx-easybake -q "$recipe_file" "${ASSEMBLED_INPUT}/$slug_name.assembled.xhtml" "${BAKED_OUTPUT}/$slug_name.baked.xhtml"
     if [[ -f "$style_file" ]]
         then
-            sed -i "s%<\\/head>%<link rel=\"stylesheet\" type=\"text/css\" href=\"$(basename $style_file)\" />&%" "${BAKED_OUTPUT}/$slug_name.baked.xhtml"
+            sed -i "s%<\\/head>%<link rel=\"stylesheet\" type=\"text/css\" href=\"$(basename "$style_file")\" />&%" "${BAKED_OUTPUT}/$slug_name.baked.xhtml"
     fi
 done

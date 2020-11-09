@@ -17,7 +17,7 @@ const task = (taskArgs) => {
   const symlinkInput = 'module-symlinks'
   const bakedOutput = 'baked-book-group'
   const styleOutput = 'group-style'
-  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/bake_book_group.sh'), { encoding: "utf-8" })
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/bake_book_group.sh'), { encoding: 'utf-8' })
 
   return {
     task: 'bake book group',

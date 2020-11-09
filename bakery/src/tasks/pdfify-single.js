@@ -18,7 +18,7 @@ const task = (taskArgs) => {
   const styleInput = 'group-style'
   const mathifiedInput = 'mathified-single'
   const artifactsOutput = 'artifacts-single'
-  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/pdfify_single.sh'), { encoding: "utf-8" })
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/pdfify_single.sh'), { encoding: 'utf-8' })
 
   return {
     task: 'build pdf',
@@ -42,8 +42,7 @@ const task = (taskArgs) => {
         MATHIFIED_INPUT: mathifiedInput,
         STYLE_INPUT: styleInput,
         BUCKET_NAME: bucketName,
-        BOOK_INPUT: bookInput,
-        ARTIFACTS_OUTPUT: artifactsOutput
+        BOOK_INPUT: bookInput
       },
       run: {
         user: 'root',

@@ -15,7 +15,7 @@ const task = (taskArgs) => {
   const resourceLinkedInput = 'resource-linked-single'
   const bakedBookMetaInput = 'baked-book-metadata-group'
   const disassembledOutput = 'disassembled-single'
-  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/disassemble_single.sh'), { encoding: "utf-8" })
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/disassemble_single.sh'), { encoding: 'utf-8' })
 
   return {
     task: 'disassemble book',

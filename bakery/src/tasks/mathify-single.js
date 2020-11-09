@@ -16,7 +16,7 @@ const task = (taskArgs) => {
   const linkedInput = 'linked-single'
   const styleInput = 'group-style'
   const mathifiedOutput = 'mathified-single'
-  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/mathify_single.sh'), { encoding: "utf-8" })
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/mathify_single.sh'), { encoding: 'utf-8' })
 
   return {
     task: 'mathify book',

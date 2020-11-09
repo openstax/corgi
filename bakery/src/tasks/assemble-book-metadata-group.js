@@ -13,7 +13,7 @@ const task = (taskArgs) => {
   const fetchedInput = 'fetched-book-group'
   const assembledInput = 'assembled-book-group'
   const outputName = 'assembled-book-metadata-group'
-  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/assemble_book_metadata_group.sh'), { encoding: "utf-8" })
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/assemble_book_metadata_group.sh'), { encoding: 'utf-8' })
 
   return {
     task: 'assemble book metadata group',

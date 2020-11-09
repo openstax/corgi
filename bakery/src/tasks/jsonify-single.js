@@ -14,7 +14,7 @@ const task = (taskArgs) => {
   const bookInput = 'book'
   const disassembledInput = 'disassembled-single'
   const jsonifiedOutput = 'jsonified-single'
-  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/jsonify_single.sh'), { encoding: "utf-8" })
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/jsonify_single.sh'), { encoding: 'utf-8' })
 
   return {
     task: 'jsonify book',
