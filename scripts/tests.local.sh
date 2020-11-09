@@ -24,8 +24,6 @@ docker-compose \
     -f docker-compose.dev.volumes.yml \
     config > docker-stack.yml
 
-#    -f docker-compose.dev.command.yml \
-
 docker-compose -f docker-stack.yml build
 docker-compose -f docker-stack.yml down -v --remove-orphans # Remove possibly previous broken stacks left hanging after an error
 docker-compose -f docker-stack.yml up -d
