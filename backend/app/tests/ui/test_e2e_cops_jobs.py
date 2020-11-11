@@ -23,7 +23,6 @@ def test_e2e_cops_jobs(selenium, base_url):
 
     # AND: Create button is clicked
     modal.click_create_button()
-    # modal.click_create_button()
 
     # THEN: The modal does not close and remains open
     assert home.is_create_new_job_button_displayed
