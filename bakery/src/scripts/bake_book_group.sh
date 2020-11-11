@@ -11,12 +11,12 @@ exec 2> >(tee "${BAKED_OUTPUT}/stderr" >&2)
 # work cycle.
 
 # FIXME: Separate style injection step from baking step. This is way too much work to change a line injected into the head tag
-style_file="cnx-recipes-output/rootfs/styles/$(cat ${BOOK_INPUT}/style)-pdf.css"
+style_file="cnx-recipes-output/rootfs/styles/$(cat "${BOOK_INPUT}"/style)-pdf.css"
 
-recipe_file="cnx-recipes-output/rootfs/recipes/$(cat ${BOOK_INPUT}/style).css"
+recipe_file="cnx-recipes-output/rootfs/recipes/$(cat "${BOOK_INPUT}"/style).css"
 
 # FIXME: symlinks should only be needed to preview intermediate state
-find "${SYMLINK_INPUT}" -type l | xargs -I{} cp -P {} "${BAKED_OUTPUT}"
+find "${SYMLINK_INPUT}" -type l -print0 | xargs -0 -I{} cp -P {} "${BAKED_OUTPUT}"
 
 if [[ -f "$style_file" ]]
     then
@@ -26,7 +26,9 @@ if [[ -f "$style_file" ]]
         echo "Warning: Style Not Found" > "${BAKED_OUTPUT}/stderr"
 fi
 
-for collection in $(find "${ASSEMBLED_INPUT}/" -path *.assembled.xhtml -type f); do
+shopt -s globstar nullglob
+for collection in "${ASSEMBLED_INPUT}/"*.assembled.xhtml; do
+#for collection in $(find "${ASSEMBLED_INPUT}/" -path *.assembled.xhtml -type f); do
     slug_name=$(basename "$collection" | awk -F'[.]' '{ print $1; }')
     cnx-easybake -q "$recipe_file" "${ASSEMBLED_INPUT}/$slug_name.assembled.xhtml" "${BAKED_OUTPUT}/$slug_name.baked.xhtml"
     if [[ -f "$style_file" ]]

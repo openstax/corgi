@@ -3,7 +3,7 @@
 exec 2> >(tee checksum-book/stderr >&2)
 
 # Add symlinks to fetched-book-group to be able to find images
-find "${SYMLINK_INPUT}" -type l | xargs -I{} cp -P {} "${LINKED_INPUT}"
+find "${SYMLINK_INPUT}" -type l -print0 | xargs -0 -I{} cp -P {} "${LINKED_INPUT}"
 
 checksum "${LINKED_INPUT}" "${RESOURCES_OUTPUT}"
 
