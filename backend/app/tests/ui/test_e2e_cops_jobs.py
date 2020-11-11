@@ -12,7 +12,7 @@ def test_e2e_cops_jobs(selenium, base_url):
     # WHEN: The Home page is fully loaded
     home = Home(selenium, base_url).open()
 
-    # AND: The create new pdf button is clicked
+    # AND: The 'create new pdf' button is clicked
     modal = home.click_create_new_job_button()
 
     # AND: Correct data are typed into the input fields
