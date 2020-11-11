@@ -45,6 +45,7 @@ const task = (taskArgs) => {
           remote="https://$GH_SECRET_CREDS@github.com/openstax/$(cat ${bookInput}/repo).git"
           git clone --depth 1 "$remote" --branch "$reference" "${contentOutput}/raw"
           set -x
+          rm -rf "${contentOutput}/raw/.git"
           wget ${bookSlugsUrl} -O "${contentOutput}/book-slugs.json"
           mv "${contentOutput}/raw/resources" "${resourceOutput}/."
           fetch-map-resources "${contentOutput}/raw/modules" "../../../../${resourceOutput}/resources"
