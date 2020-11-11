@@ -47,8 +47,8 @@ const task = (taskArgs) => {
           set -x
           rm -rf "${contentOutput}/raw/.git"
           wget ${bookSlugsUrl} -O "${contentOutput}/book-slugs.json"
-          mv "${contentOutput}/raw/resources" "${resourceOutput}/."
-          fetch-map-resources "${contentOutput}/raw/modules" "../../../../${resourceOutput}/resources"
+          mv "${contentOutput}/raw/media" "${resourceOutput}/."
+          fetch-map-resources "${contentOutput}/raw/modules" "../../../../${resourceOutput}/media"
         `
         ]
       }
