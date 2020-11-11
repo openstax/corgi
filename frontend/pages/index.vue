@@ -230,6 +230,7 @@ export default {
   beforeCreate () {
     this.styleItems = [
       'accounting',
+      'additive-manufacturing',
       'american-government',
       'anatomy',
       'ap-biology',
