@@ -29,7 +29,7 @@ def test_e2e_cops_preview_jobs(selenium, base_url):
     # WHEN: The Home page is fully loaded
     home = Home(selenium, base_url).open()
 
-    # AND: The create new pdf button is clicked
+    # AND: The 'create new pdf' button is clicked
     modal = home.click_create_new_job_button()
 
     # AND: Clicks the Distribution Preview button
@@ -42,7 +42,6 @@ def test_e2e_cops_preview_jobs(selenium, base_url):
     modal.fill_server_field("qa")
 
     # AND: Create button is clicked
-    modal.click_create_button()
     modal.click_create_button()
 
     # THEN: The modal does not close and remains open
