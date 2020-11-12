@@ -94,7 +94,8 @@ test('build pipelines', async t => {
             ...process.env,
             ...{
               AWS_ACCESS_KEY_ID: 'accesskey',
-              AWS_SECRET_ACCESS_KEY: 'secret'
+              AWS_SECRET_ACCESS_KEY: 'secret',
+              GH_SECRET_CREDS: 'username:secret'
             }
           }
         }
@@ -114,6 +115,7 @@ test('non-local pipelines do not use credentials in env vars', async t => {
     for (const env of ['staging', 'prod']) {
       const fakeAKI = 'testaccesskeyidtest'
       const fakeSAK = 'testsecretaccesskeytest'
+      const fakeGHCreds = 'username:secret'
       const result = await completion(spawn('./build', [
         'pipeline',
         pipeline,
@@ -125,7 +127,8 @@ test('non-local pipelines do not use credentials in env vars', async t => {
           ...process.env,
           ...{
             AWS_ACCESS_KEY_ID: fakeAKI,
-            AWS_SECRET_ACCESS_KEY: fakeSAK
+            AWS_SECRET_ACCESS_KEY: fakeSAK,
+            GH_SECRET_CREDS: fakeGHCreds
           }
         }
       }
@@ -134,6 +137,8 @@ test('non-local pipelines do not use credentials in env vars', async t => {
       t.false(result.stderr.includes(fakeAKI))
       t.false(result.stdout.includes(fakeSAK))
       t.false(result.stderr.includes(fakeSAK))
+      t.false(result.stdout.includes(fakeGHCreds))
+      t.false(result.stderr.includes(fakeGHCreds))
     }
   }
 })
