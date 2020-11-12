@@ -15,6 +15,15 @@ const pipeline = (env) => {
   const taskJsonifyBook = require('../tasks/jsonify-book')
   const taskUploadBook = require('../tasks/upload-book')
 
+  const taskFetchBookGroup = require('../tasks/fetch-book-group')
+  const taskAssembleBookGroup = require('../tasks/assemble-book-group')
+  const taskAssembleBookMetadataGroup = require('../tasks/assemble-book-metadata-group')
+  const taskBakeBookGroup = require('../tasks/bake-book-group')
+  const taskBakeBookMetadataGroup = require('../tasks/bake-book-metadata-group')
+  const taskLinkSingle = require('../tasks/link-single')
+  const taskMathifySingle = require('../tasks/mathify-single')
+  const taskPdfifySingle = require('../tasks/pdfify-single')
+
   const lockedTag = env.IMAGE_TAG || 'trunk'
   const awsAccessKeyId = env.S3_ACCESS_KEY_ID
   const awsSecretAccessKey = env.S3_SECRET_ACCESS_KEY
@@ -28,7 +37,9 @@ const pipeline = (env) => {
   // FIXME: These mappings should be in the COPS resource
   const JobType = Object.freeze({
     PDF: 1,
-    DIST_PREVIEW: 2
+    DIST_PREVIEW: 2,
+    GIT_PDF: 3,
+    GIT_DIST_PREVIEW: 4
   })
   const Status = Object.freeze({
     QUEUED: 1,
@@ -38,27 +49,22 @@ const pipeline = (env) => {
     SUCCEEDED: 5
   })
 
-  const reportToOutputProducerPdf = (status, extras) => {
-    return {
-      put: 'output-producer-pdf',
-      params: {
-        id: 'output-producer-pdf/id',
-        status_id: status,
-        ...extras
+  const reportToOutputProducer = (resource) => {
+    return (status, extras) => {
+      return {
+        put: resource,
+        params: {
+          id: `${resource}/id`,
+          status_id: status,
+          ...extras
+        }
       }
     }
   }
 
-  const reportToOutputProducerDistPreview = (status, extras) => {
-    return {
-      put: 'output-producer-dist-preview',
-      params: {
-        id: 'output-producer-dist-preview/id',
-        status_id: status,
-        ...extras
-      }
-    }
-  }
+  const reportToOutputProducerPdf = reportToOutputProducer('output-producer-pdf')
+  const reportToOutputProducerDistPreview = reportToOutputProducer('output-producer-dist-preview')
+  const reportToOutputProducerGitPdf = reportToOutputProducer('output-producer-git-pdf')
 
   const resourceTypes = [
     {
@@ -99,6 +105,15 @@ const pipeline = (env) => {
       }
     },
     {
+      name: 'output-producer-git-pdf',
+      type: 'output-producer',
+      source: {
+        api_root: env.COPS_TARGET,
+        job_type_id: JobType.GIT_PDF,
+        status_id: 1
+      }
+    },
+    {
       name: 's3-pdf',
       type: 's3',
       source: {
@@ -109,6 +124,36 @@ const pipeline = (env) => {
       }
     }
   ]
+
+  const gitPdfJob = {
+    name: 'PDF (git)',
+    plan: [
+      { get: 'output-producer-git-pdf', trigger: true, version: 'every' },
+      reportToOutputProducerGitPdf(Status.ASSIGNED),
+      { get: 'cnx-recipes-output' },
+      taskLookUpBook({ inputSource: 'output-producer-git-pdf', image: imageOverrides, contentSource: 'git' }),
+      reportToOutputProducerGitPdf(Status.PROCESSING),
+      taskFetchBookGroup({
+        image: imageOverrides,
+        githubSecretCreds: env.GH_SECRET_CREDS
+      }),
+      taskAssembleBookGroup({ image: imageOverrides }),
+      taskAssembleBookMetadataGroup({ image: imageOverrides }),
+      taskBakeBookGroup({ image: imageOverrides }),
+      taskBakeBookMetadataGroup({ image: imageOverrides }),
+      taskLinkSingle({ image: imageOverrides }),
+      taskMathifySingle({ image: imageOverrides }),
+      taskPdfifySingle({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),
+      {
+        put: 's3-pdf',
+        params: {
+          file: 'artifacts-single/*.pdf',
+          acl: 'public-read',
+          content_type: 'application/pdf'
+        }
+      }
+    ]
+  }
 
   const pdfJob = {
     name: 'PDF',
@@ -204,7 +249,7 @@ const pipeline = (env) => {
     config: {
       resource_types: resourceTypes,
       resources: resources,
-      jobs: [pdfJob, distPreviewJob]
+      jobs: [pdfJob, distPreviewJob, gitPdfJob]
     }
   }
 }

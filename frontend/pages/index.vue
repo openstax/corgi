@@ -41,7 +41,7 @@
                     <v-radio-group v-model="jobType" row mandatory :default="jobTypes.PDF">
                       <v-radio label="PDF" :value="jobTypes.PDF" class="pdf-radio-button"></v-radio>
                       <v-radio label="Distribution Preview" :value="jobTypes.DIST_PREVIEW" class="preview-radio-button"></v-radio>
-                      <v-radio disabled label="PDF (git)" :value="jobTypes.GIT_PDF" class="git-pdf-radio-button"></v-radio>
+                      <v-radio label="PDF (git)" :value="jobTypes.GIT_PDF" class="git-pdf-radio-button"></v-radio>
                       <v-radio disabled label="Distribution Preview (git)" :value="jobTypes.GIT_DIST_PREVIEW" class="git-preview-radio-button"></v-radio>
                     </v-radio-group>
                   </v-row>
@@ -70,7 +70,6 @@
                         v-model="style"
                         :rules="usingArchive() ? styleRules : []"
                         :items="styleItems"
-                        :disabled="!usingArchive()"
                         hint="e.g. microbiology"
                         label="Style"
                         class="style-error-text style-field"
@@ -101,7 +100,7 @@
               <v-btn @click="closeDialog()" class="job-cancel-button" color="blue darken-1" text>
                 Cancel
               </v-btn>
-              <v-btn @click="clickCollection(collectionId, maybeContentServerId, version, maybeStyle, jobType)" class="create-button-start-job" color="blue darken-1" text>
+              <v-btn @click="clickCollection(collectionId, maybeContentServerId, version, style, jobType)" class="create-button-start-job" color="blue darken-1" text>
                 Create
               </v-btn>
             </v-card-actions>
@@ -221,9 +220,6 @@ export default {
     },
     maybeContentServerId () {
       return this.usingArchive() ? this.contentServerId : null
-    },
-    maybeStyle () {
-      return this.usingArchive() ? this.style : null
     }
   },
   // Init non-reactive data
