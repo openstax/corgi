@@ -1,5 +1,4 @@
 const { constructImageSource } = require('../task-util/task-util')
-
 const fs = require('fs')
 const path = require('path')
 
@@ -18,7 +17,7 @@ const task = (taskArgs) => {
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/bake_book_metadata_group.sh'), { encoding: 'utf-8' })
 
   return {
-    task: 'bake book metadata',
+    task: 'bake book metadata group',
     config: {
       platform: 'linux',
       image_resource: {

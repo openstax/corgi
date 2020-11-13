@@ -1034,6 +1034,7 @@ const tasks = {
         input(dataDir, 'fetched-book-group'),
         input(dataDir, 'module-symlinks'),
         input(dataDir, 'linked-single'),
+        output(dataDir, 'checksum-single'),
         output(dataDir, 'checksum-resources'),
         output(dataDir, 'resource-linked-single')
       ], { image: argv.image, persist: argv.persist })

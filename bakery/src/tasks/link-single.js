@@ -1,5 +1,4 @@
 const { constructImageSource } = require('../task-util/task-util')
-
 const fs = require('fs')
 const path = require('path')
 
@@ -19,7 +18,7 @@ const task = (taskArgs) => {
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/link_single.sh'), { encoding: 'utf-8' })
 
   return {
-    task: 'link group',
+    task: 'link single',
     config: {
       platform: 'linux',
       image_resource: {
