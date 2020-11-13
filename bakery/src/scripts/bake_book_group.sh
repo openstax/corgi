@@ -28,7 +28,6 @@ fi
 
 shopt -s globstar nullglob
 for collection in "${ASSEMBLED_INPUT}/"*.assembled.xhtml; do
-#for collection in $(find "${ASSEMBLED_INPUT}/" -path *.assembled.xhtml -type f); do
     slug_name=$(basename "$collection" | awk -F'[.]' '{ print $1; }')
     cnx-easybake -q "$recipe_file" "${ASSEMBLED_INPUT}/$slug_name.assembled.xhtml" "${BAKED_OUTPUT}/$slug_name.baked.xhtml"
     if [[ -f "$style_file" ]]
@@ -36,3 +35,4 @@ for collection in "${ASSEMBLED_INPUT}/"*.assembled.xhtml; do
             sed -i "s%<\\/head>%<link rel=\"stylesheet\" type=\"text/css\" href=\"$(basename "$style_file")\" />&%" "${BAKED_OUTPUT}/$slug_name.baked.xhtml"
     fi
 done
+shopt -u globstar nullglob

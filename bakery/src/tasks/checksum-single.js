@@ -15,12 +15,13 @@ const task = (taskArgs) => {
   const fetchedInput = 'fetched-book-group'
   const symlinkInput = 'module-symlinks'
   const linkedInput = 'linked-single'
+  const checksumOutput = 'checksum-single'
   const resourcesOutput = 'checksum-resources'
   const resourceLinkedSingleOutput = 'resource-linked-single'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/checksum_single.sh'), { encoding: 'utf-8' })
 
   return {
-    task: 'checksum book',
+    task: 'checksum single',
     config: {
       platform: 'linux',
       image_resource: {
@@ -38,6 +39,7 @@ const task = (taskArgs) => {
         { name: resourceLinkedSingleOutput }
       ],
       params: {
+        CHECKSUM_OUTPUT: checksumOutput,
         SYMLINK_INPUT: symlinkInput,
         LINKED_INPUT: linkedInput,
         RESOURCES_OUTPUT: resourcesOutput,

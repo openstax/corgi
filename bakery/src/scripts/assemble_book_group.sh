@@ -4,9 +4,7 @@ exec 2> >(tee "${ASSEMBLED_OUTPUT}/stderr" >&2)
 
 shopt -s globstar nullglob
 for collection in "${RAW_COLLECTION_DIR}/collections/"*; do
-#for collection in $(find "${RAW_COLLECTION_DIR}/collections/" -type f); do
     slug_name=$(basename "$collection" | awk -F'[.]' '{ print $1; }')
-    rm -rf temp-assembly
 
     mv "$collection" "${RAW_COLLECTION_DIR}/modules/collection.xml"
     mv "${RAW_COLLECTION_DIR}/metadata/$slug_name.metadata.json" "${RAW_COLLECTION_DIR}/modules/metadata.json"
@@ -21,3 +19,4 @@ for collection in "${RAW_COLLECTION_DIR}/collections/"*; do
     find "${SYMLINK_OUTPUT}" -type l -print0 | xargs -0 -I{} cp -P {} "${ASSEMBLED_OUTPUT}"
     cp "temp-assembly/collection.assembled.xhtml" "${ASSEMBLED_OUTPUT}/$slug_name.assembled.xhtml"
 done
+shopt -u globstar nullglob

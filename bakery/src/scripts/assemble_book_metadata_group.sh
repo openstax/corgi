@@ -4,7 +4,6 @@ exec 2> >(tee "${OUTPUT_NAME}/stderr" >&2)
 
 shopt -s globstar nullglob
 for collection in "${ASSEMBLED_INPUT}/"*.assembled.xhtml; do
-#for collection in $(find "${ASSEMBLED_INPUT}/" -path "*.assembled.xhtml" -type f); do
     slug_name=$(basename "$collection" | awk -F'[.]' '{ print $1; }')
     {
         echo "{"
