@@ -127,6 +127,9 @@ const pipeline = (env) => {
 
   const gitPdfJob = {
     name: 'PDF (git)',
+    build_log_retention: {
+      days: buildLogRetentionDays
+    },
     plan: [
       { get: 'output-producer-git-pdf', trigger: true, version: 'every' },
       reportToOutputProducerGitPdf(Status.ASSIGNED),
