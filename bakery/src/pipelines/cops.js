@@ -127,6 +127,9 @@ const pipeline = (env) => {
 
   const gitPdfJob = {
     name: 'PDF (git)',
+    build_log_retention: {
+      days: buildLogRetentionDays
+    },
     plan: [
       { get: 'output-producer-git-pdf', trigger: true, version: 'every' },
       reportToOutputProducerGitPdf(Status.ASSIGNED),
@@ -152,7 +155,13 @@ const pipeline = (env) => {
           content_type: 'application/pdf'
         }
       }
-    ]
+    ],
+    on_success: reportToOutputProducerGitPdf(Status.SUCCEEDED, {
+      pdf_url: 'artifacts-single/pdf_url'
+    }),
+    on_failure: reportToOutputProducerGitPdf(Status.FAILED),
+    on_error: reportToOutputProducerGitPdf(Status.FAILED),
+    on_abort: reportToOutputProducerGitPdf(Status.FAILED)
   }
 
   const pdfJob = {

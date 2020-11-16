@@ -111,7 +111,7 @@ When generating pipelines for the local environment, the following environment v
 | `AWS_SECRET_ACCESS_KEY` | Yes | AWS credentials (likely for our sandbox) |
 | `DOCKERHUB_USERNAME` | No | Your Docker Hub credentials (only needed if you're hitting rate limits otherwise) |
 | `DOCKERHUB_PASSWORD` | No | Your Docker Hub credentials (only needed if you're hitting rate limits otherwise) |
-| `GH_SECRET_CREDS` | Yes | Your GitHub username with a GitHub personal access token. Colon separated (e.g. `my-username:12345abcdef...`) |
+| `GH_SECRET_CREDS` | Yes | A GitHub personal access token. |
 
 #### Generate a pipeline file for a particular environment
 Run `./build pipeline <pipelinetype> [options] <env> [options]...`
