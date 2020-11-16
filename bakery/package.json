@@ -1,6 +1,5 @@
 {
   "name": "@openstax/bakery-cli",
-  "version": "0.0.7",
   "scripts": {
     "lint": "standard ./src/**/**.js",
     "test": "ava -v --timeout=15m",
