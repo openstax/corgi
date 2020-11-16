@@ -42,37 +42,46 @@ module.exports.handler = argv => {
     }
   }).call()
   const s3Keys = (() => {
-    // Grab AWS credentials from environment when running locally. If not
+    // Grab AWS and GH credentials from environment when running locally. If not
     // available, throw an explicit error for the user
+    // GH credentials are in the form `username:personal-access-token`
     if (env.ENV_NAME === 'local') {
       const localAKI = process.env.AWS_ACCESS_KEY_ID
       const localSAK = process.env.AWS_SECRET_ACCESS_KEY
+      const localGithubCreds = process.env.GH_SECRET_CREDS
       if (localAKI === undefined) {
         throw new Error('Please set AWS_ACCESS_KEY_ID in your environment')
       }
       if (localSAK === undefined) {
         throw new Error('Please set AWS_SECRET_ACCESS_KEY in your environment')
       }
+      if (localGithubCreds === undefined) {
+        throw new Error('Please set GH_SECRET_CREDS in your environment')
+      }
       return {
         S3_ACCESS_KEY_ID: localAKI,
-        S3_SECRET_ACCESS_KEY: localSAK
+        S3_SECRET_ACCESS_KEY: localSAK,
+        GH_SECRET_CREDS: localGithubCreds
       }
     }
     if (argv.pipelinetype === 'cops') {
       return {
         S3_ACCESS_KEY_ID: env.COPS_BUCKET_AKI_SECRET_NAME,
-        S3_SECRET_ACCESS_KEY: env.COPS_BUCKET_SAK_SECRET_NAME
+        S3_SECRET_ACCESS_KEY: env.COPS_BUCKET_SAK_SECRET_NAME,
+        GH_SECRET_CREDS: env.GH_SECRET_CREDS
       }
     }
     if (['distribution', 'gdoc'].includes(argv.pipelinetype)) {
       return {
         S3_ACCESS_KEY_ID: env.DIST_BUCKET_AKI_SECRET_NAME,
-        S3_SECRET_ACCESS_KEY: env.DIST_BUCKET_SAK_SECRET_NAME
+        S3_SECRET_ACCESS_KEY: env.DIST_BUCKET_SAK_SECRET_NAME,
+        GH_SECRET_CREDS: env.GH_SECRET_CREDS
       }
     }
     return {
       S3_ACCESS_KEY_ID: 'no-secret-resolved',
-      S3_SECRET_ACCESS_KEY: 'no-secret-resolved'
+      S3_SECRET_ACCESS_KEY: 'no-secret-resolved',
+      GH_SECRET_CREDS: 'no-secret-resolved'
     }
   }).call()
   const dockerCredentials = (() => {
@@ -99,7 +108,14 @@ module.exports.handler = argv => {
   const pipelineConfig = pipeline(pipelineArgs).config
 
   const forward = fs.readFileSync(path.resolve(__dirname, 'forward.yml'), { encoding: 'utf8' })
-  const output = forward + yaml.safeDump(pipelineConfig)
+  let output
+  try {
+    output = forward + yaml.safeDump(pipelineConfig)
+  } catch(err) {
+    console.error(yaml.dump(pipelineConfig))
+    console.error("An error occurred during safeDump. ^^ A dump without safety is above ^^ grep on stderr might help?")
+    throw err
+  }
 
   if (outputFile) {
     fs.writeFileSync(outputFile, output)
