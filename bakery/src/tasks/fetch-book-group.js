@@ -34,7 +34,7 @@ const task = (taskArgs) => {
         GH_SECRET_CREDS: githubSecretCreds
       },
       run: {
-        path: '/bin/sh',
+        path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
@@ -45,6 +45,10 @@ const task = (taskArgs) => {
           remote="https://$GH_SECRET_CREDS@github.com/openstax/$(cat ${bookInput}/repo).git"
           git clone --depth 1 "$remote" --branch "$reference" "${contentOutput}/raw"
           set -x
+          if [[ ! -f "${contentOutput}/raw/collections/$(cat ${bookInput}/slug).collection.xml" ]]; then
+            echo "No matching book for slug in this repo"
+            exit 1
+          fi
           rm -rf "${contentOutput}/raw/.git"
           wget ${bookSlugsUrl} -O "${contentOutput}/book-slugs.json"
           mv "${contentOutput}/raw/media" "${resourceOutput}/."
