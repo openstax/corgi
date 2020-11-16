@@ -103,6 +103,16 @@ and
 
 will provide information about the command, defaults, and its positional and nonpositional arguments.
 
+When generating pipelines for the local environment, the following environment variables are used for credentials:
+
+| Environment variable | Required to be set (may be empty string if desired) | Notes |
+| -------------------- | -------- | ----- |
+| `AWS_ACCESS_KEY_ID` | Yes | AWS credentials (likely for our sandbox) |
+| `AWS_SECRET_ACCESS_KEY` | Yes | AWS credentials (likely for our sandbox) |
+| `DOCKERHUB_USERNAME` | No | Your Docker Hub credentials (only needed if you're hitting rate limits otherwise) |
+| `DOCKERHUB_PASSWORD` | No | Your Docker Hub credentials (only needed if you're hitting rate limits otherwise) |
+| `GH_SECRET_CREDS` | Yes | Your GitHub username with a GitHub personal access token. Colon separated (e.g. `my-username:12345abcdef...`) |
+
 #### Generate a pipeline file for a particular environment
 Run `./build pipeline <pipelinetype> [options] <env> [options]...`
 
