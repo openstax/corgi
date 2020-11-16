@@ -41,6 +41,10 @@ const task = (taskArgs) => {
           remote="https://$GH_SECRET_CREDS@github.com/openstax/$(cat ${bookInput}/repo).git"
           git clone --depth 1 "$remote" --branch "$reference" "${outputName}/raw"
           set -x
+          if [[ ! -f "${outputName}/raw/collections/$(cat ${bookInput}/slug).collection.xml" ]]; then
+            echo "No matching book for slug in this repo"
+            exit 1
+          fi
           wget ${bookSlugsUrl} -O "${outputName}/book-slugs.json"
         `
         ]
