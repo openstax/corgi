@@ -25,7 +25,8 @@ from bakery_scripts import (
     gdocify_book,
     copy_resources_s3,
     upload_docx,
-    checksum_resource
+    checksum_resource,
+    fetch_map_resources
 )
 
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -1601,3 +1602,42 @@ def test_upload_docx(tmp_path, mocker):
         {"id": "ch1exists", "name": "chapter1"},
         {"id": "ch2new", "name": "chapter2"},
     ]
+
+
+def test_fetch_map_resources(tmp_path, mocker):
+    """Test fetch-map-resources script"""
+    book_dir = tmp_path / "book_slug/fetched-book-group/raw/modules"
+    resources_dir = tmp_path / "book_slug/fetched-book-group-resources/resources"
+    resource_rel_path_prefix = "../../../../fetched-book-group-resources/resources"
+
+    book_dir.mkdir(parents=True)
+    resources_dir.mkdir(parents=True)
+
+    module_0001_dir = book_dir / "m00001"
+    module_0001_dir.mkdir()
+    module_00001 = book_dir / "m00001/index.cnxml"
+    module_00001_content = """
+        <document xmlns="http://cnx.rice.edu/cnxml">
+            <content>
+                <image src="image1.jpg"/>
+                <image src="image2.jpg"/>
+            </content>
+        </document>
+    """
+    module_00001.write_text(module_00001_content)
+
+    # Write one of the two images expected to test for case where an image file
+    # is missing / mistyped
+    image1 = resources_dir / "image1.jpg"
+    image1.write_text("")
+
+    mocker.patch(
+        "sys.argv",
+        ["", book_dir, resource_rel_path_prefix]
+    )
+    fetch_map_resources.main()
+
+    assert (module_0001_dir / "image1.jpg").is_symlink()
+    assert (module_0001_dir / "image2.jpg").is_symlink()
+    assert (module_0001_dir / "image1.jpg").exists()
+    assert not (module_0001_dir / "image2.jpg").exists()

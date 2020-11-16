@@ -12,6 +12,7 @@ const task = (taskArgs) => {
 
   const bookInput = 'book'
   const fetchedInput = 'fetched-book-group'
+  const fetchedResourcesInput = 'fetched-book-group-resources'
   const symlinkInput = 'module-symlinks'
   const linkedInput = 'linked-single'
   const resourcesOutput = 'checksum-resources'
@@ -28,6 +29,7 @@ const task = (taskArgs) => {
       inputs: [
         { name: bookInput },
         { name: fetchedInput },
+        { name: fetchedResourcesInput },
         { name: symlinkInput },
         { name: linkedInput }
       ],
