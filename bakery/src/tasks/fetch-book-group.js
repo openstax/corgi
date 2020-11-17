@@ -5,17 +5,17 @@ const path = require('path')
 const task = (taskArgs) => {
   const { githubSecretCreds } = taskArgs
   const imageDefault = {
-    name: 'alpine/git',
-    tag: 'latest'
+    name: 'openstax/cops-bakery-scripts',
+    tag: 'trunk'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
   const bookInput = 'book'
   const bookSlugsUrl = 'https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/book-slugs.json'
-  const outputName = 'fetched-book-group'
+  const contentOutput = 'fetched-book-group'
+  const resourceOutput = 'fetched-book-group-resources'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/fetch_book_group.sh'), { encoding: 'utf-8' })
-
   return {
     task: 'fetch book group',
     config: {
@@ -25,16 +25,20 @@ const task = (taskArgs) => {
         source: imageSource
       },
       inputs: [{ name: bookInput }],
-      outputs: [{ name: outputName }],
+      outputs: [
+        { name: contentOutput },
+        { name: resourceOutput }
+      ],
       params: {
         COLUMNS: 80,
         BOOK_INPUT: bookInput,
         GH_SECRET_CREDS: githubSecretCreds,
-        OUTPUT_NAME: outputName,
-        BOOK_SLUGS_URL: bookSlugsUrl
+        CONTENT_OUTPUT: contentOutput,
+        BOOK_SLUGS_URL: bookSlugsUrl,
+        RESOURCE_OUTPUT: resourceOutput
       },
       run: {
-        path: '/bin/sh',
+        path: '/bin/bash',
         args: [
           '-cxe',
           shellScript

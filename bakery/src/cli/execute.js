@@ -275,7 +275,8 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        output(dataDir, 'fetched-book-group')
+        output(dataDir, 'fetched-book-group'),
+        output(dataDir, 'fetched-book-group-resources')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
@@ -789,6 +790,7 @@ const tasks = {
         input(dataDir, 'module-symlinks'),
         input(dataDir, 'group-style'),
         input(dataDir, 'fetched-book-group'),
+        input(dataDir, 'fetched-book-group-resources'),
         output(dataDir, 'artifacts-single')
       ], { image: argv.image, persist: argv.persist })
     }
@@ -1032,6 +1034,7 @@ const tasks = {
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'fetched-book-group'),
+        input(dataDir, 'fetched-book-group-resources'),
         input(dataDir, 'module-symlinks'),
         input(dataDir, 'linked-single'),
         output(dataDir, 'checksum-single'),

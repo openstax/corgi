@@ -12,11 +12,9 @@ for collection in "${RAW_COLLECTION_DIR}/collections/"*; do
     # Assembly destination must nested EXACTLY one level under cwd for symlinks to work 
     neb assemble "${RAW_COLLECTION_DIR}/modules" temp-assembly/
 
-    # We shouldn't we need this symlink
-    rm temp-assembly/collection.xml
-
     find temp-assembly -type l -print0 | xargs -0 -I{} cp -P {} "${SYMLINK_OUTPUT}"
     find "${SYMLINK_OUTPUT}" -type l -print0 | xargs -0 -I{} cp -P {} "${ASSEMBLED_OUTPUT}"
     cp "temp-assembly/collection.assembled.xhtml" "${ASSEMBLED_OUTPUT}/$slug_name.assembled.xhtml"
+    rm -rf temp-assembly
 done
 shopt -u globstar nullglob

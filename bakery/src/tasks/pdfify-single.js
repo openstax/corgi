@@ -13,6 +13,7 @@ const task = (taskArgs) => {
 
   const bookInput = 'book'
   const fetchedInput = 'fetched-book-group'
+  const fetchedResourcesInput = 'fetched-book-group-resources'
   const symlinkInput = 'module-symlinks'
   const styleInput = 'group-style'
   const mathifiedInput = 'mathified-single'
@@ -30,6 +31,7 @@ const task = (taskArgs) => {
       inputs: [
         { name: bookInput },
         { name: fetchedInput },
+        { name: fetchedResourcesInput },
         { name: styleInput },
         { name: symlinkInput },
         { name: mathifiedInput }
