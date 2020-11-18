@@ -159,12 +159,21 @@
           </span>
         </template>
         <template v-slot:item.pdf_url="{ item }">
-          <a
-            :href="item.pdf_url"
-            target="_blank"
+          <ul
+            style="list-style:none; padding:0;"
           >
-            {{ item.pdf_url }}
-          </a>
+            <li
+              v-for="entry in getUrlEntries(item.pdf_url)"
+              :key="entry.text"
+            >
+              <a
+                :href="entry.href"
+                target="_blank"
+              >
+                {{ entry.text }}
+              </a>
+            </li>
+          </ul>
         </template>
         <template v-slot:item.status_name="{ item }">
           <v-chip :color="getStatusColor(item.status_name)" dark>
@@ -284,7 +293,17 @@ export default {
       { text: 'Updated at', value: 'updated_at' }
     ],
     // This value corresponds to the seeded id in the backend
-    this.jobTypes = { PDF: 1, DIST_PREVIEW: 2, GIT_PDF: 3, GIT_DIST_PREVIEW: 4 }
+    this.jobTypes = { PDF: 1, DIST_PREVIEW: 2, GIT_PDF: 3, GIT_DIST_PREVIEW: 4 },
+    this.getUrlEntries = (input) => {
+      if (input == null) {
+        return []
+      }
+      try {
+        return JSON.parse(input)
+      } catch (err) {
+        return [{ text: 'View', href: input.trim() }]
+      }
+    }
   },
   created () {
     this.getJobsImmediate()
