@@ -99,6 +99,19 @@ jobs:
       - store_test_results:
           path: /tmp/test-reports
 
+  frontend-unit:
+    docker:
+      - image: circleci/node:12-buster
+
+    steps:
+      - checkout
+      - run:
+          name: Run tests
+          command: |
+            cd ./frontend
+            npm ci
+            npm run test:unit
+
   lint-bakery:
     docker:
       - image: circleci/node:12-buster
@@ -120,5 +133,6 @@ workflows:
       - cli-functional-test
       - bakery-scripts-test
       - lint-bakery
+      - frontend-unit
       - shellcheck/check:
           path: ./scripts
