@@ -7,4 +7,4 @@ python ./bin/db_wait.py
 alembic upgrade head
 
 # shellcheck source=SCRIPTDIR/live-reload.sh
-source ./live-reload.sh
+source ./bin/live-reload.sh
