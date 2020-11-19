@@ -1,6 +1,6 @@
-const dedent = require('dedent')
-
 const { constructImageSource } = require('../task-util/task-util')
+const fs = require('fs')
+const path = require('path')
 
 const task = (taskArgs) => {
   const imageDefault = {
@@ -13,9 +13,10 @@ const task = (taskArgs) => {
   const assembledOutput = 'assembled-book-group'
   const symlinkOutput = 'module-symlinks'
   const rawCollectionDir = `${inputName}/raw`
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/assemble_book_group.sh'), { encoding: 'utf-8' })
 
   return {
-    task: 'assemble book',
+    task: 'assemble book group',
     config: {
       platform: 'linux',
       image_resource: {
@@ -29,30 +30,16 @@ const task = (taskArgs) => {
         { name: assembledOutput },
         { name: symlinkOutput }
       ],
+      params: {
+        ASSEMBLED_OUTPUT: assembledOutput,
+        SYMLINK_OUTPUT: symlinkOutput,
+        RAW_COLLECTION_DIR: rawCollectionDir
+      },
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
-          dedent`
-          exec 2> >(tee ${assembledOutput}/stderr >&2)
-          for collection in $(find "${rawCollectionDir}/collections/" -type f); do
-            slug_name=$(basename "$collection" | awk -F'[.]' '{ print $1; }')
-            rm -rf temp-assembly
-
-            mv "$collection" "${rawCollectionDir}/modules/collection.xml"
-            mv "${rawCollectionDir}/metadata/$slug_name.metadata.json" "${rawCollectionDir}/modules/metadata.json"
-            
-            # Assembly destination must nested EXACTLY one level under cwd for symlinks to work 
-            neb assemble "${rawCollectionDir}/modules" temp-assembly/
-
-            # We shouldn't we need this symlink
-            rm temp-assembly/collection.xml
-
-            find temp-assembly -type l | xargs -I{} cp -P {} "${symlinkOutput}"
-            find "${symlinkOutput}" -type l | xargs -I{} cp -P {} "${assembledOutput}"
-            cp "temp-assembly/collection.assembled.xhtml" "${assembledOutput}/$slug_name.assembled.xhtml"
-          done
-          `
+          shellScript
         ]
       }
     }

@@ -1,6 +1,6 @@
-const dedent = require('dedent')
-
 const { constructImageSource } = require('../task-util/task-util')
+const fs = require('fs')
+const path = require('path')
 
 const task = (taskArgs) => {
   const imageDefault = {
@@ -15,11 +15,13 @@ const task = (taskArgs) => {
   const fetchedResourcesInput = 'fetched-book-group-resources'
   const symlinkInput = 'module-symlinks'
   const linkedInput = 'linked-single'
+  const checksumOutput = 'checksum-single'
   const resourcesOutput = 'checksum-resources'
   const resourceLinkedSingleOutput = 'resource-linked-single'
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/checksum_single.sh'), { encoding: 'utf-8' })
 
   return {
-    task: 'checksum book',
+    task: 'checksum single',
     config: {
       platform: 'linux',
       image_resource: {
@@ -37,21 +39,19 @@ const task = (taskArgs) => {
         { name: resourcesOutput },
         { name: resourceLinkedSingleOutput }
       ],
+      params: {
+        CHECKSUM_OUTPUT: checksumOutput,
+        SYMLINK_INPUT: symlinkInput,
+        LINKED_INPUT: linkedInput,
+        RESOURCES_OUTPUT: resourcesOutput,
+        BOOK_INPUT: bookInput,
+        RESOURCES_LINKED_SINGLE_OUTPUT: resourceLinkedSingleOutput
+      },
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
-          dedent`
-          exec 2> >(tee checksum-book/stderr >&2)
-
-          # Add symlinks to fetched-book-group to be able to find images
-          find "${symlinkInput}" -type l | xargs -I{} cp -P {} "${linkedInput}"
-
-          checksum "${linkedInput}" "${resourcesOutput}"
-
-          slug_name=$(cat ${bookInput}/slug)
-          mv "${resourcesOutput}/$slug_name.linked.xhtml" "${resourceLinkedSingleOutput}/$slug_name.resource-linked.xhtml"
-        `
+          shellScript
         ]
       }
     }

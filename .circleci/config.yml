@@ -135,4 +135,4 @@ workflows:
       - lint-bakery
       - frontend-unit
       - shellcheck/check:
-          path: ./scripts
+          path: ./

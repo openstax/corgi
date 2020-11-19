@@ -1,6 +1,6 @@
-const dedent = require('dedent')
-
 const { constructImageSource } = require('../task-util/task-util')
+const fs = require('fs')
+const path = require('path')
 
 const task = (taskArgs) => {
   const imageDefault = {
@@ -13,9 +13,10 @@ const task = (taskArgs) => {
   const bookInput = 'book'
   const disassembledInput = 'disassembled-single'
   const jsonifiedOutput = 'jsonified-single'
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/jsonify_single.sh'), { encoding: 'utf-8' })
 
   return {
-    task: 'jsonify book',
+    task: 'jsonify single',
     config: {
       platform: 'linux',
       image_resource: {
@@ -27,18 +28,16 @@ const task = (taskArgs) => {
         { name: disassembledInput }
       ],
       outputs: [{ name: jsonifiedOutput }],
+      params: {
+        DISASSEMBLED_INPUT: disassembledInput,
+        JSONIFIED_OUTPUT: jsonifiedOutput,
+        BOOK_INPUT: bookInput
+      },
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
-          dedent`
-          exec 2> >(tee jsonified-book/stderr >&2)
-          jsonify "${disassembledInput}" "${jsonifiedOutput}"
-          jsonschema -i "${jsonifiedOutput}/$(cat ${bookInput}/slug).toc.json" /code/scripts/book-schema.json
-          for jsonfile in "${jsonifiedOutput}/"*@*.json; do
-            jsonschema -i "$jsonfile" /code/scripts/page-schema.json
-          done
-        `
+          shellScript
         ]
       }
     }

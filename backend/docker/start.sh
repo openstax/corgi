@@ -1,4 +1,5 @@
 #! /usr/bin/env sh
+# shellcheck source=/dev/null
 set -e
 
 MODULE_NAME=${MODULE_NAME:-app.main}

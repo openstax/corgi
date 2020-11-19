@@ -6,4 +6,5 @@ python ./bin/db_wait.py
 # Run migrations
 alembic upgrade head
 
-source ./bin/live-reload.sh
+# shellcheck source=SCRIPTDIR/live-reload.sh
+source ./live-reload.sh

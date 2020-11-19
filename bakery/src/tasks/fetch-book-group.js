@@ -1,6 +1,6 @@
-const dedent = require('dedent')
-
 const { constructImageSource } = require('../task-util/task-util')
+const fs = require('fs')
+const path = require('path')
 
 const task = (taskArgs) => {
   const { githubSecretCreds } = taskArgs
@@ -15,9 +15,9 @@ const task = (taskArgs) => {
   const bookSlugsUrl = 'https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/book-slugs.json'
   const contentOutput = 'fetched-book-group'
   const resourceOutput = 'fetched-book-group-resources'
-
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/fetch_book_group.sh'), { encoding: 'utf-8' })
   return {
-    task: 'fetch book',
+    task: 'fetch book group',
     config: {
       platform: 'linux',
       image_resource: {
@@ -31,29 +31,17 @@ const task = (taskArgs) => {
       ],
       params: {
         COLUMNS: 80,
-        GH_SECRET_CREDS: githubSecretCreds
+        BOOK_INPUT: bookInput,
+        GH_SECRET_CREDS: githubSecretCreds,
+        CONTENT_OUTPUT: contentOutput,
+        BOOK_SLUGS_URL: bookSlugsUrl,
+        RESOURCE_OUTPUT: resourceOutput
       },
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
-          dedent`
-          reference=$(cat ${bookInput}/version)
-          [[ "$reference" = latest ]] && reference=master
-          set +x
-          # Do not show creds
-          remote="https://$GH_SECRET_CREDS@github.com/openstax/$(cat ${bookInput}/repo).git"
-          git clone --depth 1 "$remote" --branch "$reference" "${contentOutput}/raw"
-          set -x
-          if [[ ! -f "${contentOutput}/raw/collections/$(cat ${bookInput}/slug).collection.xml" ]]; then
-            echo "No matching book for slug in this repo"
-            exit 1
-          fi
-          rm -rf "${contentOutput}/raw/.git"
-          wget ${bookSlugsUrl} -O "${contentOutput}/book-slugs.json"
-          mv "${contentOutput}/raw/media" "${resourceOutput}/."
-          fetch-map-resources "${contentOutput}/raw/modules" "../../../../${resourceOutput}/media"
-        `
+          shellScript
         ]
       }
     }

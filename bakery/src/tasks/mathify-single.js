@@ -1,6 +1,6 @@
-const dedent = require('dedent')
-
 const { constructImageSource } = require('../task-util/task-util')
+const fs = require('fs')
+const path = require('path')
 
 const task = (taskArgs) => {
   const imageDefault = {
@@ -15,9 +15,10 @@ const task = (taskArgs) => {
   const linkedInput = 'linked-single'
   const styleInput = 'group-style'
   const mathifiedOutput = 'mathified-single'
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/mathify_single.sh'), { encoding: 'utf-8' })
 
   return {
-    task: 'mathify book',
+    task: 'mathify single',
     config: {
       platform: 'linux',
       image_resource: {
@@ -31,22 +32,18 @@ const task = (taskArgs) => {
         { name: linkedInput }
       ],
       outputs: [{ name: mathifiedOutput }],
+      params: {
+        MATHIFIED_OUTPUT: mathifiedOutput,
+        BOOK_INPUT: bookInput,
+        SYMLINK_INPUT: symlinkInput,
+        STYLE_INPUT: styleInput,
+        LINKED_INPUT: linkedInput
+      },
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
-          dedent`
-          exec 2> >(tee ${mathifiedOutput}/stderr >&2)
-          slug_name="$(cat ${bookInput}/slug)"
-
-          # FIXME: symlinks should only be needed to preview intermediate state
-          find "${symlinkInput}" -type l | xargs -I{} cp -P {} "${mathifiedOutput}"
-
-          # Style needed because mathjax will size converted math according to surrounding text
-          cp ${styleInput}/* ${linkedInput}
-
-          node /src/typeset/start -i "${linkedInput}/$slug_name.linked.xhtml" -o "${mathifiedOutput}/$slug_name.mathified.xhtml" -f svg  
-        `
+          shellScript
         ]
       }
     }

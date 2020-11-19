@@ -1,6 +1,6 @@
-const dedent = require('dedent')
-
 const { constructImageSource } = require('../task-util/task-util')
+const fs = require('fs')
+const path = require('path')
 
 const task = (taskArgs) => {
   const imageDefault = {
@@ -12,9 +12,10 @@ const task = (taskArgs) => {
   const fetchedInput = 'fetched-book-group'
   const assembledInput = 'assembled-book-group'
   const outputName = 'assembled-book-metadata-group'
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/assemble_book_metadata_group.sh'), { encoding: 'utf-8' })
 
   return {
-    task: 'assemble book metadata',
+    task: 'assemble book metadata group',
     config: {
       platform: 'linux',
       image_resource: {
@@ -26,24 +27,16 @@ const task = (taskArgs) => {
         { name: assembledInput }
       ],
       outputs: [{ name: outputName }],
+      params: {
+        OUTPUT_NAME: outputName,
+        ASSEMBLED_INPUT: assembledInput,
+        FETCHED_INPUT: fetchedInput
+      },
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
-          dedent`
-          exec 2> >(tee ${outputName}/stderr >&2)
-          for collection in $(find "${assembledInput}/" -path *.assembled.xhtml -type f); do
-              slug_name=$(basename "$collection" | awk -F'[.]' '{ print $1; }')
-
-
-              echo "{" > uuid-to-revised-map.json
-              find ${fetchedInput}/raw/modules -path */m*/metadata.json | xargs cat | jq -r '. | "\"\(.id)\": \"\(.revised)\","' >> uuid-to-revised-map.json
-              echo '"dummy": "dummy"' >> uuid-to-revised-map.json
-              echo "}" >> uuid-to-revised-map.json
-
-              assemble-meta "${assembledInput}/$slug_name.assembled.xhtml" uuid-to-revised-map.json "${outputName}/$slug_name.assembled-metadata.json"
-          done
-          `
+          shellScript
         ]
       }
     }
