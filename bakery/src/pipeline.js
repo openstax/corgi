@@ -85,11 +85,21 @@ module.exports.handler = argv => {
     }
   }).call()
   const dockerCredentials = (() => {
-    if ((env.DOCKERHUB_USERNAME != null) && (env.DOCKERHUB_PASSWORD != null)) {
+    let docker_username
+    let docker_password
+
+    if (env.ENV_NAME === 'local') {
+      docker_username = process.env.DOCKERHUB_USERNAME
+      docker_password = process.env.DOCKERHUB_PASSWORD
+    } else {
+      docker_username = env.DOCKERHUB_USERNAME
+      docker_password = env.DOCKERHUB_PASSWORD
+    }
+    if ((docker_username != null) && (docker_password != null)) {
       return {
         dockerCredentials: {
-          username: env.DOCKERHUB_USERNAME,
-          password: env.DOCKERHUB_PASSWORD
+          username: docker_username,
+          password: docker_password
         }
       }
     } else {

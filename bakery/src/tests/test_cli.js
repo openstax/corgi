@@ -116,6 +116,8 @@ test('non-local pipelines do not use credentials in env vars', async t => {
       const fakeAKI = 'testaccesskeyidtest'
       const fakeSAK = 'testsecretaccesskeytest'
       const fakeGHCreds = 'username:secret'
+      const fakeDHU = 'testdockerhubuser'
+      const fakeDHP = 'testdockerhubpassword'
       const result = await completion(spawn('./build', [
         'pipeline',
         pipeline,
@@ -128,7 +130,9 @@ test('non-local pipelines do not use credentials in env vars', async t => {
           ...{
             AWS_ACCESS_KEY_ID: fakeAKI,
             AWS_SECRET_ACCESS_KEY: fakeSAK,
-            GH_SECRET_CREDS: fakeGHCreds
+            GH_SECRET_CREDS: fakeGHCreds,
+            DOCKERHUB_USERNAME: fakeDHU,
+            DOCKERHUB_PASSWORD: fakeDHP
           }
         }
       }
@@ -139,6 +143,10 @@ test('non-local pipelines do not use credentials in env vars', async t => {
       t.false(result.stderr.includes(fakeSAK))
       t.false(result.stdout.includes(fakeGHCreds))
       t.false(result.stderr.includes(fakeGHCreds))
+      t.false(result.stdout.includes(fakeDHU))
+      t.false(result.stderr.includes(fakeDHU))
+      t.false(result.stdout.includes(fakeDHP))
+      t.false(result.stderr.includes(fakeDHP))
     }
   }
 })
@@ -198,6 +206,63 @@ test('staging and prod secret names differ', async t => {
 
     t.not([...stagingAkiSet][0], [...prodAkiSet][0])
     t.not([...stagingSakSet][0], [...prodSakSet][0])
+  }
+})
+
+test('credentials for local pipelines', async t => {
+  const fakeAKI = 'testaccesskeyidtest'
+  const fakeSAK = 'testsecretaccesskeytest'
+  const fakeGHCreds = 'username:secret'
+  const fakeDHU = 'testdockerhubuser'
+  const fakeDHP = 'testdockerhubpassword'
+  const fakeCreds = {
+    AWS_ACCESS_KEY_ID: fakeAKI,
+    AWS_SECRET_ACCESS_KEY: fakeSAK,
+    GH_SECRET_CREDS: fakeGHCreds,
+    DOCKERHUB_USERNAME: fakeDHU,
+    DOCKERHUB_PASSWORD: fakeDHP
+
+  }
+
+  for (const pipeline of ['distribution', 'gdoc']) {
+    const result = await completion(spawn('./build', [
+      'pipeline',
+      pipeline,
+      'local'
+    ],
+    {
+      // Pretend environment variables are set
+      env: {
+        ...process.env,
+        ...fakeCreds
+      }
+    }
+    ))
+    t.true(result.stdout.includes(fakeAKI))
+    t.true(result.stdout.includes(fakeSAK))
+    t.true(result.stdout.includes(fakeDHU))
+    t.true(result.stdout.includes(fakeDHP))
+  }
+
+  for (const pipeline of ['cops']) {
+    const result = await completion(spawn('./build', [
+      'pipeline',
+      pipeline,
+      'local'
+    ],
+    {
+      // Pretend environment variables are set
+      env: {
+        ...process.env,
+        ...fakeCreds
+      }
+    }
+    ))
+    t.true(result.stdout.includes(fakeAKI))
+    t.true(result.stdout.includes(fakeSAK))
+    t.true(result.stdout.includes(fakeGHCreds))
+    t.true(result.stdout.includes(fakeDHU))
+    t.true(result.stdout.includes(fakeDHP))
   }
 })
 
