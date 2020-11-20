@@ -38,7 +38,7 @@
               <v-container>
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-row>
-                    <v-radio-group v-model="jobType" row mandatory :default="jobTypes.PDF">
+                    <v-radio-group v-model="jobType" row mandatory :default="jobTypes.PDF" @change="resetFormValidation">
                       <v-radio label="PDF" :value="jobTypes.PDF" class="pdf-radio-button"></v-radio>
                       <v-radio label="Web Preview" :value="jobTypes.DIST_PREVIEW" class="preview-radio-button"></v-radio>
                       <v-radio label="PDF (git)" :value="jobTypes.GIT_PDF" class="git-pdf-radio-button" ></v-radio>
@@ -49,10 +49,10 @@
                     <v-col cols="12" sm="3" md="3">
                       <v-text-field
                         v-model="collectionId"
-                        :rules="usingArchive() ? collectionRules : gitCollectionRules"
+                        :rules="activeJobIsUsingArchive ? collectionRules : gitCollectionRules"
                         label="Collection ID"
                         class="collection-id-error-text git-pdf-error-text collection-id-incorrect-error-text git-pdf-incorrect-error-text collection-id-field"
-                        hint="e.g. col12345"
+                        :hint="activeJobIsUsingArchive ? 'e.g. col12345' : 'e.g. repo-name/slug-name'"
                         required
                       />
                     </v-col>
@@ -68,7 +68,7 @@
                     <v-col cols="12" sm="3" md="3">
                       <v-combobox
                         v-model="style"
-                        :rules="usingArchive() ? styleRules : []"
+                        :rules="styleRules"
                         :items="styleItems"
                         hint="e.g. microbiology"
                         label="Style"
@@ -80,8 +80,8 @@
                       <v-select
                         v-model="contentServerId"
                         :items="content_servers"
-                        :rules="usingArchive() ? serverRules : []"
-                        :disabled="!usingArchive()"
+                        :rules="activeJobIsUsingArchive ? serverRules : []"
+                        :disabled="!activeJobIsUsingArchive"
                         label="Content Server"
                         class="server-error-text server-field"
                         required
@@ -228,7 +228,10 @@ export default {
       return this.$store.getters.content_servers_items
     },
     maybeContentServerId () {
-      return this.usingArchive() ? this.contentServerId : null
+      return this.activeJobIsUsingArchive ? this.contentServerId : null
+    },
+    activeJobIsUsingArchive () {
+      return [1,2].includes(this.jobType)
     }
   },
   // Init non-reactive data
@@ -274,7 +277,6 @@ export default {
       v => !!v || 'Repo and slug are required',
       v => /[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+/.test(v) || 'repo-name/slug-name'
     ]
-    this.usingArchive = () => [1,2].includes(this.jobType)
     this.headers = [
       {
         text: 'Job ID',
@@ -340,6 +342,9 @@ export default {
       } else {
         return 'grey'
       }
+    },
+    resetFormValidation() {
+      this.$refs.form.resetValidation()
     },
     closeDialog () {
       this.dialog = false
