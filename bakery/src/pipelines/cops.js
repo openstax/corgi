@@ -242,12 +242,13 @@ const pipeline = (env) => {
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
         codeVersion: codeVersionFromTag,
+        cloudfrontUrl: env.COPS_CLOUDFRONT_URL,
         updateQueueState: false,
         image: imageOverrides
       })
     ],
     on_success: reportToOutputProducerDistPreview(Status.SUCCEEDED, {
-      pdf_url: 'upload-book/toc-s3-link-json'
+      pdf_url: 'upload-book/content_urls'
     }),
     on_failure: reportToOutputProducerDistPreview(Status.FAILED),
     on_error: reportToOutputProducerDistPreview(Status.FAILED),

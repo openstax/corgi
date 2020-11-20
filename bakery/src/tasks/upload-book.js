@@ -3,7 +3,7 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
-  const { awsAccessKeyId, awsSecretAccessKey, distBucket, queueStateBucket, codeVersion, statePrefix, distBucketPath, updateQueueState = true } = taskArgs
+  const { awsAccessKeyId, awsSecretAccessKey, distBucket, queueStateBucket, codeVersion, statePrefix, cloudfrontUrl, distBucketPath, updateQueueState = true } = taskArgs
   const imageDefault = {
     name: 'openstax/cops-bakery-scripts',
     tag: 'trunk'
@@ -14,6 +14,10 @@ const task = (taskArgs) => {
     throw Error('distBucketPath must represent some directory-like path in s3')
   }
   const distBucketPrefix = `${distBucketPath}${codeVersion}`
+  const cloudfrontUrlWithPrefix = `${cloudfrontUrl}/${distBucketPrefix}`
+
+  const rexUrl = 'https://rex-web.herokuapp.com'
+  const rexProdUrl = 'https://rex-web-production.herokuapp.com'
 
   return {
     task: 'upload book',
@@ -63,8 +67,23 @@ const task = (taskArgs) => {
           aws s3 cp "$book_dir/collection.toc.json" "$toc_s3_link_json"
           aws s3 cp "$book_dir/collection.toc.xhtml" "$toc_s3_link_xhtml"
 
-          echo "$toc_s3_link_json" > upload-book/toc-s3-link-json
-          echo "$toc_s3_link_xhtml" > upload-book/toc-s3-link-xhtml
+          json_url=${cloudfrontUrlWithPrefix}/contents/$book_uuid@$book_version.json
+          xhtml_url=${cloudfrontUrlWithPrefix}/contents/$book_uuid@$book_version.xhtml
+          rex_archive_param="?archive=${cloudfrontUrlWithPrefix}"
+
+          book_slug=$(jq -r '.tree.slug' "$book_dir/collection.toc.json")
+          first_page_slug=$(jq -r '.tree.contents[0].slug' "$book_dir/collection.toc.json")
+          rex_url=${rexUrl}/books/$book_slug/pages/$first_page_slug$rex_archive_param
+          rex_prod_url=${rexProdUrl}/books/$book_slug/pages/$first_page_slug$rex_archive_param
+
+          jq \
+            --arg rex_url $rex_url \
+            --arg rex_prod_url $rex_prod_url \
+            '. + [
+              { text: "View - Rex Web", href: $rex_url },
+              { text: "View - Rex Web Prod", href: $rex_prod_url }
+            ]' \
+            <<< '[]' >> upload-book/content_urls
 
           ${updateQueueState ? `complete_filename=".${statePrefix}.$collection_id@$book_legacy_version.complete"
           date -Iseconds > "/tmp/$complete_filename"
