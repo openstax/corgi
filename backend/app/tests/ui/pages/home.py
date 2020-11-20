@@ -38,6 +38,8 @@ class Home(Page):
 
         _modal_preview_radio_button_locator = (By.CLASS_NAME, "preview-radio-button")
 
+        _modal_pdfgit_radio_button_locator = (By.CLASS_NAME, "git-pdf-radio-button")
+
         _modal_collection_id_field_locator = (
             By.CSS_SELECTOR,
             ".collection-id-field input",
@@ -63,9 +65,19 @@ class Home(Page):
             "collection-id-error-text",
         )
 
+        _modal_collection_id_slug_field_error_locator = (
+            By.CLASS_NAME,
+            "git-pdf-error-text",
+        )
+
         _modal_collection_id_incorrect_field_error_locator = (
             By.CLASS_NAME,
             "collection-id-incorrect-error-text",
+        )
+
+        _modal_collection_id_slug_incorrect_field_error_locator = (
+            By.CLASS_NAME,
+            "git-pdf-incorrect-error-text",
         )
 
         _modal_style_field_error_locator = (By.CLASS_NAME, "style-error-text")
@@ -95,6 +107,13 @@ class Home(Page):
             sleep(2)
 
         @property
+        def pdfgit_radio_button(self):
+            return self.find_element(*self._modal_pdfgit_radio_button_locator)
+
+        def click_pdfgit_radio_button(self):
+            self.pdfgit_radio_button.click()
+
+        @property
         def distribution_preview_radio_button(self):
             return self.find_element(*self._modal_preview_radio_button_locator)
 
@@ -106,9 +125,21 @@ class Home(Page):
             return self.find_element(*self._modal_collection_id_field_error_locator)
 
         @property
+        def collection_id_slug_field_error(self):
+            return self.find_element(
+                *self._modal_collection_id_slug_field_error_locator
+            )
+
+        @property
         def collection_id_incorrect_field_error(self):
             return self.find_element(
                 *self._modal_collection_id_incorrect_field_error_locator
+            )
+
+        @property
+        def collection_id_slug_incorrect_field_error(self):
+            return self.find_element(
+                *self._modal_collection_id_slug_incorrect_field_error_locator
             )
 
         @property
@@ -158,3 +189,7 @@ class Home(Page):
         @property
         def is_preview_radio_button_displayed(self):
             return self.is_element_displayed(*self._modal_preview_radio_button_locator)
+
+        @property
+        def is_pdfgit_radio_button_displayed(self):
+            return self.is_element_displayed(*self._modal_pdfgit_radio_button_locator)

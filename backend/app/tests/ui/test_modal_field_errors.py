@@ -35,6 +35,19 @@ def test_empty_modal_field_errors(selenium, base_url):
     # AND: The modal does not close and remains open
     assert home.create_job_modal_is_open
 
+    # WHEN: modal is open
+    # AND: PDF(git) button is clicked
+    modal.click_pdfgit_radio_button()
+
+    # AND: Create button is clicked when data fields are empty
+    modal.click_create_button()
+
+    # THEN: The correct error messages are shown for each applicable
+    # input field (colid and style)
+    split_col_id_slug = modal.collection_id_slug_field_error.text.splitlines()
+    text_col_id_slug = split_col_id_slug[1]
+    assert "Repo and slug are required" == text_col_id_slug
+
 
 @pytest.mark.smoke
 @pytest.mark.ui
@@ -62,3 +75,18 @@ def test_invalid_colid_error(selenium, base_url):
 
     # THEN: The modal does not close and remains open
     assert home.create_job_modal_is_open
+
+    # WHEN: modal is open and collection id has incorrect colid/slug
+    # AND: PDF(git) button is clicked
+    modal.click_pdfgit_radio_button()
+
+    # AND: Create button is clicked when data fields are empty and collection ID field has incorrect colid
+    modal.click_create_button()
+
+    split_col_id_slug_incorrect = (
+        modal.collection_id_slug_incorrect_field_error.text.splitlines()
+    )
+    text_col_id_slug_incorrect = split_col_id_slug_incorrect[1]
+
+    # THEN: Correct error message appears in collection id field
+    assert "repo-name/slug-name" == text_col_id_slug_incorrect
