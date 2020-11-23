@@ -23,6 +23,7 @@ const pipeline = (env) => {
   const taskLinkSingle = require('../tasks/link-single')
   const taskMathifySingle = require('../tasks/mathify-single')
   const taskPdfifySingle = require('../tasks/pdfify-single')
+  const taskGenPreviewUrls = require('../tasks/gen-preview-urls')
 
   const lockedTag = env.IMAGE_TAG || 'trunk'
   const awsAccessKeyId = env.S3_ACCESS_KEY_ID
@@ -33,6 +34,7 @@ const pipeline = (env) => {
     ...env.dockerCredentials
   }
   const buildLogRetentionDays = 14
+  const distBucketPath = 'apps/archive-preview/'
 
   // FIXME: These mappings should be in the COPS resource
   const JobType = Object.freeze({
@@ -237,18 +239,22 @@ const pipeline = (env) => {
         validationNames: ['duplicate-id', 'broken-link']
       }),
       taskUploadBook({
+        image: imageOverrides,
         distBucket: env.COPS_ARTIFACTS_S3_BUCKET,
-        distBucketPath: 'apps/archive-preview/',
+        distBucketPath: distBucketPath,
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
+        codeVersion: codeVersionFromTag
+      }),
+      taskGenPreviewUrls({
+        image: imageOverrides,
+        distBucketPath: distBucketPath,
         codeVersion: codeVersionFromTag,
-        cloudfrontUrl: env.COPS_CLOUDFRONT_URL,
-        updateQueueState: false,
-        image: imageOverrides
+        cloudfrontUrl: env.COPS_CLOUDFRONT_URL
       })
     ],
     on_success: reportToOutputProducerDistPreview(Status.SUCCEEDED, {
-      pdf_url: 'upload-book/content_urls'
+      pdf_url: 'preview-urls/content_urls'
     }),
     on_failure: reportToOutputProducerDistPreview(Status.FAILED),
     on_error: reportToOutputProducerDistPreview(Status.FAILED),

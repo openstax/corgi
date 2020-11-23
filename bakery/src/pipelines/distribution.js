@@ -12,6 +12,7 @@ const pipeline = (env) => {
   const taskJsonifyBook = require('../tasks/jsonify-book')
   const taskUploadBook = require('../tasks/upload-book')
   const taskValidateXhtml = require('../tasks/validate-xhtml')
+  const taskReportStateComplete = require('../tasks/report-state-complete')
 
   const awsAccessKeyId = env.S3_ACCESS_KEY_ID
   const awsSecretAccessKey = env.S3_SECRET_ACCESS_KEY
@@ -102,14 +103,20 @@ const pipeline = (env) => {
         validationNames: ['duplicate-id', 'broken-link']
       }),
       taskUploadBook({
-        distBucket: env.S3_DIST_BUCKET,
+        image: imageOverrides,
+        distBucket: env.DIST_S3_BUCKET,
         distBucketPath: 'apps/archive/',
-        queueStateBucket: env.DIST_QUEUE_STATE_S3_BUCKET,
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
+        codeVersion: codeVersionFromTag
+      }),
+      taskReportStateComplete({
+        image: imageOverrides,
+        awsAccessKeyId: awsAccessKeyId,
+        awsSecretAccessKey: awsSecretAccessKey,
+        queueStateBucket: env.DIST_QUEUE_STATE_S3_BUCKET,
         codeVersion: codeVersionFromTag,
-        statePrefix: queueStatePrefix,
-        image: imageOverrides
+        statePrefix: queueStatePrefix
       })
     ]
   }
