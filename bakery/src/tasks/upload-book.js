@@ -14,7 +14,6 @@ const task = (taskArgs) => {
     throw Error('distBucketPath must represent some directory-like path in s3')
   }
   const distBucketPrefix = `${distBucketPath}${codeVersion}`
-  const cloudfrontUrlWithPrefix = `${cloudfrontUrl}/${distBucketPrefix}`
 
   const rexUrl = 'https://rex-web.herokuapp.com'
   const rexProdUrl = 'https://rex-web-production.herokuapp.com'
@@ -67,9 +66,7 @@ const task = (taskArgs) => {
           aws s3 cp "$book_dir/collection.toc.json" "$toc_s3_link_json"
           aws s3 cp "$book_dir/collection.toc.xhtml" "$toc_s3_link_xhtml"
 
-          json_url=${cloudfrontUrlWithPrefix}/contents/$book_uuid@$book_version.json
-          xhtml_url=${cloudfrontUrlWithPrefix}/contents/$book_uuid@$book_version.xhtml
-          rex_archive_param="?archive=${cloudfrontUrlWithPrefix}"
+          rex_archive_param="?archive=${cloudfrontUrl}/${distBucketPrefix}"
 
           book_slug=$(jq -r '.tree.slug' "$book_dir/collection.toc.json")
           first_page_slug=$(jq -r '.tree.contents[0].slug' "$book_dir/collection.toc.json")
