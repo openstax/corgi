@@ -1,6 +1,6 @@
 #!/bin/bash
 
-exec 2> >(tee "${CHECKSUM_OUTPUT}"/stderr >&2)
+exec 2> >(tee "${RESOURCES_OUTPUT}"/stderr >&2)
 
 # Add symlinks to fetched-book-group to be able to find images
 find "${SYMLINK_INPUT}" -type l -print0 | xargs -0 -I{} cp -P {} "${LINKED_INPUT}"
