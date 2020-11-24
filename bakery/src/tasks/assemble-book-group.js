@@ -9,6 +9,7 @@ const task = (taskArgs) => {
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
+  const bookInput = 'book'
   const inputName = 'fetched-book-group'
   const assembledOutput = 'assembled-book-group'
   const symlinkOutput = 'module-symlinks'
@@ -24,6 +25,7 @@ const task = (taskArgs) => {
         source: imageSource
       },
       inputs: [
+        { name: bookInput },
         { name: inputName }
       ],
       outputs: [
@@ -33,7 +35,8 @@ const task = (taskArgs) => {
       params: {
         ASSEMBLED_OUTPUT: assembledOutput,
         SYMLINK_OUTPUT: symlinkOutput,
-        RAW_COLLECTION_DIR: rawCollectionDir
+        RAW_COLLECTION_DIR: rawCollectionDir,
+        BOOK_INPUT: bookInput
       },
       run: {
         path: '/bin/bash',
