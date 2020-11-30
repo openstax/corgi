@@ -84,6 +84,15 @@ def patch_math(doc):
     ):
         node.tag = "mi"
 
+    # MathJax 3.x renders StarMath annotation
+    # which is btw out of specification of MathML.
+    # The following lines removes all annotation-xml nodes.
+    for node in doc.xpath(
+        '//x:annotation-xml[ancestor::x:math]',
+        namespaces={"x": "http://www.w3.org/1999/xhtml"}
+    ):
+        node.getparent().remove(node)
+
 
 def main():
     in_dir = Path(sys.argv[1]).resolve(strict=True)
