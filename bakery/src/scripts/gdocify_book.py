@@ -93,6 +93,16 @@ def patch_math(doc):
     ):
         node.getparent().remove(node)
 
+    # MathJax 3.x behaves different than legacy MathJax 2.7.x on msubsup MathML.
+    # If msubsup has fewer than 3 elements MathJax 3.x does not convert it to
+    # msub itself anymore. We are keeping sure in this step that all msubsup 
+    # with fewer elements than 3 are converted to msub.
+    for node in doc.xpath(
+        '//x:msubsup[count(*) < 3]',
+        namespaces={"x": "http://www.w3.org/1999/xhtml"}
+    ):
+        node.tag = "msub"
+
 
 def main():
     in_dir = Path(sys.argv[1]).resolve(strict=True)
