@@ -95,7 +95,7 @@ def patch_math(doc):
 
     # MathJax 3.x behaves different than legacy MathJax 2.7.x on msubsup MathML.
     # If msubsup has fewer than 3 elements MathJax 3.x does not convert it to
-    # msub itself anymore. We are keeping sure in this step that all msubsup 
+    # msub itself anymore. We are keeping sure in this step that all msubsup
     # with fewer elements than 3 are converted to msub.
     for node in doc.xpath(
         '//x:msubsup[count(*) < 3]',
