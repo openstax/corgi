@@ -114,6 +114,10 @@
   </div>
 </xsl:template>
 
+<!-- remove annotation-xml nodes which confuses MathJax especially on StarMath annotations -->
+<xsl:template match="h:annotation-xml[ancestor::h:math]" mode="grey"/>
+<xsl:template match="h:annotation-xml[ancestor::h:math]"/>
+
 <!-- make block math to inline also for non grey background math -->
 <!-- note: pandoc ignores text center property https://github.com/jgm/pandoc/issues/719 -->
 <xsl:template match="h:math[@display='block']">
