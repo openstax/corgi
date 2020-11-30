@@ -24,6 +24,6 @@ def test_e2e_cops_jobs(selenium, base_url):
     # AND: Create button is clicked
     modal.click_create_button()
 
-    # THEN: The modal does not close and remains open
+    # THEN: The modal closes and job is queued
     assert home.is_create_new_job_button_displayed
     assert modal.status_message.text == "queued"
