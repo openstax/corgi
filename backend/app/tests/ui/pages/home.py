@@ -67,7 +67,7 @@ class Home(Page):
 
         _modal_collection_id_slug_field_error_locator = (
             By.CLASS_NAME,
-            "git-pdf-error-text",
+            "collection-id-field",
         )
 
         _modal_collection_id_incorrect_field_error_locator = (
@@ -77,7 +77,7 @@ class Home(Page):
 
         _modal_collection_id_slug_incorrect_field_error_locator = (
             By.CLASS_NAME,
-            "git-pdf-incorrect-error-text",
+            "collection-id-field",
         )
 
         _modal_style_field_error_locator = (By.CLASS_NAME, "style-error-text")
