@@ -1270,7 +1270,7 @@ def test_gdocify_book(tmp_path, mocker):
     assert len(unwanted_nodes) == 0
 
     unwanted_nodes = updated_doc.xpath(
-        '//x:annotation[@encoding="StarMath 5.0"]',
+        '//x:annotation',
         namespaces={"x": "http://www.w3.org/1999/xhtml"},
     )
     assert len(unwanted_nodes) == 0
