@@ -1165,7 +1165,8 @@ def test_gdocify_book(tmp_path, mocker):
                             </mrow>
                             <mrow></mrow>
                         </mrow>
-                        <annotation encoding="StarMath 5.0"> size 12{ { {N}} sup { x } rSub { size 8{R} } } {}</annotation>
+<!-- indent differently because of flake8 -->
+<annotation encoding="StarMath 5.0"> size 12{ { {N}} sup { x } rSub { size 8{R} } } {}</annotation>
                     </semantics>
                 </annotation-xml>
             </semantics>
