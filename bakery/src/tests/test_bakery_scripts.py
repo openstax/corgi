@@ -1171,6 +1171,12 @@ def test_gdocify_book(tmp_path, mocker):
                 </annotation-xml>
             </semantics>
         </math>
+        <math>
+            <semantics>
+                <mi>N</mi>
+                <annotation encoding="StarMath 5.0">{N}</annotation>
+            </semantics>
+        </math>
         </div>
         </body>
         </html>

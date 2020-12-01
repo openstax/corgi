@@ -92,6 +92,12 @@ def patch_math(doc):
         namespaces={"x": "http://www.w3.org/1999/xhtml"}
     ):
         node.getparent().remove(node)
+    # also do an extra check for StarMath annotation tags
+    for node in doc.xpath(
+        '//x:annotation[starts-with(@encoding, 'Star')]',
+        namespaces={"x": "http://www.w3.org/1999/xhtml"}
+    ):
+        node.getparent().remove(node)
 
     # MathJax 3.x behaves different than legacy MathJax 2.7.x on msubsup MathML.
     # If msubsup has fewer than 3 elements MathJax 3.x does not convert it to
