@@ -84,6 +84,32 @@ def patch_math(doc):
     ):
         node.tag = "mi"
 
+    # Pandoc renders StarMath annotation
+    # which is btw out of specification of MathML.
+    # The following lines removes all annotation-xml nodes.
+    for node in doc.xpath(
+        '//x:annotation-xml[ancestor::x:math]',
+        namespaces={"x": "http://www.w3.org/1999/xhtml"}
+    ):
+        node.getparent().remove(node)
+    # remove also all annotation nodes which can confuse Pandoc
+    for node in doc.xpath(
+        '//x:annotation[ancestor::x:math]',
+        namespaces={"x": "http://www.w3.org/1999/xhtml"}
+    ):
+        node.getparent().remove(node)
+
+    # MathJax 3.x behaves different than legacy MathJax 2.7.x on msubsup MathML.
+    # If msubsup has fewer than 3 elements MathJax 3.x does not convert it to
+    # msub itself anymore. We are keeping sure in this step that all msubsup
+    # with fewer elements than 3 are converted to msub.
+    # Pandoc is also confused by msubsup with elements fewer than 3.
+    for node in doc.xpath(
+        '//x:msubsup[count(*) < 3]',
+        namespaces={"x": "http://www.w3.org/1999/xhtml"}
+    ):
+        node.tag = "msub"
+
 
 def main():
     in_dir = Path(sys.argv[1]).resolve(strict=True)

@@ -1131,6 +1131,52 @@ def test_gdocify_book(tmp_path, mocker):
                 <mtext mathvariant="bold-italic">x</mtext>
             </mrow>
         </math>
+        <math>
+            <semantics>
+                <mrow>
+                    <mrow>
+                        <mrow>
+                            <msubsup>
+                                <mrow>
+                                    <mi>N</mi>
+                                    <mo>′</mo>
+                                </mrow>
+                                <mrow>
+                                    <mtext>R</mtext>
+                                </mrow>
+                            </msubsup>
+                        </mrow>
+                        <mrow></mrow>
+                    </mrow>
+                </mrow>
+                <annotation-xml encoding="MathML-Content">
+                    <semantics>
+                        <mrow>
+                            <mrow>
+                                <msubsup>
+                                    <mrow>
+                                        <mi>N</mi>
+                                        <mo>′</mo>
+                                    </mrow>
+                                    <mrow>
+                                        <mtext>R</mtext>
+                                    </mrow>
+                                </msubsup>
+                            </mrow>
+                            <mrow></mrow>
+                        </mrow>
+<!-- indent differently because of flake8 -->
+<annotation encoding="StarMath 5.0"> size 12{ { {N}} sup { x } rSub { size 8{R} } } {}</annotation>
+                    </semantics>
+                </annotation-xml>
+            </semantics>
+        </math>
+        <math>
+            <semantics>
+                <mi>N</mi>
+                <annotation encoding="StarMath 5.0">{N}</annotation>
+            </semantics>
+        </math>
         </div>
         </body>
         </html>
@@ -1216,6 +1262,36 @@ def test_gdocify_book(tmp_path, mocker):
         namespaces={"x": "http://www.w3.org/1999/xhtml"},
     ):
         assert "mi" == node.tag.split("}")[1]
+
+    unwanted_nodes = updated_doc.xpath(
+        '//x:annotation-xml',
+        namespaces={"x": "http://www.w3.org/1999/xhtml"},
+    )
+    assert len(unwanted_nodes) == 0
+
+    unwanted_nodes = updated_doc.xpath(
+        '//x:annotation',
+        namespaces={"x": "http://www.w3.org/1999/xhtml"},
+    )
+    assert len(unwanted_nodes) == 0
+
+    unwanted_nodes = updated_doc.xpath(
+        '//x:msubsup[count(*) < 3]',
+        namespaces={"x": "http://www.w3.org/1999/xhtml"},
+    )
+    assert len(unwanted_nodes) == 0
+
+    unwanted_nodes = updated_doc.xpath(
+        '//x:msub[count(*) > 2]',
+        namespaces={"x": "http://www.w3.org/1999/xhtml"},
+    )
+    assert len(unwanted_nodes) == 0
+
+    msub_nodes = updated_doc.xpath(
+        '//x:msub',
+        namespaces={"x": "http://www.w3.org/1999/xhtml"},
+    )
+    assert len(msub_nodes) == 1
 
 
 class ANY_OF:
