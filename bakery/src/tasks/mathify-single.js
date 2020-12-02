@@ -12,9 +12,9 @@ const task = (taskArgs) => {
 
   const bookInput = 'book'
   const symlinkInput = 'module-symlinks'
-  const linkedInput = 'linked-single'
-  const styleInput = 'group-style'
-  const mathifiedOutput = 'mathified-single'
+  const linkedInput = 'linked-git'
+  const styleInput = 'git-style'
+  const mathifiedOutput = 'mathified-git'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/mathify_single.sh'), { encoding: 'utf-8' })
 
   return {

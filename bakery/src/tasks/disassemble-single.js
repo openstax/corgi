@@ -11,9 +11,9 @@ const task = (taskArgs) => {
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
   const bookInput = 'book'
-  const resourceLinkedInput = 'resource-linked-single'
-  const bakedBookMetaInput = 'baked-book-metadata-group'
-  const disassembledOutput = 'disassembled-single'
+  const resourceLinkedInput = 'resource-linked-git'
+  const bakedBookMetaInput = 'baked-book-metadata-git'
+  const disassembledOutput = 'disassembled-git'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/disassemble_single.sh'), { encoding: 'utf-8' })
 
   return {

@@ -11,8 +11,8 @@ const task = (taskArgs) => {
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
   const bookInput = 'book'
-  const disassembledInput = 'disassembled-single'
-  const jsonifiedOutput = 'jsonified-single'
+  const disassembledInput = 'disassembled-git'
+  const jsonifiedOutput = 'jsonified-git'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/jsonify_single.sh'), { encoding: 'utf-8' })
 
   return {

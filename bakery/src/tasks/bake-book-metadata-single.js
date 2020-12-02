@@ -11,10 +11,10 @@ const task = (taskArgs) => {
     const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
     const bookInput = 'book'
-    const fetchedInput = 'fetched-book-group'
-    const bakedInput = 'baked-book-single'
-    const assembledMetaInput = 'assembled-book-metadata-single'
-    const bakedMetaOutput = 'baked-book-metadata-single'
+    const fetchedInput = 'fetched-book-git'
+    const bakedInput = 'baked-book-git'
+    const assembledMetaInput = 'assembled-book-metadata-git'
+    const bakedMetaOutput = 'baked-book-metadata-git'
     const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/bake_book_metadata_single.sh'), { encoding: 'utf-8' })
 
     return {

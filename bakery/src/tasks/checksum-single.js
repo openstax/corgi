@@ -11,12 +11,12 @@ const task = (taskArgs) => {
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
   const bookInput = 'book'
-  const fetchedInput = 'fetched-book-group'
-  const fetchedResourcesInput = 'fetched-book-group-resources'
+  const fetchedInput = 'fetched-book-git'
+  const fetchedResourcesInput = 'fetched-book-git-resources'
   const symlinkInput = 'module-symlinks'
-  const linkedInput = 'linked-single'
-  const resourcesOutput = 'checksum-single'
-  const resourceLinkedSingleOutput = 'resource-linked-single'
+  const linkedInput = 'linked-git'
+  const resourcesOutput = 'checksum-git'
+  const resourceLinkedSingleOutput = 'resource-linked-git'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/checksum_single.sh'), { encoding: 'utf-8' })
 
   return {

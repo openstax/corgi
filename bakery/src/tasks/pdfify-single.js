@@ -12,12 +12,12 @@ const task = (taskArgs) => {
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
   const bookInput = 'book'
-  const fetchedInput = 'fetched-book-group'
-  const fetchedResourcesInput = 'fetched-book-group-resources'
+  const fetchedInput = 'fetched-book-git'
+  const fetchedResourcesInput = 'fetched-book-git-resources'
   const symlinkInput = 'module-symlinks'
-  const styleInput = 'group-style'
-  const mathifiedInput = 'mathified-single'
-  const artifactsOutput = 'artifacts-single'
+  const styleInput = 'git-style'
+  const mathifiedInput = 'mathified-git'
+  const artifactsOutput = 'artifacts-git'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/pdfify_single.sh'), { encoding: 'utf-8' })
 
   return {

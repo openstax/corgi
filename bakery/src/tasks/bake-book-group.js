@@ -11,11 +11,11 @@ const task = (taskArgs) => {
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
   const bookInput = 'book'
-  const assembledInput = 'assembled-book-group'
+  const assembledInput = 'assembled-book-git'
   const recipeInput = 'cnx-recipes-output'
   const symlinkInput = 'module-symlinks'
-  const bakedOutput = 'baked-book-group'
-  const styleOutput = 'group-style'
+  const bakedOutput = 'baked-book-git'
+  const styleOutput = 'git-style'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/bake_book_group.sh'), { encoding: 'utf-8' })
 
   return {

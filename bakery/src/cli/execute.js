@@ -275,8 +275,8 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        output(dataDir, 'fetched-book-group'),
-        output(dataDir, 'fetched-book-group-resources')
+        output(dataDir, 'fetched-book-git'),
+        output(dataDir, 'fetched-book-git-resources')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
@@ -374,8 +374,8 @@ const tasks = {
 
       await flyExecute([
         '-c', tmpTaskFile.name,
-        input(dataDir, 'fetched-book-group'),
-        output(dataDir, 'assembled-book-group'),
+        input(dataDir, 'fetched-book-git'),
+        output(dataDir, 'assembled-book-git'),
         output(dataDir, 'module-symlinks')
       ], { image: argv.image, persist: argv.persist })
     }
@@ -416,8 +416,8 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'fetched-book-group'),
-        output(dataDir, 'assembled-book-single'),
+        input(dataDir, 'fetched-book-git'),
+        output(dataDir, 'assembled-book-git'),
         output(dataDir, 'module-symlinks')
       ], { image: argv.image, persist: argv.persist })
     }
@@ -506,11 +506,11 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'assembled-book-group'),
+        input(dataDir, 'assembled-book-git'),
         input(dataDir, 'module-symlinks'),
         `--input=cnx-recipes-output=${tmpRecipesDir.name}`,
-        output(dataDir, 'baked-book-group'),
-        output(dataDir, 'group-style')
+        output(dataDir, 'baked-book-git'),
+        output(dataDir, 'git-style')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
@@ -564,11 +564,11 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'assembled-book-single'),
+        input(dataDir, 'assembled-book-git'),
         input(dataDir, 'module-symlinks'),
         `--input=cnx-recipes-output=${tmpRecipesDir.name}`,
-        output(dataDir, 'baked-book-single'),
-        output(dataDir, 'single-style')
+        output(dataDir, 'baked-book-git'),
+        output(dataDir, 'git-style')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
@@ -664,10 +664,10 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'fetched-book-group'),
-        input(dataDir, 'baked-book-group'),
-        input(dataDir, 'baked-book-metadata-group'),
-        output(dataDir, 'linked-single')
+        input(dataDir, 'fetched-book-git'),
+        input(dataDir, 'baked-book-git'),
+        input(dataDir, 'baked-book-metadata-git'),
+        output(dataDir, 'linked-git')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
@@ -805,9 +805,9 @@ const tasks = {
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'module-symlinks'),
-        input(dataDir, 'group-style'),
-        input(dataDir, 'linked-single'),
-        output(dataDir, 'mathified-single')
+        input(dataDir, 'git-style'),
+        input(dataDir, 'linked-git'),
+        output(dataDir, 'mathified-git')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
@@ -886,12 +886,12 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'mathified-single'),
+        input(dataDir, 'mathified-git'),
         input(dataDir, 'module-symlinks'),
-        input(dataDir, 'group-style'),
-        input(dataDir, 'fetched-book-group'),
-        input(dataDir, 'fetched-book-group-resources'),
-        output(dataDir, 'artifacts-single')
+        input(dataDir, 'git-style'),
+        input(dataDir, 'fetched-book-git'),
+        input(dataDir, 'fetched-book-git-resources'),
+        output(dataDir, 'artifacts-git')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
@@ -968,9 +968,9 @@ const tasks = {
 
       await flyExecute([
         '-c', tmpTaskFile.name,
-        input(dataDir, 'fetched-book-group'),
-        input(dataDir, 'assembled-book-group'),
-        output(dataDir, 'assembled-book-metadata-group')
+        input(dataDir, 'fetched-book-git'),
+        input(dataDir, 'assembled-book-git'),
+        output(dataDir, 'assembled-book-metadata-git')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
@@ -1010,9 +1010,9 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'fetched-book-group'),
-        input(dataDir, 'assembled-book-single'),
-        output(dataDir, 'assembled-book-metadata-single')
+        input(dataDir, 'fetched-book-git'),
+        input(dataDir, 'assembled-book-git'),
+        output(dataDir, 'assembled-book-metadata-git')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
@@ -1091,10 +1091,10 @@ const tasks = {
 
       await flyExecute([
         '-c', tmpTaskFile.name,
-        input(dataDir, 'fetched-book-group'),
-        input(dataDir, 'baked-book-group'),
-        input(dataDir, 'assembled-book-metadata-group'),
-        output(dataDir, 'baked-book-metadata-group')
+        input(dataDir, 'fetched-book-git'),
+        input(dataDir, 'baked-book-git'),
+        input(dataDir, 'assembled-book-metadata-git'),
+        output(dataDir, 'baked-book-metadata-git')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
@@ -1134,10 +1134,10 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'fetched-book-group'),
-        input(dataDir, 'baked-book-single'),
-        input(dataDir, 'assembled-book-metadata-single'),
-        output(dataDir, 'baked-book-metadata-single')
+        input(dataDir, 'fetched-book-git'),
+        input(dataDir, 'baked-book-git'),
+        input(dataDir, 'assembled-book-metadata-git'),
+        output(dataDir, 'baked-book-metadata-git')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
@@ -1218,12 +1218,12 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'fetched-book-group'),
-        input(dataDir, 'fetched-book-group-resources'),
+        input(dataDir, 'fetched-book-git'),
+        input(dataDir, 'fetched-book-git-resources'),
         input(dataDir, 'module-symlinks'),
-        input(dataDir, 'linked-single'),
-        output(dataDir, 'checksum-single'),
-        output(dataDir, 'resource-linked-single')
+        input(dataDir, 'linked-git'),
+        output(dataDir, 'checksum-git'),
+        output(dataDir, 'resource-linked-git')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
@@ -1306,9 +1306,9 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'resource-linked-single'),
-        input(dataDir, 'baked-book-metadata-group'),
-        output(dataDir, 'disassembled-single')
+        input(dataDir, 'resource-linked-git'),
+        input(dataDir, 'baked-book-metadata-git'),
+        output(dataDir, 'disassembled-git')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
@@ -1389,8 +1389,8 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'disassembled-single'),
-        output(dataDir, 'jsonified-single')
+        input(dataDir, 'disassembled-git'),
+        output(dataDir, 'jsonified-git')
       ], { image: argv.image, persist: argv.persist })
     }
     return {

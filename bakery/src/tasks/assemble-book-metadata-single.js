@@ -10,9 +10,9 @@ const task = (taskArgs) => {
     const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
     const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
     const bookInput = 'book'
-    const fetchedInput = 'fetched-book-group'
-    const assembledInput = 'assembled-book-single'
-    const outputName = 'assembled-book-metadata-single'
+    const fetchedInput = 'fetched-book-git'
+    const assembledInput = 'assembled-book-git'
+    const outputName = 'assembled-book-metadata-git'
     const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/assemble_book_metadata_single.sh'), { encoding: 'utf-8' })
 
     return {
