@@ -90,15 +90,15 @@ def patch_mathjax_svg_invalid_xml(svg):
     '''MathJax 3.1.5 can produce on corner cases invalid XML SVGs
        Details: https://github.com/openstax/cnx/issues/1291'''
     try:
-        svg_xml = etree.parse(io.StringIO(svg))
+        etree.parse(io.StringIO(svg))
         return svg  # no patch necessary
-    except:
+    except etree.XMLSyntaxError:
         patched_svg = re.sub(
             r'(data-semantic-operator=\"\S*)<(\S*\")', r'\1&lt;\2', svg)
         try:
-            svg_xml = etree.parse(io.StringIO(svg))
+            etree.parse(io.StringIO(svg))
             return patched_svg
-        except:
+        except etree.XMLSyntaxError:
             raise Exception(
                     'Failed to generate valid XML out of SVG: ' + svg)
 
