@@ -87,7 +87,7 @@ def get_png_dimensions(png_bytes):
 
 
 def patch_mathjax_svg_invalid_xml(svg):
-    '''MathJax 3.1.5 can produce on corner cases invalid XML SVGs
+    '''MathJax 3.1.2 can produce on corner cases invalid XML SVGs
        Details: https://github.com/openstax/cnx/issues/1291'''
     try:
         etree.parse(io.StringIO(svg))
