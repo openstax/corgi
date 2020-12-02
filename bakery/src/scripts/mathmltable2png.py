@@ -96,7 +96,7 @@ def patch_mathjax_svg_invalid_xml(svg):
         patched_svg = re.sub(
             r'(data-semantic-operator=\"\S*)<(\S*\")', r'\1&lt;\2', svg)
         try:
-            etree.parse(io.StringIO(svg))
+            etree.parse(io.StringIO(patched_svg))
             return patched_svg
         except etree.XMLSyntaxError:
             raise Exception(
