@@ -36,14 +36,16 @@ const task = (taskArgs) => {
           dedent`
           exec 2> >(tee preview-urls/stderr >&2)
           collection_id="$(cat book/collection_id)"
+          book_metadata="jsonified-book/$collection_id/raw/metadata.json"
+          book_version="$(cat $book_metadata | jq -r '.version')"
           book_dir="jsonified-book/$collection_id/jsonified"
 
           rex_archive_param="?archive=${cloudfrontUrl}/${distBucketPrefix}"
 
           book_slug=$(jq -r '.tree.slug' "$book_dir/collection.toc.json")
           first_page_slug=$(jq -r '.tree.contents[0].slug' "$book_dir/collection.toc.json")
-          rex_url=${rexUrl}/books/$book_slug/pages/$first_page_slug$rex_archive_param
-          rex_prod_url=${rexProdUrl}/books/$book_slug/pages/$first_page_slug$rex_archive_param
+          rex_url="${rexUrl}/books/$book_slug@$book_version/pages/$first_page_slug$rex_archive_param"
+          rex_prod_url="${rexProdUrl}/books/$book_slug@$book_version/pages/$first_page_slug$rex_archive_param"
 
           jq \
             --arg rex_url $rex_url \
