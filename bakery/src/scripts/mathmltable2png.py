@@ -1,5 +1,6 @@
 import os
 import io
+import re
 import sys
 import requests
 import base64
@@ -85,6 +86,23 @@ def get_png_dimensions(png_bytes):
     return width, height
 
 
+def patch_mathjax_svg_invalid_xml(svg):
+    '''MathJax 3.1.5 can produce on corner cases invalid XML SVGs
+       Details: https://github.com/openstax/cnx/issues/1291'''
+    try:
+        svg_xml = etree.parse(io.StringIO(svg))
+        return svg  # no patch necessary
+    except:
+        patched_svg = re.sub(
+            r'(data-semantic-operator=\"\S*)<(\S*\")', r'\1&lt;\2', svg)
+        try:
+            svg_xml = etree.parse(io.StringIO(svg))
+            return patched_svg
+        except:
+            raise Exception(
+                    'Failed to generate valid XML out of SVG: ' + svg)
+
+
 def mathml2svg_jsonrpc(equation):
     '''convert MathML to SVG with MathJax in Node'''
     payload = {
@@ -100,6 +118,7 @@ def mathml2svg_jsonrpc(equation):
         svg = response['result'][0]
         mathspeak = response['result'][1]
         if len(svg) > 0:
+            svg = patch_mathjax_svg_invalid_xml(svg)
             svg = strip_mathjax_container(svg)
         return svg, mathspeak
     else:
