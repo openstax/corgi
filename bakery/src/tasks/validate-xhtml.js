@@ -28,8 +28,15 @@ const task = (taskArgs) => {
         args: [
           '-cxe',
           dedent`
-          collection_id="$(cat book/collection_id)"
-          for xhtmlfile in "${inputSource}/$collection_id/"${inputPath}
+          from_git_repo="$(cat book/repo)"
+          if [[ $from_git_repo ]]
+          then
+            xhtmlfiles_path="${inputSource}"${inputPath}
+          else
+            collection_id="$(cat book/collection_id)"
+            xhtmlfiles_path="${inputSource}/$collection_id/"${inputPath}
+          fi
+          for xhtmlfile in $xhtmlfiles_path
           do
             java -cp /xhtml-validator.jar org.openstax.xml.Main "$xhtmlfile" ${validationNames.join(' ')}
           done

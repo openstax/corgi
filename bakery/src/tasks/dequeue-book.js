@@ -36,6 +36,9 @@ const task = (taskArgs) => {
           echo -n "$(cat $book | jq -r '.server')" >book/server
           echo -n "$(cat $book | jq -r '.style')" >book/style
           echo -n "$(cat $book | jq -r '.version')" >book/version
+          echo -n "$(cat $book | jq -r '.repo')" >book/repo
+          echo -n "$(cat $book | jq -r '.slug')" >book/slug
+          echo -n "$(cat $book | jq -r '.uuid')" >book/uuid
         `
         ]
       }
