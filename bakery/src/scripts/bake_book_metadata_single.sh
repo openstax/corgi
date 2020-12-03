@@ -19,3 +19,4 @@ jq --arg ident_hash "$book_ident_hash" --arg uuid "$book_uuid" --arg version "$b
     "${ASSEMBLED_META_INPUT}/$slug_name.assembled-metadata.json" \
     > "/tmp/$slug_name.baked-input-metadata.json"
 bake-meta "/tmp/$slug_name.baked-input-metadata.json" "${BAKED_INPUT}/$slug_name.baked.xhtml" "$book_uuid" "$book_slugs_file" "${BAKED_META_OUTPUT}/$slug_name.baked-metadata.json"
+cp "${BAKED_INPUT}/$slug_name.baked.xhtml" "${LINKED_OUTPUT}/$slug_name.linked.xhtml"

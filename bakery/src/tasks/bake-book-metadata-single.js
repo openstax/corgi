@@ -15,6 +15,7 @@ const task = (taskArgs) => {
     const bakedInput = 'baked-book-git'
     const assembledMetaInput = 'assembled-book-metadata-git'
     const bakedMetaOutput = 'baked-book-metadata-git'
+    const linkedOutput = 'linked-git'
     const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/bake_book_metadata_single.sh'), { encoding: 'utf-8' })
 
     return {
@@ -31,9 +32,13 @@ const task = (taskArgs) => {
                 { name: bakedInput },
                 { name: assembledMetaInput }
             ],
-            outputs: [{ name: bakedMetaOutput }],
+            outputs: [
+                { name: bakedMetaOutput },
+                { name: linkedOutput }
+            ],
             params: {
                 BAKED_META_OUTPUT: bakedMetaOutput,
+                LINKED_OUTPUT: linkedOutput,
                 BAKED_INPUT: bakedInput,
                 FETCHED_INPUT: fetchedInput,
                 ASSEMBLED_META_INPUT: assembledMetaInput,

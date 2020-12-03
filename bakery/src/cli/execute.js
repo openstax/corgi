@@ -1137,7 +1137,8 @@ const tasks = {
         input(dataDir, 'fetched-book-git'),
         input(dataDir, 'baked-book-git'),
         input(dataDir, 'assembled-book-metadata-git'),
-        output(dataDir, 'baked-book-metadata-git')
+        output(dataDir, 'baked-book-metadata-git'),
+        output(dataDir, 'linked-git')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
