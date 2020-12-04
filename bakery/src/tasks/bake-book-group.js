@@ -13,7 +13,6 @@ const task = (taskArgs) => {
   const bookInput = 'book'
   const assembledInput = 'assembled-book-group'
   const recipeInput = 'cnx-recipes-output'
-  const symlinkInput = 'module-symlinks'
   const bakedOutput = 'baked-book-group'
   const styleOutput = 'group-style'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/bake_book_group.sh'), { encoding: 'utf-8' })
@@ -28,7 +27,6 @@ const task = (taskArgs) => {
       },
       inputs: [
         { name: bookInput },
-        { name: symlinkInput },
         { name: assembledInput },
         { name: recipeInput }
       ],
@@ -39,7 +37,6 @@ const task = (taskArgs) => {
       params: {
         BAKED_OUTPUT: bakedOutput,
         BOOK_INPUT: bookInput,
-        SYMLINK_INPUT: symlinkInput,
         STYLE_OUTPUT: styleOutput,
         ASSEMBLED_INPUT: assembledInput
       },
