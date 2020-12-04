@@ -24,8 +24,7 @@ const task = (taskArgs) => {
         AWS_SECRET_ACCESS_KEY: `${awsSecretAccessKey}`
       },
       inputs: [
-        { name: 'book' },
-        { name: 'jsonified-book' }
+        { name: 'book' }
       ],
       run: {
         path: '/bin/bash',
