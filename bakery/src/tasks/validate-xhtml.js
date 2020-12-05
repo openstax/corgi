@@ -28,13 +28,13 @@ const task = (taskArgs) => {
         args: [
           '-cxe',
           dedent`
-          from_git_repo="$(cat book/repo)"
-          if [[ $from_git_repo ]]
+          from_archive="$(cat book/server)"
+          if [[ -n $from_archive ]]
           then
-            xhtmlfiles_path="${inputSource}"${inputPath}
-          else
             collection_id="$(cat book/collection_id)"
             xhtmlfiles_path="${inputSource}/$collection_id/"${inputPath}
+          else
+            xhtmlfiles_path="${inputSource}"${inputPath}
           fi
           for xhtmlfile in $xhtmlfiles_path
           do

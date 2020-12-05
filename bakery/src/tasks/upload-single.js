@@ -16,7 +16,7 @@ const task = (taskArgs) => {
   const distBucketPrefix = `${distBucketPath}${codeVersion}`
 
   return {
-    task: 'upload book',
+    task: 'upload single',
     config: {
       platform: 'linux',
       image_resource: {
@@ -39,7 +39,6 @@ const task = (taskArgs) => {
           '-cxe',
           dedent`
           exec 2> >(tee upload-book/stderr >&2)
-          collection_id="$(cat book/collection_id)"
           target_dir="upload-book/contents"
           mkdir -p "$target_dir"
           book_dir="jsonified-single"

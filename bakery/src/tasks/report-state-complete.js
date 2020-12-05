@@ -31,9 +31,15 @@ const task = (taskArgs) => {
         args: [
           '-cxe',
           dedent`
-          collection_id="$(cat book/collection_id)"
-          book_legacy_version="$(cat book/version)"
-          complete_filename=".${statePrefix}.$collection_id@$book_legacy_version.complete"
+          from_archive="$(cat book/server)"
+          if [[ $from_archive ]]
+          then
+            book_id="$(cat book/collection_id)"
+          else
+            book_id="$(cat book/slug)"
+          fi
+          version="$(cat book/version)"
+          complete_filename=".${statePrefix}.$book_id@$version.complete"
           date -Iseconds > "/tmp/$complete_filename"
           aws s3 cp "/tmp/$complete_filename" "s3://${queueStateBucket}/${codeVersion}/$complete_filename"
         `

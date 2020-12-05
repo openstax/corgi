@@ -32,12 +32,21 @@ const task = (taskArgs) => {
             echo "Book is empty"
             exit 1
           fi
-          echo -n "$(cat $book | jq -r '.collection_id')" >book/collection_id
-          echo -n "$(cat $book | jq -r '.server')" >book/server
+
+          from_archive="$(cat $book | jq -r '.server')"
+
+          if [ "$from_archive" != null ]
+          then
+            echo -n "$(cat $book | jq -er '.collection_id')" >book/collection_id
+            echo -n "$(cat $book | jq -er '.server')" >book/server
+          else
+            echo -n "$(cat $book | jq -r '.style')" >book/slug
+            echo -n "$(cat $book | jq -r '.repo')" >book/repo
+            echo "" >book/server
+          fi
+
           echo -n "$(cat $book | jq -r '.style')" >book/style
           echo -n "$(cat $book | jq -r '.version')" >book/version
-          echo -n "$(cat $book | jq -r '.repo')" >book/repo
-          echo -n "$(cat $book | jq -r '.slug')" >book/slug
           echo -n "$(cat $book | jq -r '.uuid')" >book/uuid
         `
         ]

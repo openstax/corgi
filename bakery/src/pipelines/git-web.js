@@ -1,17 +1,18 @@
 const pipeline = (env) => {
     const taskCheckFeed = require('../tasks/check-feed')
     const taskDequeueBook = require('../tasks/dequeue-book')
-    const taskFetchBook = require('../tasks/fetch-book-group')
-    const taskAssembleBook = require('../tasks/assemble-book-group')
-    const taskLinkExtras = require('../tasks/link-single')
-    const taskAssembleBookMeta = require('../tasks/assemble-book-metadata-group')
-    const taskBakeBook = require('../tasks/bake-book-group')
-    const taskBakeBookMeta = require('../tasks/bake-book-metadata-group')
-    const taskChecksumBook = require('../tasks/checksum-single')
-    const taskDisassembleBook = require('../tasks/disassemble-single')
-    const taskJsonifyBook = require('../tasks/jsonify-single')
+    const taskFetchBookGroup = require('../tasks/fetch-book-group')
+    const taskAssembleBookGroup = require('../tasks/assemble-book-group')
+    const taskLinkSingle = require('../tasks/link-single')
+    const taskAssembleBookMetaGroup = require('../tasks/assemble-book-metadata-group')
+    const taskBakeBookGroup = require('../tasks/bake-book-group')
+    const taskBakeBookMetaGroup = require('../tasks/bake-book-metadata-group')
+    const taskChecksumSingle = require('../tasks/checksum-single')
+    const taskDisassembleSingle = require('../tasks/disassemble-single')
+    const taskJsonifySingle = require('../tasks/jsonify-single')
     const taskValidateXhtml = require('../tasks/validate-xhtml')
-    const taskUploadBook = require('../tasks/upload-single')
+    const taskUploadSingle = require('../tasks/upload-single')
+    const taskReportStateComplete = require('../tasks/report-state-complete')
 
     const awsAccessKeyId = env.S3_ACCESS_KEY_ID
     const awsSecretAccessKey = env.S3_SECRET_ACCESS_KEY
@@ -19,15 +20,12 @@ const pipeline = (env) => {
     const githubSecretCreds = env.GH_SECRET_CREDS
     const queueFilename = `${codeVersionFromTag}.${env.DIST_QUEUE_FILENAME}`
     const queueStatePrefix = 'dist'
-
     const lockedTag = env.IMAGE_TAG || 'trunk'
 
     const imageOverrides = {
         tag: lockedTag,
         ...env.dockerCredentials
     }
-
-    console.log(env.dockerCredentials)
 
     const resources = [
         {
@@ -76,8 +74,8 @@ const pipeline = (env) => {
         ]
     }
 
-    const bakeryJob = {
-        name: 'bakery',
+    const gitWebHostJob = {
+        name: 'git-webhosting-job',
         max_in_flight: 5,
         plan: [
             { get: 's3-queue', trigger: true, version: 'every' },
@@ -86,21 +84,18 @@ const pipeline = (env) => {
                 queueFilename: queueFilename,
                 image: imageOverrides
             }),
-            taskFetchBook({
+            taskFetchBookGroup({
                 githubSecretCreds: githubSecretCreds,
                 image: imageOverrides
             }),
-            taskAssembleBook({ image: imageOverrides }),
-            taskAssembleBookMeta({ image: imageOverrides }),
-            taskBakeBook({ image: imageOverrides }),
-            taskBakeBookMeta({ image: imageOverrides }),
-            taskLinkExtras({ image: imageOverrides }),
-            taskChecksumBook({
-                image: imageOverrides,
-                inputSource: 'fetched-book-group-resources',
-            }),
-            taskDisassembleBook({ image: imageOverrides }),
-            taskJsonifyBook({
+            taskAssembleBookGroup({ image: imageOverrides }),
+            taskAssembleBookMetaGroup({ image: imageOverrides }),
+            taskBakeBookGroup({ image: imageOverrides }),
+            taskBakeBookMetaGroup({ image: imageOverrides }),
+            taskLinkSingle({ image: imageOverrides }),
+            taskChecksumSingle({ image: imageOverrides }),
+            taskDisassembleSingle({ image: imageOverrides }),
+            taskJsonifySingle({
                 image: imageOverrides
             }),
             taskValidateXhtml({
@@ -109,7 +104,7 @@ const pipeline = (env) => {
                 inputPath: '/*@*.xhtml',
                 validationNames: ['duplicate-id', 'broken-link']
             }),
-            taskUploadBook({
+            taskUploadSingle({
                 distBucket: env.DIST_S3_BUCKET,
                 distBucketPath: 'apps/archive/',
                 queueStateBucket: env.DIST_QUEUE_STATE_S3_BUCKET,
@@ -118,6 +113,14 @@ const pipeline = (env) => {
                 codeVersion: codeVersionFromTag,
                 statePrefix: queueStatePrefix,
                 image: imageOverrides
+            }),
+            taskReportStateComplete({
+                image: imageOverrides,
+                awsAccessKeyId: awsAccessKeyId,
+                awsSecretAccessKey: awsSecretAccessKey,
+                queueStateBucket: env.DIST_QUEUE_STATE_S3_BUCKET,
+                codeVersion: codeVersionFromTag,
+                statePrefix: queueStatePrefix
             })
         ]
     }
@@ -125,7 +128,7 @@ const pipeline = (env) => {
     return {
         config: {
             resources: resources,
-            jobs: [feederJob, bakeryJob]
+            jobs: [feederJob, gitWebHostJob]
         }
     }
 }
