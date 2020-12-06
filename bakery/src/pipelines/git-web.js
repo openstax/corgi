@@ -18,8 +18,8 @@ const pipeline = (env) => {
     const awsSecretAccessKey = env.S3_SECRET_ACCESS_KEY
     const codeVersionFromTag = env.IMAGE_TAG || 'version-unknown'
     const githubSecretCreds = env.GH_SECRET_CREDS
-    const queueFilename = `${codeVersionFromTag}.${env.DIST_QUEUE_FILENAME}`
-    const queueStatePrefix = 'dist'
+    const queueFilename = `${codeVersionFromTag}.${env.DIST_GIT_QUEUE_FILENAME}`
+    const queueStatePrefix = 'git-dist'
     const lockedTag = env.IMAGE_TAG || 'trunk'
 
     const imageOverrides = {
@@ -63,7 +63,7 @@ const pipeline = (env) => {
             taskCheckFeed({
                 awsAccessKeyId: awsAccessKeyId,
                 awsSecretAccessKey: awsSecretAccessKey,
-                feedFileUrl: env.DIST_FEED_FILE_URL,
+                feedFileUrl: env.DIST_GIT_FEED_FILE_URL,
                 queueStateBucket: env.DIST_QUEUE_STATE_S3_BUCKET,
                 queueFilename: queueFilename,
                 codeVersion: codeVersionFromTag,

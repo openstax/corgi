@@ -17,8 +17,8 @@ const pipeline = (env) => {
   const awsAccessKeyId = env.S3_ACCESS_KEY_ID
   const awsSecretAccessKey = env.S3_SECRET_ACCESS_KEY
   const codeVersionFromTag = env.IMAGE_TAG || 'version-unknown'
-  const queueFilename = `${codeVersionFromTag}.${env.DIST_QUEUE_FILENAME}`
-  const queueStatePrefix = 'dist'
+  const queueFilename = `${codeVersionFromTag}.${env.DIST_ARCHIVE_QUEUE_FILENAME}`
+  const queueStatePrefix = 'archive-dist'
 
   const lockedTag = env.IMAGE_TAG || 'trunk'
 
@@ -63,7 +63,7 @@ const pipeline = (env) => {
       taskCheckFeed({
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
-        feedFileUrl: env.DIST_FEED_FILE_URL,
+        feedFileUrl: env.DIST_ARCHIVE_FEED_FILE_URL,
         queueStateBucket: env.DIST_QUEUE_STATE_S3_BUCKET,
         queueFilename: queueFilename,
         codeVersion: codeVersionFromTag,
