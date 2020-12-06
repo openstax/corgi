@@ -38,8 +38,8 @@ const task = (taskArgs) => {
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee upload-book/stderr >&2)
-          target_dir="upload-book/contents"
+          exec 2> >(tee upload-single/stderr >&2)
+          target_dir="upload-single/contents"
           mkdir -p "$target_dir"
           book_dir="jsonified-single"
           resources_dir="checksum-single/resources"
