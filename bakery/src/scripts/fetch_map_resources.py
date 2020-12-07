@@ -1,15 +1,11 @@
 """Map resource files used in CNXML to provided path"""
 
-import hashlib
 import json
-import magic
 import shutil
 import sys
 from pathlib import Path
 from lxml import etree
-
-# same as boto3 default chunk size. Don't modify.
-BUF_SIZE = 8 * 1024 * 1024
+from . import utils
 
 # relative links must work both locally, on PDF, and on REX, and images are
 # uploaded with the prefix 'resources/' in S3 for REX
@@ -27,46 +23,6 @@ def create_json_metadata(output_dir, sha1, mime_type, s3_md5, original_name):
     json_file = output_dir / f'{sha1}.json'
     with json_file.open(mode='w') as outfile:
         json.dump(data, outfile)
-
-
-def get_mime_type(filename):
-    """ get MIME type of file with libmagic """
-    mime_type = ''
-    try:
-        mime_type = magic.from_file(filename, mime=True)
-    finally:
-        return mime_type
-
-
-# https://stackoverflow.com/a/22058673/756056
-def get_checksums(filename):
-    """ generate SHA1 and S3 MD5 etag checksums from file """
-    sha1 = hashlib.sha1()
-    md5s = []
-    try:
-        with open(filename, 'rb') as f:
-            while True:
-                data = f.read(BUF_SIZE)
-                if not data:
-                    break
-                sha1.update(data)
-                md5s.append(hashlib.md5(data))
-        # chunked calculation for AWS S3 MD5 etag
-        # https://stackoverflow.com/a/43819225/756056
-        #
-        # AWS needs the MD5 quoted inside the string json value.
-        # Despite looking like a mistake, this is correct behavior.
-        if len(md5s) < 1:
-            s3_md5 = '"{}"'.format(hashlib.md5().hexdigest())
-        elif len(md5s) == 1:
-            s3_md5 = '"{}"'.format(md5s[0].hexdigest())
-        else:
-            digests = b''.join(m.digest() for m in md5s)
-            digests_md5 = hashlib.md5(digests)
-            s3_md5 = '"{}-{}"'.format(digests_md5.hexdigest(), len(md5s))
-        return sha1.hexdigest(), s3_md5
-    except IOError:     # file does not exist
-        return None, None
 
 
 def main():
@@ -91,8 +47,8 @@ def main():
             resource_original_name = node.attrib["src"]
             resource_original_file = original_resources_dir / resource_original_name
 
-            sha1, s3_md5 = get_checksums(str(resource_original_file))
-            mime_type = get_mime_type(str(resource_original_file))
+            sha1, s3_md5 = utils.get_checksums(str(resource_original_file))
+            mime_type = utils.get_mime_type(str(resource_original_file))
 
             if sha1 is None:
                 print(
