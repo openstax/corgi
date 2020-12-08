@@ -11,7 +11,6 @@ const task = (taskArgs) => {
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
   const inputName = 'fetched-book-group'
   const assembledOutput = 'assembled-book-group'
-  const symlinkOutput = 'module-symlinks'
   const rawCollectionDir = `${inputName}/raw`
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/assemble_book_group.sh'), { encoding: 'utf-8' })
 
@@ -27,12 +26,10 @@ const task = (taskArgs) => {
         { name: inputName }
       ],
       outputs: [
-        { name: assembledOutput },
-        { name: symlinkOutput }
+        { name: assembledOutput }
       ],
       params: {
         ASSEMBLED_OUTPUT: assembledOutput,
-        SYMLINK_OUTPUT: symlinkOutput,
         RAW_COLLECTION_DIR: rawCollectionDir
       },
       run: {

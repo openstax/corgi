@@ -11,7 +11,6 @@ const task = (taskArgs) => {
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
   const bookInput = 'book'
-  const symlinkInput = 'module-symlinks'
   const linkedInput = 'linked-single'
   const styleInput = 'group-style'
   const mathifiedOutput = 'mathified-single'
@@ -27,7 +26,6 @@ const task = (taskArgs) => {
       },
       inputs: [
         { name: bookInput },
-        { name: symlinkInput },
         { name: styleInput },
         { name: linkedInput }
       ],
@@ -35,7 +33,6 @@ const task = (taskArgs) => {
       params: {
         MATHIFIED_OUTPUT: mathifiedOutput,
         BOOK_INPUT: bookInput,
-        SYMLINK_INPUT: symlinkInput,
         STYLE_INPUT: styleInput,
         LINKED_INPUT: linkedInput
       },

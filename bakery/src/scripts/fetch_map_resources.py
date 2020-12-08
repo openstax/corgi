@@ -1,15 +1,42 @@
 """Map resource files used in CNXML to provided path"""
 
+import json
+import shutil
 import sys
 from pathlib import Path
 from lxml import etree
+from . import utils
+
+# relative links must work both locally, on PDF, and on REX, and images are
+# uploaded with the prefix 'resources/' in S3 for REX
+# so the output directory name MUST be resources
+RESOURCES_DIR_NAME = 'resources'
+
+
+def create_json_metadata(output_dir, sha1, mime_type, s3_md5, original_name):
+    """ Create json with MIME type of a (symlinked) resource file """
+    data = {}
+    data['original_name'] = original_name
+    data['mime_type'] = mime_type
+    data['s3_md5'] = s3_md5
+    data['sha1'] = sha1
+    json_file = output_dir / f'{sha1}.json'
+    with json_file.open(mode='w') as outfile:
+        json.dump(data, outfile)
 
 
 def main():
     in_dir = Path(sys.argv[1]).resolve(strict=True)
-    resource_rel_path_prefix = sys.argv[2]
+    original_resources_dir = Path(sys.argv[2]).resolve(strict=True)
+    resources_parent_dir = Path(sys.argv[3]).resolve(strict=True)
+    unused_resources_dump = Path(sys.argv[4]).resolve()
+    resources_dir = resources_parent_dir / RESOURCES_DIR_NAME
+    resources_dir.mkdir(exist_ok=True)
+    unused_resources_dump.mkdir(exist_ok=True)
 
     cnxml_files = in_dir.glob("**/*.cnxml")
+
+    filename_to_data = {}
 
     for cnxml_file in cnxml_files:
         doc = etree.parse(str(cnxml_file))
@@ -17,19 +44,40 @@ def main():
             '//x:image',
             namespaces={"x": "http://cnx.rice.edu/cnxml"}
         ):
-            resource_file = node.attrib["src"]
-            file_link_name = (cnxml_file.parent / resource_file)
+            resource_original_name = node.attrib["src"]
+            resource_original_file = original_resources_dir / resource_original_name
 
-            # Create a symlink to the resource file associated with this image
-            # if it doesn't already exist
-            if not file_link_name.is_symlink():
-                file_link_name.symlink_to(
-                    f"{resource_rel_path_prefix}/{resource_file}"
+            sha1, s3_md5 = utils.get_checksums(str(resource_original_file))
+            mime_type = utils.get_mime_type(str(resource_original_file))
+
+            if sha1 is None:
+                print(
+                    f"WARNING: Resource file '{resource_original_name}' not found",
+                    file=sys.stderr
                 )
+                continue
 
-            # Check if the symlink resolves, otherwise print warning
-            if not file_link_name.exists():
-                print(f"WARNING: Resource file '{resource_file}' not found")
+            filename_to_data[resource_original_name] = (sha1, s3_md5, mime_type)
+            node.attrib["src"] = f"../{RESOURCES_DIR_NAME}/{sha1}"
+
+        with cnxml_file.open(mode="wb") as f:
+            doc.write(f, encoding="utf-8", xml_declaration=False)
+
+    for resource_original_name in filename_to_data:
+        sha1, s3_md5, mime_type = filename_to_data[resource_original_name]
+
+        resource_original_file = original_resources_dir / resource_original_name
+        checksum_resource_file = resources_dir / sha1
+
+        shutil.move(str(resource_original_file), str(checksum_resource_file))
+        create_json_metadata(resources_dir, sha1, mime_type, s3_md5, resource_original_name)
+
+    for unused_resource_file in original_resources_dir.glob('**/*'):
+        shutil.move(str(unused_resource_file), unused_resources_dump)
+        print(
+            f"WARNING: Resource file '{unused_resource_file.name}' seems to be unused",
+            file=sys.stderr
+        )
 
 
 if __name__ == "__main__":

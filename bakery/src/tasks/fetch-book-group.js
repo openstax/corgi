@@ -14,7 +14,8 @@ const task = (taskArgs) => {
   const bookInput = 'book'
   const bookSlugsUrl = 'https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/book-slugs.json'
   const contentOutput = 'fetched-book-group'
-  const resourceOutput = 'fetched-book-group-resources'
+  const resourceOutput = 'resources'
+  const unusedResourceOutput = 'unused-resources'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/fetch_book_group.sh'), { encoding: 'utf-8' })
   return {
     task: 'fetch book group',
@@ -27,7 +28,8 @@ const task = (taskArgs) => {
       inputs: [{ name: bookInput }],
       outputs: [
         { name: contentOutput },
-        { name: resourceOutput }
+        { name: resourceOutput },
+        { name: unusedResourceOutput }
       ],
       params: {
         COLUMNS: 80,
@@ -35,7 +37,7 @@ const task = (taskArgs) => {
         GH_SECRET_CREDS: githubSecretCreds,
         CONTENT_OUTPUT: contentOutput,
         BOOK_SLUGS_URL: bookSlugsUrl,
-        RESOURCE_OUTPUT: resourceOutput
+        UNUSED_RESOURCE_OUTPUT: unusedResourceOutput
       },
       run: {
         path: '/bin/bash',

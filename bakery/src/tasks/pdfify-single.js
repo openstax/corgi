@@ -13,8 +13,7 @@ const task = (taskArgs) => {
 
   const bookInput = 'book'
   const fetchedInput = 'fetched-book-group'
-  const fetchedResourcesInput = 'fetched-book-group-resources'
-  const symlinkInput = 'module-symlinks'
+  const fetchedResourcesInput = 'resources'
   const styleInput = 'group-style'
   const mathifiedInput = 'mathified-single'
   const artifactsOutput = 'artifacts-single'
@@ -33,13 +32,11 @@ const task = (taskArgs) => {
         { name: fetchedInput },
         { name: fetchedResourcesInput },
         { name: styleInput },
-        { name: symlinkInput },
         { name: mathifiedInput }
       ],
       outputs: [{ name: artifactsOutput }],
       params: {
         ARTIFACTS_OUTPUT: artifactsOutput,
-        SYMLINK_INPUT: symlinkInput,
         MATHIFIED_INPUT: mathifiedInput,
         STYLE_INPUT: styleInput,
         BUCKET_NAME: bucketName,
