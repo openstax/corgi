@@ -82,7 +82,8 @@ const pipeline = (env) => {
       { get: 'cnx-recipes-output' },
       taskDequeueBook({
         queueFilename: queueFilename,
-        image: imageOverrides
+        image: imageOverrides,
+        contentSource: 'git'
       }),
       taskFetchBookGroup({
         githubSecretCreds: githubSecretCreds,

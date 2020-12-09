@@ -3,13 +3,14 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
-  const { queueFilename } = taskArgs
+  const { queueFilename, contentSource: maybeContentSource } = taskArgs
   const imageDefault = {
     name: 'openstax/cops-bakery-scripts',
     tag: 'trunk'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
+  const contentSource = maybeContentSource != null ? maybeContentSource : 'archive'
 
   return {
     task: 'dequeue book',
@@ -21,6 +22,9 @@ const task = (taskArgs) => {
       },
       inputs: [{ name: 's3-queue' }],
       outputs: [{ name: 'book' }],
+      params: {
+        CONTENT_SOURCE: contentSource
+      },
       run: {
         path: '/bin/bash',
         args: [
@@ -33,17 +37,20 @@ const task = (taskArgs) => {
             exit 1
           fi
 
-          from_archive="$(cat $book | jq -r '.server')"
-
-          if [ "$from_archive" != null ]
-          then
+          case $CONTENT_SOURCE in
+          archive)
             echo -n "$(cat $book | jq -er '.collection_id')" >book/collection_id
             echo -n "$(cat $book | jq -er '.server')" >book/server
-          else
-            echo -n "$(cat $book | jq -r '.style')" >book/slug
+            ;;
+          git)
+            echo -n "$(cat $book | jq -r '.slug')" >book/slug
             echo -n "$(cat $book | jq -r '.repo')" >book/repo
-            echo "" >book/server
-          fi
+            ;;
+          *)
+            echo "CONTENT_SOURCE unrecognized: $CONTENT_SOURCE"
+            exit 1
+            ;;
+          esac
 
           echo -n "$(cat $book | jq -r '.style')" >book/style
           echo -n "$(cat $book | jq -r '.version')" >book/version
