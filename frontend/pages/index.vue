@@ -284,7 +284,7 @@ export default {
         sortable: true,
         value: 'id'
       },
-      { text: 'Job Type', value: 'job_type_name' },
+      { text: 'Job Type', value: 'job_type_display_name' },
       { text: 'Collection ID', value: 'collection_id' },
       { text: 'Version', value: 'version' },
       { text: 'Style', value: 'style' },
