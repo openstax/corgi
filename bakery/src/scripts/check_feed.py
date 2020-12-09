@@ -31,8 +31,8 @@ def main():
         if books_queued >= max_books_per_run:
             break
 
-        # FIX: For better clarity. Currently 'style' denotes 'slug' for content from Github.
-        book_identifier = book['collection_id'] if book['server'] else book['style']
+        book_identifier = book['slug'] if book.get(
+            'slug') else book['collection_id']
 
         book_prefix = \
             f".{state_prefix}.{book_identifier}@{book['version']}"
