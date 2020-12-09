@@ -122,7 +122,8 @@ const pipeline = (env) => {
         awsSecretAccessKey: awsSecretAccessKey,
         queueStateBucket: env.DIST_QUEUE_STATE_S3_BUCKET,
         codeVersion: codeVersionFromTag,
-        statePrefix: queueStatePrefix
+        statePrefix: queueStatePrefix,
+        contentSource: 'git'
       })
     ]
   }
