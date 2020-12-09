@@ -1,6 +1,6 @@
-const dedent = require('dedent')
-
 const { constructImageSource } = require('../task-util/task-util')
+const fs = require('fs')
+const path = require('path')
 
 const task = (taskArgs) => {
   const { awsAccessKeyId, awsSecretAccessKey, distBucket, codeVersion, distBucketPath } = taskArgs
