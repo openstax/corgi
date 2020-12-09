@@ -29,10 +29,6 @@ const task = (taskArgs) => {
         type: 'docker-image',
         source: imageSource
       },
-      params: {
-        AWS_ACCESS_KEY_ID: `${awsAccessKeyId}`,
-        AWS_SECRET_ACCESS_KEY: `${awsSecretAccessKey}`
-      },
       inputs: [
         { name: bookInput },
         { name: jsonifiedInput },
@@ -43,6 +39,9 @@ const task = (taskArgs) => {
         { name: uploadOutput }
       ],
       params: {
+        AWS_ACCESS_KEY_ID: `${awsAccessKeyId}`,
+        AWS_SECRET_ACCESS_KEY: `${awsSecretAccessKey}`,
+        BUCKET: distBucket,
         BUCKET_PREFIX: distBucketPrefix,
         BOOK_INPUT: bookInput,
         JSONIFIED_INPUT: jsonifiedInput,

@@ -10,8 +10,8 @@ book_version=$(cat ${BOOK_INPUT}/version)
 book_slug=$(cat ${BOOK_INPUT}/slug)
 for jsonfile in "$book_dir/"*@*.json; do cp "$jsonfile" "$target_dir/$(basename $jsonfile)"; done;
 for xhtmlfile in "$book_dir/"*@*.xhtml; do cp "$xhtmlfile" "$target_dir/$(basename $xhtmlfile)"; done;
-aws s3 cp --recursive "$target_dir" "s3://${distBucket}/${BUCKET_PREFIX}/contents"
-copy-resources-s3 "$resources_dir" "${distBucket}" "${BUCKET_PREFIX}/resources"
+aws s3 cp --recursive "$target_dir" "s3://${BUCKET}/${BUCKET_PREFIX}/contents"
+copy-resources-s3 "$resources_dir" "${BUCKET}" "${BUCKET_PREFIX}/resources"
 
 #######################################
 # UPLOAD BOOK LEVEL FILES LAST
@@ -19,7 +19,7 @@ copy-resources-s3 "$resources_dir" "${distBucket}" "${BUCKET_PREFIX}/resources"
 # on prior upload steps, those files
 # will not be found by watchers
 #######################################
-toc_s3_link_json="s3://${distBucket}/${BUCKET_PREFIX}/contents/$book_uuid@$book_version.json"
-toc_s3_link_xhtml="s3://${distBucket}/${BUCKET_PREFIX}/contents/$book_uuid@$book_version.xhtml"
+toc_s3_link_json="s3://${BUCKET}/${BUCKET_PREFIX}/contents/$book_uuid@$book_version.json"
+toc_s3_link_xhtml="s3://${BUCKET}/${BUCKET_PREFIX}/contents/$book_uuid@$book_version.xhtml"
 aws s3 cp "$book_dir/$book_slug.toc.json" "$toc_s3_link_json"
 aws s3 cp "$book_dir/$book_slug.toc.xhtml" "$toc_s3_link_xhtml"
