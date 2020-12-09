@@ -102,7 +102,8 @@ const pipeline = (env) => {
         image: imageOverrides,
         inputSource: 'jsonified-single',
         inputPath: '/*@*.xhtml',
-        validationNames: ['duplicate-id', 'broken-link']
+        validationNames: ['duplicate-id', 'broken-link'],
+        contentSource: 'git'
       }),
       taskUploadSingle({
         distBucket: env.DIST_S3_BUCKET,
