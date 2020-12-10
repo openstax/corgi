@@ -861,6 +861,35 @@ def test_assemble_book_metadata(tmp_path, mocker):
     )
 
 
+def test_assemble_book_metadata_empty_revised_json(tmp_path, mocker):
+    """Test assemble_book_metadata script when the revised JSON is empty
+    to confirm it will fallback to metadata in assembled file
+    """
+    input_assembled_book = os.path.join(TEST_DATA_DIR,
+                                        "assembled-book",
+                                        "collection.assembled.xhtml")
+
+    input_uuid_to_revised = tmp_path / "uuid-to-revised-map.json"
+    input_uuid_to_revised.write_text(json.dumps({}))
+
+    assembled_metadata_output = tmp_path / "collection.assembed-metadata.json"
+
+    mocker.patch(
+        "sys.argv", ["", input_assembled_book, input_uuid_to_revised, assembled_metadata_output]
+    )
+    assemble_book_metadata.main()
+
+    assembled_metadata = json.loads(assembled_metadata_output.read_text())
+    assert (
+        assembled_metadata["m42092@1.10"]["revised"]
+        == "2018/09/18 09:55:13.413 GMT-5"
+    )
+    assert (
+        assembled_metadata["m42119@1.6"]["revised"]
+        == "2018/08/03 15:49:52 -0500"
+    )
+
+
 def test_bake_book_metadata(tmp_path, mocker):
     """Test bake_book_metadata script"""
     input_raw_metadata = os.path.join(
