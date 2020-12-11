@@ -446,14 +446,14 @@ def test_link_extras_single_match(tmp_path, mocker):
         ],
         [
             ("id", "l2"),
-            ("href", "/contents/1234-5678-1234-5678"),
+            ("href", "./00000000-0000-0000-0000-000000000000:1234-5678-1234-5678"),
             ("class", "target-chapter"),
             ("data-book-uuid", "00000000-0000-0000-0000-000000000000"),
             ("data-page-slug", "1234-slug"),
         ],
         [
             ("id", "l5"),
-            ("href", "/contents/1234-5678-1234-5678#fragment"),
+            ("href", "./00000000-0000-0000-0000-000000000000:1234-5678-1234-5678#fragment"),
             ("class", "target-chapter"),
             ("data-book-uuid", "00000000-0000-0000-0000-000000000000"),
             ("data-page-slug", "1234-slug"),
@@ -469,12 +469,15 @@ def test_link_extras_single_match(tmp_path, mocker):
     tree = etree.parse(str(collection_output))
 
     parsed_links = tree.xpath(
-        '//x:a[@href and starts-with(@href, "/contents/")]',
+        '//x:a[@href and starts-with(@href, "/contents/") or starts-with(@href, "./")]',
         namespaces={"x": "http://www.w3.org/1999/xhtml"},
     )
 
-    for pair in zip(expected_links, parsed_links):
-        assert pair[0] == pair[1].items()
+    check_links = [
+        link.items() for link in parsed_links
+    ]
+
+    assert check_links == expected_links
 
 
 def test_link_extras_no_containing(tmp_path, mocker):
@@ -576,7 +579,7 @@ def test_link_extras_single_no_match(tmp_path, mocker):
         ],
         [
             ("id", "l2"),
-            ("href", "/contents/1234-5678-1234-5678"),
+            ("href", "./4664c267-cd62-4a99-8b28-1cb9b3aee347:1234-5678-1234-5678"),
             ("class", "target-chapter"),
             ("data-book-uuid", "4664c267-cd62-4a99-8b28-1cb9b3aee347"),
             ("data-page-slug", "1234-slug"),
@@ -592,12 +595,15 @@ def test_link_extras_single_no_match(tmp_path, mocker):
     tree = etree.parse(str(collection_output))
 
     parsed_links = tree.xpath(
-        '//x:a[@href and starts-with(@href, "/contents/")]',
+        '//x:a[@href and starts-with(@href, "/contents/") or starts-with(@href, "./")]',
         namespaces={"x": "http://www.w3.org/1999/xhtml"},
     )
 
-    for pair in zip(expected_links, parsed_links):
-        assert pair[0] == pair[1].items()
+    check_links = [
+        link.items() for link in parsed_links
+    ]
+
+    assert check_links == expected_links
 
 
 def test_link_extras_multi_match(tmp_path, mocker):
@@ -659,7 +665,7 @@ def test_link_extras_multi_match(tmp_path, mocker):
         ],
         [
             ("id", "l2"),
-            ("href", "/contents/1234-5678-1234-5678"),
+            ("href", "./4664c267-cd62-4a99-8b28-1cb9b3aee347:1234-5678-1234-5678"),
             ("class", "target-chapter"),
             ("data-book-uuid", "4664c267-cd62-4a99-8b28-1cb9b3aee347"),
             ("data-page-slug", "1234-slug"),
@@ -675,12 +681,15 @@ def test_link_extras_multi_match(tmp_path, mocker):
     tree = etree.parse(str(collection_output))
 
     parsed_links = tree.xpath(
-        '//x:a[@href and starts-with(@href, "/contents/")]',
+        '//x:a[@href and starts-with(@href, "/contents/") or starts-with(@href, "./")]',
         namespaces={"x": "http://www.w3.org/1999/xhtml"},
     )
 
-    for pair in zip(expected_links, parsed_links):
-        assert pair[0] == pair[1].items()
+    check_links = [
+        link.items() for link in parsed_links
+    ]
+
+    assert check_links == expected_links
 
 
 def test_link_extras_multi_no_match(tmp_path, mocker):

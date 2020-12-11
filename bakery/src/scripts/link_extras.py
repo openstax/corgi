@@ -128,11 +128,21 @@ def match_canonical_book(canonical_ids, containing_books, module_uuid, link):
 
 def patch_link(node, legacy_id, module_uuid, match, page_slug):
     """replace legacy link"""
+    print('BEFORE:')
+    print(node.attrib)
     original_href = node.attrib["href"]
     uuid = module_uuid.split('@')[0]
-    node.attrib["href"] = original_href.replace(legacy_id, uuid)
+    node.attrib["href"] = original_href.replace(
+        legacy_id,
+        uuid
+    ).replace(
+        "/contents/",
+        f"./{match}:"
+    )
     node.attrib["data-book-uuid"] = match
     node.attrib["data-page-slug"] = page_slug
+    print('AFTER:')
+    print(node.attrib)
 
 
 def save_linked_collection(output_dir, doc):
