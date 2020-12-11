@@ -267,10 +267,11 @@ export default {
       'statistics',
       'u-physics'
     ]
+    this.styleItems.sort()
     this.collectionRules = [
       v => !!v || 'Collection ID is required',
       v => /^col\d*$/.test(v) || 'A valid collection ID is required, e.g. col12345'
-    ],
+    ]
     this.styleRules = [v => !!v || 'Style is required']
     this.serverRules = [v => !!v || 'Please select a server']
     this.gitCollectionRules = [
@@ -293,9 +294,9 @@ export default {
       { text: 'Status', value: 'status_name' },
       { text: 'Content Server', value: 'content_server_name' },
       { text: 'Updated at', value: 'updated_at' }
-    ],
+    ]
     // This value corresponds to the seeded id in the backend
-    this.jobTypes = { PDF: 1, DIST_PREVIEW: 2, GIT_PDF: 3, GIT_DIST_PREVIEW: 4 },
+    this.jobTypes = { PDF: 1, DIST_PREVIEW: 2, GIT_PDF: 3, GIT_DIST_PREVIEW: 4 }
     this.getUrlEntries = (input) => {
       if (input == null) {
         return []
