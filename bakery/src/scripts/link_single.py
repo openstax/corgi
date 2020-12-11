@@ -11,12 +11,28 @@ from pathlib import Path
 
 from lxml import etree
 from urllib.parse import unquote
+from cnxepub.collation import reconstitute
+from cnxepub.models import flatten_to_documents
 
 
 def load_baked_collection(input_dir, book_slug):
     """load assembled collection"""
     baked_collection = f"{input_dir}/{book_slug}.baked.xhtml"
     return etree.parse(baked_collection)
+
+
+def create_canonical_map(input_dir):
+    """Create a canonical book map from baked collections"""
+    baked_collections = Path(input_dir).glob("*.baked.xhtml")
+    canonical_map = {}
+
+    for baked_collection in baked_collections:
+        with open(baked_collection, "r") as baked_file:
+            binder = reconstitute(baked_file)
+            for doc in flatten_to_documents(binder):
+                canonical_map[doc.id] = doc.metadata['canonical_book_uuid']
+
+    return canonical_map
 
 
 def get_target_uuid(link):
@@ -97,9 +113,7 @@ def save_linked_collection(output_path, doc):
 
 def transform_links(
         baked_content_dir, baked_meta_dir, source_book_slug, book_slugs_path,
-        module_canonicals_path, output_path):
-    with open(module_canonicals_path, 'r') as f:
-        canonical_map = json.load(f)
+        output_path):
     with open(book_slugs_path, 'r') as f:
         book_slugs = json.load(f)
 
@@ -108,6 +122,7 @@ def transform_links(
          if book['slug'] == source_book_slug))
 
     doc = load_baked_collection(baked_content_dir, source_book_slug)
+    canonical_map = create_canonical_map(baked_content_dir)
     page_slug_resolver = gen_page_slug_resolver(baked_meta_dir, book_slugs)
 
     # look up uuids for external module links
@@ -141,11 +156,10 @@ def main():
         baked_meta_dir,
         source_book_slug,
         book_slugs_path,
-        module_canonicals_path,
-        output_path) = sys.argv[1:7]
+        output_path) = sys.argv[1:6]
     transform_links(
         baked_content_dir, baked_meta_dir, source_book_slug, book_slugs_path,
-        module_canonicals_path, output_path)
+        output_path)
 
 
 if __name__ == "__main__":

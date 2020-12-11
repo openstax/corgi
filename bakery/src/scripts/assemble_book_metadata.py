@@ -20,9 +20,12 @@ def main():
 
     for doc in flatten_to_documents(binder):
         abstract = doc.metadata.get("summary")
+        # Use the map revised value if available, otherwise expect it from the
+        # metadata parsed from the assembled XHTML
+        revised = uuid_to_revised_map.get(doc.id) or doc.metadata["revised"]
         json_data[doc.ident_hash] = {
             "abstract": abstract,
-            "revised": uuid_to_revised_map[doc.id]
+            "revised": revised
         }
 
     with open(output_file_path, "w") as out_file:
