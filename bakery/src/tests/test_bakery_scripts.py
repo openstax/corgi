@@ -26,7 +26,8 @@ from bakery_scripts import (
     copy_resources_s3,
     upload_docx,
     checksum_resource,
-    fetch_map_resources
+    fetch_map_resources,
+    fetch_update_metadata,
 )
 
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -1793,3 +1794,43 @@ def test_fetch_map_resources(tmp_path, mocker):
     assert set(file.name for file in unused_resources_dir.glob('**/*')) == set([
         "image_unused.svg"
     ])
+
+
+def test_fetch_update_metadata(tmp_path, mocker):
+    """Test fetch-update-metadata script"""
+    book_dir = tmp_path / "book_slug/fetched-book-group/raw/modules"
+    repo_path = tmp_path / ".repo"
+    book_dir.mkdir(parents=True)
+    repo_path.mkdir()
+
+    module_0001_dir = book_dir / "m00001"
+    module_0001_dir.mkdir()
+    module_00001 = book_dir / "m00001/index.cnxml"
+    module_00001_content = (
+        '<document xmlns="http://cnx.rice.edu/cnxml">'
+        '<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
+        '</metadata>'
+        '</document>'
+    )
+    module_00001.write_text(module_00001_content)
+
+    repo_mock = mocker.MagicMock()
+    repo_mock().revparse_single().commit_time = 1610500380
+    mocker.patch(
+        "sys.argv",
+        ["", repo_path, book_dir]
+    )
+    mocker.patch(
+        "bakery_scripts.fetch_update_metadata.Repository",
+        repo_mock
+    )
+    fetch_update_metadata.main()
+    tree = etree.parse(str(module_00001))
+    expected = (
+        '<document xmlns="http://cnx.rice.edu/cnxml">'
+        '<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
+        '<md:revised>2021-01-13T01:13:00</md:revised>\n'
+        '</metadata>'
+        '</document>'
+    )
+    assert etree.tostring(tree, encoding="utf8") == expected.encode("utf8")

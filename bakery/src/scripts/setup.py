@@ -59,7 +59,8 @@ setup(
             'gdocify = bakery_scripts.gdocify_book:main',
             'upload-docx = bakery_scripts.upload_docx:main',
             'mathmltable2png = bakery_scripts.mathmltable2png:main',
-            'fetch-map-resources = bakery_scripts.fetch_map_resources:main'
+            'fetch-map-resources = bakery_scripts.fetch_map_resources:main',
+            'fetch-update-meta = bakery_scripts.fetch_update_metadata:main',
         ]
     },
     **SETUP_KWARGS,
