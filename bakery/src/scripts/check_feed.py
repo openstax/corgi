@@ -31,8 +31,7 @@ def main():
         if books_queued >= max_books_per_run:
             break
 
-        book_identifier = book['slug'] if book.get(
-            'slug') else book['collection_id']
+        book_identifier = book.get('slug', book.get('collection_id'))
 
         book_prefix = \
             f".{state_prefix}.{book_identifier}@{book['version']}"
