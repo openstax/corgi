@@ -20,6 +20,7 @@ class ContentServers(Base):
 class JobTypes(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     name = sa.Column(sa.String, nullable=False)
+    display_name = sa.Column(sa.String, nullable=False)
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow, index=True)
     updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
                            onupdate=datetime.utcnow)

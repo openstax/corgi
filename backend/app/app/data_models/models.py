@@ -30,6 +30,7 @@ class ContentServer(ContentServerBase):
 
 class JobTypeBase(BaseModel):
     name: str
+    display_name: str
 
 # Types:
 ### Archive

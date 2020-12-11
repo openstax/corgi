@@ -12,5 +12,6 @@ if [[ ! -f "${CONTENT_OUTPUT}/raw/collections/$(cat "${BOOK_INPUT}/slug").collec
 fi
 rm -rf "${CONTENT_OUTPUT}/raw/.git"
 wget "${BOOK_SLUGS_URL}" -O "${CONTENT_OUTPUT}/book-slugs.json"
-mv "${CONTENT_OUTPUT}/raw/media" "${RESOURCE_OUTPUT}/."
-fetch-map-resources "${CONTENT_OUTPUT}/raw/modules" "../../../../${RESOURCE_OUTPUT}/media"
+fetch-map-resources "${CONTENT_OUTPUT}/raw/modules" "${CONTENT_OUTPUT}/raw/media" . "${UNUSED_RESOURCE_OUTPUT}"
+# Either the media is in resources or unused-resources, this folder should be empty (-d will fail otherwise)
+rm -d "${CONTENT_OUTPUT}/raw/media"

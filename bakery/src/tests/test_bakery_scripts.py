@@ -1683,37 +1683,84 @@ def test_upload_docx(tmp_path, mocker):
 def test_fetch_map_resources(tmp_path, mocker):
     """Test fetch-map-resources script"""
     book_dir = tmp_path / "book_slug/fetched-book-group/raw/modules"
-    resources_dir = tmp_path / "book_slug/fetched-book-group-resources/resources"
-    resource_rel_path_prefix = "../../../../fetched-book-group-resources/resources"
+    original_resources_dir = tmp_path / "book_slug/fetched-book-group/raw/media"
+    resources_parent_dir = tmp_path / "book_slug"
+    resources_dir = resources_parent_dir / "resources"
+    unused_resources_dir = tmp_path / "unused-resources"
 
     book_dir.mkdir(parents=True)
-    resources_dir.mkdir(parents=True)
+    original_resources_dir.mkdir(parents=True)
+    resources_parent_dir.mkdir(exist_ok=True)
+    unused_resources_dir.mkdir()
+
+    image_src = original_resources_dir / "image_src.svg"
+    image_src = original_resources_dir / "image_src.svg"
+    image_unused = original_resources_dir / "image_unused.svg"
+
+    # libmagic yields image/svg without the xml declaration
+    image_src_content = ('<?xml version=1.0 ?>'
+                         '<svg height="30" width="120">'
+                         '<text x="0" y="15" fill="red">'
+                         'checksum me!'
+                         '</text>'
+                         '</svg>')
+    image_src_sha1_expected = "527617b308327b8773c5105edc8c28bcbbe62553"
+    image_src_md5_expected = "420c64c8dbe981f216989328f9ad97e7"
+    image_src.write_text(image_src_content)
+    image_src_meta = f"{image_src_sha1_expected}.json"
+
+    # libmagic yields image/svg without the xml declaration
+    image_unused_content = ('<?xml version=1.0 ?>'
+                            '<svg height="30" width="120">'
+                            '<text x="0" y="15" fill="red">'
+                            'nope.'
+                            '</text>'
+                            '</svg>')
+    image_unused.write_text(image_unused_content)
 
     module_0001_dir = book_dir / "m00001"
     module_0001_dir.mkdir()
     module_00001 = book_dir / "m00001/index.cnxml"
-    module_00001_content = """
-        <document xmlns="http://cnx.rice.edu/cnxml">
-            <content>
-                <image src="image1.jpg"/>
-                <image src="image2.jpg"/>
-            </content>
-        </document>
-    """
+    module_00001_content = (
+        '<document xmlns="http://cnx.rice.edu/cnxml">'
+        '<content>'
+        '<image src="image_src.svg"/>'
+        '<image src="image_missing.jpg"/>'
+        '<image src="image_src.svg"/>'
+        '</content>'
+        '</document>'
+    )
     module_00001.write_text(module_00001_content)
-
-    # Write one of the two images expected to test for case where an image file
-    # is missing / mistyped
-    image1 = resources_dir / "image1.jpg"
-    image1.write_text("")
 
     mocker.patch(
         "sys.argv",
-        ["", book_dir, resource_rel_path_prefix]
+        ["", book_dir, original_resources_dir, resources_parent_dir, unused_resources_dir]
     )
     fetch_map_resources.main()
 
-    assert (module_0001_dir / "image1.jpg").is_symlink()
-    assert (module_0001_dir / "image2.jpg").is_symlink()
-    assert (module_0001_dir / "image1.jpg").exists()
-    assert not (module_0001_dir / "image2.jpg").exists()
+    assert json.load((resources_dir / image_src_meta).open()) == {
+        'mime_type': 'image/svg+xml',
+        'original_name': 'image_src.svg',
+        # AWS needs the MD5 quoted inside the string json value.
+        # Despite looking like a mistake, this is correct behavior.
+        's3_md5': f'"{image_src_md5_expected}"',
+        'sha1': image_src_sha1_expected
+    }
+    assert set(file.name for file in resources_dir.glob('**/*')) == set([
+        image_src_sha1_expected,
+        image_src_meta
+    ])
+    tree = etree.parse(str(module_00001))
+    expected = (
+        f'<document xmlns="http://cnx.rice.edu/cnxml">'
+        f'<content>'
+        f'<image src="../resources/{image_src_sha1_expected}"/>'
+        f'<image src="image_missing.jpg"/>'
+        f'<image src="../resources/{image_src_sha1_expected}"/>'
+        f'</content>'
+        f'</document>'
+    )
+    assert etree.tostring(tree, encoding="utf8") == expected.encode("utf8")
+    assert set(file.name for file in unused_resources_dir.glob('**/*')) == set([
+        "image_unused.svg"
+    ])

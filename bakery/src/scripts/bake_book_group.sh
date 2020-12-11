@@ -15,9 +15,6 @@ style_file="cnx-recipes-output/rootfs/styles/$(cat "${BOOK_INPUT}"/style)-pdf.cs
 
 recipe_file="cnx-recipes-output/rootfs/recipes/$(cat "${BOOK_INPUT}"/style).css"
 
-# FIXME: symlinks should only be needed to preview intermediate state
-find "${SYMLINK_INPUT}" -type l -print0 | xargs -0 -I{} cp -P {} "${BAKED_OUTPUT}"
-
 if [[ -f "$style_file" ]]
     then
         cp "$style_file" "${BAKED_OUTPUT}"
