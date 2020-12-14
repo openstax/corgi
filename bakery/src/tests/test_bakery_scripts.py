@@ -447,14 +447,14 @@ def test_link_extras_single_match(tmp_path, mocker):
         ],
         [
             ("id", "l2"),
-            ("href", "./00000000-0000-0000-0000-000000000000:1234-5678-1234-5678"),
+            ("href", "./00000000-0000-0000-0000-000000000000:1234-5678-1234-5678.xhtml"),
             ("class", "target-chapter"),
             ("data-book-uuid", "00000000-0000-0000-0000-000000000000"),
             ("data-page-slug", "1234-slug"),
         ],
         [
             ("id", "l5"),
-            ("href", "./00000000-0000-0000-0000-000000000000:1234-5678-1234-5678#fragment"),
+            ("href", "./00000000-0000-0000-0000-000000000000:1234-5678-1234-5678.xhtml#fragment"),
             ("class", "target-chapter"),
             ("data-book-uuid", "00000000-0000-0000-0000-000000000000"),
             ("data-page-slug", "1234-slug"),
@@ -580,7 +580,7 @@ def test_link_extras_single_no_match(tmp_path, mocker):
         ],
         [
             ("id", "l2"),
-            ("href", "./4664c267-cd62-4a99-8b28-1cb9b3aee347:1234-5678-1234-5678"),
+            ("href", "./4664c267-cd62-4a99-8b28-1cb9b3aee347:1234-5678-1234-5678.xhtml"),
             ("class", "target-chapter"),
             ("data-book-uuid", "4664c267-cd62-4a99-8b28-1cb9b3aee347"),
             ("data-page-slug", "1234-slug"),
@@ -666,7 +666,7 @@ def test_link_extras_multi_match(tmp_path, mocker):
         ],
         [
             ("id", "l2"),
-            ("href", "./4664c267-cd62-4a99-8b28-1cb9b3aee347:1234-5678-1234-5678"),
+            ("href", "./4664c267-cd62-4a99-8b28-1cb9b3aee347:1234-5678-1234-5678.xhtml"),
             ("class", "target-chapter"),
             ("data-book-uuid", "4664c267-cd62-4a99-8b28-1cb9b3aee347"),
             ("data-page-slug", "1234-slug"),
@@ -1978,7 +1978,8 @@ def test_link_single(tmp_path, mocker):
     expected_links = [
         [
             ("id", "l1"),
-            ("href", "./3c321f43-1da5-4c7b-91d1-abca2dd8ab8f:4aa9351c-019f-4c06-bb40-d58262ea7ec7"),
+            ("href",
+             "./3c321f43-1da5-4c7b-91d1-abca2dd8ab8f:4aa9351c-019f-4c06-bb40-d58262ea7ec7.xhtml"),
             ("data-book-uuid", "3c321f43-1da5-4c7b-91d1-abca2dd8ab8f"),
             ("data-book-slug", "book2"),
             ("data-page-slug", "book2-page1"),
@@ -1986,7 +1987,8 @@ def test_link_single(tmp_path, mocker):
         [
             ("id", "l2"),
             ("href",
-             "./3c321f43-1da5-4c7b-91d1-abca2dd8ab8f:2e51553f-fde8-43a3-8191-fd8b493a6cfa#foobar"),
+             "./3c321f43-1da5-4c7b-91d1-abca2dd8ab8f:"
+             "2e51553f-fde8-43a3-8191-fd8b493a6cfa.xhtml#foobar"),
             ("data-book-uuid", "3c321f43-1da5-4c7b-91d1-abca2dd8ab8f"),
             ("data-book-slug", "book2"),
             ("data-page-slug", "book2-page2"),

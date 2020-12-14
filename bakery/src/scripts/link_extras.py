@@ -131,14 +131,13 @@ def patch_link(node, legacy_id, module_uuid, match, page_slug):
     print('BEFORE:')
     print(node.attrib)
     original_href = node.attrib["href"]
+    # Link may have fragment
+    if "#" in original_href:
+        page_fragment = f"#{original_href.split('#')[1]}"
+    else:
+        page_fragment = ""
     uuid = module_uuid.split('@')[0]
-    node.attrib["href"] = original_href.replace(
-        legacy_id,
-        uuid
-    ).replace(
-        "/contents/",
-        f"./{match}:"
-    )
+    node.attrib["href"] = f"./{match}:{uuid}.xhtml{page_fragment}"
     node.attrib["data-book-uuid"] = match
     node.attrib["data-page-slug"] = page_slug
     print('AFTER:')
