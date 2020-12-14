@@ -1294,8 +1294,8 @@ def test_gdocify_book(tmp_path, mocker):
     assert len(msub_nodes) == 1
 
 
-def test_convert_to_docx(tmp_path, mocker):
-    """Test convert to docx script"""
+def test_mathmltable2png(tmp_path, mocker):
+    """Test python parts of mathmltable2png"""
 
     # ==================================
     # test mathjax svg invalid xml patch
