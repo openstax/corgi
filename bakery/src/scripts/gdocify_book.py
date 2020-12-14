@@ -44,7 +44,8 @@ def update_doc_links(doc, book_uuid, book_slugs_by_uuid, page_slug_resolver):
             return base_url
 
     for node in doc.xpath(
-        '//x:a[@href and starts-with(@href, "/contents/")]',
+        '//x:a[@href and starts-with(@href, "/contents/")  or '
+        'starts-with(@href, "./")]',
         namespaces={"x": "http://www.w3.org/1999/xhtml"}
     ):
         page_link = node.attrib["href"].split("/")[-1]

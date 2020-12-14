@@ -1153,7 +1153,7 @@ def test_gdocify_book(tmp_path, mocker):
             href="/contents/internal-uuid"
             class="target-chapter">Intra-book module link</a></p>
         <p><a id="l2"
-            href="/contents/external-uuid"
+            href="./otheruuid:external-uuid"
             class="target-chapter"
             data-book-uuid="otheruuid"
             data-page-slug="l2-page-slug">Inter-book module link</a></p>
