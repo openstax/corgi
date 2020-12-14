@@ -96,11 +96,14 @@ def patch_link(node, source_book_uuid, canonical_book_uuid,
     # but if #exercise has moved, then it should be /content/uuid::other/index.xhtml#exercise
     # This can be fixed via searching the baked content when encountering link with a #.... suffix
     if not source_book_uuid == canonical_book_uuid:
+        page_link = node.attrib["href"].split("/contents/")[1]
+
         print('BEFORE:')
         print(node.attrib)
         node.attrib["data-book-uuid"] = canonical_book_uuid
         node.attrib["data-book-slug"] = canonical_book_slug
         node.attrib["data-page-slug"] = page_slug
+        node.attrib["href"] = f"./{canonical_book_uuid}:{page_link}"
         print('AFTER:')
         print(node.attrib)
 

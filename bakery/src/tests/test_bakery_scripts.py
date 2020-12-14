@@ -1978,14 +1978,15 @@ def test_link_single(tmp_path, mocker):
     expected_links = [
         [
             ("id", "l1"),
-            ("href", "/contents/4aa9351c-019f-4c06-bb40-d58262ea7ec7"),
+            ("href", "./3c321f43-1da5-4c7b-91d1-abca2dd8ab8f:4aa9351c-019f-4c06-bb40-d58262ea7ec7"),
             ("data-book-uuid", "3c321f43-1da5-4c7b-91d1-abca2dd8ab8f"),
             ("data-book-slug", "book2"),
             ("data-page-slug", "book2-page1"),
         ],
         [
             ("id", "l2"),
-            ("href", "/contents/2e51553f-fde8-43a3-8191-fd8b493a6cfa#foobar"),
+            ("href",
+             "./3c321f43-1da5-4c7b-91d1-abca2dd8ab8f:2e51553f-fde8-43a3-8191-fd8b493a6cfa#foobar"),
             ("data-book-uuid", "3c321f43-1da5-4c7b-91d1-abca2dd8ab8f"),
             ("data-book-slug", "book2"),
             ("data-page-slug", "book2-page2"),
@@ -1995,7 +1996,7 @@ def test_link_single(tmp_path, mocker):
     tree = etree.parse(str(linked_xhtml))
 
     parsed_links = tree.xpath(
-        '//x:a[@href and starts-with(@href, "/contents/")]',
+        '//x:a[@href and starts-with(@href, "/contents/") or starts-with(@href, "./")]',
         namespaces={"x": "http://www.w3.org/1999/xhtml"},
     )
 
