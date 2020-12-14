@@ -1166,8 +1166,7 @@ def test_gdocify_book(tmp_path, mocker):
                             </mrow>
                             <mrow></mrow>
                         </mrow>
-<!-- indent differently because of flake8 -->
-<annotation encoding="StarMath 5.0"> size 12{ { {N}} sup { x } rSub { size 8{R} } } {}</annotation>
+                        <annotation encoding="StarMath 5.0"> size 12{ { {N}} sup { x } rSub { size 8{R} } } {}</annotation>
                     </semantics>
                 </annotation-xml>
             </semantics>
@@ -1181,7 +1180,7 @@ def test_gdocify_book(tmp_path, mocker):
         </div>
         </body>
         </html>
-    """
+    """  # noqa: E501
 
     l1_page_metadata = {
         "slug": "l1-page-slug"
@@ -1310,10 +1309,10 @@ def test_convert_to_docx(tmp_path, mocker):
     # real world svg parts
     invalid_svg_parts = '''<svg>
     <g data-semantic-operator="relseq,<" data-mml-node="mo" data-semantic-type="relation" data-semantic-role="inequality" data-semantic-id="9" data-semantic-parent="19" transform="translate(3260.3, 0)" />
-    </svg>'''
+    </svg>'''  # noqa: E501
     supposed_patched_svg_parts = '''<svg>
     <g data-semantic-operator="relseq,&lt;" data-mml-node="mo" data-semantic-type="relation" data-semantic-role="inequality" data-semantic-id="9" data-semantic-parent="19" transform="translate(3260.3, 0)" />
-    </svg>'''
+    </svg>'''  # noqa: E501
     patched_svg_parts = mathmltable2png.patch_mathjax_svg_invalid_xml(invalid_svg_parts)
     assert patched_svg_parts == supposed_patched_svg_parts
 
