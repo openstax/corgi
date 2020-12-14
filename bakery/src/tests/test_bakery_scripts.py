@@ -23,6 +23,7 @@ from bakery_scripts import (
     bake_book_metadata,
     check_feed,
     gdocify_book,
+    mathmltable2png,
     copy_resources_s3,
     upload_docx,
     checksum_resource,
@@ -1195,8 +1196,7 @@ def test_gdocify_book(tmp_path, mocker):
                             </mrow>
                             <mrow></mrow>
                         </mrow>
-<!-- indent differently because of flake8 -->
-<annotation encoding="StarMath 5.0"> size 12{ { {N}} sup { x } rSub { size 8{R} } } {}</annotation>
+                        <annotation encoding="StarMath 5.0"> size 12{ { {N}} sup { x } rSub { size 8{R} } } {}</annotation>
                     </semantics>
                 </annotation-xml>
             </semantics>
@@ -1210,7 +1210,7 @@ def test_gdocify_book(tmp_path, mocker):
         </div>
         </body>
         </html>
-    """
+    """  # noqa: E501
 
     l1_page_metadata = {
         "slug": "l1-page-slug"
@@ -1322,6 +1322,62 @@ def test_gdocify_book(tmp_path, mocker):
         namespaces={"x": "http://www.w3.org/1999/xhtml"},
     )
     assert len(msub_nodes) == 1
+
+
+def test_mathmltable2png(tmp_path, mocker):
+    """Test python parts of mathmltable2png"""
+
+    # ==================================
+    # test mathjax svg invalid xml patch
+    # ==================================
+
+    invalid_svg_parts = '''<svg><g data-semantic-operator="<"/></svg>'''
+    supposed_patched_svg_parts = '''<svg><g data-semantic-operator="&lt;"/></svg>'''
+    patched_svg_parts = mathmltable2png.patch_mathjax_svg_invalid_xml(invalid_svg_parts)
+    assert patched_svg_parts == supposed_patched_svg_parts
+
+    # real world svg parts
+    invalid_svg_parts = '''<svg>
+    <g data-semantic-operator="relseq,<" data-mml-node="mo" data-semantic-type="relation" data-semantic-role="inequality" data-semantic-id="9" data-semantic-parent="19" transform="translate(3260.3, 0)" />
+    </svg>'''  # noqa: E501
+    supposed_patched_svg_parts = '''<svg>
+    <g data-semantic-operator="relseq,&lt;" data-mml-node="mo" data-semantic-type="relation" data-semantic-role="inequality" data-semantic-id="9" data-semantic-parent="19" transform="translate(3260.3, 0)" />
+    </svg>'''  # noqa: E501
+    patched_svg_parts = mathmltable2png.patch_mathjax_svg_invalid_xml(invalid_svg_parts)
+    assert patched_svg_parts == supposed_patched_svg_parts
+
+    # does not happen in real world but test the regEx patching anyway with multiple lines
+    invalid_svg_parts = '''<svg>
+    <g data-semantic-operator="<right" />
+    <g data-semantic-operator="left<" />
+    <g data-semantic-operator="in<between" />
+    <g data-semantic-operator="donothingleft>" />
+    <g data-semantic-operator=">donothingright" />
+    <g data-semantic-operator="donothing>inbetween" />
+    </svg>'''
+    supposed_patched_svg_parts = '''<svg>
+    <g data-semantic-operator="&lt;right" />
+    <g data-semantic-operator="left&lt;" />
+    <g data-semantic-operator="in&lt;between" />
+    <g data-semantic-operator="donothingleft>" />
+    <g data-semantic-operator=">donothingright" />
+    <g data-semantic-operator="donothing>inbetween" />
+    </svg>'''
+    patched_svg_parts = mathmltable2png.patch_mathjax_svg_invalid_xml(invalid_svg_parts)
+    assert patched_svg_parts == supposed_patched_svg_parts
+
+    # Multiple operators should not happen to my knowledge. (therealmarv)
+    # Test the breaking failure of the edge case within the edge case.
+    invalid_svg_parts = '''<svg>
+    <g data-semantic-operator="<<" />
+    </svg>'''
+    with pytest.raises(Exception, match=r'^Failed to generate valid XML out of SVG.*'):
+        mathmltable2png.patch_mathjax_svg_invalid_xml(invalid_svg_parts)
+
+    # Invalid unpatchable XML should also break the execution
+    invalid_svg_parts = '<svg><HelloImNotValid></svg>'
+    with pytest.raises(Exception, match=r'^Failed to generate valid XML out of SVG.*'):
+        mathmltable2png.patch_mathjax_svg_invalid_xml(invalid_svg_parts)
 
 
 class ANY_OF:
