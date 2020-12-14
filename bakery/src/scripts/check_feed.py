@@ -25,13 +25,16 @@ def main():
     # file in S3 bucket. If the book is not complete, check pending and retry
     # states to see whether or not it has errored or timed out too many times
     # to be queued again.
+
     for book in feed_data:
         # Check for loop exit condition
         if books_queued >= max_books_per_run:
             break
 
+        book_identifier = book.get('slug', book.get('collection_id'))
+
         book_prefix = \
-            f".{state_prefix}.{book['collection_id']}@{book['version']}"
+            f".{state_prefix}.{book_identifier}@{book['version']}"
 
         complete_filename = f"{book_prefix}.complete"
         complete_key = f"{code_version}/{complete_filename}"

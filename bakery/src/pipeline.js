@@ -71,7 +71,7 @@ module.exports.handler = argv => {
         GH_SECRET_CREDS: env.GH_SECRET_CREDS
       }
     }
-    if (['distribution', 'gdoc'].includes(argv.pipelinetype)) {
+    if (['distribution', 'gdoc', 'git-distribution'].includes(argv.pipelinetype)) {
       return {
         S3_ACCESS_KEY_ID: env.DIST_BUCKET_AKI_SECRET_NAME,
         S3_SECRET_ACCESS_KEY: env.DIST_BUCKET_SAK_SECRET_NAME,
@@ -121,7 +121,7 @@ module.exports.handler = argv => {
   let output
   try {
     output = forward + yaml.safeDump(pipelineConfig)
-  } catch(err) {
+  } catch (err) {
     console.error(yaml.dump(pipelineConfig))
     console.error("An error occurred during safeDump. ^^ A dump without safety is above ^^ grep on stderr might help?")
     throw err
