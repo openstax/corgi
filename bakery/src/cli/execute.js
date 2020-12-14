@@ -364,9 +364,10 @@ const tasks = {
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
+      const singleBookFlag = argv.singleBook == null ? '' : '--single-book'
       const taskArgs = imageDetails == null
         ? []
-        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+        : [`--taskargs=${JSON.stringify({ ...imageDetails, singleBookFlag: singleBookFlag, slug: argv.slug })}`]
       const taskContent = execFileSync(buildExec, ['task', 'assemble-book-group', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
@@ -388,6 +389,10 @@ const tasks = {
         yargs.positional('slug', {
           describe: 'slug of collection to work on',
           type: 'string'
+        }).option('single', {
+          alias: 'single-book',
+          describe: 'process a single book',
+          type: 'boolean'
         })
       },
       handler: argv => {
@@ -442,9 +447,10 @@ const tasks = {
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
+      const singleBookFlag = argv.singleBook == null ? '' : '--single-book'
       const taskArgs = imageDetails == null
         ? []
-        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+        : [`--taskargs=${JSON.stringify({ ...imageDetails, singleBookFlag: singleBookFlag, slug: argv.slug })}`]
       const taskContent = execFileSync(buildExec, ['task', 'bake-book-group', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
@@ -485,6 +491,10 @@ const tasks = {
         }).positional('stylefile', {
           describe: 'path to style file',
           type: 'string'
+        }).option('single', {
+          alias: 'single-book',
+          describe: 'process a single book',
+          type: 'boolean'
         })
       },
       handler: argv => {
@@ -545,10 +555,14 @@ const tasks = {
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
+      const singleBookFlag = argv.singleBook == null ? '' : '--single-book'
       const taskArgs = imageDetails == null
         ? []
         : [`--taskargs=${JSON.stringify({
-          ...imageDetails, ...{ server: argv.server }
+          ...imageDetails,
+          singleBookFlag: singleBookFlag,
+          slug: argv.slug,
+          server: argv.server
         })}`]
 
       const taskContent = execFileSync(buildExec, ['task', 'link-single', ...taskArgs])
@@ -578,6 +592,10 @@ const tasks = {
         yargs.positional('slug', {
           describe: 'slug of collection to work on',
           type: 'string'
+        }).option('single', {
+          alias: 'single-book',
+          describe: 'process a single book',
+          type: 'boolean'
         })
       },
       handler: argv => {
@@ -854,9 +872,10 @@ const tasks = {
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
+      const singleBookFlag = argv.singleBook == null ? '' : '--single-book'
       const taskArgs = imageDetails == null
         ? []
-        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+        : [`--taskargs=${JSON.stringify({ ...imageDetails, singleBookFlag: singleBookFlag, slug: argv.slug })}`]
       const taskContent = execFileSync(buildExec, ['task', 'assemble-book-metadata-group', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
@@ -879,6 +898,10 @@ const tasks = {
         yargs.positional('slug', {
           describe: 'slug of collection to work on',
           type: 'string'
+        }).option('single', {
+          alias: 'single-book',
+          describe: 'process a single book',
+          type: 'boolean'
         })
       },
       handler: argv => {
@@ -935,9 +958,10 @@ const tasks = {
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
+      const singleBookFlag = argv.singleBook == null ? '' : '--single-book'
       const taskArgs = imageDetails == null
         ? []
-        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+        : [`--taskargs=${JSON.stringify({ ...imageDetails, singleBookFlag: singleBookFlag, slug: argv.slug })}`]
       const taskContent = execFileSync(buildExec, ['task', 'bake-book-metadata-group', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
@@ -961,6 +985,10 @@ const tasks = {
         yargs.positional('slug', {
           describe: 'slug of collection to work on',
           type: 'string'
+        }).option('single', {
+          alias: 'single-book',
+          describe: 'process a single book',
+          type: 'boolean'
         })
       },
       handler: argv => {

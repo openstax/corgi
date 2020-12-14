@@ -26,6 +26,11 @@ fi
 shopt -s globstar nullglob
 for collection in "${ASSEMBLED_INPUT}/"*.assembled.xhtml; do
     slug_name=$(basename "$collection" | awk -F'[.]' '{ print $1; }')
+     if [[ "${SINGLE_BOOK_FLAG}" ]]; then
+        if [[ "$slug_name" != "${TARGET_BOOK}" ]]; then
+            continue
+        fi
+    fi
     cnx-easybake -q "$recipe_file" "${ASSEMBLED_INPUT}/$slug_name.assembled.xhtml" "${BAKED_OUTPUT}/$slug_name.baked.xhtml"
     if [[ -f "$style_file" ]]
         then

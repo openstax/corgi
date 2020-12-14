@@ -8,6 +8,8 @@ const task = (taskArgs) => {
     tag: 'trunk'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
+  const singleBookFlag = taskArgs != null && taskArgs.singleBookFlag != null ? taskArgs.singleBookFlag : null
+  const targetBook = taskArgs != null && taskArgs.slug != null ? taskArgs.slug : null
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
   const fetchedInput = 'fetched-book-group'
   const assembledInput = 'assembled-book-group'
@@ -30,7 +32,9 @@ const task = (taskArgs) => {
       params: {
         OUTPUT_NAME: outputName,
         ASSEMBLED_INPUT: assembledInput,
-        FETCHED_INPUT: fetchedInput
+        FETCHED_INPUT: fetchedInput,
+        SINGLE_BOOK_FLAG: singleBookFlag,
+        TARGET_BOOK: targetBook
       },
       run: {
         path: '/bin/bash',
