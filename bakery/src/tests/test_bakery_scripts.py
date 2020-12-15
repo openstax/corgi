@@ -1895,7 +1895,7 @@ def test_fetch_update_metadata(tmp_path, mocker):
     expected = (
         '<document xmlns="http://cnx.rice.edu/cnxml">'
         '<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
-        '<md:revised>2021-01-13T01:13:00</md:revised>\n'
+        '<md:revised>2021-01-13T01:13:00+00:00</md:revised>\n'
         '</metadata>'
         '</document>'
     )
