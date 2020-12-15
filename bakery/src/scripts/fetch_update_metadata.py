@@ -3,7 +3,7 @@
 import sys
 from pathlib import Path
 from pygit2 import Repository
-from datetime import datetime
+from datetime import datetime, timezone
 from lxml import etree
 
 NS_MDML = "http://cnx.rice.edu/mdml"
@@ -31,7 +31,8 @@ def main():
     # For the time being, we're going to parse the timestamp of the HEAD
     # commit and use that as the revised time for all module pages.
     revised_time = datetime.fromtimestamp(
-        repo.revparse_single('HEAD').commit_time
+        repo.revparse_single('HEAD').commit_time,
+        timezone.utc
     ).isoformat()
 
     module_files = [
