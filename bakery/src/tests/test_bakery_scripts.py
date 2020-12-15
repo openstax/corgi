@@ -1153,6 +1153,9 @@ def test_gdocify_book(tmp_path, mocker):
         <div data-type="page">
         <p><a id="l1"
             href="/contents/internal-uuid"
+            data-page-uuid="internal-uuid"
+            data-page-slug="l1-page-slug"
+            data-page-fragment=""
             class="target-chapter">Intra-book module link</a></p>
         <p><a id="l2"
             href="./otheruuid:external-uuid"
@@ -1166,6 +1169,9 @@ def test_gdocify_book(tmp_path, mocker):
             External shortened link</a></p>
         <p><a id="l5"
             href="/contents/internal-uuid#foobar"
+            data-page-uuid="internal-uuid"
+            data-page-slug="l1-page-slug"
+            data-page-fragment="foobar"
             class="target-chapter">Intra-book module link with fragment</a></p>
         <math>
             <mrow>
@@ -1253,24 +1259,6 @@ def test_gdocify_book(tmp_path, mocker):
     l1_page_metadata_input = input_dir / l1_page_metadata_name
     book_slugs_input = tmp_path / "book-slugs.json"
     book_slugs_input.write_text(json.dumps(book_slugs))
-
-    # Test gen_page_slug_resolver
-    page_slug_resolver = gdocify_book.gen_page_slug_resolver(
-        [l1_page_metadata_input]
-    )
-    # Run a query that should raise
-    with pytest.raises(ValueError):
-        l1_page_metadata_input.write_text(json.dumps({}))
-        res = page_slug_resolver("internal-uuid")
-
-    l1_page_metadata_input.write_text(json.dumps(l1_page_metadata))
-    res = page_slug_resolver("internal-uuid")
-    assert res == "l1-page-slug"
-    # Temporarily change data in file to ensure on a subsequent request we
-    # get the cached value
-    l1_page_metadata_input.write_text(json.dumps({}))
-    res = page_slug_resolver("internal-uuid")
-    assert res == "l1-page-slug"
 
     l1_page_metadata_input.write_text(json.dumps(l1_page_metadata))
 
