@@ -253,6 +253,15 @@ def test_disassemble_book(tmp_path, mocker):
     toc_metadata = json.load(open(toc_metadata_output, "r"))
     assert toc_metadata.get("title") == "College Physics"
 
+    # Ensure same-book-links have additional metadata
+    m42119_tree = etree.parse(open(disassembled_output / "00000000-0000-0000-0000-000000000000@0.0:m42119.xhtml"))
+    link = m42119_tree.xpath(
+        "//xhtml:a[@href='/contents/m42092#58161']", namespaces=HTML_DOCUMENT_NAMESPACES
+    )[0]
+    link.attrib["data-page-slug"] = "1-1-physics-an-introduction"
+    link.attrib["data-page-uuid"] = "m42119"
+    assert link.attrib["data-page-fragment"] == "58161"
+
 
 def test_disassemble_book_empty_baked_metadata(tmp_path, mocker):
     """Test case for disassemble where there may not be associated metadata
