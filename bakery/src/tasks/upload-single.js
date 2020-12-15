@@ -16,8 +16,7 @@ const task = (taskArgs) => {
   const distBucketPrefix = `${distBucketPath}${codeVersion}`
   const bookInput = 'book'
   const jsonifiedInput = 'jsonified-single'
-  const checksumInput = 'checksum-single'
-  const resourceInput = 'fetched-book-group-resources'
+  const resourceInput = 'resources'
   const uploadOutput = 'upload-single'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/upload_single.sh'), { encoding: 'utf-8' })
 
@@ -32,7 +31,6 @@ const task = (taskArgs) => {
       inputs: [
         { name: bookInput },
         { name: jsonifiedInput },
-        { name: checksumInput },
         { name: resourceInput }
       ],
       outputs: [
@@ -45,7 +43,7 @@ const task = (taskArgs) => {
         BUCKET_PREFIX: distBucketPrefix,
         BOOK_INPUT: bookInput,
         JSONIFIED_INPUT: jsonifiedInput,
-        CHECKSUM_INPUT: checksumInput,
+        RESOURCE_INPUT: resourceInput,
         UPLOAD_OUTPUT: uploadOutput
       },
       run: {

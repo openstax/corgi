@@ -4,14 +4,13 @@ exec 2> >(tee "${UPLOAD_OUTPUT}"/stderr >&2)
 target_dir="${UPLOAD_OUTPUT}/contents"
 mkdir -p "$target_dir"
 book_dir="${JSONIFIED_INPUT}"
-resources_dir="${CHECKSUM_INPUT}/resources"
 book_uuid=$(cat "${BOOK_INPUT}"/uuid)
 book_version=$(cat "${BOOK_INPUT}"/version)
 book_slug=$(cat "${BOOK_INPUT}"/slug)
 for jsonfile in "$book_dir/"*@*.json; do cp "$jsonfile" "$target_dir/$(basename "$jsonfile")"; done;
 for xhtmlfile in "$book_dir/"*@*.xhtml; do cp "$xhtmlfile" "$target_dir/$(basename "$xhtmlfile")"; done;
 aws s3 cp --recursive "$target_dir" "s3://${BUCKET}/${BUCKET_PREFIX}/contents"
-copy-resources-s3 "$resources_dir" "${BUCKET}" "${BUCKET_PREFIX}/resources"
+copy-resources-s3 "${RESOURCE_INPUT}" "${BUCKET}" "${BUCKET_PREFIX}/resources"
 
 #######################################
 # UPLOAD BOOK LEVEL FILES LAST
