@@ -61,7 +61,7 @@
                         v-model="version"
                         label="Version"
                         class="version-field"
-                        hint="e.g. 19.2"
+                        :hint="activeJobIsUsingArchive ? 'e.g. 19.2' : 'e.g. master or a git tag'"
                         optional
                       />
                     </v-col>
