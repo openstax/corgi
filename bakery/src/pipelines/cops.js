@@ -263,6 +263,7 @@ const pipeline = (env) => {
         image: imageOverrides,
         distBucketPath: distBucketPath,
         codeVersion: codeVersionFromTag,
+        jsonifiedInput: 'jsonified-book',
         cloudfrontUrl: env.COPS_CLOUDFRONT_URL
       })
     ],
@@ -317,7 +318,9 @@ const pipeline = (env) => {
         image: imageOverrides,
         distBucketPath: distBucketPath,
         codeVersion: codeVersionFromTag,
-        cloudfrontUrl: env.COPS_CLOUDFRONT_URL
+        cloudfrontUrl: env.COPS_CLOUDFRONT_URL,
+        jsonifiedInput: 'jsonified-single',
+        contentSource: 'git'
       })
     ],
     on_success: reportToOutputProducerGitDistPreview(Status.SUCCEEDED, {
