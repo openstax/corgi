@@ -61,6 +61,7 @@ setup(
             'mathmltable2png = bakery_scripts.mathmltable2png:main',
             'fetch-map-resources = bakery_scripts.fetch_map_resources:main',
             'fetch-update-meta = bakery_scripts.fetch_update_metadata:main',
+            'patch-same-book-links = bakery_scripts.patch_same_book_links:main',
         ]
     },
     **SETUP_KWARGS,
