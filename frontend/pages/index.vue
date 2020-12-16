@@ -42,7 +42,7 @@
                       <v-radio label="PDF" :value="jobTypes.PDF" class="pdf-radio-button"></v-radio>
                       <v-radio label="Web Preview" :value="jobTypes.DIST_PREVIEW" class="preview-radio-button"></v-radio>
                       <v-radio label="PDF (git)" :value="jobTypes.GIT_PDF" class="git-pdf-radio-button"></v-radio>
-                      <v-radio disabled label="Web Preview (git)" :value="jobTypes.GIT_DIST_PREVIEW" class="git-preview-radio-button"></v-radio>
+                      <v-radio label="Web Preview (git)" :value="jobTypes.GIT_DIST_PREVIEW" class="git-preview-radio-button"></v-radio>
                     </v-radio-group>
                   </v-row>
                   <v-row>
