@@ -11,7 +11,7 @@ const task = (taskArgs) => {
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
   return {
-    task: 'jsonify book',
+    task: 'patch-same-book-links book',
     config: {
       platform: 'linux',
       image_resource: {
@@ -20,25 +20,23 @@ const task = (taskArgs) => {
       },
       inputs: [
         { name: 'book' },
-        { name: 'disassembled-linked-book' }
+        { name: 'disassembled-book' }
       ],
-      outputs: [{ name: 'jsonified-book' }],
+      outputs: [{ name: 'disassembled-linked-book' }],
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee jsonified-book/stderr >&2)
-          cp -r disassembled-linked-book/* jsonified-book
+          exec 2> >(tee disassembled-linked-book/stderr >&2)
+          cp -r disassembled-book/* disassembled-linked-book
           collection_id="$(cat book/collection_id)"
-          book_dir="jsonified-book/$collection_id/disassembled-linked"
-          target_dir="jsonified-book/$collection_id/jsonified"
+          book_dir="disassembled-linked-book/$collection_id/disassembled"
+          target_dir="disassembled-linked-book/$collection_id/disassembled-linked"
           mkdir "$target_dir"
-          jsonify "$book_dir" "$target_dir"
-          jsonschema -i "$target_dir/collection.toc.json" /code/scripts/book-schema.json
-          for jsonfile in "$target_dir/"*@*.json; do
-            jsonschema -i "$jsonfile" /code/scripts/page-schema.json
-          done
+          patch-same-book-links "$book_dir" "$target_dir" "collection"
+          cp "$book_dir"/*@*-metadata.json "$target_dir"
+          cp "$book_dir"/collection.toc* "$target_dir"
         `
         ]
       }

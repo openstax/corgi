@@ -9,6 +9,7 @@ const pipeline = (env) => {
   const taskBakeBookMeta = require('../tasks/bake-book-metadata')
   const taskChecksumBook = require('../tasks/checksum-book')
   const taskDisassembleBook = require('../tasks/disassemble-book')
+  const taskPatchDisassembledLinks = require('../tasks/patch-disassembled-links')
   const taskJsonifyBook = require('../tasks/jsonify-book')
   const taskUploadBook = require('../tasks/upload-book')
   const taskValidateXhtml = require('../tasks/validate-xhtml')
@@ -95,6 +96,7 @@ const pipeline = (env) => {
       taskBakeBookMeta({ image: imageOverrides }),
       taskChecksumBook({ image: imageOverrides }),
       taskDisassembleBook({ image: imageOverrides }),
+      taskPatchDisassembledLinks({ image: imageOverrides }),
       taskJsonifyBook({ image: imageOverrides }),
       taskValidateXhtml({
         image: imageOverrides,
