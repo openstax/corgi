@@ -21,6 +21,9 @@ const pipeline = (env) => {
   const taskBakeBookGroup = require('../tasks/bake-book-group')
   const taskBakeBookMetadataGroup = require('../tasks/bake-book-metadata-group')
   const taskLinkSingle = require('../tasks/link-single')
+  const taskDisassembleSingle = require('../tasks/disassemble-single')
+  const taskJsonifySingle = require('../tasks/jsonify-single')
+  const taskUploadSingle = require('../tasks/upload-single')
   const taskMathifySingle = require('../tasks/mathify-single')
   const taskPdfifySingle = require('../tasks/pdfify-single')
   const taskGenPreviewUrls = require('../tasks/gen-preview-urls')
@@ -67,6 +70,7 @@ const pipeline = (env) => {
   const reportToOutputProducerPdf = reportToOutputProducer('output-producer-pdf')
   const reportToOutputProducerDistPreview = reportToOutputProducer('output-producer-dist-preview')
   const reportToOutputProducerGitPdf = reportToOutputProducer('output-producer-git-pdf')
+  const reportToOutputProducerGitDistPreview = reportToOutputProducer('output-producer-git-dist-preview')
 
   const resourceTypes = [
     {
@@ -112,6 +116,15 @@ const pipeline = (env) => {
       source: {
         api_root: env.COPS_TARGET,
         job_type_id: JobType.GIT_PDF,
+        status_id: 1
+      }
+    },
+    {
+      name: 'output-producer-git-dist-preview',
+      type: 'output-producer',
+      source: {
+        api_root: env.COPS_TARGET,
+        job_type_id: JobType.GIT_DIST_PREVIEW,
         status_id: 1
       }
     },
@@ -250,6 +263,7 @@ const pipeline = (env) => {
         image: imageOverrides,
         distBucketPath: distBucketPath,
         codeVersion: codeVersionFromTag,
+        jsonifiedInput: 'jsonified-book',
         cloudfrontUrl: env.COPS_CLOUDFRONT_URL
       })
     ],
@@ -261,11 +275,67 @@ const pipeline = (env) => {
     on_abort: reportToOutputProducerDistPreview(Status.FAILED)
   }
 
+  const gitDistPreviewJob = {
+    name: 'Distribution Preview (git)',
+    build_log_retention: {
+      days: buildLogRetentionDays
+    },
+    plan: [
+      { get: 'output-producer-git-dist-preview', trigger: true, version: 'every' },
+      reportToOutputProducerGitDistPreview(Status.ASSIGNED),
+      { get: 'cnx-recipes-output' },
+      taskLookUpBook({ inputSource: 'output-producer-git-dist-preview', image: imageOverrides, contentSource: 'git' }),
+      reportToOutputProducerGitDistPreview(Status.PROCESSING),
+      taskFetchBookGroup({
+        image: imageOverrides,
+        githubSecretCreds: env.GH_SECRET_CREDS
+      }),
+      taskAssembleBookGroup({ image: imageOverrides }),
+      taskAssembleBookMetadataGroup({ image: imageOverrides }),
+      taskBakeBookGroup({ image: imageOverrides }),
+      taskBakeBookMetadataGroup({ image: imageOverrides }),
+      taskLinkSingle({ image: imageOverrides }),
+      taskDisassembleSingle({ image: imageOverrides }),
+      taskJsonifySingle({
+        image: imageOverrides
+      }),
+      taskValidateXhtml({
+        image: imageOverrides,
+        inputSource: 'jsonified-single',
+        inputPath: '/*@*.xhtml',
+        validationNames: ['duplicate-id', 'broken-link'],
+        contentSource: 'git'
+      }),
+      taskUploadSingle({
+        image: imageOverrides,
+        distBucket: env.COPS_ARTIFACTS_S3_BUCKET,
+        distBucketPath: distBucketPath,
+        awsAccessKeyId: awsAccessKeyId,
+        awsSecretAccessKey: awsSecretAccessKey,
+        codeVersion: codeVersionFromTag
+      }),
+      taskGenPreviewUrls({
+        image: imageOverrides,
+        distBucketPath: distBucketPath,
+        codeVersion: codeVersionFromTag,
+        cloudfrontUrl: env.COPS_CLOUDFRONT_URL,
+        jsonifiedInput: 'jsonified-single',
+        contentSource: 'git'
+      })
+    ],
+    on_success: reportToOutputProducerGitDistPreview(Status.SUCCEEDED, {
+      pdf_url: 'preview-urls/content_urls'
+    }),
+    on_failure: reportToOutputProducerGitDistPreview(Status.FAILED),
+    on_error: reportToOutputProducerGitDistPreview(Status.FAILED),
+    on_abort: reportToOutputProducerGitDistPreview(Status.FAILED)
+  }
+
   return {
     config: {
       resource_types: resourceTypes,
       resources: resources,
-      jobs: [pdfJob, distPreviewJob, gitPdfJob]
+      jobs: [pdfJob, distPreviewJob, gitPdfJob, gitDistPreviewJob]
     }
   }
 }

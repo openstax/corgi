@@ -3,13 +3,14 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
-  const { codeVersion, cloudfrontUrl, distBucketPath } = taskArgs
+  const { codeVersion, cloudfrontUrl, distBucketPath, jsonifiedInput, contentSource: maybeContentSource } = taskArgs
   const imageDefault = {
     name: 'openstax/cops-bakery-scripts',
     tag: 'trunk'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
+  const contentSource = maybeContentSource != null ? maybeContentSource : 'archive'
 
   const distBucketPrefix = `${distBucketPath}${codeVersion}`
 
@@ -26,24 +27,40 @@ const task = (taskArgs) => {
       },
       inputs: [
         { name: 'book' },
-        { name: 'jsonified-book' }
+        { name: `${jsonifiedInput}` }
       ],
       outputs: [{ name: 'preview-urls' }],
+      params: {
+        CONTENT_SOURCE: contentSource
+      },
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
           exec 2> >(tee preview-urls/stderr >&2)
-          collection_id="$(cat book/collection_id)"
-          book_metadata="jsonified-book/$collection_id/raw/metadata.json"
-          book_uuid="$(cat $book_metadata | jq -r '.id')"
-          book_version="$(cat $book_metadata | jq -r '.version')"
-          book_dir="jsonified-book/$collection_id/jsonified"
+          case $CONTENT_SOURCE in
+            archive)
+              collection_id="$(cat book/collection_id)"
+              book_dir="${jsonifiedInput}/$collection_id/jsonified"
+              book_metadata="$book_dir/collection.toc.json"
+              ;;
+            git)
+              book_slug="$(cat book/slug)"
+              book_metadata="${jsonifiedInput}/$book_slug.toc.json"
+              ;;
+            *)
+              echo "CONTENT_SOURCE unrecognized: $CONTENT_SOURCE"
+              exit 1
+              ;;
+          esac
+
+          book_uuid=$(jq -r '.id' "$book_metadata")
+          book_version=$(jq -r '.version' "$book_metadata")
 
           rex_archive_param="?archive=${cloudfrontUrl}/${distBucketPrefix}"
 
-          first_page_slug=$(jq -r '.tree.contents[0].slug' "$book_dir/collection.toc.json")
+          first_page_slug=$(jq -r '.tree.contents[0].slug' "$book_metadata")
           rex_url="${rexUrl}/books/$book_uuid@$book_version/pages/$first_page_slug$rex_archive_param"
           rex_prod_url="${rexProdUrl}/books/$book_uuid@$book_version/pages/$first_page_slug$rex_archive_param"
 

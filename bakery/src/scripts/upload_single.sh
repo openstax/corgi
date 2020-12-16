@@ -4,9 +4,13 @@ exec 2> >(tee "${UPLOAD_OUTPUT}"/stderr >&2)
 target_dir="${UPLOAD_OUTPUT}/contents"
 mkdir -p "$target_dir"
 book_dir="${JSONIFIED_INPUT}"
-book_uuid=$(cat "${BOOK_INPUT}"/uuid)
-book_version=$(cat "${BOOK_INPUT}"/version)
 book_slug=$(cat "${BOOK_INPUT}"/slug)
+# Parse the UUID and versions from the book metadata since it will be accessible
+# for any pipeline (web-hosting or web-preview) and to be self-consistent
+# metadata and values used.
+book_metadata="${JSONIFIED_INPUT}/$book_slug.toc.json"
+book_uuid=$(jq -r '.id' "$book_metadata")
+book_version=$(jq -r '.version' "$book_metadata")
 for jsonfile in "$book_dir/"*@*.json; do cp "$jsonfile" "$target_dir/$(basename "$jsonfile")"; done;
 for xhtmlfile in "$book_dir/"*@*.xhtml; do cp "$xhtmlfile" "$target_dir/$(basename "$xhtmlfile")"; done;
 aws s3 cp --recursive "$target_dir" "s3://${BUCKET}/${BUCKET_PREFIX}/contents"
