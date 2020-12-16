@@ -8,6 +8,7 @@ const pipeline = (env) => {
   const taskBakeBookGroup = require('../tasks/bake-book-group')
   const taskBakeBookMetaGroup = require('../tasks/bake-book-metadata-group')
   const taskDisassembleSingle = require('../tasks/disassemble-single')
+  const taskPatchDisassembledLinksSingle = require('../tasks/patch-disassembled-links-single')
   const taskJsonifySingle = require('../tasks/jsonify-single')
   const taskValidateXhtml = require('../tasks/validate-xhtml')
   const taskUploadSingle = require('../tasks/upload-single')
@@ -94,6 +95,7 @@ const pipeline = (env) => {
       taskBakeBookMetaGroup({ image: imageOverrides }),
       taskLinkSingle({ image: imageOverrides }),
       taskDisassembleSingle({ image: imageOverrides }),
+      taskPatchDisassembledLinksSingle({ image: imageOverrides }),
       taskJsonifySingle({
         image: imageOverrides
       }),
