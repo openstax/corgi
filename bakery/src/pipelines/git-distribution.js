@@ -107,11 +107,9 @@ const pipeline = (env) => {
       taskUploadSingle({
         distBucket: env.DIST_S3_BUCKET,
         distBucketPath: 'apps/archive/',
-        queueStateBucket: env.DIST_QUEUE_STATE_S3_BUCKET,
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
         codeVersion: codeVersionFromTag,
-        statePrefix: queueStatePrefix,
         image: imageOverrides
       }),
       taskReportStateComplete({
