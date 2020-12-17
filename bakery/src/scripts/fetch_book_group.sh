@@ -1,17 +1,24 @@
 #!/bin/bash
 reference=$(cat "${BOOK_INPUT}"/version)
 [[ "$reference" = latest ]] && reference=master
+
+creds_dir=tmp-gh-creds
+creds_file="$creds_dir/gh-creds"
+git config --global credential.helper "store --file=$creds_file"
+mkdir "$creds_dir"
 set +x
 # Do not show creds
-remote="https://$GH_SECRET_CREDS@github.com/openstax/$(cat "${BOOK_INPUT}/repo").git"
-git clone --depth 1 "$remote" --branch "$reference" "${CONTENT_OUTPUT}/raw"
+echo "https://$GH_SECRET_CREDS@github.com" > "$creds_file" 2>&1
 set -x
+remote="https://github.com/openstax/$(cat "${BOOK_INPUT}/repo").git"
+GIT_TERMINAL_PROMPT=0 git clone --depth 1 "$remote" --branch "$reference" "${CONTENT_OUTPUT}/raw"
 if [[ ! -f "${CONTENT_OUTPUT}/raw/collections/$(cat "${BOOK_INPUT}/slug").collection.xml" ]]; then
     echo "No matching book for slug in this repo"
     exit 1
 fi
 fetch-update-meta "${CONTENT_OUTPUT}/raw/.git" "${CONTENT_OUTPUT}/raw/modules"
 rm -rf "${CONTENT_OUTPUT}/raw/.git"
+rm -rf "$creds_dir"
 wget "${BOOK_SLUGS_URL}" -O "${CONTENT_OUTPUT}/book-slugs.json"
 fetch-map-resources "${CONTENT_OUTPUT}/raw/modules" "${CONTENT_OUTPUT}/raw/media" . "${UNUSED_RESOURCE_OUTPUT}"
 # Either the media is in resources or unused-resources, this folder should be empty (-d will fail otherwise)
