@@ -10,6 +10,7 @@ const task = (taskArgs) => {
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const singleBookFlag = taskArgs != null && taskArgs.singleBookFlag != null ? taskArgs.singleBookFlag : false
   const bookSlug = taskArgs != null && taskArgs.slug != null ? taskArgs.slug : ''
+  const targetBook = singleBookFlag ? bookSlug : ''
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
   const inputName = 'fetched-book-group'
@@ -35,7 +36,7 @@ const task = (taskArgs) => {
       params: {
         ASSEMBLED_OUTPUT: assembledOutput,
         RAW_COLLECTION_DIR: rawCollectionDir,
-        TARGET_BOOK: targetBook = (singleBookFlag ? bookSlug : '')
+        TARGET_BOOK: targetBook
       },
       run: {
         path: '/bin/bash',
