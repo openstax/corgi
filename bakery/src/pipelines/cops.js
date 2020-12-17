@@ -23,6 +23,7 @@ const pipeline = (env) => {
   const taskBakeBookMetadataGroup = require('../tasks/bake-book-metadata-group')
   const taskLinkSingle = require('../tasks/link-single')
   const taskDisassembleSingle = require('../tasks/disassemble-single')
+  const taskPatchDisassembledLinksSingle = require('../tasks/patch-disassembled-links-single')
   const taskJsonifySingle = require('../tasks/jsonify-single')
   const taskUploadSingle = require('../tasks/upload-single')
   const taskMathifySingle = require('../tasks/mathify-single')
@@ -298,6 +299,7 @@ const pipeline = (env) => {
       taskBakeBookMetadataGroup({ image: imageOverrides }),
       taskLinkSingle({ image: imageOverrides }),
       taskDisassembleSingle({ image: imageOverrides }),
+      taskPatchDisassembledLinksSingle({ image: imageOverrides }),
       taskJsonifySingle({
         image: imageOverrides
       }),
