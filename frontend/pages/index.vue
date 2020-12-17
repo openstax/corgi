@@ -293,6 +293,7 @@ export default {
       { text: 'Download URL', value: 'pdf_url' },
       { text: 'Status', value: 'status_name' },
       { text: 'Content Server', value: 'content_server_name' },
+      { text: 'Worker Version', value: 'worker_version' },
       { text: 'Updated at', value: 'updated_at' }
     ]
     // This value corresponds to the seeded id in the backend

@@ -149,7 +149,9 @@ const pipeline = (env) => {
     },
     plan: [
       { get: 'output-producer-git-pdf', trigger: true, version: 'every' },
-      reportToOutputProducerGitPdf(Status.ASSIGNED),
+      reportToOutputProducerGitPdf(Status.ASSIGNED, {
+        worker_version: lockedTag
+      }),
       { get: 'cnx-recipes-output' },
       taskLookUpBook({ inputSource: 'output-producer-git-pdf', image: imageOverrides, contentSource: 'git' }),
       reportToOutputProducerGitPdf(Status.PROCESSING),
@@ -188,7 +190,9 @@ const pipeline = (env) => {
     },
     plan: [
       { get: 'output-producer-pdf', trigger: true, version: 'every' },
-      reportToOutputProducerPdf(Status.ASSIGNED),
+      reportToOutputProducerPdf(Status.ASSIGNED, {
+        worker_version: lockedTag
+      }),
       { get: 'cnx-recipes-output' },
       taskLookUpBook({ inputSource: 'output-producer-pdf', image: imageOverrides }),
       reportToOutputProducerPdf(Status.PROCESSING),
@@ -231,7 +235,9 @@ const pipeline = (env) => {
     },
     plan: [
       { get: 'output-producer-dist-preview', trigger: true, version: 'every' },
-      reportToOutputProducerDistPreview(Status.ASSIGNED),
+      reportToOutputProducerDistPreview(Status.ASSIGNED, {
+        worker_version: lockedTag
+      }),
       { get: 'cnx-recipes-output' },
       taskLookUpBook({ inputSource: 'output-producer-dist-preview', image: imageOverrides }),
       reportToOutputProducerDistPreview(Status.PROCESSING),
@@ -285,7 +291,9 @@ const pipeline = (env) => {
     },
     plan: [
       { get: 'output-producer-git-dist-preview', trigger: true, version: 'every' },
-      reportToOutputProducerGitDistPreview(Status.ASSIGNED),
+      reportToOutputProducerGitDistPreview(Status.ASSIGNED, {
+        worker_version: lockedTag
+      }),
       { get: 'cnx-recipes-output' },
       taskLookUpBook({ inputSource: 'output-producer-git-dist-preview', image: imageOverrides, contentSource: 'git' }),
       reportToOutputProducerGitDistPreview(Status.PROCESSING),

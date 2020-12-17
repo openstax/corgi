@@ -50,6 +50,7 @@ class JobBase(BaseModel):
     collection_id: str  # Git: '{repo}/{slug}'
     status_id: str
     pdf_url: Optional[str] = None
+    worker_version: Optional[str] = None
     content_server_id: Optional[str] = None
     version: Optional[str] = None  # Git: ref
     style: Optional[str] = None
@@ -63,6 +64,7 @@ class JobCreate(JobBase):
 class JobUpdate(BaseModel):
     status_id: str
     pdf_url: str = None
+    worker_version: Optional[str] = None
 
 
 class Job(JobBase):
