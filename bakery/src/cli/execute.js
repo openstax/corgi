@@ -1094,6 +1094,47 @@ const tasks = {
       }
     }
   },
+  'patch-disassembled-links': (parentCommand) => {
+    const commandUsage = 'patch-disassembled-links <collid>'
+    const handler = async argv => {
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
+
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'patch-disassembled-links', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
+
+      const dataDir = path.resolve(argv.data, argv.collid)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'disassembled-book'),
+        output(dataDir, 'disassembled-linked-book')
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'pd',
+      describe: 'patch links on a disassembled book',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
+        yargs.positional('collid', {
+          describe: 'collection id of collection to work on',
+          type: 'string'
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
+  },
   jsonify: (parentCommand) => {
     const commandUsage = 'jsonify <collid>'
     const handler = async argv => {
@@ -1115,18 +1156,59 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'disassembled-book'),
+        input(dataDir, 'disassembled-linked-book'),
         output(dataDir, 'jsonified-book')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
       command: commandUsage,
       aliases: 'j',
-      describe: 'build metadata from disassembled book',
+      describe: 'build metadata from disassembled+linked book',
       builder: yargs => {
         yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
         yargs.positional('collid', {
           describe: 'collection id of collection to work on',
+          type: 'string'
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
+  },
+  'patch-disassembled-links-single': (parentCommand) => {
+    const commandUsage = 'patch-disassembled-links-single <slug>'
+    const handler = async argv => {
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
+
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'patch-disassembled-links-single', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'slug'), argv.slug)
+
+      const dataDir = path.resolve(argv.data, argv.slug)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'disassembled-single'),
+        output(dataDir, 'disassembled-linked-single')
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'pds',
+      describe: 'patch links on a disassembled book',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
+        yargs.positional('slug', {
+          describe: 'slug of collection to work on',
           type: 'string'
         })
       },
@@ -1156,7 +1238,7 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'disassembled-single'),
+        input(dataDir, 'disassembled-linked-single'),
         output(dataDir, 'jsonified-single')
       ], { image: argv.image, persist: argv.persist })
     }
@@ -1348,6 +1430,8 @@ const yargs = require('yargs')
           .command(tasks['bake-meta-group'](commandUsage))
           .command(tasks.disassemble(commandUsage))
           .command(tasks['disassemble-single'](commandUsage))
+          .command(tasks['patch-disassembled-links'](commandUsage))
+          .command(tasks['patch-disassembled-links-single'](commandUsage))
           .command(tasks.jsonify(commandUsage))
           .command(tasks['jsonify-single'](commandUsage))
           .command(tasks.gdocify(commandUsage))

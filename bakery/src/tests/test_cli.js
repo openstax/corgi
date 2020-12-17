@@ -490,6 +490,28 @@ test('stable flow in pdf and distribution pipeline', async t => {
     ])
     await completion(disassembleValidateXhtml)
 
+    const patchDisassembledLinks = spawn('node', [
+      'src/cli/execute.js',
+      ...commonArgs,
+      '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+      'patch-disassembled-links',
+      bookId
+    ])
+    const patchDisassembledLinksResult = await completion(patchDisassembledLinks)
+    t.truthy(fs.existsSync(`${outputDir}/${bookId}/disassembled-linked-book/${bookId}/disassembled-linked/collection.toc.xhtml`), formatSubprocessOutput(patchDisassembledLinksResult))
+    t.truthy(fs.existsSync(`${outputDir}/${bookId}/disassembled-linked-book/${bookId}/disassembled-linked/collection.toc-metadata.json`), formatSubprocessOutput(patchDisassembledLinksResult))
+
+    const patchDisassembledLinksValidateXhtml = spawn('node', [
+      'src/cli/execute.js',
+      ...commonArgs,
+      'validate-xhtml',
+      bookId,
+      'disassembled-linked-book',
+      'disassembled-linked/*@*.xhtml',
+      'duplicate-id'
+    ])
+    await completion(patchDisassembledLinksValidateXhtml)
+
     const jsonify = spawn('node', [
       'src/cli/execute.js',
       ...commonArgs,

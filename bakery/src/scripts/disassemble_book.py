@@ -10,7 +10,7 @@ from lxml.builder import ElementMaker, E
 from cnxepub.collation import reconstitute
 from cnxepub.html_parsers import HTML_DOCUMENT_NAMESPACES
 from cnxepub.formatters import DocumentContentFormatter
-from cnxepub.models import flatten_to_documents, content_to_etree
+from cnxepub.models import flatten_to_documents, content_to_etree, etree_to_content
 
 
 def extract_slugs_from_tree(tree, data):
@@ -18,7 +18,7 @@ def extract_slugs_from_tree(tree, data):
     can be retrieved based upon id key
     """
     data.update({
-        tree["id"]: tree["slug"]
+        tree["id"].split('@')[0]: tree["slug"]
     })
     if "contents" in tree:
         for node in tree["contents"]:
@@ -76,6 +76,37 @@ def main():
                 namespaces=HTML_DOCUMENT_NAMESPACES
             ):
                 link.attrib['href'] = f'./{id_with_context}.xhtml'
+
+        # Add metadata to same-book-different-module links.
+        # The module in which same-book link targets reside is only fully known
+        # at time of disassembly. Different pipelines can make use of this
+        # metadata in different ways
+        for node in module_etree.xpath(
+            '//xhtml:a[@href and starts-with(@href, "/contents/")]',
+            namespaces=HTML_DOCUMENT_NAMESPACES
+        ):
+            print('BEFORE:')
+            print(node.attrib)
+
+            page_link = node.attrib["href"].split("/")[-1]
+            # Link may have fragment
+            if "#" in page_link:
+                page_uuid, page_fragment = page_link.split("#")
+            else:
+                page_uuid = page_link
+                page_fragment = ''
+
+            # This is either an intra-book link or inter-book link. We can
+            # differentiate the latter by data-book-uuid attrib).
+            if not node.attrib.get("data-book-uuid"):
+                node.attrib["data-page-slug"] = slugs.get(page_uuid)
+                node.attrib["data-page-uuid"] = page_uuid
+                node.attrib["data-page-fragment"] = page_fragment
+
+            print('AFTER:')
+            print(node.attrib)
+
+        doc.content = etree_to_content(module_etree)
 
         # Inject some styling and JS for QA
         xml_parser = etree.XMLParser(ns_clean=True)
@@ -167,7 +198,7 @@ def main():
             # for cases like composite pages which may not have metadata from
             # previous stages
             json_metadata = {
-                "slug": slugs.get(doc.ident_hash),
+                "slug": slugs.get(doc.id),
                 "title": doc.metadata.get("title"),
                 "abstract": None,
                 "id": doc.id,

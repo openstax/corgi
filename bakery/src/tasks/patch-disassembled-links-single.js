@@ -11,9 +11,9 @@ const task = (taskArgs) => {
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
   const bookInput = 'book'
-  const disassembledInput = 'disassembled-linked-single'
-  const jsonifiedOutput = 'jsonified-single'
-  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/jsonify_single.sh'), { encoding: 'utf-8' })
+  const disassembledInput = 'disassembled-single'
+  const disassembledLinkedOutput = 'disassembled-linked-single'
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/patch_disassembled_links_single.sh'), { encoding: 'utf-8' })
 
   return {
     task: 'jsonify single',
@@ -27,10 +27,10 @@ const task = (taskArgs) => {
         { name: bookInput },
         { name: disassembledInput }
       ],
-      outputs: [{ name: jsonifiedOutput }],
+      outputs: [{ name: disassembledLinkedOutput }],
       params: {
         DISASSEMBLED_INPUT: disassembledInput,
-        JSONIFIED_OUTPUT: jsonifiedOutput,
+        DISASSEMBLED_LINKED_OUTPUT: disassembledLinkedOutput,
         BOOK_INPUT: bookInput
       },
       run: {

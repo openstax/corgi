@@ -12,6 +12,7 @@ const pipeline = (env) => {
   const taskBakeBookMeta = require('../tasks/bake-book-metadata')
   const taskChecksumBook = require('../tasks/checksum-book')
   const taskDisassembleBook = require('../tasks/disassemble-book')
+  const taskPatchDisassembledLinks = require('../tasks/patch-disassembled-links')
   const taskJsonifyBook = require('../tasks/jsonify-book')
   const taskUploadBook = require('../tasks/upload-book')
 
@@ -22,6 +23,7 @@ const pipeline = (env) => {
   const taskBakeBookMetadataGroup = require('../tasks/bake-book-metadata-group')
   const taskLinkSingle = require('../tasks/link-single')
   const taskDisassembleSingle = require('../tasks/disassemble-single')
+  const taskPatchDisassembledLinksSingle = require('../tasks/patch-disassembled-links-single')
   const taskJsonifySingle = require('../tasks/jsonify-single')
   const taskUploadSingle = require('../tasks/upload-single')
   const taskMathifySingle = require('../tasks/mathify-single')
@@ -244,6 +246,7 @@ const pipeline = (env) => {
       taskBakeBookMeta({ image: imageOverrides }),
       taskChecksumBook({ image: imageOverrides }),
       taskDisassembleBook({ image: imageOverrides }),
+      taskPatchDisassembledLinks({ image: imageOverrides }),
       taskJsonifyBook({ image: imageOverrides }),
       taskValidateXhtml({
         image: imageOverrides,
@@ -296,6 +299,7 @@ const pipeline = (env) => {
       taskBakeBookMetadataGroup({ image: imageOverrides }),
       taskLinkSingle({ image: imageOverrides }),
       taskDisassembleSingle({ image: imageOverrides }),
+      taskPatchDisassembledLinksSingle({ image: imageOverrides }),
       taskJsonifySingle({
         image: imageOverrides
       }),
