@@ -7,7 +7,7 @@ shopt -s globstar nullglob
 echo "{}" > uuid-to-revised-map.json
 for collection in "${ASSEMBLED_INPUT}/"*.assembled.xhtml; do
     slug_name=$(basename "$collection" | awk -F'[.]' '{ print $1; }')
-     if [[ "${SINGLE_BOOK_FLAG}" ]]; then
+    if [[ -n "${TARGET_BOOK}" ]]; then
         if [[ "$slug_name" != "${TARGET_BOOK}" ]]; then
             continue
         fi

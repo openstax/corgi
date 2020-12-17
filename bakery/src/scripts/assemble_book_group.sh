@@ -5,7 +5,7 @@ exec 2> >(tee "${ASSEMBLED_OUTPUT}/stderr" >&2)
 shopt -s globstar nullglob
 for collection in "${RAW_COLLECTION_DIR}/collections/"*; do
     slug_name=$(basename "$collection" | awk -F'[.]' '{ print $1; }')
-    if [[ "${SINGLE_BOOK_FLAG}" ]]; then
+    if [[ -n "${TARGET_BOOK}" ]]; then
         if [[ "$slug_name" != "${TARGET_BOOK}" ]]; then
             continue
         fi
