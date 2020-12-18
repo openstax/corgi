@@ -1422,7 +1422,7 @@ def test_gdocify_book(tmp_path, mocker):
         cmyk = 'cmyk.jpg'
         cmyk_broken = 'cmyk_broken.jpg'
         greyscale = 'greyscale.jpg'
-        greyscale_broken = 'cmyk_broken.jpg'
+        greyscale_broken = 'greyscale_broken.jpg'
         png = 'original_public_domain.png'
 
         old_dir = os.getcwd()

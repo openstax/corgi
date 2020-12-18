@@ -114,7 +114,7 @@ def fix_jpeg_colorspace(doc, out_dir):
         if img_filename.is_file():
             mime_type = utils.get_mime_type(str(img_filename))
 
-            # Only check colorspace of JPEGs (GIF, PNG etc. don't have color space)
+            # Only check colorspace of JPEGs (GIF, PNG etc. don't have breaking colorspaces)
             if mime_type == 'image/jpeg':
                 try:
                     im = Image.open(str(img_filename))
@@ -125,7 +125,7 @@ def fix_jpeg_colorspace(doc, out_dir):
                         if colorspace != '1' and not re.match(r"^L\w?", colorspace):
                             # here we have a color space like CMYK or YCbCr most likely
                             # convert image in place to RGB with imagemagick profile option
-                            # and ignore the right checksum filename for Google Docs pipeline
+                            # and ignore the right checksum on filename for Google Docs pipeline
                             print('Convert to RGB: ' + str(node))
                             cmd = _convert_rgb_command(img_filename)
                             fconvert = subprocess.Popen(cmd,
