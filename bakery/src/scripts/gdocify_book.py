@@ -9,6 +9,7 @@ import subprocess
 from PIL import Image, UnidentifiedImageError
 from . import utils
 
+# sRGB color profile file in Debian icc-profiles-free package
 SRGB_ICC_PROFILE = '/usr/share/color/icc/sRGB.icc'
 
 
@@ -120,6 +121,7 @@ def fix_jpeg_colorspace(doc, out_dir):
                             # here: we have a color space like CMYK or YCbCr most likely
                             # convert image in place to RGB with imagemagick profile option
                             # and ignore right checksum filename for Google Doce pipeline
+                            print('Convert to RGB: ' + str(img_filename))
                             cmd = ['mogrify',
                                    '-profile', SRGB_ICC_PROFILE,
                                    str(img_filename)]
