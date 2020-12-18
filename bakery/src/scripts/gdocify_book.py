@@ -118,9 +118,9 @@ def fix_jpeg_colorspace(doc, out_dir):
                     im.close()
                     if not re.match(r"^RGB.*", colorspace):
                         if colorspace != '1' and not re.match(r"^L\w?", colorspace):
-                            # here: we have a color space like CMYK or YCbCr most likely
+                            # here we have a color space like CMYK or YCbCr most likely
                             # convert image in place to RGB with imagemagick profile option
-                            # and ignore right checksum filename for Google Doce pipeline
+                            # and ignore the right checksum filename for Google Docs pipeline
                             print('Convert to RGB: ' + str(node))
                             cmd = ['mogrify',
                                    '-profile', SRGB_ICC_PROFILE,
@@ -137,7 +137,7 @@ def fix_jpeg_colorspace(doc, out_dir):
                     # do nothing if we cannot open the image
                     print('Warning: Could not parse JPEG image with PIL: ' + str(img_filename))
         else:
-            print('Warning: Resource file not existing: ' + str(img_filename))
+            raise Exception('Error: Resource file not existing: ' + str(img_filename))
 
 
 def main():
