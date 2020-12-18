@@ -4,6 +4,13 @@ import sys
 from lxml import etree
 from pathlib import Path
 import json
+import re
+import subprocess
+from PIL import Image, UnidentifiedImageError
+from . import utils
+
+# sRGB color profile file in Debian icc-profiles-free package
+SRGB_ICC_PROFILE = '/usr/share/color/icc/sRGB.icc'
 
 
 def update_doc_links(doc, book_uuid, book_slugs_by_uuid):
@@ -84,6 +91,57 @@ def patch_math(doc):
         node.tag = "msub"
 
 
+def _convert_rgb_command(img_filename):
+    """ImageMagick commandline to convert to RGB"""
+    return ['mogrify', '-profile', SRGB_ICC_PROFILE, str(img_filename)]
+
+
+def fix_jpeg_colorspace(doc, out_dir):
+    """Searches for JPEG image resources which are encoded in colorspace
+    other than RGB or Greyscale and convert them to RGB"""
+
+    # get all img resources from img and a nodes
+    img_xpath = '//x:img[@src and not(starts-with(@src, "http") or ' \
+        'starts-with(@src, "//"))]/@src' \
+        '|' \
+        '//x:a[@href and not(starts-with(@href, "http") or ' \
+        'starts-with(@href, "//") or starts-with(@href, "#"))]/@href'
+    for node in doc.xpath(img_xpath,
+                          namespaces={'x': 'http://www.w3.org/1999/xhtml'}):
+        img_filename = Path(node)
+        img_filename = (out_dir / img_filename).resolve().absolute()
+
+        if img_filename.is_file():
+            mime_type = utils.get_mime_type(str(img_filename))
+
+            # Only check colorspace of JPEGs (GIF, PNG etc. don't have breaking colorspaces)
+            if mime_type == 'image/jpeg':
+                try:
+                    im = Image.open(str(img_filename))
+                    # https://pillow.readthedocs.io/en/stable/handbook/concepts.html#modes
+                    colorspace = im.mode
+                    im.close()
+                    if not re.match(r"^RGB.*", colorspace):
+                        if colorspace != '1' and not re.match(r"^L\w?", colorspace):
+                            # here we have a color space like CMYK or YCbCr most likely
+                            # convert image in place to RGB with imagemagick profile option
+                            # and ignore the right checksum on filename for Google Docs pipeline
+                            print('Convert to RGB: ' + str(node))
+                            cmd = _convert_rgb_command(img_filename)
+                            fconvert = subprocess.Popen(cmd,
+                                                        stdout=subprocess.PIPE,
+                                                        stderr=subprocess.PIPE)
+                            stdout, stderr = fconvert.communicate()
+                            if fconvert.returncode != 0:
+                                raise Exception('Error converting file {}'.format(img_filename) +
+                                                ' to RGB color space: {}'.format(stderr))
+                except UnidentifiedImageError:
+                    # do nothing if we cannot open the image
+                    print('Warning: Could not parse JPEG image with PIL: ' + str(img_filename))
+        else:
+            raise Exception('Error: Resource file not existing: ' + str(img_filename))
+
+
 def main():
     in_dir = Path(sys.argv[1]).resolve(strict=True)
     out_dir = Path(sys.argv[2]).resolve(strict=True)
@@ -113,6 +171,7 @@ def main():
             book_slugs_by_uuid
         )
         patch_math(doc)
+        fix_jpeg_colorspace(doc, out_dir)
         doc.write(str(out_dir / xhtml_file.name), encoding="utf8")
 
 

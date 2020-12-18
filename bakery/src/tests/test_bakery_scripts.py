@@ -9,9 +9,14 @@ import requests_mock
 import requests
 import pytest
 import re
+from tempfile import TemporaryDirectory
+from distutils.dir_util import copy_tree
 from googleapiclient.discovery import build
 import google.auth
 from googleapiclient.http import RequestMockBuilder
+from PIL import Image
+from pathlib import Path
+from filecmp import cmp
 
 from cnxepub.html_parsers import HTML_DOCUMENT_NAMESPACES
 from cnxepub.collation import reconstitute
@@ -35,6 +40,7 @@ from bakery_scripts import (
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(HERE, "data")
+TEST_JPEG_DIR = os.path.join(HERE, "test_jpeg_colorspace")
 SCRIPT_DIR = os.path.join(HERE, "../scripts")
 
 
@@ -1405,6 +1411,153 @@ def test_gdocify_book(tmp_path, mocker):
         namespaces={"x": "http://www.w3.org/1999/xhtml"},
     )
     assert len(msub_nodes) == 1
+
+    # Test fix_jpeg_colorspace
+    with TemporaryDirectory() as temp_dir:
+        # copy test JPEGs into a temporal dir
+        copy_tree(TEST_JPEG_DIR, temp_dir)
+
+        rgb = 'rgb.jpg'
+        rgb_broken = 'rgb_broken.jpg'
+        cmyk = 'cmyk.jpg'
+        cmyk_broken = 'cmyk_broken.jpg'
+        greyscale = 'greyscale.jpg'
+        greyscale_broken = 'greyscale_broken.jpg'
+        png = 'original_public_domain.png'
+
+        old_dir = os.getcwd()
+        os.chdir(temp_dir)
+
+        # convert to RGB
+        xhtml = """
+            <html xmlns="http://www.w3.org/1999/xhtml">
+            <body>
+                <img src="{0}" />
+            </body>
+            </html>
+        """.format(cmyk)
+        doc = etree.fromstring(xhtml)
+        gdocify_book.fix_jpeg_colorspace(doc, Path(temp_dir))
+
+        im = Image.open(os.path.join(temp_dir, cmyk))
+        assert im.mode == 'RGB'
+        im.close()
+
+        copy_tree(TEST_JPEG_DIR, temp_dir)  # reset test case
+        im = Image.open(os.path.join(temp_dir, cmyk))
+        assert im.mode == 'CMYK'
+        im.close()
+
+        # keep sure only CMYK is converted
+        xhtml = """
+            <html xmlns="http://www.w3.org/1999/xhtml">
+            <body>
+                <img src="{0}" />
+                <img src="{0}" />
+                <img src="{1}" />
+                <a href="{3}">hallo</a>
+                <img src="{2}" />
+                <img src="{1}" />
+                <a href="{1}">hallo2</a>
+            </body>
+            </html>
+        """.format(rgb, greyscale, png, cmyk)
+        doc = etree.fromstring(xhtml)
+        gdocify_book.fix_jpeg_colorspace(doc, Path(temp_dir))
+
+        assert cmp(os.path.join(TEST_JPEG_DIR, rgb),
+                   os.path.join(temp_dir, rgb))
+        assert cmp(os.path.join(TEST_JPEG_DIR, greyscale),
+                   os.path.join(temp_dir, greyscale))
+        assert cmp(os.path.join(TEST_JPEG_DIR, png),
+                   os.path.join(temp_dir, png))
+
+        im = Image.open(os.path.join(temp_dir, cmyk))
+        assert im.mode == 'RGB'
+        im.close()
+
+        # non existing
+        xhtml = """
+            <html xmlns="http://www.w3.org/1999/xhtml">
+            <body>
+                <img src="idontexist.jpg" />
+            </body>
+            </html>
+        """
+        doc = etree.fromstring(xhtml)
+        with pytest.raises(Exception, match=r'^Error\: Resource file not existing\:.*'):
+            gdocify_book.fix_jpeg_colorspace(doc, Path(temp_dir))
+
+        xhtml = """
+            <html xmlns="http://www.w3.org/1999/xhtml">
+            <body>
+                <a href="ialsodontexist.jpg" />
+            </body>
+            </html>
+        """
+        doc = etree.fromstring(xhtml)
+        with pytest.raises(Exception, match=r'^Error: Resource file not existing:.*'):
+            gdocify_book.fix_jpeg_colorspace(doc, Path(temp_dir))
+
+        copy_tree(TEST_JPEG_DIR, temp_dir)  # reset test case
+        im = Image.open(os.path.join(temp_dir, cmyk))
+        assert im.mode == 'CMYK'
+        im.close()
+
+        # don't fix invalid images
+        xhtml = """
+            <html xmlns="http://www.w3.org/1999/xhtml">
+            <body>
+                <img src="{0}" />
+                <a href="{0}" />
+                <img src="{1}" />
+                <img src="{2}" />
+                <img src="{4}" />
+                <img src="{3}" />
+                <img src="{4}" />
+            </body>
+            </html>
+        """.format(rgb_broken, greyscale_broken, cmyk, cmyk_broken, png)
+        doc = etree.fromstring(xhtml)
+        # should only give warnings but should not break
+        gdocify_book.fix_jpeg_colorspace(doc, Path(temp_dir))
+
+        im = Image.open(os.path.join(temp_dir, cmyk))
+        assert im.mode == 'RGB'
+        im.close()
+
+        assert cmp(os.path.join(TEST_JPEG_DIR, cmyk_broken),
+                   os.path.join(temp_dir, cmyk_broken))
+        assert cmp(os.path.join(TEST_JPEG_DIR, rgb_broken),
+                   os.path.join(temp_dir, rgb_broken))
+        assert cmp(os.path.join(TEST_JPEG_DIR, greyscale_broken),
+                   os.path.join(temp_dir, greyscale_broken))
+        assert cmp(os.path.join(TEST_JPEG_DIR, png),
+                   os.path.join(temp_dir, png))
+
+        copy_tree(TEST_JPEG_DIR, temp_dir)  # reset test case
+        im = Image.open(os.path.join(temp_dir, cmyk))
+        assert im.mode == 'CMYK'
+        im.close()
+
+        # simulate error with ImageMagick
+        xhtml = """
+            <html xmlns="http://www.w3.org/1999/xhtml">
+            <body>
+                <img src="{0}" />
+                <img src="{1}" />
+                <img src="{2}" />
+            </body>
+            </html>
+        """.format(rgb, greyscale, cmyk)
+        doc = etree.fromstring(xhtml)
+
+        mocker.patch("bakery_scripts.gdocify_book._convert_rgb_command",
+                     return_value=["mogrify", "-invalid"])
+        with pytest.raises(Exception, match=r'^Error converting file.*'):
+            gdocify_book.fix_jpeg_colorspace(doc, Path(temp_dir))
+
+        os.chdir(old_dir)
 
 
 def test_mathmltable2png(tmp_path, mocker):
