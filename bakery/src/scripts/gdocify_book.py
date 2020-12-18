@@ -4,6 +4,7 @@ import sys
 from lxml import etree
 from pathlib import Path
 import json
+from . import utils
 
 
 def update_doc_links(doc, book_uuid, book_slugs_by_uuid):
@@ -82,6 +83,13 @@ def patch_math(doc):
         namespaces={"x": "http://www.w3.org/1999/xhtml"}
     ):
         node.tag = "msub"
+
+
+def fix_jpeg_colorspace(doc):
+    """Searches for JPEG image resources which are encoded in colorspace
+    other than RGB and convert them to RGB"""
+
+    pass
 
 
 def main():
