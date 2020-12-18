@@ -388,8 +388,8 @@ const tasks = {
         yargs.positional('slug', {
           describe: 'slug of collection to work on',
           type: 'string'
-        }).option('single', {
-          alias: 'single-book',
+        }).option('s', {
+          alias: 'single',
           describe: 'process a single book',
           type: 'boolean',
           default: false
@@ -493,8 +493,8 @@ const tasks = {
         }).positional('stylefile', {
           describe: 'path to style file',
           type: 'string'
-        }).option('single', {
-          alias: 'single-book',
+        }).option('s', {
+          alias: 'single',
           describe: 'process a single book',
           type: 'boolean',
           default: false
@@ -593,8 +593,8 @@ const tasks = {
         yargs.positional('slug', {
           describe: 'slug of collection to work on',
           type: 'string'
-        }).option('single', {
-          alias: 'single-book',
+        }).option('s', {
+          alias: 'single',
           describe: 'process a single book',
           type: 'boolean',
           default: false
@@ -902,8 +902,8 @@ const tasks = {
         yargs.positional('slug', {
           describe: 'slug of collection to work on',
           type: 'string'
-        }).option('single', {
-          alias: 'single-book',
+        }).option('s', {
+          alias: 'single',
           describe: 'process a single book',
           type: 'boolean',
           default: false
@@ -992,8 +992,8 @@ const tasks = {
         yargs.positional('slug', {
           describe: 'slug of collection to work on',
           type: 'string'
-        }).option('single', {
-          alias: 'single-book',
+        }).option('s', {
+          alias: 'single',
           describe: 'process a single book',
           type: 'boolean',
           default: false
