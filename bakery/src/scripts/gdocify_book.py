@@ -91,6 +91,11 @@ def patch_math(doc):
         node.tag = "msub"
 
 
+def _convert_rgb_command(img_filename):
+    """ImageMagick commandline to convert to RGB"""
+    return ['mogrify', '-profile', SRGB_ICC_PROFILE, str(img_filename)]
+
+
 def fix_jpeg_colorspace(doc, out_dir):
     """Searches for JPEG image resources which are encoded in colorspace
     other than RGB or Greyscale and convert them to RGB"""
@@ -122,9 +127,7 @@ def fix_jpeg_colorspace(doc, out_dir):
                             # convert image in place to RGB with imagemagick profile option
                             # and ignore the right checksum filename for Google Docs pipeline
                             print('Convert to RGB: ' + str(node))
-                            cmd = ['mogrify',
-                                   '-profile', SRGB_ICC_PROFILE,
-                                   str(img_filename)]
+                            cmd = _convert_rgb_command(img_filename)
                             fconvert = subprocess.Popen(cmd,
                                                         stdout=subprocess.PIPE,
                                                         stderr=subprocess.PIPE)

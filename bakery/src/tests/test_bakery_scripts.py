@@ -9,6 +9,7 @@ import requests_mock
 import requests
 import pytest
 import re
+from unittest.mock import patch
 from tempfile import TemporaryDirectory
 from distutils.dir_util import copy_tree
 from googleapiclient.discovery import build
@@ -1496,15 +1497,15 @@ def test_gdocify_book(tmp_path, mocker):
             </html>
         """
         doc = etree.fromstring(xhtml)
-        with pytest.raises(Exception, match=r'^Error\: Resource file not existing\:.*'):
+        with pytest.raises(Exception, match=r'^Error: Resource file not existing:.*'):
             gdocify_book.fix_jpeg_colorspace(doc, Path(temp_dir))
 
-        # don't fix invalid images
         copy_tree(TEST_JPEG_DIR, temp_dir)  # reset test case
         im = Image.open(os.path.join(temp_dir, cmyk))
         assert im.mode == 'CMYK'
         im.close()
 
+        # don't fix invalid images
         xhtml = """
             <html xmlns="http://www.w3.org/1999/xhtml">
             <body>
@@ -1514,7 +1515,7 @@ def test_gdocify_book(tmp_path, mocker):
                 <img src="{2}" />
                 <img src="{4}" />
                 <img src="{3}" />
-                <img src="{5}" />
+                <img src="{4}" />
             </body>
             </html>
         """.format(rgb_broken, greyscale_broken, cmyk, cmyk_broken, png)
@@ -1535,8 +1536,28 @@ def test_gdocify_book(tmp_path, mocker):
         assert cmp(os.path.join(TEST_JPEG_DIR, png),
                    os.path.join(temp_dir, png))
 
-        os.chdir(old_dir)
+        copy_tree(TEST_JPEG_DIR, temp_dir)  # reset test case
+        im = Image.open(os.path.join(temp_dir, cmyk))
+        assert im.mode == 'CMYK'
+        im.close()
 
+        # simulate error with ImageMagick
+        xhtml = """
+            <html xmlns="http://www.w3.org/1999/xhtml">
+            <body>
+                <img src="{0}" />
+                <img src="{1}" />
+                <img src="{2}" />
+            </body>
+            </html>
+        """.format(rgb, greyscale, cmyk)
+        doc = etree.fromstring(xhtml)
+        with patch('bakery_scripts.gdocify_book._convert_rgb_command') as mocked_cmd:
+            mocked_cmd().return_value = ['mogrify', '-invalidoptionhere']
+            with pytest.raises(Exception, match=r'^Error converting file.*'):
+                gdocify_book.fix_jpeg_colorspace(doc, Path(temp_dir))
+
+        os.chdir(old_dir)
 
 
 def test_mathmltable2png(tmp_path, mocker):
