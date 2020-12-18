@@ -121,7 +121,7 @@ def fix_jpeg_colorspace(doc, out_dir):
                             # here: we have a color space like CMYK or YCbCr most likely
                             # convert image in place to RGB with imagemagick profile option
                             # and ignore right checksum filename for Google Doce pipeline
-                            print('Convert to RGB: ' + str(img_filename))
+                            print('Convert to RGB: ' + str(node))
                             cmd = ['mogrify',
                                    '-profile', SRGB_ICC_PROFILE,
                                    str(img_filename)]
