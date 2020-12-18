@@ -94,7 +94,6 @@ def fix_jpeg_colorspace(doc, out_dir):
     """Searches for JPEG image resources which are encoded in colorspace
     other than RGB or Greyscale and convert them to RGB"""
 
-    resources_path = out_dir / Path('resources')
     # get all img resources from img and a nodes
     img_xpath = '//x:img[@src and not(starts-with(@src, "http") or ' \
         'starts-with(@src, "//"))]/@src' \
@@ -103,8 +102,8 @@ def fix_jpeg_colorspace(doc, out_dir):
         'starts-with(@href, "//") or starts-with(@href, "#"))]/@href'
     for node in doc.xpath(img_xpath,
                           namespaces={'x': 'http://www.w3.org/1999/xhtml'}):
-        img_filename = Path(node.text)
-        img_filename = (resources_path / img_filename).resolve().absolute()
+        img_filename = Path(node)
+        img_filename = (out_dir / img_filename).resolve().absolute()
 
         if img_filename.is_file():
             mime_type = utils.get_mime_type(str(img_filename))
@@ -115,6 +114,7 @@ def fix_jpeg_colorspace(doc, out_dir):
                     im = Image.open(str(img_filename))
                     # https://pillow.readthedocs.io/en/stable/handbook/concepts.html#modes
                     colorspace = im.mode
+                    im.close()
                     if not re.match(r"^RGB.*", colorspace):
                         if colorspace != '1' and not re.match(r"^L\w?", colorspace):
                             # here: we have a color space like CMYK or YCbCr most likely
@@ -131,7 +131,6 @@ def fix_jpeg_colorspace(doc, out_dir):
                                 raise Exception('Error converting file ' +
                                                 str(img_filename) +
                                                 ' to RGB color space: ' + stderr)
-                    im.close()
                 except UnidentifiedImageError:
                     # do nothing if we cannot open the image
                     print('Warning: Could not parse JPEG image with PIL: ' + str(img_filename))
