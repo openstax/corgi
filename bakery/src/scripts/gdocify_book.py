@@ -4,6 +4,9 @@ import sys
 from lxml import etree
 from pathlib import Path
 import json
+import re
+import subprocess
+from PIL import Image, UnidentifiedImageError
 from . import utils
 
 
@@ -87,10 +90,45 @@ def patch_math(doc):
 
 def fix_jpeg_colorspace(doc):
     """Searches for JPEG image resources which are encoded in colorspace
-    other than RGB and convert them to RGB"""
+    other than RGB or Greyscale and convert them to RGB"""
 
-    pass
+    source_path = os.path.dirname(filename)
+    # get all img resources from img and a nodes
+    img_xpath = '//x:img[@src and not(starts-with(@src, "http") or ' \
+        'starts-with(@src, "//"))]/@src' \
+        '|' \
+        '//x:a[@href and not(starts-with(@href, "http") or ' \
+        'starts-with(@href, "//") or starts-with(@href, "#"))]/@href'
+    for node in doc.xpath(img_xpath,
+                          namespaces={'x': 'http://www.w3.org/1999/xhtml'}):
+        img_filename = node.text
+        img_filename = os.path.join(source_path, img_filename)
 
+        mime_type = utils.get_mime_type(img_filename)
+
+        # Only check colorspace of JPEGs (GIF, PNG etc. don't have color space)
+        if mime_type == 'image/jpeg':
+            try:
+                im = Image.open(img_filename)
+                # https://pillow.readthedocs.io/en/stable/handbook/concepts.html#modes
+                colorspace = im.mode
+                if not re.match(r"^RGB.*", colorspace):
+                    if colorspace != '1' and not re.match(r"^L\w?", colorspace):
+                        # here: we have a color space like CMYK or YCbCr most likely
+                        # convert image in place to RGB with imagemagick profile option
+                        # and ignore right checksum filename for Google Doce pipeline
+                        cmd = ['mogrify',
+                               '-profile', '/usr/share/color/icc/sRGB.icc',
+                               img_filename]
+                        fconvert = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                        stdout, stderr = fconvert.communicate()
+                        if fconvert.returncode != 0:
+                            raise Exception('Error converting file ' + img_filename +
+                                            ' to RGB color space: ' + stderr)
+                im.close()
+            except UnidentifiedImageError:
+                # do nothing if we cannot open the image
+                print('Warning: Could not parse JPEG image with PIL: ' + img_filename)
 
 def main():
     in_dir = Path(sys.argv[1]).resolve(strict=True)
