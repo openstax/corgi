@@ -133,9 +133,8 @@ def fix_jpeg_colorspace(doc, out_dir):
                                                         stderr=subprocess.PIPE)
                             stdout, stderr = fconvert.communicate()
                             if fconvert.returncode != 0:
-                                raise Exception('Error converting file ' +
-                                                str(img_filename) +
-                                                ' to RGB color space: ' + stderr)
+                                raise Exception('Error converting file {}'.format(img_filename) +
+                                                ' to RGB color space: {}'.format(stderr))
                 except UnidentifiedImageError:
                     # do nothing if we cannot open the image
                     print('Warning: Could not parse JPEG image with PIL: ' + str(img_filename))

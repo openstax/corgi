@@ -9,7 +9,6 @@ import requests_mock
 import requests
 import pytest
 import re
-from unittest.mock import patch
 from tempfile import TemporaryDirectory
 from distutils.dir_util import copy_tree
 from googleapiclient.discovery import build
@@ -1230,7 +1229,6 @@ def test_patch_same_book_links(tmp_path, mocker):
     ):
         assert expected_links_by_id[node.attrib["id"]] == node.attrib["href"]
 
-
 def test_gdocify_book(tmp_path, mocker):
     """Test gdocify_book script"""
 
@@ -1552,10 +1550,10 @@ def test_gdocify_book(tmp_path, mocker):
             </html>
         """.format(rgb, greyscale, cmyk)
         doc = etree.fromstring(xhtml)
-        with patch('bakery_scripts.gdocify_book._convert_rgb_command') as mocked_cmd:
-            mocked_cmd().return_value = ['mogrify', '-invalidoptionhere']
-            with pytest.raises(Exception, match=r'^Error converting file.*'):
-                gdocify_book.fix_jpeg_colorspace(doc, Path(temp_dir))
+
+        mocker.patch("bakery_scripts.gdocify_book._convert_rgb_command", return_value=["mogrify", "-invalid"])
+        with pytest.raises(Exception, match=r'^Error converting file.*'):
+            gdocify_book.fix_jpeg_colorspace(doc, Path(temp_dir))
 
         os.chdir(old_dir)
 
