@@ -75,7 +75,7 @@ jobs:
           name: Setup test environment
           command: |
             sudo apt-get update
-            sudo apt-get install -y imagemagick icc-profiles-free
+            sudo apt-get install -y imagemagick icc-profiles-free ghostscript
             mkdir -p /tmp/test-reports
             pip install bakery/src/scripts/.[test]
 
