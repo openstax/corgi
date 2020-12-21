@@ -149,7 +149,7 @@ def fix_jpeg_colorspace(doc, out_dir):
                                 with TemporaryDirectory() as temp_dir:
                                     profile = Path(temp_dir) / 'embedded.icc'
                                     # save embedded profile if existing
-                                    cmd = [convert, str(img_filename), str(profile)]
+                                    cmd = ['convert', str(img_filename), str(profile)]
                                     extractembedded = subprocess.Popen(cmd,
                                                                 stdout=subprocess.PIPE,
                                                                 stderr=subprocess.PIPE)
