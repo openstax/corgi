@@ -1428,8 +1428,9 @@ def test_gdocify_book(tmp_path, mocker):
         png = rf + 'original_public_domain.png'
 
         old_dir = os.getcwd()
+        startpoint_dir = os.path.join(temp_dir, 'startpoint')
         # to get the ..resources images change directory to this start point
-        os.chdir(os.path.join(temp_dir, 'startpoint'))
+        os.chdir(startpoint_dir)
 
         # convert to RGB
         xhtml = """
