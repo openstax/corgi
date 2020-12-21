@@ -1587,22 +1587,22 @@ def test_gdocify_book(tmp_path, mocker):
         assert im.mode == 'CMYK'
         im.close()
 
-        # # simulate error with ImageMagick
-        # xhtml = """
-        #     <html xmlns="http://www.w3.org/1999/xhtml">
-        #     <body>
-        #         <img src="{0}" />
-        #         <img src="{1}" />
-        #         <img src="{2}" />
-        #     </body>
-        #     </html>
-        # """.format(rgb, greyscale, cmyk)
-        # doc = etree.fromstring(xhtml)
+        # simulate error with ImageMagick
+        xhtml = """
+            <html xmlns="http://www.w3.org/1999/xhtml">
+            <body>
+                <img src="{0}" />
+                <img src="{1}" />
+                <img src="{2}" />
+            </body>
+            </html>
+        """.format(rgb, greyscale, cmyk)
+        doc = etree.fromstring(xhtml)
 
-        # mocker.patch("bakery_scripts.gdocify_book._convert_rgb_command",
-        #              return_value=["mogrify", "-invalid"])
-        # with pytest.raises(Exception, match=r'^Error converting file.*'):
-        #     gdocify_book.fix_jpeg_colorspace(doc, Path(temp_dir))
+        mocker.patch("bakery_scripts.gdocify_book._convert_cmyk2rgb_embedded_profile",
+                     return_value=["mogrify", "-invalid"])
+        with pytest.raises(Exception, match=r'^Error converting file.*'):
+            gdocify_book.fix_jpeg_colorspace(doc, Path(temp_dir))
 
         os.chdir(old_dir)
 
