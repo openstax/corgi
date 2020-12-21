@@ -4,7 +4,7 @@ LABEL maintainer="OpenStax Content Engineering"
 
 RUN apt-get update
 RUN apt-get install -y build-essential libicu-dev pkg-config libmagic1 mime-support wget curl xsltproc lsb-release git
-RUN apt-get install -y imagemagick icc-profiles-free
+RUN apt-get install -y imagemagick icc-profiles-free curl
 
 COPY ./requirements.txt /code/scripts/
 WORKDIR /code/
