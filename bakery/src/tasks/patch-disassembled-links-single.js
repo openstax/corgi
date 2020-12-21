@@ -16,7 +16,7 @@ const task = (taskArgs) => {
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/patch_disassembled_links_single.sh'), { encoding: 'utf-8' })
 
   return {
-    task: 'jsonify single',
+    task: 'patch-same-book-links single',
     config: {
       platform: 'linux',
       image_resource: {
