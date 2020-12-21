@@ -147,7 +147,7 @@ def fix_jpeg_colorspace(doc, out_dir):
                             # decide which command line to use
                             if colorspace == 'CMYK':
                                 with TemporaryDirectory() as temp_dir:
-                                    profile = Path(temp_dir) / 'embedded.icc'
+                                    profile = Path(temp_dir) / Path('embedded.icc')
                                     # save embedded profile if existing
                                     cmd = ['convert', str(img_filename), str(profile)]
                                     extractembedded = subprocess.Popen(cmd,
