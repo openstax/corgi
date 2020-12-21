@@ -1414,22 +1414,19 @@ def test_gdocify_book(tmp_path, mocker):
 
     # Test fix_jpeg_colorspace
     with TemporaryDirectory() as temp_dir:
-
         # copy test JPEGs into a temporal dir
         copy_tree(TEST_JPEG_DIR, temp_dir)
 
-        rf = '../resources/'
-        rgb = rf + 'rgb.jpg'
-        rgb_broken = rf + 'rgb_broken.jpg'
-        cmyk = rf + 'cmyk.jpg'
-        cmyk_broken = rf + 'cmyk_broken.jpg'
-        greyscale = rf + 'greyscale.jpg'
-        greyscale_broken = rf + 'greyscale_broken.jpg'
-        png = rf + 'original_public_domain.png'
+        rgb = 'rgb.jpg'
+        rgb_broken = 'rgb_broken.jpg'
+        cmyk = 'cmyk.jpg'
+        cmyk_broken = 'cmyk_broken.jpg'
+        greyscale = 'greyscale.jpg'
+        greyscale_broken = 'greyscale_broken.jpg'
+        png = 'original_public_domain.png'
 
         old_dir = os.getcwd()
-        # to get the ..resources images change directory to this start point
-        os.chdir(os.path.join(temp_dir, 'startpoint'))
+        os.chdir(temp_dir)
 
         # convert to RGB
         xhtml = """
