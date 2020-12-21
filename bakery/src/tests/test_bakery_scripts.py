@@ -1496,8 +1496,8 @@ def test_gdocify_book(tmp_path, mocker):
             </html>
         """
         doc = etree.fromstring(xhtml)
-        with pytest.raises(Exception, match=r'^Error: Resource file not existing:.*'):
-            gdocify_book.fix_jpeg_colorspace(doc, Path(temp_dir))
+        # should not give any error messages:
+        gdocify_book.fix_jpeg_colorspace(doc, Path(temp_dir))
 
         copy_tree(TEST_JPEG_DIR, temp_dir)  # reset test case
         im = Image.open(os.path.join(temp_dir, cmyk))
