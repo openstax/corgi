@@ -1480,22 +1480,24 @@ def test_gdocify_book(tmp_path, mocker):
         xhtml = """
             <html xmlns="http://www.w3.org/1999/xhtml">
             <body>
-                <img src="idontexist.jpg" />
+                <img src="../resources/idontexist.jpg" />
             </body>
             </html>
         """
         doc = etree.fromstring(xhtml)
+        # corner case which should not happen in the pipeline
         with pytest.raises(Exception, match=r'^Error\: Resource file not existing\:.*'):
             gdocify_book.fix_jpeg_colorspace(doc, Path(temp_dir))
 
         xhtml = """
             <html xmlns="http://www.w3.org/1999/xhtml">
             <body>
-                <a href="ialsodontexist.jpg" />
+                <a href="../resources/ialsodontexist.jpg" />
             </body>
             </html>
         """
         doc = etree.fromstring(xhtml)
+        # corner case which should not happen in the pipeline
         with pytest.raises(Exception, match=r'^Error: Resource file not existing:.*'):
             gdocify_book.fix_jpeg_colorspace(doc, Path(temp_dir))
 
