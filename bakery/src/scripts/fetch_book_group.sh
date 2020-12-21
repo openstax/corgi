@@ -19,7 +19,6 @@ fi
 fetch-update-meta "${CONTENT_OUTPUT}/raw/.git" "${CONTENT_OUTPUT}/raw/modules" "${CONTENT_OUTPUT}/raw/collections" "$reference"
 rm -rf "${CONTENT_OUTPUT}/raw/.git"
 rm -rf "$creds_dir"
-wget "${BOOK_SLUGS_URL}" -O "${CONTENT_OUTPUT}/book-slugs.json"
 
 fetch-map-resources "${CONTENT_OUTPUT}/raw/modules" "${CONTENT_OUTPUT}/raw/media" . "${UNUSED_RESOURCE_OUTPUT}"
 # Either the media is in resources or unused-resources, this folder should be empty (-d will fail otherwise)
