@@ -1413,17 +1413,22 @@ def test_gdocify_book(tmp_path, mocker):
     assert len(msub_nodes) == 1
 
     # Test fix_jpeg_colorspace
+
+    # use a simplified RESOURCES_FOLDER path for testing
+    mocker.patch('bakery_scripts.gdocify_book.RESOURCES_FOLDER', './')
+
     with TemporaryDirectory() as temp_dir:
         # copy test JPEGs into a temporal dir
         copy_tree(TEST_JPEG_DIR, temp_dir)
 
-        rgb = 'rgb.jpg'
-        rgb_broken = 'rgb_broken.jpg'
-        cmyk = 'cmyk.jpg'
-        cmyk_broken = 'cmyk_broken.jpg'
-        greyscale = 'greyscale.jpg'
-        greyscale_broken = 'greyscale_broken.jpg'
-        png = 'original_public_domain.png'
+        rf = './'
+        rgb = rf + 'rgb.jpg'
+        rgb_broken = rf + 'rgb_broken.jpg'
+        cmyk = rf + 'cmyk.jpg'
+        cmyk_broken = rf + 'cmyk_broken.jpg'
+        greyscale = rf + 'greyscale.jpg'
+        greyscale_broken = rf + 'greyscale_broken.jpg'
+        png = rf + 'original_public_domain.png'
 
         old_dir = os.getcwd()
         os.chdir(temp_dir)
@@ -1480,7 +1485,7 @@ def test_gdocify_book(tmp_path, mocker):
         xhtml = """
             <html xmlns="http://www.w3.org/1999/xhtml">
             <body>
-                <img src="../resources/idontexist.jpg" />
+                <img src="./idontexist.jpg" />
             </body>
             </html>
         """
@@ -1492,7 +1497,7 @@ def test_gdocify_book(tmp_path, mocker):
         xhtml = """
             <html xmlns="http://www.w3.org/1999/xhtml">
             <body>
-                <a href="../resources/ialsodontexist.jpg" />
+                <a href="./ialsodontexist.jpg" />
             </body>
             </html>
         """
