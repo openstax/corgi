@@ -7,10 +7,13 @@ import json
 import re
 import subprocess
 from PIL import Image, UnidentifiedImageError
+from tempfile import TemporaryDirectory
 from . import utils
 
 # sRGB color profile file in Debian icc-profiles-free package
-SRGB_ICC_PROFILE = '/usr/share/color/icc/sRGB.icc'
+SRGB_ICC = '/usr/share/color/icc/sRGB.icc'
+# user installed Adobe ICC CMYK profile US Web Coated (SWOP)
+USWEBCOATEDSWOP_ICC = '/usr/share/color/icc/USWebCoatedSWOP.icc'
 
 
 def update_doc_links(doc, book_uuid, book_slugs_by_uuid):
@@ -91,10 +94,14 @@ def patch_math(doc):
         node.tag = "msub"
 
 
-def _convert_rgb_command(img_filename):
+def _convert_cmyk2rgb_command(img_filename):
     """ImageMagick commandline to convert to RGB"""
-    return ['mogrify', '-profile', SRGB_ICC_PROFILE, str(img_filename)]
+    return ['mogrify', '-profile', SRGB_ICC, str(img_filename)]
 
+def _universal_convert_rgb_command(img_filename):
+    """ImageMagick commandline to convert an unknown color profile to RGB.
+    Warning: Probably does not work perfectly color accurate."""
+    return ['mogrify', '-colorspace', 'sRGB', '-type', 'truecolor', str(img_filename)]
 
 def fix_jpeg_colorspace(doc, out_dir):
     """Searches for JPEG image resources which are encoded in colorspace
@@ -124,17 +131,20 @@ def fix_jpeg_colorspace(doc, out_dir):
                     if not re.match(r"^RGB.*", colorspace):
                         if colorspace != '1' and not re.match(r"^L\w?", colorspace):
                             # here we have a color space like CMYK or YCbCr most likely
-                            # convert image in place to RGB with imagemagick profile option
-                            # and ignore the right checksum on filename for Google Docs pipeline
-                            print('Convert to RGB: ' + str(node))
-                            cmd = _convert_rgb_command(img_filename)
-                            fconvert = subprocess.Popen(cmd,
-                                                        stdout=subprocess.PIPE,
-                                                        stderr=subprocess.PIPE)
-                            stdout, stderr = fconvert.communicate()
-                            if fconvert.returncode != 0:
-                                raise Exception('Error converting file {}'.format(img_filename) +
-                                                ' to RGB color space: {}'.format(stderr))
+                            if colorspace == 'CMYK':
+                                # convert image in place to RGB with imagemagick profile option
+                                # and ignore the right checksum on filename for Google Docs pipeline
+                                # TODO: 
+                            else:
+                                print('Warning: Convert exceptional color space {} to RGB: {}'.format(colorspace, node))
+                                cmd = _universal_convert_rgb_command(img_filename)
+                                fconvert = subprocess.Popen(cmd,
+                                                            stdout=subprocess.PIPE,
+                                                            stderr=subprocess.PIPE)
+                                stdout, stderr = fconvert.communicate()
+                                if fconvert.returncode != 0:
+                                    raise Exception('Error converting file {}'.format(img_filename) +
+                                                    ' to RGB color space: {}'.format(stderr))
                 except UnidentifiedImageError:
                     # do nothing if we cannot open the image
                     print('Warning: Could not parse JPEG image with PIL: ' + str(img_filename))
