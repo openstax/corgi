@@ -9,6 +9,8 @@ import subprocess
 from PIL import Image, UnidentifiedImageError
 from . import utils
 
+# folder where all resources are saved in checksum step
+RESOURCES_FOLDER = '../resources/'
 # sRGB color profile file in Debian icc-profiles-free package
 SRGB_ICC_PROFILE = '/usr/share/color/icc/sRGB.icc'
 
@@ -101,11 +103,10 @@ def fix_jpeg_colorspace(doc, out_dir):
     other than RGB or Greyscale and convert them to RGB"""
 
     # get all img resources from img and a nodes
-    img_xpath = '//x:img[@src and not(starts-with(@src, "http") or ' \
-        'starts-with(@src, "//"))]/@src' \
+    # assuming all resources from checksum step are in the same folder
+    img_xpath = '//x:img[@src and starts-with(@src, "{0}")]/@src' \
         '|' \
-        '//x:a[@href and not(starts-with(@href, "http") or ' \
-        'starts-with(@href, "//") or starts-with(@href, "#"))]/@href'
+        '//x:a[@href and starts-with(@href, "{0}")]/@href'.format(RESOURCES_FOLDER)
     for node in doc.xpath(img_xpath,
                           namespaces={'x': 'http://www.w3.org/1999/xhtml'}):
         img_filename = Path(node)
