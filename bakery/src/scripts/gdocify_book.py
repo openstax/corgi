@@ -139,7 +139,7 @@ def fix_jpeg_colorspace(doc, out_dir):
                     # do nothing if we cannot open the image
                     print('Warning: Could not parse JPEG image with PIL: ' + str(img_filename))
         else:
-            raise Exception('Error: Resource file not existing: ' + str(img_filename))
+            print('Warning: Resource file not existing: ' + str(img_filename))
 
 
 def main():
