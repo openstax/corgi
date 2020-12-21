@@ -1416,7 +1416,8 @@ def test_gdocify_book(tmp_path, mocker):
 
     # use a simplified RESOURCES_FOLDER path for testing
     mocker.patch('bakery_scripts.gdocify_book.RESOURCES_FOLDER', './')
-    mocker.patch('bakery_scripts.gdocify_book.USWEBCOATEDSWOP_ICC', '/usr/share/color/icc/ghostscript/default_cmyk.icc')
+    mocker.patch('bakery_scripts.gdocify_book.USWEBCOATEDSWOP_ICC',
+                 '/usr/share/color/icc/ghostscript/default_cmyk.icc')
 
     with TemporaryDirectory() as temp_dir:
         # copy test JPEGs into a temporal dir
