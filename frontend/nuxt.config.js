@@ -7,7 +7,7 @@ export default {
   ** Headers of the page
   */
   head: {
-    titleTemplate: 'COPS - Content Output Producer Service',
+    titleTemplate: 'CORGI - Content Output Review and Generation Interface',
     title: process.env.npm_package_name || '',
     meta: [
       { charset: 'utf-8' },
