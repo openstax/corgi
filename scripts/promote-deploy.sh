@@ -2,11 +2,11 @@
 set -e
 
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-staging_fe_tag=$(docker service ls | awk '{ if ($2 == "cops_stag_frontend") { split($5, image, ":"); print image[2] } }')
-staging_be_tag=$(docker service ls | awk '{ if ($2 == "cops_stag_backend") { split($5, image, ":"); print image[2] } }')
+staging_fe_tag=$(docker service ls | awk '{ if ($2 == "corgi_stag_frontend") { split($5, image, ":"); print image[2] } }')
+staging_be_tag=$(docker service ls | awk '{ if ($2 == "corgi_stag_backend") { split($5, image, ":"); print image[2] } }')
 
-prod_fe_tag=$(docker service ls | awk '{ if ($2 == "cops_prod_frontend") { split($5, image, ":"); print image[2] } }')
-prod_be_tag=$(docker service ls | awk '{ if ($2 == "cops_prod_backend") { split($5, image, ":"); print image[2] } }')
+prod_fe_tag=$(docker service ls | awk '{ if ($2 == "corgi_prod_frontend") { split($5, image, ":"); print image[2] } }')
+prod_be_tag=$(docker service ls | awk '{ if ($2 == "corgi_prod_backend") { split($5, image, ":"); print image[2] } }')
 
 echo "Script dir: ${dir}"
 echo "Detected STAGING tags frontend ($staging_fe_tag) and backend ($staging_be_tag)"
