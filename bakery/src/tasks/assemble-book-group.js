@@ -8,9 +8,14 @@ const task = (taskArgs) => {
     tag: 'trunk'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
+  const singleBookFlag = taskArgs != null && taskArgs.singleBookFlag != null ? taskArgs.singleBookFlag : false
+  const bookSlug = taskArgs != null && taskArgs.slug != null ? taskArgs.slug : ''
+  const targetBook = singleBookFlag ? bookSlug : ''
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
+
   const inputName = 'fetched-book-group'
   const assembledOutput = 'assembled-book-group'
+
   const rawCollectionDir = `${inputName}/raw`
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/assemble_book_group.sh'), { encoding: 'utf-8' })
 
@@ -30,7 +35,8 @@ const task = (taskArgs) => {
       ],
       params: {
         ASSEMBLED_OUTPUT: assembledOutput,
-        RAW_COLLECTION_DIR: rawCollectionDir
+        RAW_COLLECTION_DIR: rawCollectionDir,
+        TARGET_BOOK: targetBook
       },
       run: {
         path: '/bin/bash',

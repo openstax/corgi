@@ -70,6 +70,8 @@ This graph is created with yED and the source file for it is located [here](./do
 
 ![Flow for git-storage compatible pipelines](./docs/pipelines.png)
 
+The bake-group, assemble-group, bake-meta-group and assemble-meta-group tasks can be run with the --single flag to only process a single book. If the full book group has not been run through all these tasks, this flag is mandatory for running the link-single task.
+
 ### Bakery Concourse Pipeline Config Generator
 
 #### Dependencies

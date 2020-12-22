@@ -5,7 +5,11 @@
 shopt -s globstar nullglob
 for collection in "${BAKED_INPUT}/"*.baked.xhtml; do
     slug_name=$(basename "$collection" | awk -F'[.]' '{ print $1; }')
-
+    if [[ -n "${TARGET_BOOK}" ]]; then
+        if [[ "$slug_name" != "${TARGET_BOOK}" ]]; then
+            continue
+        fi
+    fi
     book_metadata="${FETCHED_INPUT}/raw/metadata/$slug_name.metadata.json"
     book_uuid=$(jq -r '.id' "$book_metadata")
     book_version=$(jq -r '.version' "$book_metadata")

@@ -51,6 +51,9 @@ const sourceObjs = (obj) => {
     sources.push(obj.source)
   } else {
     for (const key of Object.keys(obj)) {
+      if (obj[key] == null) {
+        throw new Error(`${key} is null`)
+      }
       sources.push(...sourceObjs(obj[key]))
     }
   }
