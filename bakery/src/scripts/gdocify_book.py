@@ -7,12 +7,15 @@ import json
 import re
 import subprocess
 from PIL import Image, UnidentifiedImageError
+from tempfile import TemporaryDirectory
 from . import utils
 
 # folder where all resources are saved in checksum step
 RESOURCES_FOLDER = '../resources/'
 # sRGB color profile file in Debian icc-profiles-free package
-SRGB_ICC_PROFILE = '/usr/share/color/icc/sRGB.icc'
+SRGB_ICC = '/usr/share/color/icc/sRGB.icc'
+# user installed Adobe ICC CMYK profile US Web Coated (SWOP)
+USWEBCOATEDSWOP_ICC = '/usr/share/color/icc/USWebCoatedSWOP.icc'
 
 
 def update_doc_links(doc, book_uuid, book_slugs_by_uuid):
@@ -93,9 +96,25 @@ def patch_math(doc):
         node.tag = "msub"
 
 
-def _convert_rgb_command(img_filename):
-    """ImageMagick commandline to convert to RGB"""
-    return ['mogrify', '-profile', SRGB_ICC_PROFILE, str(img_filename)]
+def _convert_cmyk2rgb_embedded_profile(img_filename):
+    """ImageMagick commandline to convert from CMYK with
+    an existing embedded icc profile"""
+    # mogrify -profile sRGB.icc +profile '*' picture.jpg
+    return ['mogrify', '-profile', SRGB_ICC, '+profile', "'*'", str(img_filename)]
+
+
+def _convert_cmyk2rgb_no_profile(img_filename):
+    """ImageMagick commandline to convert from CMYK without any
+    embedded icc profile"""
+    # mogrify -profile USWebCoatedSWOP.icc -profile sRGB.icc +profile '*' picture.jpg
+    return ['mogrify', '-profile', USWEBCOATEDSWOP_ICC, '-profile', SRGB_ICC,
+            '+profile', "'*'", str(img_filename)]
+
+
+def _universal_convert_rgb_command(img_filename):
+    """ImageMagick commandline to convert an unknown color profile to RGB.
+    Warning: Probably does not work perfectly color accurate."""
+    return ['mogrify', '-colorspace', 'sRGB', '-type', 'truecolor', str(img_filename)]
 
 
 def fix_jpeg_colorspace(doc, out_dir):
@@ -125,10 +144,36 @@ def fix_jpeg_colorspace(doc, out_dir):
                     if not re.match(r"^RGB.*", colorspace):
                         if colorspace != '1' and not re.match(r"^L\w?", colorspace):
                             # here we have a color space like CMYK or YCbCr most likely
-                            # convert image in place to RGB with imagemagick profile option
-                            # and ignore the right checksum on filename for Google Docs pipeline
-                            print('Convert to RGB: ' + str(node))
-                            cmd = _convert_rgb_command(img_filename)
+                            # decide which command line to use
+                            if colorspace == 'CMYK':
+                                with TemporaryDirectory() as temp_dir:
+                                    profile = Path(temp_dir) / Path('embedded.icc')
+                                    # save embedded profile if existing
+                                    cmd = ['convert', str(img_filename), str(profile)]
+                                    extractembedded = subprocess.Popen(cmd,
+                                                                       stdout=subprocess.PIPE,
+                                                                       stderr=subprocess.PIPE)
+                                    stdout, stderr = extractembedded.communicate()
+                                    # was there an embedded icc profile?
+                                    if extractembedded.returncode == 0 and \
+                                       profile.is_file() and \
+                                       profile.stat().st_size > 0:
+                                        cmd = _convert_cmyk2rgb_embedded_profile(
+                                            img_filename)
+                                        print('Convert CMYK (embedded) to '
+                                              'RGB: {}'.format(node))
+                                    else:
+                                        cmd = _convert_cmyk2rgb_no_profile(
+                                            img_filename)
+                                        print('Convert CMYK (no profile) to '
+                                              'RGB: {}'.format(node))
+                                    if profile.is_file():
+                                        profile.unlink()  # delete file
+                            else:
+                                cmd = _universal_convert_rgb_command(img_filename)
+                                print('Warning: Convert exceptional color '
+                                      'space {} to RGB: {}'.format(colorspace, node))
+                            # convert command itself
                             fconvert = subprocess.Popen(cmd,
                                                         stdout=subprocess.PIPE,
                                                         stderr=subprocess.PIPE)

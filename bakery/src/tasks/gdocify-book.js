@@ -35,6 +35,8 @@ const task = (taskArgs) => {
           target_dir="gdocified-book/$collection_id/gdocified"
           book_slugs_file="gdocified-book/$collection_id/book-slugs.json"
           mkdir "$target_dir"
+          curl -o /tmp/AdobeICCProfiles.zip https://download.adobe.com/pub/adobe/iccprofiles/win/AdobeICCProfilesCS4Win_end-user.zip
+          unzip -o -j "/tmp/AdobeICCProfiles.zip" "Adobe ICC Profiles (end-user)/CMYK/USWebCoatedSWOP.icc" -d /usr/share/color/icc/
           gdocify "$book_dir" "$target_dir" "$book_slugs_file"
           cp "$book_dir"/*@*-metadata.json "$target_dir"
         `

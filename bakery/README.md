@@ -166,7 +166,7 @@ Both the Bakery CLI and the Pipeline Config Generator allow you to specify a tag
 There are basic tests for the Python scripts used in some of the bakery tasks in `bakery/src/tests` which can be run as follows:
 
 ```
-apt-get install -y imagemagick icc-profiles-free
+apt-get install -y imagemagick icc-profiles-free ghostscript
 pip install bakery/src/scripts/.[test]
 pytest bakery
 ```
