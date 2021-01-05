@@ -2,8 +2,7 @@ FROM python:3.7-slim
 
 LABEL maintainer="OpenStax Content Engineering"
 
-RUN apt-get update
-RUN apt-get install -y build-essential libicu-dev pkg-config libmagic1 \
+RUN apt-get update && apt-get install -y build-essential libicu-dev pkg-config libmagic1 \
     mime-support wget curl xsltproc lsb-release git \
     imagemagick icc-profiles-free curl unzip
 
@@ -13,7 +12,7 @@ WORKDIR /code/
 RUN pip install -r scripts/requirements.txt
 
 ENV JQ_VERSION='1.6'
-ENV PANDOC_VERSION='2.10.1'
+ENV PANDOC_VERSION='2.11.3.2'
 
 RUN wget --no-check-certificate https://raw.githubusercontent.com/stedolan/jq/master/sig/jq-release.key -O /tmp/jq-release.key && \
     wget --no-check-certificate https://raw.githubusercontent.com/stedolan/jq/master/sig/v${JQ_VERSION}/jq-linux64.asc -O /tmp/jq-linux64.asc && \
