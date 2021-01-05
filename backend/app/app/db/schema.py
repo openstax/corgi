@@ -38,6 +38,7 @@ class Jobs(Base):
     job_type_id = sa.Column(sa.Integer, sa.ForeignKey("job_types.id"))
     worker_version = sa.Column(sa.String)
     content_server_id = sa.Column(sa.Integer, sa.ForeignKey("content_servers.id"))
+    error_message = sa.Column(sa.String)
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow, index=True)
     updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
                            onupdate=datetime.utcnow)
