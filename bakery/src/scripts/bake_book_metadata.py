@@ -17,17 +17,6 @@ def main():
         metadata = DocumentMetadataParser(html)
         binder = reconstitute(baked_xhtml)
 
-    if book_slugs_file:
-        required_metadata = ('title', 'revised')
-    else:
-        required_metadata = ('title', 'revised', 'slug')
-
-    for required_data in required_metadata:
-        if getattr(metadata, required_data) is None:
-            raise ValueError(
-                "A value for '{}' could not be found.".format(required_data)
-            )
-
     with open(raw_metadata_file, "r") as raw_json:
         baked_metadata = json.load(raw_json)
 
