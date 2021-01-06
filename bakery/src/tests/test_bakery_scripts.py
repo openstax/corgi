@@ -955,16 +955,64 @@ def test_bake_book_metadata(tmp_path, mocker):
     bake_book_metadata.main()
 
     baked_metadata = json.loads(output_baked_book_metadata.read_text())
+    book_metadata = baked_metadata[book_ident_hash]
 
-    assert isinstance(baked_metadata[book_ident_hash]["tree"], dict) is True
-    assert "contents" in baked_metadata[book_ident_hash]["tree"].keys()
-    assert "license" in baked_metadata[book_ident_hash].keys()
+    assert isinstance(book_metadata["tree"], dict) is True
+    assert "contents" in book_metadata["tree"].keys()
+    assert "license" in book_metadata.keys()
     assert (
-        baked_metadata[book_ident_hash]["revised"]
+        book_metadata["revised"]
         == "2019-08-30T16:35:37.569966-05:00"
     )
-    assert "College Physics" in baked_metadata[book_ident_hash]["title"]
-    assert baked_metadata[book_ident_hash]["slug"] == "test-book-slug"
+    assert "College Physics" in book_metadata["title"]
+    assert book_metadata["slug"] == "test-book-slug"
+    assert book_metadata["id"] == "injected_id"
+    assert book_metadata["version"] == "injected_version"
+    assert book_metadata["legacy_id"] == "injected_legacy_id"
+    assert book_metadata["legacy_version"] == "injected_legacy_version"
+
+
+def test_bake_book_metadata_git(tmp_path, mocker):
+    """Test bake_book_metadata script with git storage inputs"""
+    input_baked_xhtml = os.path.join(
+        TEST_DATA_DIR, "collection.baked-single.xhtml"
+    )
+    input_raw_metadata = tmp_path / "collection.assembled-metadata.json"
+    output_baked_book_metadata = tmp_path / "collection.toc-metadata.json"
+
+    input_raw_metadata.write_text(json.dumps({}))
+
+    with open(input_baked_xhtml, "r") as baked_xhtml:
+        binder = reconstitute(baked_xhtml)
+        book_ident_hash = binder.ident_hash
+
+    mocker.patch(
+        "sys.argv",
+        [
+            "",
+            input_raw_metadata,
+            input_baked_xhtml,
+            "",
+            "",
+            output_baked_book_metadata,
+        ],
+    )
+    bake_book_metadata.main()
+
+    baked_metadata = json.loads(output_baked_book_metadata.read_text())
+    book_metadata = baked_metadata[book_ident_hash]
+
+    assert isinstance(book_metadata["tree"], dict) is True
+    assert "contents" in book_metadata["tree"].keys()
+    assert "license" in book_metadata.keys()
+    assert (
+        book_metadata["revised"]
+        == "2019-08-30T16:35:37.569966-05:00"
+    )
+    assert "College Physics" in book_metadata["title"]
+    assert book_metadata["slug"] == "physics"
+    assert book_metadata["id"] == "c7795d04-cfca-4ec6-a30f-f48d06336635"
+    assert book_metadata["version"] == "1.2.3"
 
 
 def test_check_feed(tmp_path, mocker):
