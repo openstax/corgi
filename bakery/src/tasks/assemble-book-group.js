@@ -15,6 +15,7 @@ const task = (taskArgs) => {
 
   const inputName = 'fetched-book-group'
   const assembledOutput = 'assembled-book-group'
+  const commonLogOutput = 'common-log'
 
   const rawCollectionDir = `${inputName}/raw`
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/assemble_book_group.sh'), { encoding: 'utf-8' })
@@ -31,12 +32,14 @@ const task = (taskArgs) => {
         { name: inputName }
       ],
       outputs: [
-        { name: assembledOutput }
+        { name: assembledOutput },
+        { name: commonLogOutput }
       ],
       params: {
         ASSEMBLED_OUTPUT: assembledOutput,
         RAW_COLLECTION_DIR: rawCollectionDir,
-        TARGET_BOOK: targetBook
+        TARGET_BOOK: targetBook,
+        COMMON_LOG_DIR: commonLogOutput
       },
       run: {
         path: '/bin/bash',

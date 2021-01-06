@@ -14,6 +14,7 @@ const task = (taskArgs) => {
   const linkedInput = 'linked-single'
   const styleInput = 'group-style'
   const mathifiedOutput = 'mathified-single'
+  const commonLogOutput = 'common-log'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/mathify_single.sh'), { encoding: 'utf-8' })
 
   return {
@@ -27,14 +28,16 @@ const task = (taskArgs) => {
       inputs: [
         { name: bookInput },
         { name: styleInput },
-        { name: linkedInput }
+        { name: linkedInput },
+        { name: commonLogOutput }
       ],
       outputs: [{ name: mathifiedOutput }],
       params: {
         MATHIFIED_OUTPUT: mathifiedOutput,
         BOOK_INPUT: bookInput,
         STYLE_INPUT: styleInput,
-        LINKED_INPUT: linkedInput
+        LINKED_INPUT: linkedInput,
+        COMMON_LOG_DIR: commonLogOutput
       },
       run: {
         path: '/bin/bash',

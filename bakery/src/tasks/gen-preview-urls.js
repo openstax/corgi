@@ -29,7 +29,10 @@ const task = (taskArgs) => {
         { name: 'book' },
         { name: `${jsonifiedInput}` }
       ],
-      outputs: [{ name: 'preview-urls' }],
+      outputs: [
+        { name: 'preview-urls' },
+        { name: 'common-log' }
+      ],
       params: {
         CONTENT_SOURCE: contentSource
       },
@@ -38,7 +41,8 @@ const task = (taskArgs) => {
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee preview-urls/stderr >&2)
+          exec > >(tee common-log/log >&2) 2>&1
+
           case $CONTENT_SOURCE in
             archive)
               collection_id="$(cat book/collection_id)"

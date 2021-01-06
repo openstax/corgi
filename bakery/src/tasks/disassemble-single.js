@@ -14,6 +14,7 @@ const task = (taskArgs) => {
   const resourceLinkedInput = 'linked-single'
   const bakedBookMetaInput = 'baked-book-metadata-group'
   const disassembledOutput = 'disassembled-single'
+  const commonLogOutput = 'common-log'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/disassemble_single.sh'), { encoding: 'utf-8' })
 
   return {
@@ -29,12 +30,16 @@ const task = (taskArgs) => {
         { name: resourceLinkedInput },
         { name: bakedBookMetaInput }
       ],
-      outputs: [{ name: disassembledOutput }],
+      outputs: [
+        { name: disassembledOutput },
+        { name: commonLogOutput }
+      ],
       params: {
         BOOK_INPUT: bookInput,
         RESOURCE_LINKED_INPUT: resourceLinkedInput,
         BAKED_BOOK_META_INPUT: bakedBookMetaInput,
-        DISASSEMBLED_OUTPUT: disassembledOutput
+        DISASSEMBLED_OUTPUT: disassembledOutput,
+        COMMON_LOG_DIR: commonLogOutput
       },
       run: {
         path: '/bin/bash',

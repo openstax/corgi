@@ -17,6 +17,7 @@ const task = (taskArgs) => {
   const styleInput = 'group-style'
   const mathifiedInput = 'mathified-single'
   const artifactsOutput = 'artifacts-single'
+  const commonLogOutput = 'common-log'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/pdfify_single.sh'), { encoding: 'utf-8' })
 
   return {
@@ -32,7 +33,8 @@ const task = (taskArgs) => {
         { name: fetchedInput },
         { name: fetchedResourcesInput },
         { name: styleInput },
-        { name: mathifiedInput }
+        { name: mathifiedInput },
+        { name: commonLogOutput }
       ],
       outputs: [{ name: artifactsOutput }],
       params: {
@@ -40,7 +42,8 @@ const task = (taskArgs) => {
         MATHIFIED_INPUT: mathifiedInput,
         STYLE_INPUT: styleInput,
         BUCKET_NAME: bucketName,
-        BOOK_INPUT: bookInput
+        BOOK_INPUT: bookInput,
+        COMMON_LOG_DIR: commonLogOutput
       },
       run: {
         user: 'root',

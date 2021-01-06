@@ -1,6 +1,5 @@
 #!/bin/bash
-
-exec 2> >(tee "${ARTIFACTS_OUTPUT}"/stderr >&2)
+exec > >(tee ${COMMON_LOG_DIR}/log >&2) 2>&1
 
 cp "${STYLE_INPUT}"/* "${MATHIFIED_INPUT}"
 

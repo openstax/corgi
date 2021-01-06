@@ -41,6 +41,10 @@ const pipeline = (env) => {
   const buildLogRetentionDays = 14
   const distBucketPath = 'apps/archive-preview/'
 
+  const commonLogFile = 'common-log/log'
+  const genericErrorMessage = 'Error occurred in Concourse. See logs for details.'
+  const genericAbortMessage = 'Job was aborted.'
+
   // FIXME: These mappings should be in the COPS resource
   const JobType = Object.freeze({
     PDF: 1,
@@ -178,9 +182,15 @@ const pipeline = (env) => {
     on_success: reportToOutputProducerGitPdf(Status.SUCCEEDED, {
       pdf_url: 'artifacts-single/pdf_url'
     }),
-    on_failure: reportToOutputProducerGitPdf(Status.FAILED),
-    on_error: reportToOutputProducerGitPdf(Status.FAILED),
-    on_abort: reportToOutputProducerGitPdf(Status.FAILED)
+    on_failure: reportToOutputProducerGitPdf(Status.FAILED, {
+      error_message_file: commonLogFile
+    }),
+    on_error: reportToOutputProducerGitPdf(Status.FAILED, {
+      error_message: genericErrorMessage
+    }),
+    on_abort: reportToOutputProducerGitPdf(Status.FAILED, {
+      error_message: genericAbortMessage
+    })
   }
 
   const pdfJob = {
@@ -223,9 +233,15 @@ const pipeline = (env) => {
     on_success: reportToOutputProducerPdf(Status.SUCCEEDED, {
       pdf_url: 'artifacts/pdf_url'
     }),
-    on_failure: reportToOutputProducerPdf(Status.FAILED),
-    on_error: reportToOutputProducerPdf(Status.FAILED),
-    on_abort: reportToOutputProducerPdf(Status.FAILED)
+    on_failure: reportToOutputProducerPdf(Status.FAILED, {
+      error_message_file: commonLogFile
+    }),
+    on_error: reportToOutputProducerPdf(Status.FAILED, {
+      error_message: genericErrorMessage
+    }),
+    on_abort: reportToOutputProducerPdf(Status.FAILED, {
+      error_message: genericAbortMessage
+    })
   }
 
   const distPreviewJob = {
@@ -279,9 +295,15 @@ const pipeline = (env) => {
     on_success: reportToOutputProducerDistPreview(Status.SUCCEEDED, {
       pdf_url: 'preview-urls/content_urls'
     }),
-    on_failure: reportToOutputProducerDistPreview(Status.FAILED),
-    on_error: reportToOutputProducerDistPreview(Status.FAILED),
-    on_abort: reportToOutputProducerDistPreview(Status.FAILED)
+    on_failure: reportToOutputProducerDistPreview(Status.FAILED, {
+      error_message_file: commonLogFile
+    }),
+    on_error: reportToOutputProducerDistPreview(Status.FAILED, {
+      error_message: genericErrorMessage
+    }),
+    on_abort: reportToOutputProducerDistPreview(Status.FAILED, {
+      error_message: genericAbortMessage
+    })
   }
 
   const gitDistPreviewJob = {
@@ -338,9 +360,15 @@ const pipeline = (env) => {
     on_success: reportToOutputProducerGitDistPreview(Status.SUCCEEDED, {
       pdf_url: 'preview-urls/content_urls'
     }),
-    on_failure: reportToOutputProducerGitDistPreview(Status.FAILED),
-    on_error: reportToOutputProducerGitDistPreview(Status.FAILED),
-    on_abort: reportToOutputProducerGitDistPreview(Status.FAILED)
+    on_failure: reportToOutputProducerGitDistPreview(Status.FAILED, {
+      error_message_file: commonLogFile
+    }),
+    on_error: reportToOutputProducerGitDistPreview(Status.FAILED, {
+      error_message: genericErrorMessage
+    }),
+    on_abort: reportToOutputProducerGitDistPreview(Status.FAILED, {
+      error_message: genericAbortMessage
+    })
   }
 
   return {

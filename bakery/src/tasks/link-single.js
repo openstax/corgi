@@ -18,6 +18,7 @@ const task = (taskArgs) => {
   const bakedInput = 'baked-book-group'
   const bakedMetaInput = 'baked-book-metadata-group'
   const linkedOutput = 'linked-single'
+  const commonLogOutput = 'common-log'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/link_single.sh'), { encoding: 'utf-8' })
 
   return {
@@ -32,7 +33,8 @@ const task = (taskArgs) => {
         { name: bookInput },
         { name: fetchedInput },
         { name: bakedInput },
-        { name: bakedMetaInput }
+        { name: bakedMetaInput },
+        { name: commonLogOutput }
       ],
       outputs: [{ name: linkedOutput }],
       params: {
@@ -41,7 +43,8 @@ const task = (taskArgs) => {
         BAKED_INPUT: bakedInput,
         BAKED_META_INPUT: bakedMetaInput,
         BOOK_INPUT: bookInput,
-        TARGET_BOOK: targetBook
+        TARGET_BOOK: targetBook,
+        COMMON_LOG_DIR: commonLogOutput
       },
       run: {
         path: '/bin/bash',

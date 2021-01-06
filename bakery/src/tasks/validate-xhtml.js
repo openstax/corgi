@@ -24,6 +24,9 @@ const task = (taskArgs) => {
         { name: 'book' },
         { name: `${inputSource}` }
       ],
+      outputs: [
+        { name: 'common-log' }
+      ],
       params: {
         CONTENT_SOURCE: contentSource
       },
@@ -32,6 +35,8 @@ const task = (taskArgs) => {
         args: [
           '-cxe',
           dedent`
+          exec > >(tee common-log/log >&2) 2>&1
+
           case $CONTENT_SOURCE in
             archive)
               collection_id="$(cat book/collection_id)"

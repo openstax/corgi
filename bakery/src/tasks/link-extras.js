@@ -23,13 +23,17 @@ const task = (taskArgs) => {
         { name: 'book' },
         { name: 'assembled-book' }
       ],
-      outputs: [{ name: 'linked-extras' }],
+      outputs: [
+        { name: 'linked-extras' },
+        { name: 'common-log' }
+      ],
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee linked-extras/stderr >&2)
+          exec > >(tee common-log/log >&2) 2>&1
+
           cp -r assembled-book/* linked-extras
           cd linked-extras
           book_dir="./$(cat ../book/collection_id)"

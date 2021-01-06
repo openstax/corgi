@@ -22,13 +22,17 @@ const task = (taskArgs) => {
         { name: 'book' },
         { name: 'assembled-book' }
       ],
-      outputs: [{ name: 'assembled-book-metadata' }],
+      outputs: [
+        { name: 'assembled-book-metadata' },
+        { name: 'common-log' }
+      ],
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee assembled-book-metadata/stderr >&2)
+          exec > >(tee common-log/log >&2) 2>&1
+
           collection_id="$(cat book/collection_id)"
           book_dir="assembled-book/$collection_id"
           target_dir="assembled-book-metadata/$collection_id"

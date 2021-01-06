@@ -1,6 +1,5 @@
 #!/bin/bash
-
- exec 2> >(tee "${BAKED_META_OUTPUT}/stderr" >&2)
+exec > >(tee ${COMMON_LOG_DIR}/log >&2) 2>&1
 
 shopt -s globstar nullglob
 for collection in "${BAKED_INPUT}/"*.baked.xhtml; do

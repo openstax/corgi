@@ -18,6 +18,7 @@ const task = (taskArgs) => {
   const recipeInput = 'cnx-recipes-output'
   const bakedOutput = 'baked-book-group'
   const styleOutput = 'group-style'
+  const commonLogOutput = 'common-log'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/bake_book_group.sh'), { encoding: 'utf-8' })
 
   return {
@@ -35,14 +36,16 @@ const task = (taskArgs) => {
       ],
       outputs: [
         { name: bakedOutput },
-        { name: styleOutput }
+        { name: styleOutput },
+        { name: commonLogOutput }
       ],
       params: {
         BAKED_OUTPUT: bakedOutput,
         BOOK_INPUT: bookInput,
         STYLE_OUTPUT: styleOutput,
         ASSEMBLED_INPUT: assembledInput,
-        TARGET_BOOK: targetBook
+        TARGET_BOOK: targetBook,
+        COMMON_LOG_DIR: commonLogOutput
       },
       run: {
         path: '/bin/bash',

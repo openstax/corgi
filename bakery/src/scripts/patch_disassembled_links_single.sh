@@ -1,6 +1,5 @@
 #!/bin/bash
-
-exec 2> >(tee "${DISASSEMBLED_LINKED_OUTPUT}"/stderr >&2)
+exec > >(tee ${COMMON_LOG_DIR}/log >&2) 2>&1
 
 slug_name=$(cat "${BOOK_INPUT}/slug")
 patch-same-book-links "${DISASSEMBLED_INPUT}" "${DISASSEMBLED_LINKED_OUTPUT}" "$slug_name"

@@ -22,13 +22,17 @@ const task = (taskArgs) => {
         { name: 'book' },
         { name: 'disassembled-linked-book' }
       ],
-      outputs: [{ name: 'jsonified-book' }],
+      outputs: [
+        { name: 'jsonified-book' },
+        { name: 'common-log' }
+      ],
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee jsonified-book/stderr >&2)
+          exec > >(tee common-log/log >&2) 2>&1
+
           cp -r disassembled-linked-book/* jsonified-book
           collection_id="$(cat book/collection_id)"
           book_dir="jsonified-book/$collection_id/disassembled-linked"

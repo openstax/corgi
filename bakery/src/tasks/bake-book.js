@@ -23,13 +23,17 @@ const task = (taskArgs) => {
         { name: 'linked-extras' },
         { name: 'cnx-recipes-output' }
       ],
-      outputs: [{ name: 'baked-book' }],
+      outputs: [
+        { name: 'baked-book' },
+        { name: 'common-log' }
+      ],
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee baked-book/stderr >&2)
+          exec > >(tee common-log/log >&2) 2>&1
+
           cp -r linked-extras/* baked-book
           book_dir="baked-book/$(cat book/collection_id)"
           cnx-easybake -q "cnx-recipes-output/rootfs/recipes/$(cat book/style).css" "$book_dir/collection.linked.xhtml" "$book_dir/collection.baked.xhtml"
