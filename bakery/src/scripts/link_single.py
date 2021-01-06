@@ -6,7 +6,6 @@ uuids from the target module and corresponding canonical book       .
 import sys
 import re
 import json
-import os
 from pathlib import Path
 
 from lxml import etree
@@ -21,33 +20,43 @@ def load_baked_collection(input_dir, book_slug):
     return etree.parse(baked_collection)
 
 
-def create_canonical_map(input_dir):
-    """Create a canonical book map from baked collections"""
+def parse_collection_binders(input_dir):
+    """Create a list of binders from book collections"""
     baked_collections = Path(input_dir).glob("*.baked.xhtml")
-    canonical_map = {}
+    binders = []
 
     for baked_collection in baked_collections:
         with open(baked_collection, "r") as baked_file:
             binder = reconstitute(baked_file)
-            for doc in flatten_to_documents(binder):
-                canonical_map[doc.id] = doc.metadata['canonical_book_uuid']
+            binders.append(binder)
+
+    return binders
+
+
+def create_canonical_map(binders):
+    """Create a canonical book map from a set of binders"""
+    canonical_map = {}
+
+    for binder in binders:
+        for doc in flatten_to_documents(binder):
+            canonical_map[doc.id] = doc.metadata['canonical_book_uuid']
 
     return canonical_map
 
 
-def create_slug_map(input_dir):
-    """Create a slug:uuid map from baked metadata files"""
-    baked_metadata_files = Path(input_dir).glob("*.baked-metadata.json")
-    slug_map = {}
+def parse_book_metadata(binders, input_dir):
+    """Create a list of book metadata for a set of binders using collection
+    metadata files"""
+    book_metadata = []
 
-    for baked_metadata in baked_metadata_files:
-        with open(baked_metadata, "r") as metadata_file:
+    for binder in binders:
+        slug = binder.metadata["slug"]
+        baked_metadata_file = Path(input_dir) / f"{slug}.baked-metadata.json"
+        with open(baked_metadata_file, "r") as metadata_file:
             metadata = json.load(metadata_file)
-            for entry in metadata.values():
-                if entry.get("slug"):
-                    slug_map[entry["slug"]] = entry["id"]
+            book_metadata.append(metadata[binder.ident_hash])
 
-    return slug_map
+    return book_metadata
 
 
 def get_target_uuid(link):
@@ -59,24 +68,8 @@ def get_target_uuid(link):
         parsed).group(1)
 
 
-def gen_page_slug_resolver(baked_meta_dir, slug_map):
+def gen_page_slug_resolver(baked_meta_dir, book_tree_by_uuid):
     """Generate a page slug resolver function"""
-
-    book_tree_by_uuid = {}
-    for root, _, files in os.walk(baked_meta_dir):
-        for filename in files:
-            if 'metadata' not in filename:
-                continue
-            slug = filename.split('.')[0]
-            with open(Path(root) / filename, 'r') as f:
-                baked_meta = json.load(f)
-            uuid = slug_map[slug]
-            # FIXME: Looking for tree like this pretty brittle, but it saves us from needing to
-            # now the book version and helps us when bugs occur in the cnx-archive-uri attrribute.
-            # Something like reconstituting the baked file w/`baked_metadata.get(binder.ident_hash)`
-            # will fare better
-            book_tree_by_uuid[uuid] = next(
-                v for k, v in baked_meta.items() if 'tree' in v)['tree']
 
     def _get_page_slug(book_uuid, page_uuid):
         """Get page slug from book"""
@@ -138,10 +131,19 @@ def save_linked_collection(output_path, doc):
 def transform_links(
         baked_content_dir, baked_meta_dir, source_book_slug, output_path):
     doc = load_baked_collection(baked_content_dir, source_book_slug)
-    canonical_map = create_canonical_map(baked_content_dir)
-    slug_map = create_slug_map(baked_meta_dir)
-    source_book_uuid = slug_map[source_book_slug]
-    page_slug_resolver = gen_page_slug_resolver(baked_meta_dir, slug_map)
+    binders = parse_collection_binders(baked_content_dir)
+    canonical_map = create_canonical_map(binders)
+    book_metadata = parse_book_metadata(binders, baked_meta_dir)
+
+    uuid_by_slug = {entry["slug"]: entry["id"] for entry in book_metadata}
+    book_tree_by_uuid = {
+        entry["id"]: entry["tree"] for entry in book_metadata
+    }
+    source_book_uuid = uuid_by_slug[source_book_slug]
+    page_slug_resolver = gen_page_slug_resolver(
+        baked_meta_dir,
+        book_tree_by_uuid
+    )
 
     # look up uuids for external module links
     for node in doc.xpath(
@@ -153,7 +155,7 @@ def transform_links(
         target_module_uuid = get_target_uuid(link)
         canonical_book_uuid = canonical_map[target_module_uuid]
         canonical_book_slug = next(
-            (slug for slug, uuid in slug_map.items()
+            (slug for slug, uuid in uuid_by_slug.items()
              if uuid == canonical_book_uuid))
 
         page_slug = page_slug_resolver(canonical_book_uuid, target_module_uuid)

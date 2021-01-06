@@ -2335,6 +2335,9 @@ def test_link_single(tmp_path, mocker):
         <body itemscope="itemscope" itemtype="http://schema.org/Book">
         <div data-type="metadata" style="display: none;">
         <h1 data-type="document-title" itemprop="name">Book1</h1>
+        <span data-type="slug" data-value="book1"></span>
+        <span data-type="cnx-archive-uri"
+            data-value="1ba7e813-2d8a-4b73-87a1-876cfb5e7b58@version"></span>
         </div>
         <nav id="toc">
         <ol>
@@ -2384,6 +2387,9 @@ def test_link_single(tmp_path, mocker):
         <body itemscope="itemscope" itemtype="http://schema.org/Book">
         <div data-type="metadata" style="display: none;">
         <h1 data-type="document-title" itemprop="name">Book2</h1>
+        <span data-type="slug" data-value="book2"></span>
+        <span data-type="cnx-archive-uri"
+            data-value="3c321f43-1da5-4c7b-91d1-abca2dd8ab8f@version"></span>
         </div>
         <nav id="toc">
         <ol>
