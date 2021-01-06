@@ -2327,20 +2327,8 @@ def test_link_single(tmp_path, mocker):
     baked_dir.mkdir()
     baked_meta_dir = tmp_path / "baked-book-metadata-group"
     baked_meta_dir.mkdir()
-    book_slugs = tmp_path / "book-slugs.json"
     source_book_slug = "book1"
     linked_xhtml = tmp_path / "book1.linked.xhtml"
-
-    book_slugs.write_text(json.dumps([
-        {
-            "uuid": "1ba7e813-2d8a-4b73-87a1-876cfb5e7b58",
-            "slug": "book1"
-        },
-        {
-            "uuid": "3c321f43-1da5-4c7b-91d1-abca2dd8ab8f",
-            "slug": "book2"
-        }
-    ]))
 
     book1_baked_content = """
         <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
@@ -2372,8 +2360,10 @@ def test_link_single(tmp_path, mocker):
     """
     book1_baked_meta_content = {
         "1ba7e813-2d8a-4b73-87a1-876cfb5e7b58@version": {
+            "id": "1ba7e813-2d8a-4b73-87a1-876cfb5e7b58",
+            "slug": "book1",
             "tree": {
-                "id": "1ba7e813-2d8a-4b73-87a1-876cfb5e7b58",
+                "id": "1ba7e813-2d8a-4b73-87a1-876cfb5e7b58@version",
                 "slug": "book1",
                 "contents": [
                     {
@@ -2422,8 +2412,10 @@ def test_link_single(tmp_path, mocker):
     """
     book2_baked_meta_content = {
         "3c321f43-1da5-4c7b-91d1-abca2dd8ab8f@version": {
+            "id": "3c321f43-1da5-4c7b-91d1-abca2dd8ab8f",
+            "slug": "book2",
             "tree": {
-                "id": "3c321f43-1da5-4c7b-91d1-abca2dd8ab8f",
+                "id": "3c321f43-1da5-4c7b-91d1-abca2dd8ab8f@version",
                 "slug": "book2",
                 "contents": [
                     {
@@ -2445,8 +2437,7 @@ def test_link_single(tmp_path, mocker):
 
     mocker.patch(
         "sys.argv",
-        ["", baked_dir, baked_meta_dir, source_book_slug, book_slugs,
-         linked_xhtml]
+        ["", baked_dir, baked_meta_dir, source_book_slug, linked_xhtml]
     )
     link_single.main()
 
