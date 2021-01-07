@@ -1,6 +1,6 @@
 #!/bin/bash
+exec > >(tee "${COMMON_LOG_DIR}"/log >&2) 2>&1
 
-exec 2> >(tee "${UPLOAD_OUTPUT}"/stderr >&2)
 target_dir="${UPLOAD_OUTPUT}/contents"
 mkdir -p "$target_dir"
 book_dir="${JSONIFIED_INPUT}"

@@ -1,5 +1,5 @@
 #!/bin/bash
-exec > >(tee ${COMMON_LOG_DIR}/log >&2) 2>&1
+exec > >(tee "${COMMON_LOG_DIR}"/log >&2) 2>&1
 
 # FIXME: We assume that every book in the group uses the same style
 # This assumption will not hold true forever, and book style + recipe name should
