@@ -16,10 +16,9 @@ if [[ ! -f "${CONTENT_OUTPUT}/raw/collections/$(cat "${BOOK_INPUT}/slug").collec
     echo "No matching book for slug in this repo"
     exit 1
 fi
-fetch-update-meta "${CONTENT_OUTPUT}/raw/.git" "${CONTENT_OUTPUT}/raw/modules"
+fetch-update-meta "${CONTENT_OUTPUT}/raw/.git" "${CONTENT_OUTPUT}/raw/modules" "${CONTENT_OUTPUT}/raw/collections" "$reference"
 rm -rf "${CONTENT_OUTPUT}/raw/.git"
 rm -rf "$creds_dir"
-wget "${BOOK_SLUGS_URL}" -O "${CONTENT_OUTPUT}/book-slugs.json"
 
 fetch-map-resources "${CONTENT_OUTPUT}/raw/modules" "${CONTENT_OUTPUT}/raw/media" . "${UNUSED_RESOURCE_OUTPUT}"
 # Either the media is in resources or unused-resources, this folder should be empty (-d will fail otherwise)

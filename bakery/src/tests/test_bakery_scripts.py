@@ -955,16 +955,64 @@ def test_bake_book_metadata(tmp_path, mocker):
     bake_book_metadata.main()
 
     baked_metadata = json.loads(output_baked_book_metadata.read_text())
+    book_metadata = baked_metadata[book_ident_hash]
 
-    assert isinstance(baked_metadata[book_ident_hash]["tree"], dict) is True
-    assert "contents" in baked_metadata[book_ident_hash]["tree"].keys()
-    assert "license" in baked_metadata[book_ident_hash].keys()
+    assert isinstance(book_metadata["tree"], dict) is True
+    assert "contents" in book_metadata["tree"].keys()
+    assert "license" in book_metadata.keys()
     assert (
-        baked_metadata[book_ident_hash]["revised"]
+        book_metadata["revised"]
         == "2019-08-30T16:35:37.569966-05:00"
     )
-    assert "College Physics" in baked_metadata[book_ident_hash]["title"]
-    assert baked_metadata[book_ident_hash]["slug"] == "test-book-slug"
+    assert "College Physics" in book_metadata["title"]
+    assert book_metadata["slug"] == "test-book-slug"
+    assert book_metadata["id"] == "injected_id"
+    assert book_metadata["version"] == "injected_version"
+    assert book_metadata["legacy_id"] == "injected_legacy_id"
+    assert book_metadata["legacy_version"] == "injected_legacy_version"
+
+
+def test_bake_book_metadata_git(tmp_path, mocker):
+    """Test bake_book_metadata script with git storage inputs"""
+    input_baked_xhtml = os.path.join(
+        TEST_DATA_DIR, "collection.baked-single.xhtml"
+    )
+    input_raw_metadata = tmp_path / "collection.assembled-metadata.json"
+    output_baked_book_metadata = tmp_path / "collection.toc-metadata.json"
+
+    input_raw_metadata.write_text(json.dumps({}))
+
+    with open(input_baked_xhtml, "r") as baked_xhtml:
+        binder = reconstitute(baked_xhtml)
+        book_ident_hash = binder.ident_hash
+
+    mocker.patch(
+        "sys.argv",
+        [
+            "",
+            input_raw_metadata,
+            input_baked_xhtml,
+            "",
+            "",
+            output_baked_book_metadata,
+        ],
+    )
+    bake_book_metadata.main()
+
+    baked_metadata = json.loads(output_baked_book_metadata.read_text())
+    book_metadata = baked_metadata[book_ident_hash]
+
+    assert isinstance(book_metadata["tree"], dict) is True
+    assert "contents" in book_metadata["tree"].keys()
+    assert "license" in book_metadata.keys()
+    assert (
+        book_metadata["revised"]
+        == "2019-08-30T16:35:37.569966-05:00"
+    )
+    assert "College Physics" in book_metadata["title"]
+    assert book_metadata["slug"] == "physics"
+    assert book_metadata["id"] == "c7795d04-cfca-4ec6-a30f-f48d06336635"
+    assert book_metadata["version"] == "1.2.3"
 
 
 def test_check_feed(tmp_path, mocker):
@@ -2138,7 +2186,9 @@ def test_fetch_map_resources(tmp_path, mocker):
 def test_fetch_update_metadata(tmp_path, mocker):
     """Test fetch-update-metadata script"""
     book_dir = tmp_path / "book_slug/fetched-book-group/raw/modules"
+    collections_dir = tmp_path / "book_slug/fetched-book-group/raw/collections"
     repo_path = tmp_path / ".repo"
+    collections_dir.mkdir(parents=True)
     book_dir.mkdir(parents=True)
     repo_path.mkdir()
 
@@ -2153,17 +2203,36 @@ def test_fetch_update_metadata(tmp_path, mocker):
     )
     module_00001.write_text(module_00001_content)
 
+    collection_xml = collections_dir / "collection.xml"
+    collection_xml_content = (
+        '<col:collection xmlns="http://cnx.rice.edu/collxml" '
+        'xmlns:col="http://cnx.rice.edu/collxml">'
+        '<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
+        '</metadata>'
+        '</col:collection>'
+    )
+    collection_xml.write_text(collection_xml_content)
+
     repo_mock = mocker.MagicMock()
-    repo_mock().revparse_single().commit_time = 1610500380
+    commit_mock = repo_mock().revparse_single()
+    commit_mock.commit_time = 1610500380
+    commit_mock.id = "somegitsha"
+    ref1_mock = mocker.MagicMock()
+    ref1_mock.name = "refs/tags/somegittag"
+    ref1_mock.target = "somegitsha"
+    ref1_mock.shorthand = "somegittag"
+    repo_mock().references.objects = [ref1_mock]
     mocker.patch(
         "sys.argv",
-        ["", repo_path, book_dir]
+        ["", repo_path, book_dir, collections_dir, ref1_mock.shorthand]
     )
     mocker.patch(
         "bakery_scripts.fetch_update_metadata.Repository",
         repo_mock
     )
     fetch_update_metadata.main()
+
+    # Check page updates
     tree = etree.parse(str(module_00001))
     expected = (
         '<document xmlns="http://cnx.rice.edu/cnxml">'
@@ -2174,6 +2243,83 @@ def test_fetch_update_metadata(tmp_path, mocker):
     )
     assert etree.tostring(tree, encoding="utf8") == expected.encode("utf8")
 
+    # Check book updates
+    tree = etree.parse(str(collection_xml))
+    expected = (
+        '<col:collection xmlns="http://cnx.rice.edu/collxml" '
+        'xmlns:col="http://cnx.rice.edu/collxml">'
+        '<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
+        '<md:revised>2021-01-13T01:13:00+00:00</md:revised>\n'
+        '<md:version>somegittag</md:version>\n'
+        '</metadata>'
+        '</col:collection>'
+    )
+    assert etree.tostring(tree, encoding="utf8") == expected.encode("utf8")
+
+
+def test_fetch_update_metadata_determine_book_version(mocker):
+    """Tests for determine_book_version helper function"""
+    repo_mock = mocker.MagicMock()
+    commit_mock = mocker.MagicMock()
+    commit_mock.id = "123456789abcdef"
+    # ref1 mock
+    ref1_mock = mocker.MagicMock()
+    ref1_mock.name = "refs/tags/tag1"
+    ref1_mock.target = "123456789abcdef"
+    ref1_mock.shorthand = "tag1"
+    # ref2 mock
+    ref2_mock = mocker.MagicMock()
+    ref2_mock.name = "refs/tags/tag2"
+    ref2_mock.target = "foobar"
+    ref2_mock.shorthand = "tag2"
+    # ref 3 mock
+    ref3_mock = mocker.MagicMock()
+    ref3_mock.name = "refs/tags/tag3"
+    ref3_mock.target = "123456789abcdef"
+    ref3_mock.shorthand = "tag3"
+
+    # Test when there are no matching tags
+    repo_mock.references.objects = [ref2_mock]
+
+    version = fetch_update_metadata.determine_book_version(
+        "branch", repo_mock, commit_mock
+    )
+    assert version == "1234567"
+
+    # Test when there is one matching tag and it matches the reference
+    repo_mock.references.objects = [ref1_mock, ref2_mock]
+
+    version = fetch_update_metadata.determine_book_version(
+        "tag1", repo_mock, commit_mock
+    )
+    assert version == "tag1"
+
+    # Test when there is one matching tag and it doesn't match the reference
+    repo_mock.references.objects = [ref1_mock, ref2_mock]
+
+    version = fetch_update_metadata.determine_book_version(
+        "branch", repo_mock, commit_mock
+    )
+    assert version == "tag1"
+
+    # Test when there is more than one matching tag, neither of which match
+    # the reference
+    repo_mock.references.objects = [ref1_mock, ref2_mock, ref3_mock]
+
+    version = fetch_update_metadata.determine_book_version(
+        "branch", repo_mock, commit_mock
+    )
+    assert version == "1234567"
+
+    # Test when there is more than one matching tag, one of which matches
+    # the reference
+    repo_mock.references.objects = [ref1_mock, ref2_mock, ref3_mock]
+
+    version = fetch_update_metadata.determine_book_version(
+        "tag3", repo_mock, commit_mock
+    )
+    assert version == "tag3"
+
 
 def test_link_single(tmp_path, mocker):
     """Test link-single script"""
@@ -2181,26 +2327,17 @@ def test_link_single(tmp_path, mocker):
     baked_dir.mkdir()
     baked_meta_dir = tmp_path / "baked-book-metadata-group"
     baked_meta_dir.mkdir()
-    book_slugs = tmp_path / "book-slugs.json"
     source_book_slug = "book1"
     linked_xhtml = tmp_path / "book1.linked.xhtml"
-
-    book_slugs.write_text(json.dumps([
-        {
-            "uuid": "1ba7e813-2d8a-4b73-87a1-876cfb5e7b58",
-            "slug": "book1"
-        },
-        {
-            "uuid": "3c321f43-1da5-4c7b-91d1-abca2dd8ab8f",
-            "slug": "book2"
-        }
-    ]))
 
     book1_baked_content = """
         <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
         <body itemscope="itemscope" itemtype="http://schema.org/Book">
         <div data-type="metadata" style="display: none;">
         <h1 data-type="document-title" itemprop="name">Book1</h1>
+        <span data-type="slug" data-value="book1"></span>
+        <span data-type="cnx-archive-uri"
+            data-value="1ba7e813-2d8a-4b73-87a1-876cfb5e7b58@version"></span>
         </div>
         <nav id="toc">
         <ol>
@@ -2226,8 +2363,10 @@ def test_link_single(tmp_path, mocker):
     """
     book1_baked_meta_content = {
         "1ba7e813-2d8a-4b73-87a1-876cfb5e7b58@version": {
+            "id": "1ba7e813-2d8a-4b73-87a1-876cfb5e7b58",
+            "slug": "book1",
             "tree": {
-                "id": "1ba7e813-2d8a-4b73-87a1-876cfb5e7b58",
+                "id": "1ba7e813-2d8a-4b73-87a1-876cfb5e7b58@version",
                 "slug": "book1",
                 "contents": [
                     {
@@ -2248,6 +2387,9 @@ def test_link_single(tmp_path, mocker):
         <body itemscope="itemscope" itemtype="http://schema.org/Book">
         <div data-type="metadata" style="display: none;">
         <h1 data-type="document-title" itemprop="name">Book2</h1>
+        <span data-type="slug" data-value="book2"></span>
+        <span data-type="cnx-archive-uri"
+            data-value="3c321f43-1da5-4c7b-91d1-abca2dd8ab8f@version"></span>
         </div>
         <nav id="toc">
         <ol>
@@ -2276,8 +2418,10 @@ def test_link_single(tmp_path, mocker):
     """
     book2_baked_meta_content = {
         "3c321f43-1da5-4c7b-91d1-abca2dd8ab8f@version": {
+            "id": "3c321f43-1da5-4c7b-91d1-abca2dd8ab8f",
+            "slug": "book2",
             "tree": {
-                "id": "3c321f43-1da5-4c7b-91d1-abca2dd8ab8f",
+                "id": "3c321f43-1da5-4c7b-91d1-abca2dd8ab8f@version",
                 "slug": "book2",
                 "contents": [
                     {
@@ -2299,8 +2443,7 @@ def test_link_single(tmp_path, mocker):
 
     mocker.patch(
         "sys.argv",
-        ["", baked_dir, baked_meta_dir, source_book_slug, book_slugs,
-         linked_xhtml]
+        ["", baked_dir, baked_meta_dir, source_book_slug, linked_xhtml]
     )
     link_single.main()
 

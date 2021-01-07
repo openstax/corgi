@@ -11,7 +11,6 @@ for collection in "${RAW_COLLECTION_DIR}/collections/"*; do
         fi
     fi
     mv "$collection" "${RAW_COLLECTION_DIR}/modules/collection.xml"
-    mv "${RAW_COLLECTION_DIR}/metadata/$slug_name.metadata.json" "${RAW_COLLECTION_DIR}/modules/metadata.json"
 
     neb assemble "${RAW_COLLECTION_DIR}/modules" temp-assembly/
 
