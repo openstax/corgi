@@ -30,6 +30,8 @@ const pipeline = (env) => {
   const taskPdfifySingle = require('../tasks/pdfify-single')
   const taskGenPreviewUrls = require('../tasks/gen-preview-urls')
 
+  const taskOverrideCommonLog = require('../tasks/override-common-log')
+
   const lockedTag = env.IMAGE_TAG || 'trunk'
   const awsAccessKeyId = env.S3_ACCESS_KEY_ID
   const awsSecretAccessKey = env.S3_SECRET_ACCESS_KEY
@@ -44,6 +46,7 @@ const pipeline = (env) => {
   const commonLogFile = 'common-log/log'
   const genericErrorMessage = 'Error occurred in Concourse. See logs for details.'
   const genericAbortMessage = 'Job was aborted.'
+  const s3UploadFailMessage = 'Error occurred upload to S3.'
 
   // FIXME: These mappings should be in the COPS resource
   const JobType = Object.freeze({
@@ -170,6 +173,7 @@ const pipeline = (env) => {
       taskLinkSingle({ image: imageOverrides }),
       taskMathifySingle({ image: imageOverrides }),
       taskPdfifySingle({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),
+      taskOverrideCommonLog({ image: imageOverrides, message: s3UploadFailMessage }),
       {
         put: 's3-pdf',
         params: {
@@ -221,6 +225,7 @@ const pipeline = (env) => {
         validationNames: ['link-to-duplicate-id']
       }),
       taskBuildPdf({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),
+      taskOverrideCommonLog({ image: imageOverrides, message: s3UploadFailMessage }),
       {
         put: 's3-pdf',
         params: {
