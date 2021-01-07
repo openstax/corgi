@@ -36,9 +36,17 @@ class Home(Page):
 
         _modal_pdf_radio_button_locator = (By.CLASS_NAME, "pdf-radio-button")
 
-        _modal_preview_radio_button_locator = (By.CLASS_NAME, "preview-radio-button")
+        _modal_web_preview_radio_button_locator = (
+            By.CLASS_NAME,
+            "preview-radio-button",
+        )
 
         _modal_pdfgit_radio_button_locator = (By.CLASS_NAME, "git-pdf-radio-button")
+
+        _modal_git_preview_radio_button_locator = (
+            By.CLASS_NAME,
+            "git-preview-radio-button",
+        )
 
         _modal_collection_id_field_locator = (
             By.CSS_SELECTOR,
@@ -114,11 +122,18 @@ class Home(Page):
             self.pdfgit_radio_button.click()
 
         @property
-        def distribution_preview_radio_button(self):
-            return self.find_element(*self._modal_preview_radio_button_locator)
+        def web_preview_radio_button(self):
+            return self.find_element(*self._modal_web_preview_radio_button_locator)
 
-        def click_distribution_preview_radio_button(self):
-            self.distribution_preview_radio_button.click()
+        def click_web_preview_radio_button(self):
+            self.web_preview_radio_button.click()
+
+        @property
+        def web_preview_git_radio_button(self):
+            return self.find_element(*self._modal_pdfgit_radio_button_locator)
+
+        def click_web_preview_git_radio_button(self):
+            self.web_preview_git_radio_button.click()
 
         @property
         def collection_id_field_error(self):
@@ -187,9 +202,17 @@ class Home(Page):
             return self.is_element_displayed(*self._modal_pdf_radio_button_locator)
 
         @property
-        def is_preview_radio_button_displayed(self):
-            return self.is_element_displayed(*self._modal_preview_radio_button_locator)
+        def is_web_preview_radio_button_displayed(self):
+            return self.is_element_displayed(
+                *self._modal_web_preview_radio_button_locator
+            )
 
         @property
         def is_pdfgit_radio_button_displayed(self):
             return self.is_element_displayed(*self._modal_pdfgit_radio_button_locator)
+
+        @property
+        def is_git_preview_radio_button_displayed(self):
+            return self.is_element_displayed(
+                *self._modal_git_preview_radio_button_locator
+            )
