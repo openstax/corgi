@@ -31,12 +31,16 @@ const task = (taskArgs) => {
         { name: 'book' },
         { name: 'jsonified-book' }
       ],
+      outputs: [
+        { name: 'common-log' }
+      ],
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee upload-book/stderr >&2)
+          exec > >(tee common-log/log >&2) 2>&1
+
           collection_id="$(cat book/collection_id)"
           book_dir="jsonified-book/$collection_id/jsonified"
           book_metadata="jsonified-book/$collection_id/raw/metadata.json"

@@ -1,6 +1,5 @@
 #!/bin/bash
-
-exec 2> >(tee "${ASSEMBLED_OUTPUT}/stderr" >&2)
+exec > >(tee "${COMMON_LOG_DIR}"/log >&2) 2>&1
 
 shopt -s globstar nullglob
 for collection in "${RAW_COLLECTION_DIR}/collections/"*; do

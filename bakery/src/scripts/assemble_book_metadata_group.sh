@@ -1,6 +1,5 @@
 #!/bin/bash
-
-exec 2> >(tee "${OUTPUT_NAME}/stderr" >&2)
+exec > >(tee "${COMMON_LOG_DIR}"/log >&2) 2>&1
 
 shopt -s globstar nullglob
 # Create an empty map file for invoking assemble-meta

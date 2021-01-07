@@ -86,7 +86,7 @@ class Home(Page):
 
         _modal_status_message_locator = (
             By.XPATH,
-            "//div[contains(@class,'jobs-table')]/div/table/tbody/tr[1]/td[8]/span/span/span",
+            "//div[contains(@class,'jobs-table')]/div/table/tbody/tr[1]/td[9]/span/span/span",
         )
 
         @property

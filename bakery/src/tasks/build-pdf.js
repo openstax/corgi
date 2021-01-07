@@ -23,14 +23,18 @@ const task = (taskArgs) => {
         { name: 'book' },
         { name: 'mathified-book' }
       ],
-      outputs: [{ name: 'artifacts' }],
+      outputs: [
+        { name: 'artifacts' },
+        { name: 'common-log' }
+      ],
       run: {
         user: 'root',
         path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee artifacts/stderr >&2)
+          exec > >(tee common-log/log >&2) 2>&1
+
           book_dir="mathified-book/$(cat book/collection_id)"
           echo -n "https://${bucketName}.s3.amazonaws.com/$(cat book/pdf_filename)" >artifacts/pdf_url
           prince -v --output="artifacts/$(cat book/pdf_filename)" "$book_dir/collection.mathified.xhtml"

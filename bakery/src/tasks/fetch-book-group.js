@@ -15,6 +15,7 @@ const task = (taskArgs) => {
   const contentOutput = 'fetched-book-group'
   const resourceOutput = 'resources'
   const unusedResourceOutput = 'unused-resources'
+  const commonLogOutput = 'common-log'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/fetch_book_group.sh'), { encoding: 'utf-8' })
   return {
     task: 'fetch book group',
@@ -28,14 +29,16 @@ const task = (taskArgs) => {
       outputs: [
         { name: contentOutput },
         { name: resourceOutput },
-        { name: unusedResourceOutput }
+        { name: unusedResourceOutput },
+        { name: commonLogOutput }
       ],
       params: {
         COLUMNS: 80,
         BOOK_INPUT: bookInput,
         GH_SECRET_CREDS: githubSecretCreds,
         CONTENT_OUTPUT: contentOutput,
-        UNUSED_RESOURCE_OUTPUT: unusedResourceOutput
+        UNUSED_RESOURCE_OUTPUT: unusedResourceOutput,
+        COMMON_LOG_DIR: commonLogOutput
       },
       run: {
         path: '/bin/bash',

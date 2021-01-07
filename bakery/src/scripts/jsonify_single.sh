@@ -1,6 +1,5 @@
 #!/bin/bash
-
-exec 2> >(tee "${JSONIFIED_OUTPUT}"/stderr >&2)
+exec > >(tee "${COMMON_LOG_DIR}"/log >&2) 2>&1
 
 jsonify "${DISASSEMBLED_INPUT}" "${JSONIFIED_OUTPUT}"
 jsonschema -i "${JSONIFIED_OUTPUT}/$(cat "${BOOK_INPUT}/slug").toc.json" /code/scripts/book-schema-git.json

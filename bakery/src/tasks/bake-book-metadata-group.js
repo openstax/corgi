@@ -17,6 +17,7 @@ const task = (taskArgs) => {
   const bakedInput = 'baked-book-group'
   const assembledMetaInput = 'assembled-book-metadata-group'
   const bakedMetaOutput = 'baked-book-metadata-group'
+  const commonLogOutput = 'common-log'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/bake_book_metadata_group.sh'), { encoding: 'utf-8' })
 
   return {
@@ -30,7 +31,8 @@ const task = (taskArgs) => {
       inputs: [
         { name: fetchedInput },
         { name: bakedInput },
-        { name: assembledMetaInput }
+        { name: assembledMetaInput },
+        { name: commonLogOutput }
       ],
       outputs: [{ name: bakedMetaOutput }],
       params: {
@@ -38,7 +40,8 @@ const task = (taskArgs) => {
         BAKED_INPUT: bakedInput,
         FETCHED_INPUT: fetchedInput,
         ASSEMBLED_META_INPUT: assembledMetaInput,
-        TARGET_BOOK: targetBook
+        TARGET_BOOK: targetBook,
+        COMMON_LOG_DIR: commonLogOutput
       },
       run: {
         path: '/bin/bash',

@@ -15,6 +15,7 @@ const task = (taskArgs) => {
   const fetchedInput = 'fetched-book-group'
   const assembledInput = 'assembled-book-group'
   const outputName = 'assembled-book-metadata-group'
+  const commonLogOutput = 'common-log'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/assemble_book_metadata_group.sh'), { encoding: 'utf-8' })
 
   return {
@@ -29,12 +30,16 @@ const task = (taskArgs) => {
         { name: fetchedInput },
         { name: assembledInput }
       ],
-      outputs: [{ name: outputName }],
+      outputs: [
+        { name: outputName },
+        { name: commonLogOutput }
+      ],
       params: {
         OUTPUT_NAME: outputName,
         ASSEMBLED_INPUT: assembledInput,
         FETCHED_INPUT: fetchedInput,
-        TARGET_BOOK: targetBook
+        TARGET_BOOK: targetBook,
+        COMMON_LOG_DIR: commonLogOutput
       },
       run: {
         path: '/bin/bash',

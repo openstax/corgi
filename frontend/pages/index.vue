@@ -152,7 +152,49 @@
         :disable-pagination="true"
         :hide-default-footer="true"
         class="elevation-1 jobs-table"
+        show-expand
+        single-expand="singleExpand"
+        @click:row="(item, slot) => slot.expand(!slot.isExpanded)"
       >
+        <template v-slot:expanded-item="{ headers, item }">
+          <td :colspan="headers.length">
+          <v-container fluid>
+            <h3 class="ma-2 text-uppercase">Job Details</h3>
+            <v-divider></v-divider>
+            <v-subheader>Utility</v-subheader>
+            <v-layout
+              row
+              class="job-controls"
+            >
+              <v-btn
+                class="job-repeat-button ma-2"
+                color="yellow darken-2"
+                outlined
+                @click="submitCollection(item.collection_id, item.content_server_id, item.version, item.style, item.job_type_id)"
+              >
+                Repeat
+              </v-btn>
+              <v-tooltip top>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn class="job-abort-button ma-2" color="red darken-1" outlined v-on="on" v-bind="attrs">
+                    Abort
+                  </v-btn>
+                </template>
+                <span>Not yet implemented!</span>
+              </v-tooltip>
+            </v-layout>
+            <v-divider></v-divider>
+            <v-subheader>Errors</v-subheader>
+            <v-layout
+              column
+              class="job-error-message"
+            >
+              <kbd v-if="item.error_message" class="d-block my-2" style="white-space:pre;">{{ item.error_message }}</kbd>
+              <p v-else>No errors to display.</p>
+            </v-layout>
+          </v-container>
+          </td>
+        </template>
         <template v-slot:item.created_at="{ item }">
           <span>
             {{ $moment.utc(item.created_at).local().format('lll') }}
@@ -218,6 +260,7 @@ export default {
       page_limit: 50,
       goto_page_limit: '50',
       valid: false,
+      lastJobStartTime: Date.now(),
     }
   },
   computed: {
@@ -236,6 +279,7 @@ export default {
   },
   // Init non-reactive data
   beforeCreate () {
+    this.jobStartRateLimitDurationMillis = 1000
     this.styleItems = [
       'accounting',
       'additive-manufacturing',
@@ -372,6 +416,12 @@ export default {
       }
     },
     async submitCollection (collectionId, contentServerId, version, astyle, jobType) {
+      // This fails to queue the job silently so the rate limit duration shouldn't
+      // be a noticable time period for reasonable usage, else confusion will ensue
+      if (this.lastJobStartTime + this.jobStartRateLimitDurationMillis > Date.now()) {
+        return
+      }
+      this.lastJobStartTime = Date.now()
       try {
         const data = {
           collection_id: collectionId,

@@ -21,14 +21,18 @@ const task = (taskArgs) => {
         source: imageSource
       },
       inputs: [{ name: 'book' }],
-      outputs: [{ name: 'fetched-book' }],
+      outputs: [
+        { name: 'fetched-book' },
+        { name: 'common-log' }
+      ],
       params: { COLUMNS: 80 },
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee fetched-book/stderr >&2)
+          exec > >(tee common-log/log >&2) 2>&1
+
           cd fetched-book
           book_dir="$(cat ../book/collection_id)"
           yes | neb get ${nebGetFlags} -r -d "$book_dir/raw" "$(cat ../book/server)" "$(cat ../book/collection_id)" "$(cat ../book/version)"

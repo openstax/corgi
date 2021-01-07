@@ -22,13 +22,17 @@ const task = (taskArgs) => {
         { name: 'book' },
         { name: 'baked-book' }
       ],
-      outputs: [{ name: 'checksum-book' }],
+      outputs: [
+        { name: 'checksum-book' },
+        { name: 'common-log' }
+      ],
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee checksum-book/stderr >&2)
+          exec > >(tee common-log/log >&2) 2>&1
+
           collection_id="$(cat book/collection_id)"
           cp -r baked-book/* checksum-book
           book_dir="checksum-book/$collection_id"

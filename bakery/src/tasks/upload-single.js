@@ -18,6 +18,7 @@ const task = (taskArgs) => {
   const jsonifiedInput = 'jsonified-single'
   const resourceInput = 'resources'
   const uploadOutput = 'upload-single'
+  const commonLogOutput = 'common-log'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/upload_single.sh'), { encoding: 'utf-8' })
 
   return {
@@ -34,7 +35,8 @@ const task = (taskArgs) => {
         { name: resourceInput }
       ],
       outputs: [
-        { name: uploadOutput }
+        { name: uploadOutput },
+        { name: commonLogOutput }
       ],
       params: {
         AWS_ACCESS_KEY_ID: `${awsAccessKeyId}`,
@@ -44,7 +46,8 @@ const task = (taskArgs) => {
         BOOK_INPUT: bookInput,
         JSONIFIED_INPUT: jsonifiedInput,
         RESOURCE_INPUT: resourceInput,
-        UPLOAD_OUTPUT: uploadOutput
+        UPLOAD_OUTPUT: uploadOutput,
+        COMMON_LOG_DIR: commonLogOutput
       },
       run: {
         path: '/bin/bash',

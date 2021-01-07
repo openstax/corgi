@@ -13,6 +13,7 @@ const task = (taskArgs) => {
   const bookInput = 'book'
   const disassembledInput = 'disassembled-linked-single'
   const jsonifiedOutput = 'jsonified-single'
+  const commonLogOutput = 'common-log'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/jsonify_single.sh'), { encoding: 'utf-8' })
 
   return {
@@ -27,11 +28,15 @@ const task = (taskArgs) => {
         { name: bookInput },
         { name: disassembledInput }
       ],
-      outputs: [{ name: jsonifiedOutput }],
+      outputs: [
+        { name: jsonifiedOutput },
+        { name: commonLogOutput }
+      ],
       params: {
         DISASSEMBLED_INPUT: disassembledInput,
         JSONIFIED_OUTPUT: jsonifiedOutput,
-        BOOK_INPUT: bookInput
+        BOOK_INPUT: bookInput,
+        COMMON_LOG_DIR: commonLogOutput
       },
       run: {
         path: '/bin/bash',

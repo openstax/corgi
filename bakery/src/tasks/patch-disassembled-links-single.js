@@ -13,6 +13,7 @@ const task = (taskArgs) => {
   const bookInput = 'book'
   const disassembledInput = 'disassembled-single'
   const disassembledLinkedOutput = 'disassembled-linked-single'
+  const commonLogOutput = 'common-log'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/patch_disassembled_links_single.sh'), { encoding: 'utf-8' })
 
   return {
@@ -27,11 +28,15 @@ const task = (taskArgs) => {
         { name: bookInput },
         { name: disassembledInput }
       ],
-      outputs: [{ name: disassembledLinkedOutput }],
+      outputs: [
+        { name: disassembledLinkedOutput },
+        { name: commonLogOutput }
+      ],
       params: {
         DISASSEMBLED_INPUT: disassembledInput,
         DISASSEMBLED_LINKED_OUTPUT: disassembledLinkedOutput,
-        BOOK_INPUT: bookInput
+        BOOK_INPUT: bookInput,
+        COMMON_LOG_DIR: commonLogOutput
       },
       run: {
         path: '/bin/bash',

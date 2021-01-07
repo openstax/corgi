@@ -21,7 +21,10 @@ const task = (taskArgs) => {
         source: imageSource
       },
       inputs: [{ name: inputSource }],
-      outputs: [{ name: 'book' }],
+      outputs: [
+        { name: 'book' },
+        { name: 'common-log' }
+      ],
       params: {
         CONTENT_SOURCE: contentSource
       },
@@ -30,7 +33,8 @@ const task = (taskArgs) => {
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee book/stderr >&2)
+          exec > >(tee common-log/log >&2) 2>&1
+
           tail ${inputSource}/*
           cp ${inputSource}/id book/job_id
           cp ${inputSource}/version book/version

@@ -3,42 +3,31 @@ const fs = require('fs')
 const path = require('path')
 
 const task = (taskArgs) => {
+  const { message } = taskArgs
   const imageDefault = {
-    name: 'openstax/nebuchadnezzar',
+    name: 'openstax/cops-bakery-scripts',
     tag: 'trunk'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
-  const singleBookFlag = taskArgs != null && taskArgs.singleBookFlag != null ? taskArgs.singleBookFlag : false
-  const bookSlug = taskArgs != null && taskArgs.slug != null ? taskArgs.slug : ''
-  const targetBook = singleBookFlag ? bookSlug : ''
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
-  const inputName = 'fetched-book-group'
-  const assembledOutput = 'assembled-book-group'
   const commonLogOutput = 'common-log'
 
-  const rawCollectionDir = `${inputName}/raw`
-  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/assemble_book_group.sh'), { encoding: 'utf-8' })
+  const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/override_common_log.sh'), { encoding: 'utf-8' })
 
   return {
-    task: 'assemble book group',
+    task: 'generate preview urls',
     config: {
       platform: 'linux',
       image_resource: {
         type: 'docker-image',
         source: imageSource
       },
-      inputs: [
-        { name: inputName }
-      ],
       outputs: [
-        { name: assembledOutput },
         { name: commonLogOutput }
       ],
       params: {
-        ASSEMBLED_OUTPUT: assembledOutput,
-        RAW_COLLECTION_DIR: rawCollectionDir,
-        TARGET_BOOK: targetBook,
+        MESSAGE: message,
         COMMON_LOG_DIR: commonLogOutput
       },
       run: {

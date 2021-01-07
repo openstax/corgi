@@ -24,13 +24,17 @@ const task = (taskArgs) => {
         { name: 'baked-book' },
         { name: 'assembled-book-metadata' }
       ],
-      outputs: [{ name: 'baked-book-metadata' }],
+      outputs: [
+        { name: 'baked-book-metadata' },
+        { name: 'common-log' }
+      ],
       run: {
         path: '/bin/bash',
         args: [
           '-cxe',
           dedent`
-          exec 2> >(tee baked-book-metadata/stderr >&2)
+          exec > >(tee common-log/log >&2) 2>&1
+
           collection_id="$(cat book/collection_id)"
           book_metadata="fetched-book/$collection_id/raw/metadata.json"
           book_uuid="$(cat $book_metadata | jq -r '.id')"
