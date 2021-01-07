@@ -12,7 +12,6 @@ const task = (taskArgs) => {
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
   const bookInput = 'book'
-  const bookSlugsUrl = 'https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/book-slugs.json'
   const contentOutput = 'fetched-book-group'
   const resourceOutput = 'resources'
   const unusedResourceOutput = 'unused-resources'
@@ -36,7 +35,6 @@ const task = (taskArgs) => {
         BOOK_INPUT: bookInput,
         GH_SECRET_CREDS: githubSecretCreds,
         CONTENT_OUTPUT: contentOutput,
-        BOOK_SLUGS_URL: bookSlugsUrl,
         UNUSED_RESOURCE_OUTPUT: unusedResourceOutput
       },
       run: {
