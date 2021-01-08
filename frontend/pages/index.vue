@@ -1,25 +1,58 @@
 <template>
-  <v-layout
-    column
-    justify-center
-    align-center
-    class="mainscreen"
-  >
-    <v-flex
-      xs12
-      sm8
-      md8
+  <v-row justify="center">
+    <v-col
+      cols="12"
+      md="10"
+      class="mainscreen"
     >
-      <div class="text-right">
+      <v-row justify="space-between">
+        <div class="d-md-flex">
+          <v-btn
+            class="ma-1"
+            @click="toPage(Math.max(0, current_page - 1))"
+          >
+            Previous Page
+          </v-btn>
+          <v-btn
+            class="ma-1"
+            @click="toPage(current_page + 1)"
+          >
+            Next Page
+          </v-btn>
+          <v-text-field
+            v-model="goto_page"
+            class="ma-1"
+            style="max-width: 100px"
+            label="Page"
+            outlined
+            dense
+            hide-details
+          />
+          <v-text-field
+            v-model="goto_page_limit"
+            class="ma-1"
+            style="max-width: 100px"
+            label="Jobs"
+            outlined
+            dense
+            hide-details
+          />
+          <v-btn
+            class="ma-1"
+            @click="doPageGo()"
+          >
+            Go
+          </v-btn>
+        </div>
         <v-dialog v-model="dialog" persistent max-width="800px">
-          <template v-slot:activator="{ on }">
+          <template #activator="{ on }">
             <v-btn
-              v-on="on"
               color="primary"
               class="mb-3 create-job-button"
               dark
               large
               tile
+              v-on="on"
             >
               <span>Create a new job</span>
               <v-icon class="ml-2">
@@ -39,10 +72,10 @@
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-row>
                     <v-radio-group v-model="jobType" row mandatory :default="jobTypes.PDF" @change="resetFormValidation">
-                      <v-radio label="PDF" :value="jobTypes.PDF" class="pdf-radio-button"></v-radio>
-                      <v-radio label="Web Preview" :value="jobTypes.DIST_PREVIEW" class="preview-radio-button"></v-radio>
-                      <v-radio label="PDF (git)" :value="jobTypes.GIT_PDF" class="git-pdf-radio-button"></v-radio>
-                      <v-radio label="Web Preview (git)" :value="jobTypes.GIT_DIST_PREVIEW" class="git-preview-radio-button"></v-radio>
+                      <v-radio label="PDF" :value="jobTypes.PDF" class="pdf-radio-button" />
+                      <v-radio label="Web Preview" :value="jobTypes.DIST_PREVIEW" class="preview-radio-button" />
+                      <v-radio label="PDF (git)" :value="jobTypes.GIT_PDF" class="git-pdf-radio-button" />
+                      <v-radio label="Web Preview (git)" :value="jobTypes.GIT_DIST_PREVIEW" class="git-preview-radio-button" />
                     </v-radio-group>
                   </v-row>
                   <v-row>
@@ -97,149 +130,122 @@
             <v-divider />
             <v-card-actions>
               <v-spacer />
-              <v-btn @click="closeDialog()" class="job-cancel-button" color="blue darken-1" text>
+              <v-btn class="job-cancel-button" color="blue darken-1" text @click="closeDialog()">
                 Cancel
               </v-btn>
-              <v-btn @click="clickCollection(collectionId, maybeContentServerId, version, style, jobType)" class="create-button-start-job" color="blue darken-1" text>
+              <v-btn class="create-button-start-job" color="blue darken-1" text @click="clickCollection(collectionId, maybeContentServerId, version, style, jobType)">
                 Create
               </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
-      </div>
-      <div class="d-md-flex">
-        <v-btn
-          @click="toPage(Math.max(0, current_page - 1))"
-          class="ma-1"
+      </v-row>
+      <v-row>
+        <v-data-table
+          v-if="browserReady"
+          :headers="headers"
+          :items="jobs"
+          :disable-pagination="true"
+          :hide-default-footer="true"
+          class="elevation-1 jobs-table"
+          show-expand
+          single-expand="singleExpand"
+          style="width:100%;"
+          @click:row="(item, slot) => slot.expand(!slot.isExpanded)"
         >
-          Previous Page
-        </v-btn>
-        <v-btn
-          @click="toPage(current_page + 1)"
-          class="ma-1"
-        >
-          Next Page
-        </v-btn>
-        <v-text-field
-          v-model="goto_page"
-          class="ma-1"
-          style="max-width: 100px"
-          label="Page"
-          outlined
-          dense
-          hide-details
-        />
-        <v-text-field
-          v-model="goto_page_limit"
-          class="ma-1"
-          style="max-width: 100px"
-          label="Jobs"
-          outlined
-          dense
-          hide-details
-        />
-        <v-btn
-          @click="doPageGo()"
-          class="ma-1"
-        >
-          Go
-        </v-btn>
-      </div>
-      <v-data-table
-        v-if="browserReady"
-        :headers="headers"
-        :items="jobs"
-        :disable-pagination="true"
-        :hide-default-footer="true"
-        class="elevation-1 jobs-table"
-        show-expand
-        single-expand="singleExpand"
-        @click:row="(item, slot) => slot.expand(!slot.isExpanded)"
-      >
-        <template v-slot:expanded-item="{ headers, item }">
-          <td :colspan="headers.length">
-          <v-container fluid>
-            <h3 class="ma-2 text-uppercase">Job Details</h3>
-            <v-divider></v-divider>
-            <v-subheader>Utility</v-subheader>
-            <v-layout
-              row
-              class="job-controls"
-            >
-              <v-btn
-                class="job-repeat-button ma-2"
-                color="yellow darken-2"
-                outlined
-                @click="submitCollection(item.collection_id, item.content_server_id, item.version, item.style, item.job_type_id)"
-              >
-                Repeat
-              </v-btn>
-              <v-tooltip top>
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn class="job-abort-button ma-2" color="red darken-1" outlined v-on="on" v-bind="attrs">
-                    Abort
-                  </v-btn>
-                </template>
-                <span>Not yet implemented!</span>
-              </v-tooltip>
-            </v-layout>
-            <v-divider></v-divider>
-            <v-subheader>Errors</v-subheader>
-            <v-layout
-              column
-              class="job-error-message"
-            >
-              <kbd v-if="item.error_message" class="d-block my-2" style="white-space:pre;">{{ item.error_message }}</kbd>
-              <p v-else>No errors to display.</p>
-            </v-layout>
-          </v-container>
-          </td>
-        </template>
-        <template v-slot:item.created_at="{ item }">
-          <span>
-            {{ $moment.utc(item.created_at).local().format('lll') }}
-          </span>
-        </template>
-        <template v-slot:item.pdf_url="{ item }">
-          <ul
-            style="list-style:none; padding:0;"
-          >
-            <li
-              v-for="entry in getUrlEntries(item.pdf_url)"
-              :key="entry.text"
-            >
-              <a
-                :href="entry.href"
-                target="_blank"
-              >
-                {{ entry.text }}
-              </a>
-            </li>
-          </ul>
-        </template>
-        <template v-slot:item.status_name="{ item }">
-          <v-chip :color="getStatusColor(item.status_name)" dark>
-            <span :class="{ 'font-weight-bold' : showStatus(item.status_name)}">
-              {{ item.status_name }}
+          <template #expanded-item="{ headers, item }">
+            <td :colspan="headers.length">
+              <v-row>
+                <v-col style="padding:2rem;">
+                  <v-row style="margin:0;">
+                    <h3 class="ma-2 text-uppercase">
+                      Job Details
+                    </h3>
+                  </v-row>
+                  <v-row
+                    class="job-controls"
+                  >
+                    <v-col>
+                      <v-divider />
+                      <v-subheader>Utility</v-subheader>
+                      <v-btn
+                        class="job-repeat-button ma-2"
+                        color="yellow darken-2"
+                        outlined
+                        @click="submitCollection(item.collection_id, item.content_server_id, item.version, item.style, item.job_type_id)"
+                      >
+                        Repeat
+                      </v-btn>
+                      <v-tooltip top>
+                        <template #activator="{ on, attrs }">
+                          <v-btn class="job-abort-button ma-2" color="red darken-1" outlined v-bind="attrs" v-on="on">
+                            Abort
+                          </v-btn>
+                        </template>
+                        <span>Not yet implemented!</span>
+                      </v-tooltip>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col class="job-error-message">
+                      <v-divider />
+                      <v-subheader>Errors</v-subheader>
+                      <kbd v-if="item.error_message" class="d-block my-2" style="white-space:pre;">{{ item.error_message }}</kbd>
+                      <p v-else>
+                        No errors to display.
+                      </p>
+                    </v-col>
+                  </v-row>
+                </v-col>
+              </v-row>
+            </td>
+          </template>
+          <template #item.created_at="{ item }">
+            <span>
+              {{ $moment.utc(item.created_at).local().format('lll') }}
             </span>
-            <v-progress-circular
-              v-if="showStatus(item.status_name)"
-              :width="3"
-              size="12"
-              color="white"
-              indeterminate
-              class="ml-2"
-            />
-          </v-chip>
-        </template>
-        <template v-slot:item.updated_at="{ item }">
-          <span>
-            {{ $moment.utc(item.updated_at).local().format('lll') }}
-          </span>
-        </template>
-      </v-data-table>
-    </v-flex>
-  </v-layout>
+          </template>
+          <template #item.pdf_url="{ item }">
+            <ul
+              style="list-style:none; padding:0;"
+            >
+              <li
+                v-for="entry in getUrlEntries(item.pdf_url)"
+                :key="entry.text"
+              >
+                <a
+                  :href="entry.href"
+                  target="_blank"
+                >
+                  {{ entry.text }}
+                </a>
+              </li>
+            </ul>
+          </template>
+          <template #item.status_name="{ item }">
+            <v-chip :color="getStatusColor(item.status_name)" dark>
+              <span :class="{ 'font-weight-bold' : showStatus(item.status_name)}">
+                {{ item.status_name }}
+              </span>
+              <v-progress-circular
+                v-if="showStatus(item.status_name)"
+                :width="3"
+                size="12"
+                color="white"
+                indeterminate
+                class="ml-2"
+              />
+            </v-chip>
+          </template>
+          <template #item.updated_at="{ item }">
+            <span>
+              {{ $moment.utc(item.updated_at).local().format('lll') }}
+            </span>
+          </template>
+        </v-data-table>
+      </v-row>
+    </v-col>
+  </v-row>
 </template>
 
 <script>
@@ -260,7 +266,7 @@ export default {
       page_limit: 50,
       goto_page_limit: '50',
       valid: false,
-      lastJobStartTime: Date.now(),
+      lastJobStartTime: Date.now()
     }
   },
   computed: {
@@ -274,7 +280,7 @@ export default {
       return this.activeJobIsUsingArchive ? this.contentServerId : null
     },
     activeJobIsUsingArchive () {
-      return [1,2].includes(this.jobType)
+      return [1, 2].includes(this.jobType)
     }
   },
   // Init non-reactive data
@@ -389,7 +395,7 @@ export default {
         return 'grey'
       }
     },
-    resetFormValidation() {
+    resetFormValidation () {
       this.$refs.form.resetValidation()
     },
     closeDialog () {

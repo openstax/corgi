@@ -1,8 +1,7 @@
 import colors from 'vuetify/es5/util/colors'
-const localConfig = require('./localConfig')
+import localConfig from './localConfig'
 
 export default {
-  mode: 'universal',
   /*
   ** Headers of the page
   */

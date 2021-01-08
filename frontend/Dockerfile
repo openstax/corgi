@@ -1,13 +1,13 @@
-FROM nginx:1.16-alpine
+FROM nginx:1.19-alpine
 
-RUN apk add --update nodejs npm yarn
+RUN apk add --update nodejs npm
 
 WORKDIR /app
 
 COPY package*.json /app/
 
-RUN yarn global add pm2
-RUN yarn install
+RUN npm install --global pm2
+RUN npm ci
 
 COPY ./ /app/
 
@@ -16,7 +16,7 @@ ARG API_URL_BROWSER=/
 ENV API_URL=${API_URL}
 ENV API_URL_BROWSER=${API_URL_BROWSER}
 
-RUN yarn build
+RUN npm run build
 
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 COPY ./nginx-backend-not-found.conf /etc/nginx/extra-conf.d/backend-not-found.conf
