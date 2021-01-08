@@ -361,7 +361,7 @@ const tasks = {
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
-      const singleBookFlag = argv.singleBook
+      const singleBookFlag = argv.single
       const taskArgs = [`--taskargs=${JSON.stringify({
         ...imageDetails,
         singleBookFlag: singleBookFlag,
@@ -447,7 +447,7 @@ const tasks = {
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
-      const singleBookFlag = argv.singleBook == null ? '' : '--single'
+      const singleBookFlag = argv.single
       const taskArgs = [`--taskargs=${JSON.stringify({
         ...imageDetails,
         singleBookFlag: singleBookFlag,
@@ -558,7 +558,7 @@ const tasks = {
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
-      const singleBookFlag = argv.singleBook == null ? '' : '--single'
+      const singleBookFlag = argv.single
       const taskArgs = [`--taskargs=${JSON.stringify({
         ...imageDetails,
         singleBookFlag: singleBookFlag,
@@ -874,7 +874,7 @@ const tasks = {
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
-      const singleBookFlag = argv.singleBook == null ? '' : '--single'
+      const singleBookFlag = argv.single
       const taskArgs = [`--taskargs=${JSON.stringify({
         ...imageDetails,
         singleBookFlag: singleBookFlag,
@@ -963,7 +963,7 @@ const tasks = {
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
-      const singleBookFlag = argv.singleBook == null ? '' : '--single'
+      const singleBookFlag = argv.single
       const taskArgs = [`--taskargs=${JSON.stringify({
         ...imageDetails,
         singleBookFlag: singleBookFlag,
