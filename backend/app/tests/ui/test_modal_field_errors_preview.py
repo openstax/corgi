@@ -6,7 +6,7 @@ from pages.home import Home
 @pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_invalid_colid_error(selenium, base_url):
+def test_invalid_colid_error_preview(selenium, base_url):
     # GIVEN: Selenium driver and the base url
 
     # WHEN: The Home page is fully loaded
@@ -14,6 +14,9 @@ def test_invalid_colid_error(selenium, base_url):
 
     # AND: The create a new job button is clicked
     modal = home.click_create_new_job_button()
+
+    # AND: Clicks the Web Preview button
+    modal.click_web_preview_radio_button()
 
     # AND: Incorrect collection id is typed into the collection id field
     modal.fill_collection_id_field("1col11229")
@@ -39,8 +42,8 @@ def test_invalid_colid_error(selenium, base_url):
     assert home.create_job_modal_is_open
 
     # WHEN: modal is open and collection id has incorrect colid/slug
-    # AND: PDF(git) button is clicked
-    modal.click_pdfgit_radio_button()
+    # AND: Web preview (git) button is clicked
+    modal.click_web_preview_git_radio_button()
 
     # AND: Create button is clicked when data fields are empty and collection ID field has incorrect colid
     modal.click_create_button()
