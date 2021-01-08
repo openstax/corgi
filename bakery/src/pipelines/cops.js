@@ -250,7 +250,7 @@ const pipeline = (env) => {
   }
 
   const distPreviewJob = {
-    name: 'Distribution Preview',
+    name: 'Web Preview',
     build_log_retention: {
       days: buildLogRetentionDays
     },
@@ -312,7 +312,7 @@ const pipeline = (env) => {
   }
 
   const gitDistPreviewJob = {
-    name: 'Distribution Preview (git)',
+    name: 'Web Preview (git)',
     build_log_retention: {
       days: buildLogRetentionDays
     },
