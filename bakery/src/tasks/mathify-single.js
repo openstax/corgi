@@ -28,10 +28,12 @@ const task = (taskArgs) => {
       inputs: [
         { name: bookInput },
         { name: styleInput },
-        { name: linkedInput },
+        { name: linkedInput }
+      ],
+      outputs: [
+        { name: mathifiedOutput },
         { name: commonLogOutput }
       ],
-      outputs: [{ name: mathifiedOutput }],
       params: {
         MATHIFIED_OUTPUT: mathifiedOutput,
         BOOK_INPUT: bookInput,

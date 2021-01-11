@@ -31,10 +31,12 @@ const task = (taskArgs) => {
       inputs: [
         { name: fetchedInput },
         { name: bakedInput },
-        { name: assembledMetaInput },
+        { name: assembledMetaInput }
+      ],
+      outputs: [
+        { name: bakedMetaOutput },
         { name: commonLogOutput }
       ],
-      outputs: [{ name: bakedMetaOutput }],
       params: {
         BAKED_META_OUTPUT: bakedMetaOutput,
         BAKED_INPUT: bakedInput,
