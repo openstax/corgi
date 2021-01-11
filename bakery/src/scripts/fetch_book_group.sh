@@ -16,6 +16,7 @@ remote="https://github.com/openstax/$(cat "${BOOK_INPUT}/repo").git"
 GIT_TERMINAL_PROMPT=0 git clone --depth 1 "$remote" --branch "$reference" "${CONTENT_OUTPUT}/raw"
 if [[ ! -f "${CONTENT_OUTPUT}/raw/collections/$(cat "${BOOK_INPUT}/slug").collection.xml" ]]; then
     echo "No matching book for slug in this repo"
+    sleep 1
     exit 1
 fi
 fetch-update-meta "${CONTENT_OUTPUT}/raw/.git" "${CONTENT_OUTPUT}/raw/modules" "${CONTENT_OUTPUT}/raw/collections" "$reference"
