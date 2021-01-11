@@ -59,3 +59,7 @@ def test_invalid_colid_error_preview(selenium, base_url):
     split_style = modal.style_field_error.text.splitlines()
     text_style = split_style[1]
     assert "Style is required" == text_style
+
+    # THEN: No error message appears for Content Server as it is disabled for web preview git
+    split_server = modal.content_server_field_error.text.splitlines()
+    assert "Please select a server" not in split_server
