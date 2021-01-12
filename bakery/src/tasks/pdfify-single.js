@@ -33,10 +33,12 @@ const task = (taskArgs) => {
         { name: fetchedInput },
         { name: fetchedResourcesInput },
         { name: styleInput },
-        { name: mathifiedInput },
+        { name: mathifiedInput }
+      ],
+      outputs: [
+        { name: artifactsOutput },
         { name: commonLogOutput }
       ],
-      outputs: [{ name: artifactsOutput }],
       params: {
         ARTIFACTS_OUTPUT: artifactsOutput,
         MATHIFIED_INPUT: mathifiedInput,

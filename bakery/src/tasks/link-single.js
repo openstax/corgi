@@ -33,10 +33,12 @@ const task = (taskArgs) => {
         { name: bookInput },
         { name: fetchedInput },
         { name: bakedInput },
-        { name: bakedMetaInput },
+        { name: bakedMetaInput }
+      ],
+      outputs: [
+        { name: linkedOutput },
         { name: commonLogOutput }
       ],
-      outputs: [{ name: linkedOutput }],
       params: {
         LINKED_OUTPUT: linkedOutput,
         FETCHED_INPUT: fetchedInput,
