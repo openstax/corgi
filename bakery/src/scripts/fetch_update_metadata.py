@@ -2,7 +2,6 @@
 
 import sys
 from pathlib import Path
-from glob import glob
 from pygit2 import Repository
 from datetime import datetime, timezone
 from lxml import etree
@@ -14,7 +13,7 @@ NS_COLLXML = "http://cnx.rice.edu/collxml"
 GIT_SHA_PREFIX_LEN = 7
 
 
-def  remove_metadata_entries(xml_doc, old_metadata, md_namespace):
+def remove_metadata_entries(xml_doc, old_metadata, md_namespace):
     metadata = xml_doc.xpath(
         "//x:metadata",
         namespaces={"x": md_namespace}
@@ -22,10 +21,12 @@ def  remove_metadata_entries(xml_doc, old_metadata, md_namespace):
 
     for tag in old_metadata:
         element = metadata.xpath(
-            f"/md:{tag}",
+            f"./md:{tag}",
             namespaces={"md": NS_MDML}
-        )[0]
-        metadata.remove(element)
+        )
+        if element:
+            metadata.remove(element[0])
+
 
 
 def add_metadata_entries(xml_doc, new_metadata, md_namespace):
@@ -80,10 +81,10 @@ def main():
     canonical_mapping = {}
 
     for bookslug in reversed(canonical_list):
-        collection = collection_dir/f'{bookslug}.collection.xml'
+        collection = collections_dir / f'{bookslug}.collection.xml'
         col_tree = etree.parse(str(collection))
-        col_modules = col_tree.xpath("//col:module/@document", namespaces={"col" : NS_COLLXML})
-        col_uuid = col_tree.xpath("//md:uuid", namespaces={"md" : NS_MDML})
+        col_modules = col_tree.xpath("//col:module/@document", namespaces={"col": NS_COLLXML})
+        col_uuid = col_tree.xpath("//md:uuid", namespaces={"md": NS_MDML})[0].text
         for module in col_modules:
             canonical_mapping[module] = col_uuid
 
