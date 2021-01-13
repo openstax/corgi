@@ -2,14 +2,30 @@
 
 import sys
 from pathlib import Path
+from glob import glob
 from pygit2 import Repository
 from datetime import datetime, timezone
 from lxml import etree
+import json
 
 NS_MDML = "http://cnx.rice.edu/mdml"
 NS_CNXML = "http://cnx.rice.edu/cnxml"
 NS_COLLXML = "http://cnx.rice.edu/collxml"
 GIT_SHA_PREFIX_LEN = 7
+
+
+def  remove_metadata_entries(xml_doc, old_metadata, md_namespace):
+    metadata = xml_doc.xpath(
+        "//x:metadata",
+        namespaces={"x": md_namespace}
+    )[0]
+
+    for tag in old_metadata:
+        element = metadata.xpath(
+            f"/md:{tag}",
+            namespaces={"md": NS_MDML}
+        )[0]
+        metadata.remove(element)
 
 
 def add_metadata_entries(xml_doc, new_metadata, md_namespace):
@@ -56,7 +72,20 @@ def main():
     modules_dir = Path(sys.argv[2]).resolve(strict=True)
     collections_dir = Path(sys.argv[3]).resolve(strict=True)
     reference = sys.argv[4]
+    canonical_file = Path(sys.argv[5]).resolve(strict=True)
     repo = Repository(git_repo)
+
+    canonical_list = json.load(canonical_file.open())
+
+    canonical_mapping = {}
+
+    for bookslug in reversed(canonical_list):
+        collection = collection_dir/f'{bookslug}.collection.xml'
+        col_tree = etree.parse(str(collection))
+        col_modules = col_tree.xpath("//col:module/@document", namespaces={"col" : NS_COLLXML})
+        col_uuid = col_tree.xpath("//md:uuid", namespaces={"md" : NS_MDML})
+        for module in col_modules:
+            canonical_mapping[module] = col_uuid
 
     # For the time being, we're going to parse the timestamp of the HEAD
     # commit and use that as the revised time for all module pages.
@@ -78,8 +107,12 @@ def main():
 
     for module_file in module_files:
         cnxml_doc = etree.parse(str(module_file))
+
+        remove_metadata_entries(cnxml_doc, ["canonical-book-uuid"], NS_CNXML)
+
         new_metadata = {
-            "revised": revised_time
+            "revised": revised_time,
+            "canonical-book-uuid": canonical_mapping[module_file.parent.name]
         }
         add_metadata_entries(cnxml_doc, new_metadata, NS_CNXML)
 
