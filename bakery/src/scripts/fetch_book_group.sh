@@ -19,7 +19,7 @@ if [[ ! -f "${CONTENT_OUTPUT}/raw/collections/$(cat "${BOOK_INPUT}/slug").collec
     sleep 1
     exit 1
 fi
-fetch-update-meta "${CONTENT_OUTPUT}/raw/.git" "${CONTENT_OUTPUT}/raw/modules" "${CONTENT_OUTPUT}/raw/collections" "$reference"
+fetch-update-meta "${CONTENT_OUTPUT}/raw/.git" "${CONTENT_OUTPUT}/raw/modules" "${CONTENT_OUTPUT}/raw/collections" "$reference" "${CONTENT_OUTPUT}/raw/canonical.json"
 rm -rf "${CONTENT_OUTPUT}/raw/.git"
 rm -rf "$creds_dir"
 

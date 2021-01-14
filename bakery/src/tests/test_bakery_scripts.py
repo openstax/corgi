@@ -2185,16 +2185,32 @@ def test_fetch_map_resources(tmp_path, mocker):
 
 def test_fetch_update_metadata(tmp_path, mocker):
     """Test fetch-update-metadata script"""
-    book_dir = tmp_path / "book_slug/fetched-book-group/raw/modules"
-    collections_dir = tmp_path / "book_slug/fetched-book-group/raw/collections"
+    book_dir = tmp_path / "book_slug/fetched-book-group/raw/"
+    modules_dir = book_dir / "modules"
+    collections_dir = book_dir / "collections"
+    canonical_file = book_dir / "canonical.json"
     repo_path = tmp_path / ".repo"
+    modules_dir.mkdir(parents=True)
     collections_dir.mkdir(parents=True)
-    book_dir.mkdir(parents=True)
     repo_path.mkdir()
 
-    module_0001_dir = book_dir / "m00001"
-    module_0001_dir.mkdir()
-    module_00001 = book_dir / "m00001/index.cnxml"
+    canonical_content = json.dumps(['test'])
+    canonical_file.write_text(canonical_content)
+
+    coll_file = collections_dir / "test.collection.xml"
+    coll_content = (
+        '<col:collection xmlns:col="http://cnx.rice.edu/collxml">'
+        '<col:metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
+        '<md:uuid>some-random-uuid</md:uuid>'
+        '</col:metadata>'
+        '<col:module document="m00001" />'
+        '</col:collection>'
+    )
+    coll_file.write_text(coll_content)
+
+    module_00001_dir = modules_dir / "m00001"
+    module_00001_dir.mkdir()
+    module_00001 = modules_dir / "m00001/index.cnxml"
     module_00001_content = (
         '<document xmlns="http://cnx.rice.edu/cnxml">'
         '<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
@@ -2202,16 +2218,6 @@ def test_fetch_update_metadata(tmp_path, mocker):
         '</document>'
     )
     module_00001.write_text(module_00001_content)
-
-    collection_xml = collections_dir / "collection.xml"
-    collection_xml_content = (
-        '<col:collection xmlns="http://cnx.rice.edu/collxml" '
-        'xmlns:col="http://cnx.rice.edu/collxml">'
-        '<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
-        '</metadata>'
-        '</col:collection>'
-    )
-    collection_xml.write_text(collection_xml_content)
 
     repo_mock = mocker.MagicMock()
     commit_mock = repo_mock().revparse_single()
@@ -2224,7 +2230,7 @@ def test_fetch_update_metadata(tmp_path, mocker):
     repo_mock().references.objects = [ref1_mock]
     mocker.patch(
         "sys.argv",
-        ["", repo_path, book_dir, collections_dir, ref1_mock.shorthand]
+        ["", repo_path, modules_dir, collections_dir, ref1_mock.shorthand, canonical_file]
     )
     mocker.patch(
         "bakery_scripts.fetch_update_metadata.Repository",
@@ -2232,27 +2238,152 @@ def test_fetch_update_metadata(tmp_path, mocker):
     )
     fetch_update_metadata.main()
 
-    # Check page updates
     tree = etree.parse(str(module_00001))
     expected = (
         '<document xmlns="http://cnx.rice.edu/cnxml">'
         '<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
         '<md:revised>2021-01-13T01:13:00+00:00</md:revised>\n'
+        '<md:canonical-book-uuid>some-random-uuid</md:canonical-book-uuid>\n'
         '</metadata>'
         '</document>'
     )
     assert etree.tostring(tree, encoding="utf8") == expected.encode("utf8")
 
-    # Check book updates
-    tree = etree.parse(str(collection_xml))
+    tree = etree.parse(str(coll_file))
     expected = (
-        '<col:collection xmlns="http://cnx.rice.edu/collxml" '
-        'xmlns:col="http://cnx.rice.edu/collxml">'
-        '<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
+        '<col:collection xmlns:col="http://cnx.rice.edu/collxml">'
+        '<col:metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
+        '<md:uuid>some-random-uuid</md:uuid>'
         '<md:revised>2021-01-13T01:13:00+00:00</md:revised>\n'
         '<md:version>somegittag</md:version>\n'
-        '</metadata>'
+        '</col:metadata>'
+        '<col:module document="m00001"/>'
         '</col:collection>'
+    )
+    assert etree.tostring(tree, encoding="utf8") == expected.encode("utf8")
+
+
+def test_fetch_update_metadata_canonical_ordering(tmp_path, mocker):
+    """Test canonical ordering in fetch-update-metadata script"""
+    book_dir = tmp_path / "book_slug/fetched-book-group/raw/"
+    modules_dir = book_dir / "modules"
+    collections_dir = book_dir / "collections"
+    canonical_file = book_dir / "canonical.json"
+    repo_path = tmp_path / ".repo"
+    modules_dir.mkdir(parents=True)
+    collections_dir.mkdir(parents=True)
+    repo_path.mkdir()
+
+    canonical_content = json.dumps(['test0', 'test1'])
+    canonical_file.write_text(canonical_content)
+
+    coll_file_0 = collections_dir / "test0.collection.xml"
+    coll_content_0 = (
+        '<col:collection xmlns:col="http://cnx.rice.edu/collxml">'
+        '<col:metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
+        '<md:uuid>some-random-uuid-0</md:uuid>'
+        '</col:metadata>'
+        '<col:module document="m00001" />'
+        '<col:module document="m00002" />'
+        '</col:collection>'
+    )
+    coll_file_0.write_text(coll_content_0)
+
+    coll_file_1 = collections_dir / "test1.collection.xml"
+    coll_content_1 = (
+        '<col:collection xmlns:col="http://cnx.rice.edu/collxml">'
+        '<col:metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
+        '<md:uuid>some-random-uuid-1</md:uuid>'
+        '</col:metadata>'
+        '<col:module document="m00002" />'
+        '<col:module document="m00003" />'
+        '</col:collection>'
+    )
+    coll_file_1.write_text(coll_content_1)
+
+    module_00001_dir = modules_dir / "m00001"
+    module_00001_dir.mkdir()
+    module_00001 = modules_dir / "m00001/index.cnxml"
+    module_00001_content = (
+        '<document xmlns="http://cnx.rice.edu/cnxml">'
+        '<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
+        '<md:canonical-book-uuid>garbage</md:canonical-book-uuid>'
+        '</metadata>'
+        '</document>'
+    )
+    module_00001.write_text(module_00001_content)
+
+    module_00002_dir = modules_dir / "m00002"
+    module_00002_dir.mkdir()
+    module_00002 = modules_dir / "m00002/index.cnxml"
+    module_00002_content = (
+        '<document xmlns="http://cnx.rice.edu/cnxml">'
+        '<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
+        '</metadata>'
+        '</document>'
+    )
+    module_00002.write_text(module_00002_content)
+
+    module_00003_dir = modules_dir / "m00003"
+    module_00003_dir.mkdir()
+    module_00003 = modules_dir / "m00003/index.cnxml"
+    module_00003_content = (
+        '<document xmlns="http://cnx.rice.edu/cnxml">'
+        '<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
+        '</metadata>'
+        '</document>'
+    )
+    module_00003.write_text(module_00003_content)
+
+    repo_mock = mocker.MagicMock()
+    commit_mock = repo_mock().revparse_single()
+    commit_mock.commit_time = 1610500380
+    commit_mock.id = "somegitsha"
+    ref1_mock = mocker.MagicMock()
+    ref1_mock.name = "refs/tags/somegittag"
+    ref1_mock.target = "somegitsha"
+    ref1_mock.shorthand = "somegittag"
+    repo_mock().references.objects = [ref1_mock]
+    mocker.patch(
+        "sys.argv",
+        ["", repo_path, modules_dir, collections_dir, ref1_mock.shorthand, canonical_file]
+    )
+    mocker.patch(
+        "bakery_scripts.fetch_update_metadata.Repository",
+        repo_mock
+    )
+    fetch_update_metadata.main()
+
+    tree = etree.parse(str(module_00001))
+    expected = (
+        '<document xmlns="http://cnx.rice.edu/cnxml">'
+        '<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
+        '<md:revised>2021-01-13T01:13:00+00:00</md:revised>\n'
+        '<md:canonical-book-uuid>some-random-uuid-0</md:canonical-book-uuid>\n'
+        '</metadata>'
+        '</document>'
+    )
+    assert etree.tostring(tree, encoding="utf8") == expected.encode("utf8")
+
+    tree = etree.parse(str(module_00002))
+    expected = (
+        '<document xmlns="http://cnx.rice.edu/cnxml">'
+        '<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
+        '<md:revised>2021-01-13T01:13:00+00:00</md:revised>\n'
+        '<md:canonical-book-uuid>some-random-uuid-0</md:canonical-book-uuid>\n'
+        '</metadata>'
+        '</document>'
+    )
+    assert etree.tostring(tree, encoding="utf8") == expected.encode("utf8")
+
+    tree = etree.parse(str(module_00003))
+    expected = (
+        '<document xmlns="http://cnx.rice.edu/cnxml">'
+        '<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
+        '<md:revised>2021-01-13T01:13:00+00:00</md:revised>\n'
+        '<md:canonical-book-uuid>some-random-uuid-1</md:canonical-book-uuid>\n'
+        '</metadata>'
+        '</document>'
     )
     assert etree.tostring(tree, encoding="utf8") == expected.encode("utf8")
 
