@@ -24,7 +24,7 @@ const task = (taskArgs) => {
       inputs: [{ name: resource }],
       params: {
         RESOURCE: resource,
-        API_ROOT: apiRoot,
+        API_ROOT: apiRoot
       },
       run: {
         path: '/bin/bash',
