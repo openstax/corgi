@@ -31,6 +31,7 @@ const pipeline = (env) => {
   const taskGenPreviewUrls = require('../tasks/gen-preview-urls')
 
   const taskOverrideCommonLog = require('../tasks/override-common-log')
+  const taskStatusCheck = require('../tasks/status-check')
 
   const lockedTag = env.IMAGE_TAG || 'trunk'
   const awsAccessKeyId = env.S3_ACCESS_KEY_ID
@@ -60,7 +61,8 @@ const pipeline = (env) => {
     ASSIGNED: 2,
     PROCESSING: 3,
     FAILED: 4,
-    SUCCEEDED: 5
+    SUCCEEDED: 5,
+    ABORTED: 6
   })
 
   const reportToOutputProducer = (resource) => {
@@ -80,6 +82,24 @@ const pipeline = (env) => {
   const reportToOutputProducerDistPreview = reportToOutputProducer('output-producer-dist-preview')
   const reportToOutputProducerGitPdf = reportToOutputProducer('output-producer-git-pdf')
   const reportToOutputProducerGitDistPreview = reportToOutputProducer('output-producer-git-dist-preview')
+
+  const runWithStatusCheck = (resource, step) => {
+    const reporter = reportToOutputProducer(resource)
+    return {
+      in_parallel: {
+        fail_fast: true,
+        steps: [
+          step,
+          {
+            do: [taskStatusCheck({ resource: resource, apiRoot: env.COPS_TARGET })],
+            on_failure: reporter(Status.ABORTED, {
+              error_message: genericAbortMessage
+            }),
+          }
+        ]
+      }
+    }
+  }
 
   const resourceTypes = [
     {
@@ -203,44 +223,55 @@ const pipeline = (env) => {
       days: buildLogRetentionDays
     },
     plan: [
-      { get: 'output-producer-pdf', trigger: true, version: 'every' },
-      reportToOutputProducerPdf(Status.ASSIGNED, {
-        worker_version: lockedTag
-      }),
-      { get: 'cnx-recipes-output' },
-      taskLookUpBook({ inputSource: 'output-producer-pdf', image: imageOverrides }),
-      reportToOutputProducerPdf(Status.PROCESSING),
-      taskFetchBook({ image: imageOverrides }),
-      taskAssembleBook({ image: imageOverrides }),
-      taskLinkExtras({
-        image: imageOverrides,
-        server: 'archive.cnx.org'
-      }),
-      taskBakeBook({ image: imageOverrides }),
-      taskMathifyBook({ image: imageOverrides }),
-      taskValidateXhtml({
-        image: imageOverrides,
-        inputSource: 'mathified-book',
-        inputPath: 'collection.mathified.xhtml',
-        validationNames: ['link-to-duplicate-id']
-      }),
-      taskBuildPdf({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),
-      taskOverrideCommonLog({ image: imageOverrides, message: s3UploadFailMessage }),
       {
-        put: 's3-pdf',
-        params: {
-          file: 'artifacts/*.pdf',
-          acl: 'public-read',
-          content_type: 'application/pdf'
-        }
-      }
+        do: [
+          { get: 'output-producer-pdf', trigger: true, version: 'every' },
+        ],
+        on_failure: reportToOutputProducerPdf(Status.FAILED, {
+          error_message: genericErrorMessage
+        }),
+      },
+      runWithStatusCheck('output-producer-pdf', {
+        do: [
+          reportToOutputProducerPdf(Status.ASSIGNED, {
+            worker_version: lockedTag
+          }),
+          { get: 'cnx-recipes-output' },
+          taskLookUpBook({ inputSource: 'output-producer-pdf', image: imageOverrides }),
+          reportToOutputProducerPdf(Status.PROCESSING),
+          taskFetchBook({ image: imageOverrides }),
+          taskAssembleBook({ image: imageOverrides }),
+          taskLinkExtras({
+            image: imageOverrides,
+            server: 'archive.cnx.org'
+          }),
+          taskBakeBook({ image: imageOverrides }),
+          taskMathifyBook({ image: imageOverrides }),
+          taskValidateXhtml({
+            image: imageOverrides,
+            inputSource: 'mathified-book',
+            inputPath: 'collection.mathified.xhtml',
+            validationNames: ['link-to-duplicate-id']
+          }),
+          taskBuildPdf({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),
+          taskOverrideCommonLog({ image: imageOverrides, message: s3UploadFailMessage }),
+          {
+            put: 's3-pdf',
+            params: {
+              file: 'artifacts/*.pdf',
+              acl: 'public-read',
+              content_type: 'application/pdf'
+            }
+          }
+        ],
+        on_success: reportToOutputProducerPdf(Status.SUCCEEDED, {
+          pdf_url: 'artifacts/pdf_url'
+        }),
+        on_failure: reportToOutputProducerPdf(Status.FAILED, {
+          error_message_file: commonLogFile
+        }),
+      })
     ],
-    on_success: reportToOutputProducerPdf(Status.SUCCEEDED, {
-      pdf_url: 'artifacts/pdf_url'
-    }),
-    on_failure: reportToOutputProducerPdf(Status.FAILED, {
-      error_message_file: commonLogFile
-    }),
     on_error: reportToOutputProducerPdf(Status.FAILED, {
       error_message: genericErrorMessage
     }),

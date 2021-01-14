@@ -176,14 +176,14 @@
                       >
                         Repeat
                       </v-btn>
-                      <v-tooltip top>
-                        <template #activator="{ on, attrs }">
-                          <v-btn class="job-abort-button ma-2" color="red darken-1" outlined v-bind="attrs" v-on="on">
-                            Abort
-                          </v-btn>
-                        </template>
-                        <span>Not yet implemented!</span>
-                      </v-tooltip>
+                      <v-btn
+                        class="job-abort-button ma-2"
+                        color="red darken-1"
+                        outlined
+                        @click="abortJob(item.id)"
+                      >
+                        Abort
+                      </v-btn>
                     </v-col>
                   </v-row>
                   <v-row>
@@ -391,6 +391,8 @@ export default {
         return 'orange'
       } else if (status === 'completed') {
         return 'green'
+      } else if (status === 'aborted') {
+        return 'brown'
       } else {
         return 'grey'
       }
@@ -420,6 +422,13 @@ export default {
         this.submitCollection(collectionId, contentServerId, version, style, jobType)
         this.closeDialog()
       }
+    },
+    async abortJob (jobId) {
+      const data = {
+        status_id: 6
+      }
+      await this.$axios.$put(`/api/jobs/${jobId}`, data)
+      setTimeout(() => { this.getJobsImmediate() }, 1000)
     },
     async submitCollection (collectionId, contentServerId, version, astyle, jobType) {
       // This fails to queue the job silently so the rate limit duration shouldn't
