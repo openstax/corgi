@@ -28,7 +28,6 @@ def remove_metadata_entries(xml_doc, old_metadata, md_namespace):
             metadata.remove(element[0])
 
 
-
 def add_metadata_entries(xml_doc, new_metadata, md_namespace):
     """Insert metadata entries from dictionairy into document"""
     metadata = xml_doc.xpath(

@@ -2199,8 +2199,8 @@ def test_fetch_update_metadata(tmp_path, mocker):
 
     coll_file = collections_dir / "test.collection.xml"
     coll_content = (
-        '<col:collection xmlns:col="http://cnx.rice.edu/collxml" xmlns:md="http://cnx.rice.edu/mdml">'
-        '<col:metadata mdml-version="0.5">'
+        '<col:collection xmlns:col="http://cnx.rice.edu/collxml">'
+        '<col:metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
         '<md:uuid>some-random-uuid</md:uuid>'
         '</col:metadata>'
         '<col:module document="m00001" />'
@@ -2251,8 +2251,8 @@ def test_fetch_update_metadata(tmp_path, mocker):
 
     tree = etree.parse(str(coll_file))
     expected = (
-        '<col:collection xmlns:col="http://cnx.rice.edu/collxml" xmlns:md="http://cnx.rice.edu/mdml">'
-        '<col:metadata mdml-version="0.5">'
+        '<col:collection xmlns:col="http://cnx.rice.edu/collxml">'
+        '<col:metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
         '<md:uuid>some-random-uuid</md:uuid>'
         '<md:revised>2021-01-13T01:13:00+00:00</md:revised>\n'
         '<md:version>somegittag</md:version>\n'
@@ -2279,7 +2279,7 @@ def test_fetch_update_metadata_canonical_ordering(tmp_path, mocker):
 
     coll_file_0 = collections_dir / "test0.collection.xml"
     coll_content_0 = (
-        '<col:collection xmlns:col="http://cnx.rice.edu/collxml" xmlns:md="http://cnx.rice.edu/mdml">'
+        '<col:collection xmlns:col="http://cnx.rice.edu/collxml">'
         '<col:metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
         '<md:uuid>some-random-uuid-0</md:uuid>'
         '</col:metadata>'
@@ -2291,7 +2291,7 @@ def test_fetch_update_metadata_canonical_ordering(tmp_path, mocker):
 
     coll_file_1 = collections_dir / "test1.collection.xml"
     coll_content_1 = (
-        '<col:collection xmlns:col="http://cnx.rice.edu/collxml" xmlns:md="http://cnx.rice.edu/mdml">'
+        '<col:collection xmlns:col="http://cnx.rice.edu/collxml">'
         '<col:metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">'
         '<md:uuid>some-random-uuid-1</md:uuid>'
         '</col:metadata>'
