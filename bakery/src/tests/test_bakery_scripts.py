@@ -2141,9 +2141,9 @@ def test_fetch_map_resources(tmp_path, mocker):
     module_00001_content = (
         '<document xmlns="http://cnx.rice.edu/cnxml">'
         '<content>'
-        '<image src="image_src.svg"/>'
-        '<image src="image_missing.jpg"/>'
-        '<image src="image_src.svg"/>'
+        '<image src="../../media/image_src.svg"/>'
+        '<image src="../../media/image_missing.jpg"/>'
+        '<image src="../../media/image_src.svg"/>'
         '</content>'
         '</document>'
     )
@@ -2172,7 +2172,7 @@ def test_fetch_map_resources(tmp_path, mocker):
         f'<document xmlns="http://cnx.rice.edu/cnxml">'
         f'<content>'
         f'<image src="../resources/{image_src_sha1_expected}"/>'
-        f'<image src="image_missing.jpg"/>'
+        f'<image src="../../media/image_missing.jpg"/>'
         f'<image src="../resources/{image_src_sha1_expected}"/>'
         f'</content>'
         f'</document>'

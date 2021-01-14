@@ -44,34 +44,43 @@ def main():
             '//x:image',
             namespaces={"x": "http://cnx.rice.edu/cnxml"}
         ):
-            resource_original_name = node.attrib["src"]
-            resource_original_file = original_resources_dir / resource_original_name
+            resource_original_src = node.attrib["src"]
+            resource_original_filepath = \
+                (cnxml_file.parent / resource_original_src).resolve()
 
-            sha1, s3_md5 = utils.get_checksums(str(resource_original_file))
-            mime_type = utils.get_mime_type(str(resource_original_file))
+            sha1, s3_md5 = utils.get_checksums(
+                str(resource_original_filepath)
+            )
+            mime_type = utils.get_mime_type(str(resource_original_filepath))
 
             if sha1 is None:
                 print(
-                    f"WARNING: Resource file '{resource_original_name}' not found",
+                    f"WARNING: Resource file '{resource_original_filepath.name}' not found",
                     file=sys.stderr
                 )
                 continue
 
-            filename_to_data[resource_original_name] = (sha1, s3_md5, mime_type)
+            filename_to_data[resource_original_filepath.name] = \
+                (sha1, s3_md5, mime_type, resource_original_filepath)
             node.attrib["src"] = f"../{RESOURCES_DIR_NAME}/{sha1}"
 
         with cnxml_file.open(mode="wb") as f:
             doc.write(f, encoding="utf-8", xml_declaration=False)
 
     for resource_original_name in filename_to_data:
-        sha1, s3_md5, mime_type = filename_to_data[resource_original_name]
+        sha1, s3_md5, mime_type, resource_original_filepath = \
+            filename_to_data[resource_original_name]
 
-        resource_original_file = original_resources_dir / resource_original_name
         checksum_resource_file = resources_dir / sha1
 
-        shutil.move(str(resource_original_file), str(checksum_resource_file))
+        shutil.move(str(resource_original_filepath), str(checksum_resource_file))
         create_json_metadata(resources_dir, sha1, mime_type, s3_md5, resource_original_name)
 
+    # NOTE: As part of CNX-1274 (https://github.com/openstax/cnx/issues/1274),
+    # we're adding support for relative image URLs which may mean over time
+    # media files can come from more than one directory. If so, the assumption
+    # here that all media files come from an original_resources_dir input
+    # should be revisited.
     for unused_resource_file in original_resources_dir.glob('**/*'):
         shutil.move(str(unused_resource_file), unused_resources_dump)
         print(
