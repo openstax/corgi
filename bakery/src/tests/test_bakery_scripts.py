@@ -1750,7 +1750,7 @@ def test_copy_resource_s3(tmp_path, mocker):
     resource_b_data = open(resource_b_data, "rb").read()
     resource_b.write_bytes(resource_b_data)
 
-    bucket = 'distribution-bucket-1234'
+    bucket = 'web-hosting-bucket-1234'
     prefix = 'master/resources'
 
     key_a = prefix + '/' + resource_a_name
@@ -1823,7 +1823,7 @@ def test_copy_resource_s3_environment(tmp_path, mocker):
     resources_dir = book_dir / "resources"
     resources_dir.mkdir()
 
-    dist_bucket = 'distribution-bucket-1234'
+    dist_bucket = 'web-hosting-bucket-1234'
     dist_bucket_prefix = 'master/resources'
 
     s3_client = boto3.client('s3')
@@ -1866,7 +1866,7 @@ def test_s3_existence(tmp_path, mocker):
     """Test copy_resource_s3.test_s3_existence function"""
 
     resource_name = "fffe62254ef635871589a848b65db441318171eb.json"
-    bucket = 'distribution-bucket-1234'
+    bucket = 'web-hosting-bucket-1234'
     key = 'master/resources/' + resource_name
     resource = os.path.join(TEST_DATA_DIR, resource_name)
     test_resource = {
@@ -1911,7 +1911,7 @@ def test_s3_existence_404(tmp_path, mocker):
     function errors with wrong file name"""
 
     resource_name = "fffe62254ef635871589a848b65db441318171eb"
-    bucket = 'distribution-bucket-1234'
+    bucket = 'web-hosting-bucket-1234'
     key = 'master/resources/' + resource_name
 
     wrong_resource = "babybeluga.json"

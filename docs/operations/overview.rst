@@ -15,7 +15,7 @@ their local machine.
 
 .. note:: 
     The only pipeline deployed on the AWS EC2 server is the PDF pipeline, 
-    the distribution pipeline is still in development.
+    the web-hosting pipeline is still in development.
 
 (WIP) Add nice diagram created by JP here.
 

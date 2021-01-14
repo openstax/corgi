@@ -8,7 +8,7 @@ All scripts that CORGI Concourse pipeline tasks may use to complete jobs live in
 built from `bakery/src/scripts/ <https://github.com/openstax/output-producer-service/tree/master/bakery/src/scripts>`_ 
 directory in the `openstax/output-producer-service <https://github.com/openstax/output-producer-service/>`_ repository/ project.
 
-All output pipelines (pdf, distribution, etc) use the same Docker Image. 
+All output pipelines (pdf, web-hosting, etc) use the same Docker Image. 
 The scripts are not limited to baking tasks as the name would suggest.
 
 ----
@@ -31,7 +31,7 @@ The Hard Way
 7. Set desired pipeline:
    
    - :ref:`pdf-pipeline-steps`
-   - :ref:`distribution-pipeline-steps`
+   - :ref:`web-hosting-pipeline-steps`
 
 The Alternate Way
 -----------------

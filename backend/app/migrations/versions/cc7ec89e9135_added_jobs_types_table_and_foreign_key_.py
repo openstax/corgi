@@ -40,7 +40,7 @@ def upgrade():
     utcnow = datetime.utcnow()
 
     server_data = [{'id': 1, 'name': 'pdf', 'created_at': utcnow, 'updated_at': utcnow},
-                   {'id': 2, 'name': 'distribution-preview', 'created_at': utcnow, 'updated_at': utcnow}]
+                   {'id': 2, 'name': 'web-hosting-preview', 'created_at': utcnow, 'updated_at': utcnow}]
 
     bind = op.get_bind()
     insert = job_types_table.insert().values(server_data)

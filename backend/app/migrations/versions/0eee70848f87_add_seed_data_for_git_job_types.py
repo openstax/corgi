@@ -31,7 +31,7 @@ jobs_table = sa.table('jobs', sa.column('job_type_id'))
 def upgrade():
     utcnow = datetime.utcnow()
     server_data = [{'id': 3, 'name': 'git-pdf', 'created_at': utcnow, 'updated_at': utcnow},
-                   {'id': 4, 'name': 'git-distribution-preview', 'created_at': utcnow, 'updated_at': utcnow}]
+                   {'id': 4, 'name': 'git-web-hosting-preview', 'created_at': utcnow, 'updated_at': utcnow}]
 
     bind = op.get_bind()
     insert = job_types_table.insert().values(server_data)

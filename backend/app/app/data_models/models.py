@@ -35,10 +35,10 @@ class JobTypeBase(BaseModel):
 # Types:
 ### Archive
 # 1: pdf
-# 2: distribution-preview
+# 2: web-hosting-preview
 ### Git
 # 3: git-pdf
-# 4: git-distribution-preview
+# 4: git-web-hosting-preview
 class JobType(JobTypeBase):
     id: str
 

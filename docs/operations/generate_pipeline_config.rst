@@ -44,7 +44,7 @@ Generate pipeline configuration file with output flag ``-o``. If no output file 
 .. code-block:: bash
 
     $ cd bakery
-    $ ./build pipeline distribution local -o distribution-pipeline.local.yml
+    $ ./build pipeline web-hosting local -o web-hosting-pipeline.local.yml
 
 For command usage:
 
@@ -57,7 +57,7 @@ This generated file will be used to configure the Concourse pipeline, with the `
 **Complete steps to set up pipelines:**
 
 - :ref:`pdf-pipeline-steps`
-- :ref:`distribution-pipeline-steps`
+- :ref:`web-hosting-pipeline-steps`
 
 ----
 

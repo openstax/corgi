@@ -71,7 +71,7 @@ module.exports.handler = argv => {
         GH_SECRET_CREDS: env.GH_SECRET_CREDS
       }
     }
-    if (['distribution', 'gdoc', 'git-distribution'].includes(argv.pipelinetype)) {
+    if (['web-hosting', 'gdoc', 'git-web-hosting'].includes(argv.pipelinetype)) {
       return {
         S3_ACCESS_KEY_ID: env.DIST_BUCKET_AKI_SECRET_NAME,
         S3_SECRET_ACCESS_KEY: env.DIST_BUCKET_SAK_SECRET_NAME,

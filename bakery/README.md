@@ -1,6 +1,6 @@
 ## Bakery Concourse Pipeline Config Generator and Bakery CLI
 
-This directory contains the code necessary to both generate and run our content distribution and cops pipelines, either in individual steps or as a whole. Effort has been put in to paramaterize code pieces so that:
+This directory contains the code necessary to both generate and run our web-hosting and cops pipelines, either in individual steps or as a whole. Effort has been put in to paramaterize code pieces so that:
 - A downstream user (user of the Bakery CLI)
 - A developer making pipeline changes or debugging
 - A production or staging node
@@ -123,7 +123,7 @@ The choices for `<pipelinetype>` are the basenames of the `.js` files in the `sr
 The choices for `<env>` are the basenames of the `.json` files in the `env/` directory.
 
 Examples:
-- `./build pipeline distribution prod` -> Build the distribution pipeline with prod environment variables and output on stdout.
+- `./build pipeline web-hosting prod` -> Build the web-hosting pipeline with prod environment variables and output on stdout.
 - `./build pipeline cops staging -o cops-pipeline.staging.yml` -> Build the cops pipeline with staging environment variables and output to file `cops-pipeline.staging.yml`, overwriting the file if it exists.
 
 #### Generate a standalone task file suitable for `fly execute`

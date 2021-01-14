@@ -91,17 +91,17 @@ test('build pipelines', async t => {
           pipeline,
           env
         ],
-        {
-          // Include credentials in environment for local pipelines
-          env: {
-            ...process.env,
-            ...{
-              AWS_ACCESS_KEY_ID: 'accesskey',
-              AWS_SECRET_ACCESS_KEY: 'secret',
-              GH_SECRET_CREDS: 'username:secret'
+          {
+            // Include credentials in environment for local pipelines
+            env: {
+              ...process.env,
+              ...{
+                AWS_ACCESS_KEY_ID: 'accesskey',
+                AWS_SECRET_ACCESS_KEY: 'secret',
+                GH_SECRET_CREDS: 'username:secret'
+              }
             }
           }
-        }
         ))
       )
     }
@@ -126,19 +126,19 @@ test('non-local pipelines do not use credentials in env vars', async t => {
         pipeline,
         env
       ],
-      {
-        // Pretend environment variables are set
-        env: {
-          ...process.env,
-          ...{
-            AWS_ACCESS_KEY_ID: fakeAKI,
-            AWS_SECRET_ACCESS_KEY: fakeSAK,
-            GH_SECRET_CREDS: fakeGHCreds,
-            DOCKERHUB_USERNAME: fakeDHU,
-            DOCKERHUB_PASSWORD: fakeDHP
+        {
+          // Pretend environment variables are set
+          env: {
+            ...process.env,
+            ...{
+              AWS_ACCESS_KEY_ID: fakeAKI,
+              AWS_SECRET_ACCESS_KEY: fakeSAK,
+              GH_SECRET_CREDS: fakeGHCreds,
+              DOCKERHUB_USERNAME: fakeDHU,
+              DOCKERHUB_PASSWORD: fakeDHP
+            }
           }
         }
-      }
       ))
       t.false(result.stdout.includes(fakeAKI))
       t.false(result.stderr.includes(fakeAKI))
@@ -174,7 +174,7 @@ test('local pipelines error without credentials', async t => {
 })
 
 test('staging and prod secret names differ', async t => {
-  for (const pipeline of ['distribution', 'gdoc']) {
+  for (const pipeline of ['web-hosting', 'gdoc']) {
     let stagingOut = ''
     const stagingPipeline = spawn('./build', [
       'pipeline',
@@ -227,19 +227,19 @@ test('credentials for local pipelines', async t => {
 
   }
 
-  for (const pipeline of ['distribution', 'gdoc']) {
+  for (const pipeline of ['web-hosting', 'gdoc']) {
     const result = await completion(spawn('./build', [
       'pipeline',
       pipeline,
       'local'
     ],
-    {
-      // Pretend environment variables are set
-      env: {
-        ...process.env,
-        ...fakeCreds
+      {
+        // Pretend environment variables are set
+        env: {
+          ...process.env,
+          ...fakeCreds
+        }
       }
-    }
     ))
     t.true(result.stdout.includes(fakeAKI))
     t.true(result.stdout.includes(fakeSAK))
@@ -253,13 +253,13 @@ test('credentials for local pipelines', async t => {
       pipeline,
       'local'
     ],
-    {
-      // Pretend environment variables are set
-      env: {
-        ...process.env,
-        ...fakeCreds
+      {
+        // Pretend environment variables are set
+        env: {
+          ...process.env,
+          ...fakeCreds
+        }
       }
-    }
     ))
     t.true(result.stdout.includes(fakeAKI))
     t.true(result.stdout.includes(fakeSAK))
@@ -309,7 +309,7 @@ test('pin pipeline tasks to versions', async t => {
   }
 })
 
-test('stable flow in pdf and distribution pipeline', async t => {
+test('stable flow in pdf and web-hosting pipeline', async t => {
   // Prepare test data
   const bookId = 'col30149'
   const outputDir = 'src/tests/output'
@@ -410,7 +410,7 @@ test('stable flow in pdf and distribution pipeline', async t => {
     bookId
   ])
 
-  // Distribution
+  // WebHosting
   const checksum = spawn('node', [
     'src/cli/execute.js',
     ...commonArgs,
@@ -446,8 +446,8 @@ test('stable flow in pdf and distribution pipeline', async t => {
     t.is(fs.readFileSync(`${outputDir}/${bookId}/artifacts/pdf_url`, { encoding: 'utf8' }), 'https://none.s3.amazonaws.com/collection.pdf', formatSubprocessOutput(buildPdfResult))
   })
 
-  // Distribution continued
-  const branchDistribution = completion(checksum).then(async (checksumResult) => {
+  // WebHosting continued
+  const branchWebHosting = completion(checksum).then(async (checksumResult) => {
     // checksum assertion
     t.truthy(fs.existsSync(`${outputDir}/${bookId}/checksum-book/${bookId}/resources`), formatSubprocessOutput(checksumResult))
 
@@ -557,6 +557,6 @@ test('stable flow in pdf and distribution pipeline', async t => {
     t.truthy(fs.existsSync(`${outputDir}/${bookId}/docx-book/${bookId}/docx/1-introduction.docx`), formatSubprocessOutput(convertDocxResult))
   })
 
-  await Promise.all([branchPdf, branchDistribution])
+  await Promise.all([branchPdf, branchWebHosting])
   t.pass()
 })

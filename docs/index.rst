@@ -22,12 +22,12 @@ CORGI at a Glance
 +================+=================+===========+===========+===========+
 | PDF            | CMs, CE Styles  | blah blah | blah blah | blah blah |
 +----------------+-----------------+-----------+-----------+-----------+
-| Distribution   | Rex, Tutor      | etc etc e | etc etc e | etc etc e |
+| WebHosting   | Rex, Tutor      | etc etc e | etc etc e | etc etc e |
 +----------------+-----------------+-----------+-----------+-----------+
 
 .. note::
    | **June 3rd, 2020**  
-   | The PDF Pipeline is in production. The Distribution Pipeline is still being developed. 
+   | The PDF Pipeline is in production. The WebHosting Pipeline is still being developed. 
 
 .. toctree::
    :maxdepth: 2
@@ -54,11 +54,11 @@ CORGI at a Glance
 
 .. toctree::
    :maxdepth: 2
-   :caption: Distribution System
+   :caption: WebHosting System
    :hidden:
 
-   distribution/overview
-   distribution/steps
+   web-hosting/overview
+   web-hosting/steps
 
 .. toctree::
    :maxdepth: 2
