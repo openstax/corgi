@@ -78,11 +78,6 @@ const pipeline = (env) => {
     }
   }
 
-  const reportToOutputProducerPdf = reportToOutputProducer('output-producer-pdf')
-  const reportToOutputProducerDistPreview = reportToOutputProducer('output-producer-dist-preview')
-  const reportToOutputProducerGitPdf = reportToOutputProducer('output-producer-git-pdf')
-  const reportToOutputProducerGitDistPreview = reportToOutputProducer('output-producer-git-dist-preview')
-
   const runWithStatusCheck = (resource, step) => {
     const reporter = reportToOutputProducer(resource)
     return {
@@ -91,7 +86,7 @@ const pipeline = (env) => {
         steps: [
           step,
           {
-            do: [taskStatusCheck({ resource: resource, apiRoot: env.COPS_TARGET })],
+            do: [taskStatusCheck({ resource: resource, apiRoot: env.COPS_TARGET, image: imageOverrides })],
             on_failure: reporter(Status.ABORTED, {
               error_message: genericAbortMessage
             }),
@@ -169,54 +164,72 @@ const pipeline = (env) => {
     }
   ]
 
+  let resource
+  let report
+
+  resource = 'output-producer-git-pdf'
+  report = reportToOutputProducer(resource)
   const gitPdfJob = {
     name: 'PDF (git)',
     build_log_retention: {
       days: buildLogRetentionDays
     },
     plan: [
-      { get: 'output-producer-git-pdf', trigger: true, version: 'every' },
-      reportToOutputProducerGitPdf(Status.ASSIGNED, {
-        worker_version: lockedTag
-      }),
-      { get: 'cnx-recipes-output' },
-      taskLookUpBook({ inputSource: 'output-producer-git-pdf', image: imageOverrides, contentSource: 'git' }),
-      reportToOutputProducerGitPdf(Status.PROCESSING),
-      taskFetchBookGroup({
-        image: imageOverrides,
-        githubSecretCreds: env.GH_SECRET_CREDS
-      }),
-      taskAssembleBookGroup({ image: imageOverrides }),
-      taskAssembleBookMetadataGroup({ image: imageOverrides }),
-      taskBakeBookGroup({ image: imageOverrides }),
-      taskBakeBookMetadataGroup({ image: imageOverrides }),
-      taskLinkSingle({ image: imageOverrides }),
-      taskMathifySingle({ image: imageOverrides }),
-      taskPdfifySingle({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),
-      taskOverrideCommonLog({ image: imageOverrides, message: s3UploadFailMessage }),
       {
-        put: 's3-pdf',
-        params: {
-          file: 'artifacts-single/*.pdf',
-          acl: 'public-read',
-          content_type: 'application/pdf'
-        }
-      }
+        do: [
+          { get: resource, trigger: true, version: 'every' },
+        ],
+        on_failure: report(Status.FAILED, {
+          error_message: genericErrorMessage
+        }),
+      },
+      runWithStatusCheck(resource, {
+        do: [
+          report(Status.ASSIGNED, {
+            worker_version: lockedTag
+          }),
+          { get: 'cnx-recipes-output' },
+          taskLookUpBook({ inputSource: resource, image: imageOverrides, contentSource: 'git' }),
+          report(Status.PROCESSING),
+          taskFetchBookGroup({
+            image: imageOverrides,
+            githubSecretCreds: env.GH_SECRET_CREDS
+          }),
+          taskAssembleBookGroup({ image: imageOverrides }),
+          taskAssembleBookMetadataGroup({ image: imageOverrides }),
+          taskBakeBookGroup({ image: imageOverrides }),
+          taskBakeBookMetadataGroup({ image: imageOverrides }),
+          taskLinkSingle({ image: imageOverrides }),
+          taskMathifySingle({ image: imageOverrides }),
+          taskPdfifySingle({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),
+          taskOverrideCommonLog({ image: imageOverrides, message: s3UploadFailMessage }),
+          {
+            put: 's3-pdf',
+            params: {
+              file: 'artifacts-single/*.pdf',
+              acl: 'public-read',
+              content_type: 'application/pdf'
+            }
+          }
+        ],
+        on_success: report(Status.SUCCEEDED, {
+          pdf_url: 'artifacts-single/pdf_url'
+        }),
+        on_failure: report(Status.FAILED, {
+          error_message_file: commonLogFile
+        }),
+      })
     ],
-    on_success: reportToOutputProducerGitPdf(Status.SUCCEEDED, {
-      pdf_url: 'artifacts-single/pdf_url'
-    }),
-    on_failure: reportToOutputProducerGitPdf(Status.FAILED, {
-      error_message_file: commonLogFile
-    }),
-    on_error: reportToOutputProducerGitPdf(Status.FAILED, {
+    on_error: report(Status.FAILED, {
       error_message: genericErrorMessage
     }),
-    on_abort: reportToOutputProducerGitPdf(Status.FAILED, {
+    on_abort: report(Status.ABORTED, {
       error_message: genericAbortMessage
     })
   }
 
+  resource = 'output-producer-pdf'
+  report = reportToOutputProducer(resource)
   const pdfJob = {
     name: 'PDF',
     build_log_retention: {
@@ -225,20 +238,20 @@ const pipeline = (env) => {
     plan: [
       {
         do: [
-          { get: 'output-producer-pdf', trigger: true, version: 'every' },
+          { get: resource, trigger: true, version: 'every' },
         ],
-        on_failure: reportToOutputProducerPdf(Status.FAILED, {
+        on_failure: report(Status.FAILED, {
           error_message: genericErrorMessage
         }),
       },
-      runWithStatusCheck('output-producer-pdf', {
+      runWithStatusCheck(resource, {
         do: [
-          reportToOutputProducerPdf(Status.ASSIGNED, {
+          report(Status.ASSIGNED, {
             worker_version: lockedTag
           }),
           { get: 'cnx-recipes-output' },
-          taskLookUpBook({ inputSource: 'output-producer-pdf', image: imageOverrides }),
-          reportToOutputProducerPdf(Status.PROCESSING),
+          taskLookUpBook({ inputSource: resource, image: imageOverrides }),
+          report(Status.PROCESSING),
           taskFetchBook({ image: imageOverrides }),
           taskAssembleBook({ image: imageOverrides }),
           taskLinkExtras({
@@ -264,145 +277,171 @@ const pipeline = (env) => {
             }
           }
         ],
-        on_success: reportToOutputProducerPdf(Status.SUCCEEDED, {
+        on_success: report(Status.SUCCEEDED, {
           pdf_url: 'artifacts/pdf_url'
         }),
-        on_failure: reportToOutputProducerPdf(Status.FAILED, {
+        on_failure: report(Status.FAILED, {
           error_message_file: commonLogFile
         }),
       })
     ],
-    on_error: reportToOutputProducerPdf(Status.FAILED, {
+    on_error: report(Status.FAILED, {
       error_message: genericErrorMessage
     }),
-    on_abort: reportToOutputProducerPdf(Status.FAILED, {
+    on_abort: report(Status.ABORTED, {
       error_message: genericAbortMessage
     })
   }
 
+  resource = 'output-producer-dist-preview'
+  report = reportToOutputProducer(resource)
   const distPreviewJob = {
     name: 'Web Preview',
     build_log_retention: {
       days: buildLogRetentionDays
     },
     plan: [
-      { get: 'output-producer-dist-preview', trigger: true, version: 'every' },
-      reportToOutputProducerDistPreview(Status.ASSIGNED, {
-        worker_version: lockedTag
-      }),
-      { get: 'cnx-recipes-output' },
-      taskLookUpBook({ inputSource: 'output-producer-dist-preview', image: imageOverrides }),
-      reportToOutputProducerDistPreview(Status.PROCESSING),
-      taskFetchBook({ image: imageOverrides }),
-      taskAssembleBook({ image: imageOverrides }),
-      taskLinkExtras({
-        image: imageOverrides,
-        server: 'archive.cnx.org'
-      }),
-      taskAssembleBookMeta({ image: imageOverrides }),
-      taskBakeBook({ image: imageOverrides }),
-      taskBakeBookMeta({ image: imageOverrides }),
-      taskChecksumBook({ image: imageOverrides }),
-      taskDisassembleBook({ image: imageOverrides }),
-      taskPatchDisassembledLinks({ image: imageOverrides }),
-      taskJsonifyBook({ image: imageOverrides }),
-      taskValidateXhtml({
-        image: imageOverrides,
-        inputSource: 'jsonified-book',
-        inputPath: 'jsonified/*@*.xhtml',
-        validationNames: ['duplicate-id', 'broken-link']
-      }),
-      taskUploadBook({
-        image: imageOverrides,
-        distBucket: env.COPS_ARTIFACTS_S3_BUCKET,
-        distBucketPath: distBucketPath,
-        awsAccessKeyId: awsAccessKeyId,
-        awsSecretAccessKey: awsSecretAccessKey,
-        codeVersion: codeVersionFromTag
-      }),
-      taskGenPreviewUrls({
-        image: imageOverrides,
-        distBucketPath: distBucketPath,
-        codeVersion: codeVersionFromTag,
-        jsonifiedInput: 'jsonified-book',
-        cloudfrontUrl: env.COPS_CLOUDFRONT_URL
+      {
+        do: [
+          { get: resource, trigger: true, version: 'every' },
+        ],
+        on_failure: report(Status.FAILED, {
+          error_message: genericErrorMessage
+        }),
+      },
+      runWithStatusCheck(resource, {
+        do: [
+          report(Status.ASSIGNED, {
+            worker_version: lockedTag
+          }),
+          { get: 'cnx-recipes-output' },
+          taskLookUpBook({ inputSource: resource, image: imageOverrides }),
+          report(Status.PROCESSING),
+          taskFetchBook({ image: imageOverrides }),
+          taskAssembleBook({ image: imageOverrides }),
+          taskLinkExtras({
+            image: imageOverrides,
+            server: 'archive.cnx.org'
+          }),
+          taskAssembleBookMeta({ image: imageOverrides }),
+          taskBakeBook({ image: imageOverrides }),
+          taskBakeBookMeta({ image: imageOverrides }),
+          taskChecksumBook({ image: imageOverrides }),
+          taskDisassembleBook({ image: imageOverrides }),
+          taskPatchDisassembledLinks({ image: imageOverrides }),
+          taskJsonifyBook({ image: imageOverrides }),
+          taskValidateXhtml({
+            image: imageOverrides,
+            inputSource: 'jsonified-book',
+            inputPath: 'jsonified/*@*.xhtml',
+            validationNames: ['duplicate-id', 'broken-link']
+          }),
+          taskUploadBook({
+            image: imageOverrides,
+            distBucket: env.COPS_ARTIFACTS_S3_BUCKET,
+            distBucketPath: distBucketPath,
+            awsAccessKeyId: awsAccessKeyId,
+            awsSecretAccessKey: awsSecretAccessKey,
+            codeVersion: codeVersionFromTag
+          }),
+          taskGenPreviewUrls({
+            image: imageOverrides,
+            distBucketPath: distBucketPath,
+            codeVersion: codeVersionFromTag,
+            jsonifiedInput: 'jsonified-book',
+            cloudfrontUrl: env.COPS_CLOUDFRONT_URL
+          })
+        ],
+        on_success: report(Status.SUCCEEDED, {
+          pdf_url: 'preview-urls/content_urls'
+        }),
+        on_failure: report(Status.FAILED, {
+          error_message_file: commonLogFile
+        }),
       })
     ],
-    on_success: reportToOutputProducerDistPreview(Status.SUCCEEDED, {
-      pdf_url: 'preview-urls/content_urls'
-    }),
-    on_failure: reportToOutputProducerDistPreview(Status.FAILED, {
-      error_message_file: commonLogFile
-    }),
-    on_error: reportToOutputProducerDistPreview(Status.FAILED, {
+    on_error: report(Status.FAILED, {
       error_message: genericErrorMessage
     }),
-    on_abort: reportToOutputProducerDistPreview(Status.FAILED, {
+    on_abort: report(Status.ABORTED, {
       error_message: genericAbortMessage
     })
   }
 
+  resource = 'output-producer-git-dist-preview'
+  report = reportToOutputProducer(resource)
   const gitDistPreviewJob = {
     name: 'Web Preview (git)',
     build_log_retention: {
       days: buildLogRetentionDays
     },
     plan: [
-      { get: 'output-producer-git-dist-preview', trigger: true, version: 'every' },
-      reportToOutputProducerGitDistPreview(Status.ASSIGNED, {
-        worker_version: lockedTag
-      }),
-      { get: 'cnx-recipes-output' },
-      taskLookUpBook({ inputSource: 'output-producer-git-dist-preview', image: imageOverrides, contentSource: 'git' }),
-      reportToOutputProducerGitDistPreview(Status.PROCESSING),
-      taskFetchBookGroup({
-        image: imageOverrides,
-        githubSecretCreds: env.GH_SECRET_CREDS
-      }),
-      taskAssembleBookGroup({ image: imageOverrides }),
-      taskAssembleBookMetadataGroup({ image: imageOverrides }),
-      taskBakeBookGroup({ image: imageOverrides }),
-      taskBakeBookMetadataGroup({ image: imageOverrides }),
-      taskLinkSingle({ image: imageOverrides }),
-      taskDisassembleSingle({ image: imageOverrides }),
-      taskPatchDisassembledLinksSingle({ image: imageOverrides }),
-      taskJsonifySingle({
-        image: imageOverrides
-      }),
-      taskValidateXhtml({
-        image: imageOverrides,
-        inputSource: 'jsonified-single',
-        inputPath: '/*@*.xhtml',
-        validationNames: ['duplicate-id', 'broken-link'],
-        contentSource: 'git'
-      }),
-      taskUploadSingle({
-        image: imageOverrides,
-        distBucket: env.COPS_ARTIFACTS_S3_BUCKET,
-        distBucketPath: distBucketPath,
-        awsAccessKeyId: awsAccessKeyId,
-        awsSecretAccessKey: awsSecretAccessKey,
-        codeVersion: codeVersionFromTag
-      }),
-      taskGenPreviewUrls({
-        image: imageOverrides,
-        distBucketPath: distBucketPath,
-        codeVersion: codeVersionFromTag,
-        cloudfrontUrl: env.COPS_CLOUDFRONT_URL,
-        jsonifiedInput: 'jsonified-single',
-        contentSource: 'git'
+      {
+        do: [
+          { get: resource, trigger: true, version: 'every' },
+        ],
+        on_failure: report(Status.FAILED, {
+          error_message: genericErrorMessage
+        }),
+      },
+      runWithStatusCheck(resource, {
+        do: [
+          report(Status.ASSIGNED, {
+            worker_version: lockedTag
+          }),
+          { get: 'cnx-recipes-output' },
+          taskLookUpBook({ inputSource: resource, image: imageOverrides, contentSource: 'git' }),
+          report(Status.PROCESSING),
+          taskFetchBookGroup({
+            image: imageOverrides,
+            githubSecretCreds: env.GH_SECRET_CREDS
+          }),
+          taskAssembleBookGroup({ image: imageOverrides }),
+          taskAssembleBookMetadataGroup({ image: imageOverrides }),
+          taskBakeBookGroup({ image: imageOverrides }),
+          taskBakeBookMetadataGroup({ image: imageOverrides }),
+          taskLinkSingle({ image: imageOverrides }),
+          taskDisassembleSingle({ image: imageOverrides }),
+          taskPatchDisassembledLinksSingle({ image: imageOverrides }),
+          taskJsonifySingle({
+            image: imageOverrides
+          }),
+          taskValidateXhtml({
+            image: imageOverrides,
+            inputSource: 'jsonified-single',
+            inputPath: '/*@*.xhtml',
+            validationNames: ['duplicate-id', 'broken-link'],
+            contentSource: 'git'
+          }),
+          taskUploadSingle({
+            image: imageOverrides,
+            distBucket: env.COPS_ARTIFACTS_S3_BUCKET,
+            distBucketPath: distBucketPath,
+            awsAccessKeyId: awsAccessKeyId,
+            awsSecretAccessKey: awsSecretAccessKey,
+            codeVersion: codeVersionFromTag
+          }),
+          taskGenPreviewUrls({
+            image: imageOverrides,
+            distBucketPath: distBucketPath,
+            codeVersion: codeVersionFromTag,
+            cloudfrontUrl: env.COPS_CLOUDFRONT_URL,
+            jsonifiedInput: 'jsonified-single',
+            contentSource: 'git'
+          })
+        ],
+        on_success: report(Status.SUCCEEDED, {
+          pdf_url: 'preview-urls/content_urls'
+        }),
+        on_failure: report(Status.FAILED, {
+          error_message_file: commonLogFile
+        }),
       })
     ],
-    on_success: reportToOutputProducerGitDistPreview(Status.SUCCEEDED, {
-      pdf_url: 'preview-urls/content_urls'
-    }),
-    on_failure: reportToOutputProducerGitDistPreview(Status.FAILED, {
-      error_message_file: commonLogFile
-    }),
-    on_error: reportToOutputProducerGitDistPreview(Status.FAILED, {
+    on_error: report(Status.FAILED, {
       error_message: genericErrorMessage
     }),
-    on_abort: reportToOutputProducerGitDistPreview(Status.FAILED, {
+    on_abort: report(Status.ABORTED, {
       error_message: genericAbortMessage
     })
   }
