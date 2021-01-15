@@ -8,16 +8,17 @@ while true; do
   if [[ "$status_code" = "200" ]]; then
     subsequent_failures=0
     current_job_status_id=$(jq -r '.status.id' response)
+    shopt -s extglob
     case "$current_job_status_id" in
-      2 | 3)
+      $PROCESSING_STATES)
         echo "${timestamp} | Pipeline running, no intervention needed"
         ;;
-      4 | 5)
+      $COMPLETED_STATES)
         echo "${timestamp} | Pipeline completed, no intervention needed"
         sleep 1
         exit 0
         ;;
-      6)
+      $ABORTED_STATES)
         echo "${timestamp} | Job aborted via UI, torpedoing the build"
         sleep 1
         exit 1

@@ -86,7 +86,16 @@ const pipeline = (env) => {
         steps: [
           step,
           {
-            do: [taskStatusCheck({ resource: resource, apiRoot: env.COPS_TARGET, image: imageOverrides })],
+            do: [
+              taskStatusCheck({
+                resource: resource,
+                apiRoot: env.COPS_TARGET,
+                image: imageOverrides,
+                processingStates: [Status.ASSIGNED, Status.PROCESSING],
+                completedStates: [Status.FAILED, Status.SUCCEEDED],
+                abortedStates: [Status.ABORTED]
+              })
+            ],
             on_failure: reporter(Status.ABORTED, {
               error_message: genericAbortMessage
             })
