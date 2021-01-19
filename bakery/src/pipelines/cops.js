@@ -31,6 +31,7 @@ const pipeline = (env) => {
   const taskGenPreviewUrls = require('../tasks/gen-preview-urls')
 
   const taskOverrideCommonLog = require('../tasks/override-common-log')
+  const taskStatusCheck = require('../tasks/status-check')
 
   const lockedTag = env.IMAGE_TAG || 'trunk'
   const awsAccessKeyId = env.S3_ACCESS_KEY_ID
@@ -60,7 +61,8 @@ const pipeline = (env) => {
     ASSIGNED: 2,
     PROCESSING: 3,
     FAILED: 4,
-    SUCCEEDED: 5
+    SUCCEEDED: 5,
+    ABORTED: 6
   })
 
   const reportToOutputProducer = (resource) => {
@@ -76,10 +78,59 @@ const pipeline = (env) => {
     }
   }
 
-  const reportToOutputProducerPdf = reportToOutputProducer('output-producer-pdf')
-  const reportToOutputProducerDistPreview = reportToOutputProducer('output-producer-dist-preview')
-  const reportToOutputProducerGitPdf = reportToOutputProducer('output-producer-git-pdf')
-  const reportToOutputProducerGitDistPreview = reportToOutputProducer('output-producer-git-dist-preview')
+  const runWithStatusCheck = (resource, step) => {
+    const reporter = reportToOutputProducer(resource)
+    return {
+      in_parallel: {
+        fail_fast: true,
+        steps: [
+          step,
+          {
+            do: [
+              taskStatusCheck({
+                resource: resource,
+                apiRoot: env.COPS_TARGET,
+                image: imageOverrides,
+                processingStates: [Status.ASSIGNED, Status.PROCESSING],
+                completedStates: [Status.FAILED, Status.SUCCEEDED],
+                abortedStates: [Status.ABORTED]
+              })
+            ],
+            on_failure: reporter(Status.ABORTED, {
+              error_message: genericAbortMessage
+            })
+          }
+        ]
+      }
+    }
+  }
+
+  const wrapGenericCorgiJob = (jobName, resource, step) => {
+    const report = reportToOutputProducer(resource)
+    return {
+      name: jobName,
+      build_log_retention: {
+        days: buildLogRetentionDays
+      },
+      plan: [
+        {
+          do: [
+            { get: resource, trigger: true, version: 'every' }
+          ],
+          on_failure: report(Status.FAILED, {
+            error_message: genericErrorMessage
+          })
+        },
+        runWithStatusCheck(resource, step)
+      ],
+      on_error: report(Status.FAILED, {
+        error_message: genericErrorMessage
+      }),
+      on_abort: report(Status.ABORTED, {
+        error_message: genericAbortMessage
+      })
+    }
+  }
 
   const resourceTypes = [
     {
@@ -149,19 +200,19 @@ const pipeline = (env) => {
     }
   ]
 
-  const gitPdfJob = {
-    name: 'PDF (git)',
-    build_log_retention: {
-      days: buildLogRetentionDays
-    },
-    plan: [
-      { get: 'output-producer-git-pdf', trigger: true, version: 'every' },
-      reportToOutputProducerGitPdf(Status.ASSIGNED, {
+  let resource
+  let report
+
+  resource = 'output-producer-git-pdf'
+  report = reportToOutputProducer(resource)
+  const gitPdfJob = wrapGenericCorgiJob('PDF (git)', resource, {
+    do: [
+      report(Status.ASSIGNED, {
         worker_version: lockedTag
       }),
       { get: 'cnx-recipes-output' },
-      taskLookUpBook({ inputSource: 'output-producer-git-pdf', image: imageOverrides, contentSource: 'git' }),
-      reportToOutputProducerGitPdf(Status.PROCESSING),
+      taskLookUpBook({ inputSource: resource, image: imageOverrides, contentSource: 'git' }),
+      report(Status.PROCESSING),
       taskFetchBookGroup({
         image: imageOverrides,
         githubSecretCreds: env.GH_SECRET_CREDS
@@ -183,33 +234,24 @@ const pipeline = (env) => {
         }
       }
     ],
-    on_success: reportToOutputProducerGitPdf(Status.SUCCEEDED, {
+    on_success: report(Status.SUCCEEDED, {
       pdf_url: 'artifacts-single/pdf_url'
     }),
-    on_failure: reportToOutputProducerGitPdf(Status.FAILED, {
+    on_failure: report(Status.FAILED, {
       error_message_file: commonLogFile
-    }),
-    on_error: reportToOutputProducerGitPdf(Status.FAILED, {
-      error_message: genericErrorMessage
-    }),
-    on_abort: reportToOutputProducerGitPdf(Status.FAILED, {
-      error_message: genericAbortMessage
     })
-  }
+  })
 
-  const pdfJob = {
-    name: 'PDF',
-    build_log_retention: {
-      days: buildLogRetentionDays
-    },
-    plan: [
-      { get: 'output-producer-pdf', trigger: true, version: 'every' },
-      reportToOutputProducerPdf(Status.ASSIGNED, {
+  resource = 'output-producer-pdf'
+  report = reportToOutputProducer(resource)
+  const pdfJob = wrapGenericCorgiJob('PDF', resource, {
+    do: [
+      report(Status.ASSIGNED, {
         worker_version: lockedTag
       }),
       { get: 'cnx-recipes-output' },
-      taskLookUpBook({ inputSource: 'output-producer-pdf', image: imageOverrides }),
-      reportToOutputProducerPdf(Status.PROCESSING),
+      taskLookUpBook({ inputSource: resource, image: imageOverrides }),
+      report(Status.PROCESSING),
       taskFetchBook({ image: imageOverrides }),
       taskAssembleBook({ image: imageOverrides }),
       taskLinkExtras({
@@ -235,33 +277,24 @@ const pipeline = (env) => {
         }
       }
     ],
-    on_success: reportToOutputProducerPdf(Status.SUCCEEDED, {
+    on_success: report(Status.SUCCEEDED, {
       pdf_url: 'artifacts/pdf_url'
     }),
-    on_failure: reportToOutputProducerPdf(Status.FAILED, {
+    on_failure: report(Status.FAILED, {
       error_message_file: commonLogFile
-    }),
-    on_error: reportToOutputProducerPdf(Status.FAILED, {
-      error_message: genericErrorMessage
-    }),
-    on_abort: reportToOutputProducerPdf(Status.FAILED, {
-      error_message: genericAbortMessage
     })
-  }
+  })
 
-  const distPreviewJob = {
-    name: 'Web Preview',
-    build_log_retention: {
-      days: buildLogRetentionDays
-    },
-    plan: [
-      { get: 'output-producer-dist-preview', trigger: true, version: 'every' },
-      reportToOutputProducerDistPreview(Status.ASSIGNED, {
+  resource = 'output-producer-dist-preview'
+  report = reportToOutputProducer(resource)
+  const distPreviewJob = wrapGenericCorgiJob('Web Preview', resource, {
+    do: [
+      report(Status.ASSIGNED, {
         worker_version: lockedTag
       }),
       { get: 'cnx-recipes-output' },
-      taskLookUpBook({ inputSource: 'output-producer-dist-preview', image: imageOverrides }),
-      reportToOutputProducerDistPreview(Status.PROCESSING),
+      taskLookUpBook({ inputSource: resource, image: imageOverrides }),
+      report(Status.PROCESSING),
       taskFetchBook({ image: imageOverrides }),
       taskAssembleBook({ image: imageOverrides }),
       taskLinkExtras({
@@ -297,33 +330,24 @@ const pipeline = (env) => {
         cloudfrontUrl: env.COPS_CLOUDFRONT_URL
       })
     ],
-    on_success: reportToOutputProducerDistPreview(Status.SUCCEEDED, {
+    on_success: report(Status.SUCCEEDED, {
       pdf_url: 'preview-urls/content_urls'
     }),
-    on_failure: reportToOutputProducerDistPreview(Status.FAILED, {
+    on_failure: report(Status.FAILED, {
       error_message_file: commonLogFile
-    }),
-    on_error: reportToOutputProducerDistPreview(Status.FAILED, {
-      error_message: genericErrorMessage
-    }),
-    on_abort: reportToOutputProducerDistPreview(Status.FAILED, {
-      error_message: genericAbortMessage
     })
-  }
+  })
 
-  const gitDistPreviewJob = {
-    name: 'Web Preview (git)',
-    build_log_retention: {
-      days: buildLogRetentionDays
-    },
-    plan: [
-      { get: 'output-producer-git-dist-preview', trigger: true, version: 'every' },
-      reportToOutputProducerGitDistPreview(Status.ASSIGNED, {
+  resource = 'output-producer-git-dist-preview'
+  report = reportToOutputProducer(resource)
+  const gitDistPreviewJob = wrapGenericCorgiJob('Web Preview (git)', resource, {
+    do: [
+      report(Status.ASSIGNED, {
         worker_version: lockedTag
       }),
       { get: 'cnx-recipes-output' },
-      taskLookUpBook({ inputSource: 'output-producer-git-dist-preview', image: imageOverrides, contentSource: 'git' }),
-      reportToOutputProducerGitDistPreview(Status.PROCESSING),
+      taskLookUpBook({ inputSource: resource, image: imageOverrides, contentSource: 'git' }),
+      report(Status.PROCESSING),
       taskFetchBookGroup({
         image: imageOverrides,
         githubSecretCreds: env.GH_SECRET_CREDS
@@ -362,19 +386,13 @@ const pipeline = (env) => {
         contentSource: 'git'
       })
     ],
-    on_success: reportToOutputProducerGitDistPreview(Status.SUCCEEDED, {
+    on_success: report(Status.SUCCEEDED, {
       pdf_url: 'preview-urls/content_urls'
     }),
-    on_failure: reportToOutputProducerGitDistPreview(Status.FAILED, {
+    on_failure: report(Status.FAILED, {
       error_message_file: commonLogFile
-    }),
-    on_error: reportToOutputProducerGitDistPreview(Status.FAILED, {
-      error_message: genericErrorMessage
-    }),
-    on_abort: reportToOutputProducerGitDistPreview(Status.FAILED, {
-      error_message: genericAbortMessage
     })
-  }
+  })
 
   return {
     config: {
