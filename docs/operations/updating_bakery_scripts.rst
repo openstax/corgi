@@ -4,7 +4,7 @@
 Update Pipeline Scripts 
 #######################
 
-All scripts that COPS Concourse pipeline tasks may use to complete jobs live in Docker Image `openstax/cops-bakery-scripts <https://hub.docker.com/repository/docker/openstax/cops-bakery-scripts>`_. 
+All scripts that CORGI Concourse pipeline tasks may use to complete jobs live in Docker Image `openstax/cops-bakery-scripts <https://hub.docker.com/repository/docker/openstax/cops-bakery-scripts>`_. 
 built from `bakery/src/scripts/ <https://github.com/openstax/output-producer-service/tree/master/bakery/src/scripts>`_ 
 directory in the `openstax/output-producer-service <https://github.com/openstax/output-producer-service/>`_ repository/ project.
 

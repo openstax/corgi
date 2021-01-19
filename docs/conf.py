@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Content Output Producer Service'
+project = 'Content Output Review and Generation Interface'
 copyright = '2019, OpenStax Content Engineering'
 author = 'OpenStax Content Engineering'
 
