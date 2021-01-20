@@ -1,4 +1,4 @@
-.. image:: ./_static/images/cops.png
+.. image:: ./_static/images/corgi.jpg
    :scale: 50%
    :alt: CORGI
    :align: center
