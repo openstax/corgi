@@ -191,7 +191,7 @@ The above script will deploy the Docker Swarm System with the previously set sta
 
 .. code-block:: bash
 
-   fly -t concourse-v6 sp -p corgi-staging -c <(./bakery/build pipeline corgi staging --tag $TAG)
+   fly -t concourse-v6 sp -p corgi-staging -c <(./bakery/build pipeline cops staging --tag $TAG)
 
 The above ``fly`` command will set a new pipeline named ``corgi-staging`` with staging pipeline variables.
 The above assumes ``fly`` is installed. Depending on your environment, you may need to get the correct 
@@ -214,7 +214,7 @@ There is no need to set any environment variables for production or pick a tag.
 
 .. code-block:: bash
 
-   fly -t concourse-v6 sp -p corgi-prod -c <(./bakery/build pipeline corgi prod --tag $TAG)
+   fly -t concourse-v6 sp -p corgi-prod -c <(./bakery/build pipeline cops prod --tag $TAG)
 
 ----
 
