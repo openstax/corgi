@@ -4,7 +4,7 @@
 Overview (WIP)
 ##############
 
-The COPS Swarm lives on Openstax's Production AWS EC2 server.
+The CORGI Swarm lives on Openstax's Production AWS EC2 server.
 
 A developer will :ref:`operations-updating-the-stack` to production (AWS EC2) where 
 the docker swarm lives. 

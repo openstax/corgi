@@ -4,7 +4,7 @@
 Find Git-Ref
 ############
 
-When code is merged to a COPS-related repository docker images are built and labeled with an auto-generated *tag*, 
+When code is merged to a CORGI-related repository docker images are built and labeled with an auto-generated *tag*, 
 by the `ce-image-autotag pipeline <https://concourse-v6.openstax.org/teams/CE/pipelines/ce-image-autotag>`_. 
 During the build we add labels to images containing the git-refs.
 
@@ -21,7 +21,7 @@ Git-Ref by Tag
 
     docker inspect openstax/cops-bakery-scripts:20201020.175757
 
-**The above** ``docker inspect`` **command should return git-refs for each COPS-related repository:**
+**The above** ``docker inspect`` **command should return git-refs for each CORGI-related repository:**
 
 .. code-block:: bash
 
