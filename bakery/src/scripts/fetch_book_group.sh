@@ -2,7 +2,7 @@
 exec > >(tee "${COMMON_LOG_DIR}"/log >&2) 2>&1
 
 reference=$(cat "${BOOK_INPUT}"/version)
-[[ "$reference" = latest ]] && reference=master
+[[ "$reference" = latest ]] && reference=main
 
 creds_dir=tmp-gh-creds
 creds_file="$creds_dir/gh-creds"
