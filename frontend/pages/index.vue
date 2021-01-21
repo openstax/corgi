@@ -180,6 +180,7 @@
                         class="job-abort-button ma-2"
                         color="red darken-1"
                         outlined
+                        :disabled="[4, 5, 6].includes(parseInt(item.status_id))"
                         @click="abortJob(item.id)"
                       >
                         Abort
@@ -425,7 +426,8 @@ export default {
     },
     async abortJob (jobId) {
       const data = {
-        status_id: 6
+        status_id: 6,
+        error_message: 'Job was aborted.'
       }
       await this.$axios.$put(`/api/jobs/${jobId}`, data)
       setTimeout(() => { this.getJobsImmediate() }, 1000)
