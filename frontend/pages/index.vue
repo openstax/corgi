@@ -5,44 +5,59 @@
       md="10"
       class="mainscreen"
     >
-      <v-row justify="space-between">
+      <v-row>
+        <v-col class="title-image">
+          <img
+            src="/title-image.png"
+            style="max-height: 100px;"
+          />
+        </v-col>
+      </v-row>
+      <v-row justify="space-between" class="job-navigation">
         <div class="d-md-flex">
-          <v-btn
-            class="ma-1"
-            @click="toPage(Math.max(0, current_page - 1))"
-          >
-            Previous Page
-          </v-btn>
-          <v-btn
-            class="ma-1"
-            @click="toPage(current_page + 1)"
-          >
-            Next Page
-          </v-btn>
-          <v-text-field
-            v-model="goto_page"
-            class="ma-1"
-            style="max-width: 100px"
-            label="Page"
-            outlined
-            dense
-            hide-details
-          />
-          <v-text-field
-            v-model="goto_page_limit"
-            class="ma-1"
-            style="max-width: 100px"
-            label="Jobs"
-            outlined
-            dense
-            hide-details
-          />
-          <v-btn
-            class="ma-1"
-            @click="doPageGo()"
-          >
-            Go
-          </v-btn>
+          <div class="d-flex">
+            <v-btn
+              class="ma-1"
+              outlined
+              @click="toPage(Math.max(0, current_page - 1))"
+            >
+              Previous Page
+            </v-btn>
+            <v-btn
+              class="ma-1"
+              outlined
+              @click="toPage(current_page + 1)"
+            >
+              Next Page
+            </v-btn>
+          </div>
+          <div class="d-flex">
+            <v-text-field
+              v-model="goto_page"
+              class="mx-1"
+              style="max-width: 100px"
+              label="Page"
+              outlined
+              dense
+              hide-details
+            />
+            <v-text-field
+              v-model="goto_page_limit"
+              class="mx-1"
+              style="max-width: 100px"
+              label="Jobs"
+              outlined
+              dense
+              hide-details
+            />
+            <v-btn
+              class="ma-1"
+              outlined
+              @click="doPageGo()"
+            >
+              Go
+            </v-btn>
+          </div>
         </div>
         <v-dialog v-model="dialog" persistent max-width="800px">
           <template #activator="{ on }">
