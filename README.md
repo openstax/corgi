@@ -130,7 +130,7 @@ Open the file and ensure the changes are what you expect.
 
 Do the migration:
 
-    docker-compose exec alembic upgrade head
+    docker-compose exec backend alembic upgrade head
 
 ## What's up with all the docker-compose files?
 

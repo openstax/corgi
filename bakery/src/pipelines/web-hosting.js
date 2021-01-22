@@ -9,17 +9,17 @@ const pipeline = (env) => {
   const taskBakeBookMeta = require('../tasks/bake-book-metadata')
   const taskChecksumBook = require('../tasks/checksum-book')
   const taskDisassembleBook = require('../tasks/disassemble-book')
+  const taskPatchDisassembledLinks = require('../tasks/patch-disassembled-links')
+  const taskJsonifyBook = require('../tasks/jsonify-book')
+  const taskUploadBook = require('../tasks/upload-book')
   const taskValidateXhtml = require('../tasks/validate-xhtml')
-  const taskGdocifyBook = require('../tasks/gdocify-book')
-  const taskConvertDocx = require('../tasks/convert-docx')
-  const taskUploadDocx = require('../tasks/upload-docx')
+  const taskReportStateComplete = require('../tasks/report-state-complete')
 
   const awsAccessKeyId = env.S3_ACCESS_KEY_ID
   const awsSecretAccessKey = env.S3_SECRET_ACCESS_KEY
   const codeVersionFromTag = env.IMAGE_TAG || 'version-unknown'
-  const queueFilename = `${codeVersionFromTag}.${env.GDOC_QUEUE_FILENAME}`
-  const parentGoogleFolderId = env.GDOC_GOOGLE_FOLDER_ID
-  const queueStatePrefix = 'gdoc'
+  const queueFilename = `${codeVersionFromTag}.${env.WEB_ARCHIVE_QUEUE_FILENAME}`
+  const queueStatePrefix = 'archive-dist'
 
   const lockedTag = env.IMAGE_TAG || 'trunk'
 
@@ -64,7 +64,7 @@ const pipeline = (env) => {
       taskCheckFeed({
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
-        feedFileUrl: env.GDOC_FEED_FILE_URL,
+        feedFileUrl: env.WEB_ARCHIVE_FEED_FILE_URL,
         queueStateBucket: env.WEB_QUEUE_STATE_S3_BUCKET,
         queueFilename: queueFilename,
         codeVersion: codeVersionFromTag,
@@ -96,17 +96,24 @@ const pipeline = (env) => {
       taskBakeBookMeta({ image: imageOverrides }),
       taskChecksumBook({ image: imageOverrides }),
       taskDisassembleBook({ image: imageOverrides }),
+      taskPatchDisassembledLinks({ image: imageOverrides }),
+      taskJsonifyBook({ image: imageOverrides }),
       taskValidateXhtml({
         image: imageOverrides,
-        inputSource: 'disassembled-book',
-        inputPath: 'disassembled/*@*.xhtml',
-        validationNames: ['duplicate-id']
+        inputSource: 'jsonified-book',
+        inputPath: 'jsonified/*@*.xhtml',
+        validationNames: ['duplicate-id', 'broken-link']
       }),
-      taskGdocifyBook({ image: imageOverrides }),
-      taskConvertDocx({ image: imageOverrides }),
-      taskUploadDocx({
+      taskUploadBook({
         image: imageOverrides,
-        parentGoogleFolderId: parentGoogleFolderId,
+        distBucket: env.WEB_S3_BUCKET,
+        distBucketPath: 'apps/archive/',
+        awsAccessKeyId: awsAccessKeyId,
+        awsSecretAccessKey: awsSecretAccessKey,
+        codeVersion: codeVersionFromTag
+      }),
+      taskReportStateComplete({
+        image: imageOverrides,
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
         queueStateBucket: env.WEB_QUEUE_STATE_S3_BUCKET,

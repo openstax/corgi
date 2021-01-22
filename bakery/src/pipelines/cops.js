@@ -52,9 +52,9 @@ const pipeline = (env) => {
   // FIXME: These mappings should be in the COPS resource
   const JobType = Object.freeze({
     PDF: 1,
-    DIST_PREVIEW: 2,
+    WEB_PREVIEW: 2,
     GIT_PDF: 3,
-    GIT_DIST_PREVIEW: 4
+    GIT_WEB_PREVIEW: 4
   })
   const Status = Object.freeze({
     QUEUED: 1,
@@ -166,7 +166,7 @@ const pipeline = (env) => {
       type: 'output-producer',
       source: {
         api_root: env.COPS_TARGET,
-        job_type_id: JobType.DIST_PREVIEW,
+        job_type_id: JobType.WEB_PREVIEW,
         status_id: 1
       }
     },
@@ -184,7 +184,7 @@ const pipeline = (env) => {
       type: 'output-producer',
       source: {
         api_root: env.COPS_TARGET,
-        job_type_id: JobType.GIT_DIST_PREVIEW,
+        job_type_id: JobType.GIT_WEB_PREVIEW,
         status_id: 1
       }
     },
