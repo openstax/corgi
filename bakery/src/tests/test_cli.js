@@ -91,17 +91,17 @@ test('build pipelines', async t => {
           pipeline,
           env
         ],
-          {
-            // Include credentials in environment for local pipelines
-            env: {
-              ...process.env,
-              ...{
-                AWS_ACCESS_KEY_ID: 'accesskey',
-                AWS_SECRET_ACCESS_KEY: 'secret',
-                GH_SECRET_CREDS: 'username:secret'
-              }
+        {
+          // Include credentials in environment for local pipelines
+          env: {
+            ...process.env,
+            ...{
+              AWS_ACCESS_KEY_ID: 'accesskey',
+              AWS_SECRET_ACCESS_KEY: 'secret',
+              GH_SECRET_CREDS: 'username:secret'
             }
           }
+        }
         ))
       )
     }
@@ -126,19 +126,19 @@ test('non-local pipelines do not use credentials in env vars', async t => {
         pipeline,
         env
       ],
-        {
-          // Pretend environment variables are set
-          env: {
-            ...process.env,
-            ...{
-              AWS_ACCESS_KEY_ID: fakeAKI,
-              AWS_SECRET_ACCESS_KEY: fakeSAK,
-              GH_SECRET_CREDS: fakeGHCreds,
-              DOCKERHUB_USERNAME: fakeDHU,
-              DOCKERHUB_PASSWORD: fakeDHP
-            }
+      {
+        // Pretend environment variables are set
+        env: {
+          ...process.env,
+          ...{
+            AWS_ACCESS_KEY_ID: fakeAKI,
+            AWS_SECRET_ACCESS_KEY: fakeSAK,
+            GH_SECRET_CREDS: fakeGHCreds,
+            DOCKERHUB_USERNAME: fakeDHU,
+            DOCKERHUB_PASSWORD: fakeDHP
           }
         }
+      }
       ))
       t.false(result.stdout.includes(fakeAKI))
       t.false(result.stderr.includes(fakeAKI))
@@ -233,13 +233,13 @@ test('credentials for local pipelines', async t => {
       pipeline,
       'local'
     ],
-      {
-        // Pretend environment variables are set
-        env: {
-          ...process.env,
-          ...fakeCreds
-        }
+    {
+      // Pretend environment variables are set
+      env: {
+        ...process.env,
+        ...fakeCreds
       }
+    }
     ))
     t.true(result.stdout.includes(fakeAKI))
     t.true(result.stdout.includes(fakeSAK))
@@ -253,13 +253,13 @@ test('credentials for local pipelines', async t => {
       pipeline,
       'local'
     ],
-      {
-        // Pretend environment variables are set
-        env: {
-          ...process.env,
-          ...fakeCreds
-        }
+    {
+      // Pretend environment variables are set
+      env: {
+        ...process.env,
+        ...fakeCreds
       }
+    }
     ))
     t.true(result.stdout.includes(fakeAKI))
     t.true(result.stdout.includes(fakeSAK))

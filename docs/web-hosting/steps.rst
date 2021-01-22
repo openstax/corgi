@@ -156,9 +156,9 @@ Run ``fly targets``. If you don't see `http://localhost:8100` listed under url, 
 
 .. code-block:: bash
 
-   fly -t cops-dev login -c http://localhost:8100 -u dev -p dev
+   fly -t corgi-dev login -c http://localhost:8100 -u dev -p dev
 
-We've named this target ``cops-dev``.
+We've named this target ``corgi-dev``.
 
 .. note::
    Production Concourse Target URL: https://concourse-dev0.openstax.org
@@ -170,9 +170,9 @@ Must have a configuration file to run the following: :ref:`operations-generate-p
 .. code-block:: bash
 
     $ cd bakery
-    $ fly -t cops-dev sp -p web-hosting -c web-hosting-pipeline.local.yml
+    $ fly -t corgi-dev sp -p distribution -c web-hosting-pipeline.local.yml
 
-We've named this pipeline ``web-hosting`` and passed in config file ``web-hosting-pipeline.local.yml``.
+We've named this pipeline ``distribution`` and passed in config file ``web-hosting-pipeline.local.yml``.
 
 ..  warning::
 
@@ -188,7 +188,7 @@ We've named this pipeline ``web-hosting`` and passed in config file ``web-hostin
             http://localhost:8100/login?fly_port=57012
 
     | If navigating to the URL does not work, try:
-    | ``ctrl+c`` and  ``fly -t cops-dev login -c http://localhost:8100 -u dev -p dev``
+    | ``ctrl+c`` and  ``fly -t corgi-dev login -c http://localhost:8100 -u dev -p dev``
 
     **Version Mismatch Warning**
 
@@ -208,7 +208,7 @@ We've named this pipeline ``web-hosting`` and passed in config file ``web-hostin
 
 .. code-block:: bash
 
-   fly -t cops-dev unpause-pipeline -p web-hosting
+   fly -t corgi-dev unpause-pipeline -p distribution
 
 The WebHosting pipeline has now been set up to process jobs.
 
