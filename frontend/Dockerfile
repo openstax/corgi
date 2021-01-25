@@ -23,4 +23,4 @@ RUN npm run build
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 COPY ./nginx-backend-not-found.conf /etc/nginx/extra-conf.d/backend-not-found.conf
 
-CMD nginx -s reload ; pm2-runtime start npm --name "frontend" -- start
+CMD /etc/init.d/nginx restart ; pm2-runtime start npm --name "frontend" -- start
