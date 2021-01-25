@@ -4,10 +4,10 @@
 Set Up The Swarm
 ################
 
-COPS utilizes :term:`Container Orchestration` provided by `Docker Swarm <https://docs.docker.com/engine/swarm/>`_ to manage 
+CORGI utilizes :term:`Container Orchestration` provided by `Docker Swarm <https://docs.docker.com/engine/swarm/>`_ to manage 
 and deploy the various services that comprise the system. 
 
-In order to deploy COPS and to take advantage of everything container orchestration has to offer we must first:
+In order to deploy CORGI and to take advantage of everything container orchestration has to offer we must first:
 
 1. Install Docker-CE on each host
 2. Initialize Swarm Mode on each host

@@ -2,7 +2,7 @@
 exec > >(tee "${COMMON_LOG_DIR}"/log >&2) 2>&1
 
 reference=$(cat "${BOOK_INPUT}"/version)
-[[ "$reference" = latest ]] && reference=master
+[[ "$reference" = latest ]] && reference=main
 
 creds_dir=tmp-gh-creds
 creds_file="$creds_dir/gh-creds"
@@ -19,7 +19,7 @@ if [[ ! -f "${CONTENT_OUTPUT}/raw/collections/$(cat "${BOOK_INPUT}/slug").collec
     sleep 1
     exit 1
 fi
-fetch-update-meta "${CONTENT_OUTPUT}/raw/.git" "${CONTENT_OUTPUT}/raw/modules" "${CONTENT_OUTPUT}/raw/collections" "$reference"
+fetch-update-meta "${CONTENT_OUTPUT}/raw/.git" "${CONTENT_OUTPUT}/raw/modules" "${CONTENT_OUTPUT}/raw/collections" "$reference" "${CONTENT_OUTPUT}/raw/canonical.json"
 rm -rf "${CONTENT_OUTPUT}/raw/.git"
 rm -rf "$creds_dir"
 

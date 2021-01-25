@@ -93,12 +93,12 @@ Generate Task Definition Files
 
 .. code-block:: bash
 
-    $ fly -t cops-dev execute -c look-up-feed.yml -j ce-cops-dist-staging/bakery -o book=./data/book
-    $ fly -t cops-dev execute -c fetch-book.yml -j ce-cops-dist-staging/bakery -i book=./data/book -o fetched-book=./data/fetched-book
-    $ fly -t cops-dev execute -c assemble-book.yml -j ce-cops-dist-staging/bakery -i book=./data/book -i fetched-book=./data/fetched-book -o assembled-book=./data/assembled-book
-    $ fly -t cops-dev execute -c assemble-book-metadata.yml -j ce-cops-dist-staging/bakery -i book=./data/book -i assembled-book=./data/assembled-book -o assembled-book-metadata=./data/assembled-book-metadata
-    $ fly -t cops-dev execute -c bake-book.yml -j ce-cops-dist-staging/bakery -i book=./data/book -i assembled-book=./data/assembled-book -o baked-book=./data/baked-book
-    $ fly -t cops-dev execute -c bake-book-metadata.yml -j ce-cops-dist-staging/bakery -i book=./data/book -i assembled-book-metadata=./data/assembled-book-metadata -o baked-book-metadata=./data/baked-book-metadata
-    $ fly -t cops-dev execute -c mathify-book.yml -j ce-cops-dist-staging/bakery -i book=./data/book -i baked-book=./data/baked-book -o mathified-book=./data/mathified-book
-    $ fly -t cops-dev execute -c disassemble-book.yml -j ce-cops-dist-staging/bakery -i book=./data/book -i baked-book=./data/baked-book -i baked-book-metadata=./data/baked-book-metadata -o disassembled-book=./data/disassembled-book
-    $ fly -t cops-dev execute -c jsonify-book.yml -j ce-cops-dist-staging/bakery -i book=./data/book -i disassembled-book=./data/disassembled-book -o jsonified-book=./data/jsonified-book
+    $ fly -t corgi-dev execute -c look-up-feed.yml -j ce-corgi-dist-staging/bakery -o book=./data/book
+    $ fly -t corgi-dev execute -c fetch-book.yml -j ce-corgi-dist-staging/bakery -i book=./data/book -o fetched-book=./data/fetched-book
+    $ fly -t corgi-dev execute -c assemble-book.yml -j ce-corgi-dist-staging/bakery -i book=./data/book -i fetched-book=./data/fetched-book -o assembled-book=./data/assembled-book
+    $ fly -t corgi-dev execute -c assemble-book-metadata.yml -j ce-corgi-dist-staging/bakery -i book=./data/book -i assembled-book=./data/assembled-book -o assembled-book-metadata=./data/assembled-book-metadata
+    $ fly -t corgi-dev execute -c bake-book.yml -j ce-corgi-dist-staging/bakery -i book=./data/book -i assembled-book=./data/assembled-book -o baked-book=./data/baked-book
+    $ fly -t corgi-dev execute -c bake-book-metadata.yml -j ce-corgi-dist-staging/bakery -i book=./data/book -i assembled-book-metadata=./data/assembled-book-metadata -o baked-book-metadata=./data/baked-book-metadata
+    $ fly -t corgi-dev execute -c mathify-book.yml -j ce-corgi-dist-staging/bakery -i book=./data/book -i baked-book=./data/baked-book -o mathified-book=./data/mathified-book
+    $ fly -t corgi-dev execute -c disassemble-book.yml -j ce-corgi-dist-staging/bakery -i book=./data/book -i baked-book=./data/baked-book -i baked-book-metadata=./data/baked-book-metadata -o disassembled-book=./data/disassembled-book
+    $ fly -t corgi-dev execute -c jsonify-book.yml -j ce-corgi-dist-staging/bakery -i book=./data/book -i disassembled-book=./data/disassembled-book -o jsonified-book=./data/jsonified-book

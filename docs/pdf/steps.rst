@@ -66,9 +66,9 @@ Run ``fly targets``. If you don't see `http://localhost:8100` listed under url, 
 
 .. code-block:: bash
 
-   fly -t cops-dev login -c http://localhost:8100 -u dev -p dev
+   fly -t corgi-dev login -c http://localhost:8100 -u dev -p dev
 
-We've named this pipeline ``cops-dev``.
+We've named this pipeline ``corgi-dev``.
 
 .. note:: 
    Production Concourse Target URL: https://concourse-dev0.openstax.org 
@@ -80,7 +80,7 @@ Must have a configuration file to run the following: :ref:`operations-generate-p
 .. code-block:: bash
    
    $ cd bakery
-   $ fly -t cops-dev sp -p bakery -c pdf-pipeline.local.yml
+   $ fly -t corgi-dev sp -p bakery -c pdf-pipeline.local.yml
 
 We've named this pipeline ``bakery`` and passed in config file ``pdf-pipeline.local.yml``.
 
@@ -92,7 +92,7 @@ We've named this pipeline ``bakery`` and passed in config file ``pdf-pipeline.lo
 
     .. code-block:: bash
 
-        fly -t cops-dev login -c http://localhost:8100 -u dev -p dev
+        fly -t corgi-dev login -c http://localhost:8100 -u dev -p dev
 
 **3. Confirm Pipeline Configurations.**
 
@@ -105,7 +105,7 @@ We've named this pipeline ``bakery`` and passed in config file ``pdf-pipeline.lo
 
 .. code-block:: bash
 
-   fly -t cops-dev unpause-pipeline -p bakery
+   fly -t corgi-dev unpause-pipeline -p bakery
 
 The PDF pipeline has now been set up to take jobs.
 

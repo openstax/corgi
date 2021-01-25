@@ -9,7 +9,7 @@ Objective
 *********
 
 Get familiar with Concourse by setting up the bakery-pipeline locally.
-This is the pipeline which is used under the hood for `Content Output Producer (COPS) <https://cops.openstax.org/>`_
+This is the pipeline which is used under the hood for `Content Output Review and Generation Interface (CORGI) <https://corgi.openstax.org/>`_
 
 *****
 Steps
@@ -105,10 +105,10 @@ You will be prompted to apply configuration? [yN]: y
 3. See the pipeline that was set from the command line in the UI by navigating to `localhost:8080 <localhost:8080>`_
 and login.
 
-4. You can unpause the pipeline from the UI, after creating a job in `cops.cnx.org <https://cops.cnx.org>`_
+4. You can unpause the pipeline from the UI, after creating a job in `corgi.openstax.org <https://corgi.openstax.org>`_
 for the pipeline to grab.
 
-Setting up local pipeline to monitor jobs on production cops (temporary solution)
+Setting up local pipeline to monitor jobs on production corgi (temporary solution)
 ---------------------------------------------------------------------------------
 
 1. in a terminal, run:
@@ -119,7 +119,7 @@ Setting up local pipeline to monitor jobs on production cops (temporary solution
 
 2. in an editor, open pipeline.yml
 
-3. change both instances of api_root: ((pdf-job-queue-url)) to api_root: https://cops.cnx.org/api
+3. change both instances of api_root: ((pdf-job-queue-url)) to api_root: https://corgi.openstax.org/api
 
 4. also, comment out the following lines:
 

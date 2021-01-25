@@ -5,44 +5,59 @@
       md="10"
       class="mainscreen"
     >
-      <v-row justify="space-between">
+      <v-row>
+        <v-col class="title-image">
+          <img
+            src="/title-image.png"
+            style="max-height: 100px;"
+          />
+        </v-col>
+      </v-row>
+      <v-row justify="space-between" class="job-navigation">
         <div class="d-md-flex">
-          <v-btn
-            class="ma-1"
-            @click="toPage(Math.max(0, current_page - 1))"
-          >
-            Previous Page
-          </v-btn>
-          <v-btn
-            class="ma-1"
-            @click="toPage(current_page + 1)"
-          >
-            Next Page
-          </v-btn>
-          <v-text-field
-            v-model="goto_page"
-            class="ma-1"
-            style="max-width: 100px"
-            label="Page"
-            outlined
-            dense
-            hide-details
-          />
-          <v-text-field
-            v-model="goto_page_limit"
-            class="ma-1"
-            style="max-width: 100px"
-            label="Jobs"
-            outlined
-            dense
-            hide-details
-          />
-          <v-btn
-            class="ma-1"
-            @click="doPageGo()"
-          >
-            Go
-          </v-btn>
+          <div class="d-flex">
+            <v-btn
+              class="ma-1"
+              outlined
+              @click="toPage(Math.max(0, current_page - 1))"
+            >
+              Previous Page
+            </v-btn>
+            <v-btn
+              class="ma-1"
+              outlined
+              @click="toPage(current_page + 1)"
+            >
+              Next Page
+            </v-btn>
+          </div>
+          <div class="d-flex">
+            <v-text-field
+              v-model="goto_page"
+              class="mx-1"
+              style="max-width: 100px"
+              label="Page"
+              outlined
+              dense
+              hide-details
+            />
+            <v-text-field
+              v-model="goto_page_limit"
+              class="mx-1"
+              style="max-width: 100px"
+              label="Jobs"
+              outlined
+              dense
+              hide-details
+            />
+            <v-btn
+              class="ma-1"
+              outlined
+              @click="doPageGo()"
+            >
+              Go
+            </v-btn>
+          </div>
         </div>
         <v-dialog v-model="dialog" persistent max-width="800px">
           <template #activator="{ on }">
@@ -176,14 +191,15 @@
                       >
                         Repeat
                       </v-btn>
-                      <v-tooltip top>
-                        <template #activator="{ on, attrs }">
-                          <v-btn class="job-abort-button ma-2" color="red darken-1" outlined v-bind="attrs" v-on="on">
-                            Abort
-                          </v-btn>
-                        </template>
-                        <span>Not yet implemented!</span>
-                      </v-tooltip>
+                      <v-btn
+                        class="job-abort-button ma-2"
+                        color="red darken-1"
+                        outlined
+                        :disabled="[4, 5, 6].includes(parseInt(item.status_id))"
+                        @click="abortJob(item.id)"
+                      >
+                        Abort
+                      </v-btn>
                     </v-col>
                   </v-row>
                   <v-row>
@@ -326,7 +342,7 @@ export default {
     this.serverRules = [v => !!v || 'Please select a server']
     this.gitCollectionRules = [
       v => !!v || 'Repo and slug are required',
-      v => /[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+/.test(v) || 'repo-name/slug-name'
+      v => /[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+/.test(v) || 'A valid repo and slug name is required, e.g. repo-name/slug-name'
     ]
     this.headers = [
       {
@@ -391,6 +407,8 @@ export default {
         return 'orange'
       } else if (status === 'completed') {
         return 'green'
+      } else if (status === 'aborted') {
+        return 'brown'
       } else {
         return 'grey'
       }
@@ -420,6 +438,14 @@ export default {
         this.submitCollection(collectionId, contentServerId, version, style, jobType)
         this.closeDialog()
       }
+    },
+    async abortJob (jobId) {
+      const data = {
+        status_id: 6,
+        error_message: 'Job was aborted.'
+      }
+      await this.$axios.$put(`/api/jobs/${jobId}`, data)
+      setTimeout(() => { this.getJobsImmediate() }, 1000)
     },
     async submitCollection (collectionId, contentServerId, version, astyle, jobType) {
       // This fails to queue the job silently so the rate limit duration shouldn't

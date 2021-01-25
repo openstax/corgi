@@ -29,7 +29,7 @@ Execute from LocalHost
 From **localhost**, using **bastion2** as a jumphost, you need: 
 
    1. **bastion2** set up as a :term:`JumpHost` (`Configure Jumphost Guide <https://github.com/openstax/cnx/wiki/Configure-bastion2.cnx.org-as-a-JumpHost>`_)
-   2. Proper key to cops servers in the correct directory
+   2. Proper key to corgi servers in the correct directory
    3. Run following commands
 
       .. code-block:: bash
@@ -66,7 +66,7 @@ From **localhost**, using **bastion2** as a jumphost, you need:
 
       .. code-block:: bash
 
-         PLAY [OpenStax COPS deployment] ************************************************
+         PLAY [OpenStax CORGI deployment] ************************************************
 
          TASK [Gathering Facts] *********************************************************
          ok: [default]
@@ -119,7 +119,7 @@ Execute from bastion2.cnx.org
 
       .. code-block:: bash
 
-         PLAY [OpenStax COPS deployment] ************************************************
+         PLAY [OpenStax CORGI deployment] ************************************************
 
          TASK [Gathering Facts] *********************************************************
          ok: [default]

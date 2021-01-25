@@ -1,21 +1,21 @@
-.. image:: ./_static/images/cops.png
+.. image:: ./_static/images/corgi.jpg
    :scale: 50%
-   :alt: COPS
+   :alt: CORGI
    :align: center
 
 ----
 
 ############################################
-Content Output Producer Service (COPS) (WIP)
+Content Output Review and Generation Interface (CORGI)
 ############################################
 
-COPS an overarching system that contain different ways to 
+CORGI an overarching system that contain different ways to 
 produce Openstax book content for various users (Content Manangers (CMs), 
 QA, and developers) to consume. A book is typically called a collection by Content
 Managers and others that work directly with content.
 
 ****************
-COPS at a Glance
+CORGI at a Glance
 ****************
 +----------------+-----------------+-----------+-----------+-----------+
 | Output         | Users           | More Info | More Info | More Info |
@@ -31,7 +31,7 @@ COPS at a Glance
 
 .. toctree::
    :maxdepth: 2
-   :caption: COPS Operations
+   :caption: CORGI Operations
    :hidden:
 
    operations/overview
