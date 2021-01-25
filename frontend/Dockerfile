@@ -1,6 +1,8 @@
-FROM nginx:1.19-alpine
+FROM nginx:1.19
 
-RUN apk add --update nodejs npm
+RUN apt-get update && apt-get install -y build-essential
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+RUN apt-get install -y nodejs
 
 WORKDIR /app
 
@@ -21,4 +23,4 @@ RUN npm run build
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 COPY ./nginx-backend-not-found.conf /etc/nginx/extra-conf.d/backend-not-found.conf
 
-CMD nginx ; pm2-runtime start npm --name "frontend" -- start
+CMD /etc/init.d/nginx restart ; pm2-runtime start npm --name "frontend" -- start
