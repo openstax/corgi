@@ -95,13 +95,14 @@ def gen_page_slug_resolver(baked_meta_dir, book_tree_by_uuid):
 
 
 def patch_link(node, source_book_uuid, canonical_book_uuid,
-               canonical_book_slug, page_slug):
+               canonical_book_slug, page_slug, target_book):
     """replace legacy link"""
     # FIXME: Track and change EXTERNAL #id-based links in link-extras that have moved from baking
     # m12345 -> uuid::abcd
     # /content/m12345/index.xhtml#exercise -> /content/uuid::abcd/index.xhtml#exercise,
     # but if #exercise has moved, then it should be /content/uuid::other/index.xhtml#exercise
     # This can be fixed via searching the baked content when encountering link with a #.... suffix
+
     if not source_book_uuid == canonical_book_uuid:
         page_link = node.attrib["href"].split("/contents/")[1]
         # Link may have fragment
@@ -114,10 +115,12 @@ def patch_link(node, source_book_uuid, canonical_book_uuid,
 
         print('BEFORE:')
         print(node.attrib)
+
         node.attrib["data-book-uuid"] = canonical_book_uuid
         node.attrib["data-book-slug"] = canonical_book_slug
         node.attrib["data-page-slug"] = page_slug
         node.attrib["href"] = f"./{canonical_book_uuid}:{page_id}.xhtml{page_fragment}"
+
         print('AFTER:')
         print(node.attrib)
 
@@ -129,7 +132,7 @@ def save_linked_collection(output_path, doc):
 
 
 def transform_links(
-        baked_content_dir, baked_meta_dir, source_book_slug, output_path):
+        baked_content_dir, baked_meta_dir, source_book_slug, output_path, target_book):
     doc = load_baked_collection(baked_content_dir, source_book_slug)
     binders = parse_collection_binders(baked_content_dir)
     canonical_map = create_canonical_map(binders)
@@ -152,6 +155,10 @@ def transform_links(
     ):
         link = node.attrib["href"]
 
+        if not target_book == "":
+            node.attrib["href"] = "mock-inter-book-link"
+            continue
+
         target_module_uuid = get_target_uuid(link)
         canonical_book_uuid = canonical_map[target_module_uuid]
         canonical_book_slug = next(
@@ -166,18 +173,31 @@ def transform_links(
                 f"from link {link}"
             )
         patch_link(node, source_book_uuid, canonical_book_uuid,
-                   canonical_book_slug, page_slug)
+                   canonical_book_slug, page_slug, target_book)
 
     save_linked_collection(output_path, doc)
 
 
 def main():
-    (baked_content_dir,
+    (
+        baked_content_dir,
         baked_meta_dir,
         source_book_slug,
-        output_path) = sys.argv[1:5]
+        output_path,
+    ) = sys.argv[1:5]
+
+    if len(sys.argv) > 5:
+        target_book = sys.argv[5]
+    else:
+        target_book = ""
+
     transform_links(
-        baked_content_dir, baked_meta_dir, source_book_slug, output_path)
+        baked_content_dir,
+        baked_meta_dir,
+        source_book_slug,
+        output_path,
+        target_book
+    )
 
 
 if __name__ == "__main__":

@@ -1094,9 +1094,13 @@ const tasks = {
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
-      const taskArgs = imageDetails == null
-        ? []
-        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const singleBookFlag = argv.single
+      const taskArgs = [`--taskargs=${JSON.stringify({
+        ...imageDetails,
+        singleBookFlag: singleBookFlag,
+        slug: argv.slug
+      })}`]
+
       const taskContent = execFileSync(buildExec, ['task', 'disassemble-single', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
       fs.writeFileSync(tmpTaskFile.name, taskContent)
@@ -1123,6 +1127,11 @@ const tasks = {
         yargs.positional('slug', {
           describe: 'slug of collection to work on',
           type: 'string'
+        }).option('s', {
+          alias: 'single',
+          describe: 'process a single book',
+          type: 'boolean',
+          default: false
         })
       },
       handler: argv => {

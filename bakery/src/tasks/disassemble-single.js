@@ -8,6 +8,9 @@ const task = (taskArgs) => {
     tag: 'trunk'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
+  const singleBookFlag = taskArgs != null && taskArgs.singleBookFlag != null ? taskArgs.singleBookFlag : false
+  const bookSlug = taskArgs != null && taskArgs.slug != null ? taskArgs.slug : ''
+  const targetBook = singleBookFlag ? bookSlug : ''
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
 
   const bookInput = 'book'
@@ -39,6 +42,7 @@ const task = (taskArgs) => {
         RESOURCE_LINKED_INPUT: resourceLinkedInput,
         BAKED_BOOK_META_INPUT: bakedBookMetaInput,
         DISASSEMBLED_OUTPUT: disassembledOutput,
+        TARGET_BOOK: targetBook,
         COMMON_LOG_DIR: commonLogOutput
       },
       run: {
