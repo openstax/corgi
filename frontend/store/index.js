@@ -31,19 +31,40 @@ export const getters = {
 }
 
 export const actions = {
-  async nuxtServerInit ({ dispatch }, { req }) {
-    await dispatch('getJobsForPage', { page: 0, limit: 50 })
-    await dispatch('getContentServers')
+  async nuxtServerInit ({ dispatch }, { error }) {
+    try {
+      await dispatch('getJobsForPage', { page: 0, limit: 50 })
+      await dispatch('getContentServers')
+    } catch (e) {
+      error({ statusCode: 404, message: 'Backend error' })
+    }
   },
   async getJobsForPage ({ commit }, { page, limit }) {
-    const response = await this.$axios.$get(`/api/jobs/pages/${page}?limit=${limit}`)
-    const data = []
-    response.forEach(function (item) {
-      data.push(flattenObject(item))
-    })
-    // if (data.hasOwnProperty('collection_id')) {
-    commit('REFRESH_JOBS', data)
-    // }
+    await this.$axios.$get(`/api/jobs/pages/${page}?limit=${limit}`)
+      .then((response) => {
+        const data = []
+        response.forEach(function (item) {
+          data.push(flattenObject(item))
+        })
+        // if (data.hasOwnProperty('collection_id')) {
+        commit('REFRESH_JOBS', data)
+        // }
+      })
+      .catch((error) => {
+        if (error.response) {
+          // Request made and server responded
+          console.log(error.response.data)
+          console.log(error.response.status)
+          console.log(error.response.headers)
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.log(error.request)
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.log('Error', error.message)
+        }
+        throw error
+      })
   },
   async getContentServers ({ commit }) {
     const response = await this.$axios.$get('/api/content-servers')
