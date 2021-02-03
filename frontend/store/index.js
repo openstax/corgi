@@ -57,27 +57,24 @@ export const actions = {
     }
   },
   async getJobsForPage ({ commit }, { page, limit }) {
-    await this.$axios.$get(`/api/jobs/pages/${page}?limit=${limit}`)
-      .then((response) => {
-        const data = []
-        response.forEach(function (item) {
-          data.push(flattenObject(item))
-        })
-        // if (data.hasOwnProperty('collection_id')) {
-        commit('REFRESH_JOBS', data)
-        // }
+    try {
+      const response = await this.$axios.$get(`/api/jobs/pages/${page}?limit=${limit}`)
+      const data = []
+      response.forEach(function (item) {
+        data.push(flattenObject(item))
       })
-      .catch((error) => {
-        handleErrorAxios(error)
-      })
+      // if (data.hasOwnProperty('collection_id')) {
+      commit('REFRESH_JOBS', data)
+    } catch (error) {
+      handleErrorAxios(error)
+    }
   },
   async getContentServers ({ commit }) {
-    await this.$axios.$get('/api/content-servers')
-      .then((response) => {
-        commit('REFRESH_CONTENT_SERVERS', response)
-      })
-      .catch((error) => {
-        handleErrorAxios(error)
-      })
+    try {
+      const response = await this.$axios.$get('/api/content-servers')
+      commit('REFRESH_CONTENT_SERVERS', response)
+    } catch (error) {
+      handleErrorAxios(error)
+    }
   }
 }
