@@ -4,7 +4,7 @@ const path = require('path')
 
 const task = (taskArgs) => {
   const imageDefault = {
-    name: 'openstax/cnx-easybake',
+    name: 'openstax/recipes',
     tag: 'trunk'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
