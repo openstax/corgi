@@ -1,14 +1,25 @@
 <template>
-  <v-app dark>
-    <h1 v-if="error.statusCode === 404">
-      {{ pageNotFound }}
-    </h1>
-    <h1 v-else>
-      {{ otherError }}
-    </h1>
-    <NuxtLink to="/">
-      Home page
-    </NuxtLink>
+  <v-app>
+    <div class="errorcontainer">
+      <img
+        src="/corgihat.png"
+        style="width: 300px"
+      ></img>
+      <h1>
+        {{ error.statusCode }}
+      </h1>
+      <h2 v-if="error.statusCode === 404">
+        {{ pageNotFound }}
+      </h2>
+      <h2 v-else>
+        {{ error.message }}
+      </h2>
+      <br>
+      <br>
+      <NuxtLink to="/">
+        Home page
+      </NuxtLink>
+    </div>
   </v-app>
 </template>
 
@@ -23,7 +34,7 @@ export default {
   },
   data () {
     return {
-      pageNotFound: '404 Not Found',
+      pageNotFound: 'Page not found',
       otherError: 'An error occurred'
     }
   },
@@ -38,7 +49,24 @@ export default {
 </script>
 
 <style scoped>
+body {
+  background-color: white;
+}
 h1 {
+  font-size: 38px;
+  line-height: 200%;
+}
+h2 {
   font-size: 20px;
+  line-height: 200%;
+}
+.errorcontainer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -moz-transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+    text-align: center;
 }
 </style>
