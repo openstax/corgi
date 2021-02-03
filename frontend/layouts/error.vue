@@ -51,6 +51,7 @@ export default {
 <style scoped>
 body {
   background-color: white;
+  color: black;
 }
 h1 {
   font-size: 38px;
