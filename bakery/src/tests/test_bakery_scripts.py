@@ -2574,7 +2574,7 @@ def test_link_single(tmp_path, mocker):
 
     mocker.patch(
         "sys.argv",
-        ["", baked_dir, baked_meta_dir, source_book_slug, linked_xhtml]
+        ["", baked_dir, baked_meta_dir, source_book_slug, linked_xhtml, ""]
     )
     link_single.main()
 
@@ -2602,6 +2602,159 @@ def test_link_single(tmp_path, mocker):
 
     parsed_links = tree.xpath(
         '//x:a[@href and starts-with(@href, "/contents/") or starts-with(@href, "./")]',
+        namespaces={"x": "http://www.w3.org/1999/xhtml"},
+    )
+
+    check_links = [
+        link.items() for link in parsed_links
+    ]
+
+    assert check_links == expected_links
+
+
+def test_link_single_with_flag(tmp_path, mocker):
+    """Test link-single script"""
+    baked_dir = tmp_path / "baked-book-group"
+    baked_dir.mkdir()
+    baked_meta_dir = tmp_path / "baked-book-metadata-group"
+    baked_meta_dir.mkdir()
+    source_book_slug = "book1"
+    linked_xhtml = tmp_path / "book1.linked.xhtml"
+
+    book1_baked_content = """
+        <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+        <body itemscope="itemscope" itemtype="http://schema.org/Book">
+        <div data-type="metadata" style="display: none;">
+        <h1 data-type="document-title" itemprop="name">Book1</h1>
+        <span data-type="slug" data-value="book1"></span>
+        <span data-type="cnx-archive-uri"
+            data-value="1ba7e813-2d8a-4b73-87a1-876cfb5e7b58@version"></span>
+        </div>
+        <nav id="toc">
+        <ol>
+        <li cnx-archive-uri="9f049b16-15e9-4725-8c8b-4908a3e2be5e@">
+        <a href="">Page1</a>
+        </li>
+        </ol>
+        </nav>
+        <div data-type="page" id="9f049b16-15e9-4725-8c8b-4908a3e2be5e">
+        <div data-type="metadata" style="display: none;">
+        <h1 data-type="document-title" itemprop="name">Page1</h1>
+        <span data-type="canonical-book-uuid" data-value="1ba7e813-2d8a-4b73-87a1-876cfb5e7b58"/>
+        </div>
+        <p><a id="l1"
+            href="/contents/4aa9351c-019f-4c06-bb40-d58262ea7ec7"
+            >Intra-book module link</a></p>
+        <p><a id="l2"
+            href="/contents/2e51553f-fde8-43a3-8191-fd8b493a6cfa#foobar"
+            >Intra-book module link with fragment</a></p>
+        </div>
+        </body>
+        </html>
+    """
+    book1_baked_meta_content = {
+        "1ba7e813-2d8a-4b73-87a1-876cfb5e7b58@version": {
+            "id": "1ba7e813-2d8a-4b73-87a1-876cfb5e7b58",
+            "slug": "book1",
+            "tree": {
+                "id": "1ba7e813-2d8a-4b73-87a1-876cfb5e7b58@version",
+                "slug": "book1",
+                "contents": [
+                    {
+                        "id": "9f049b16-15e9-4725-8c8b-4908a3e2be5e@",
+                        "slug": "book1-page1"
+                    }
+                ]
+            }
+        }
+    }
+    book1_baked = baked_dir / "book1.baked.xhtml"
+    book1_baked_meta = baked_meta_dir / "book1.baked-metadata.json"
+    book1_baked.write_text(book1_baked_content)
+    book1_baked_meta.write_text(json.dumps(book1_baked_meta_content))
+
+    book2_baked_content = """
+        <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+        <body itemscope="itemscope" itemtype="http://schema.org/Book">
+        <div data-type="metadata" style="display: none;">
+        <h1 data-type="document-title" itemprop="name">Book2</h1>
+        <span data-type="slug" data-value="book2"></span>
+        <span data-type="cnx-archive-uri"
+            data-value="3c321f43-1da5-4c7b-91d1-abca2dd8ab8f@version"></span>
+        </div>
+        <nav id="toc">
+        <ol>
+        <li cnx-archive-uri="4aa9351c-019f-4c06-bb40-d58262ea7ec7@">
+        <a href="">Page1</a>
+        </li>
+        <li cnx-archive-uri="2e51553f-fde8-43a3-8191-fd8b493a6cfa@">
+        <a href="">Page2</a>
+        </li>
+        </ol>
+        </nav>
+        <div data-type="page" id="4aa9351c-019f-4c06-bb40-d58262ea7ec7">
+        <div data-type="metadata" style="display: none;">
+        <h1 data-type="document-title" itemprop="name">Page1</h1>
+        <span data-type="canonical-book-uuid" data-value="3c321f43-1da5-4c7b-91d1-abca2dd8ab8f"/>
+        </div>
+        </div>
+        <div data-type="page" id="2e51553f-fde8-43a3-8191-fd8b493a6cfa">
+        <div data-type="metadata" style="display: none;">
+        <h1 data-type="document-title" itemprop="name">Page2</h1>
+        <span data-type="canonical-book-uuid" data-value="3c321f43-1da5-4c7b-91d1-abca2dd8ab8f"/>
+        </div>
+        </div>
+        </body>
+        </html>
+    """
+    book2_baked_meta_content = {
+        "3c321f43-1da5-4c7b-91d1-abca2dd8ab8f@version": {
+            "id": "3c321f43-1da5-4c7b-91d1-abca2dd8ab8f",
+            "slug": "book2",
+            "tree": {
+                "id": "3c321f43-1da5-4c7b-91d1-abca2dd8ab8f@version",
+                "slug": "book2",
+                "contents": [
+                    {
+                        "id": "4aa9351c-019f-4c06-bb40-d58262ea7ec7@",
+                        "slug": "book2-page1"
+                    },
+                    {
+                        "id": "2e51553f-fde8-43a3-8191-fd8b493a6cfa@",
+                        "slug": "book2-page2"
+                    }
+                ]
+            }
+        }
+    }
+    book2_baked = baked_dir / "book2.baked.xhtml"
+    book2_baked_meta = baked_meta_dir / "book2.baked-metadata.json"
+    book2_baked.write_text(book2_baked_content)
+    book2_baked_meta.write_text(json.dumps(book2_baked_meta_content))
+
+    mocker.patch(
+        "sys.argv",
+        ["", baked_dir, baked_meta_dir, source_book_slug, linked_xhtml, "-s"]
+    )
+    link_single.main()
+
+    expected_links = [
+        [
+            ("id", "l1"),
+            ("href",
+             "mock-inter-book-link")
+        ],
+        [
+            ("id", "l2"),
+            ("href",
+             "mock-inter-book-link")
+        ],
+    ]
+
+    tree = etree.parse(str(linked_xhtml))
+
+    parsed_links = tree.xpath(
+        '//x:a[@href and starts-with(@href, "mock-inter-book-link") or starts-with(@href, "./")]',
         namespaces={"x": "http://www.w3.org/1999/xhtml"},
     )
 

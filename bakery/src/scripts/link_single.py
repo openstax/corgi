@@ -95,7 +95,7 @@ def gen_page_slug_resolver(baked_meta_dir, book_tree_by_uuid):
 
 
 def patch_link(node, source_book_uuid, canonical_book_uuid,
-               canonical_book_slug, page_slug, target_book):
+               canonical_book_slug, page_slug):
     """replace legacy link"""
     # FIXME: Track and change EXTERNAL #id-based links in link-extras that have moved from baking
     # m12345 -> uuid::abcd
@@ -155,7 +155,7 @@ def transform_links(
     ):
         link = node.attrib["href"]
 
-        if not target_book == "":
+        if target_book:
             node.attrib["href"] = "mock-inter-book-link"
             continue
 
@@ -173,7 +173,7 @@ def transform_links(
                 f"from link {link}"
             )
         patch_link(node, source_book_uuid, canonical_book_uuid,
-                   canonical_book_slug, page_slug, target_book)
+                   canonical_book_slug, page_slug)
 
     save_linked_collection(output_path, doc)
 
@@ -184,12 +184,8 @@ def main():
         baked_meta_dir,
         source_book_slug,
         output_path,
-    ) = sys.argv[1:5]
-
-    if len(sys.argv) > 5:
-        target_book = sys.argv[5]
-    else:
-        target_book = ""
+        target_book
+    ) = sys.argv[1:6]
 
     transform_links(
         baked_content_dir,
