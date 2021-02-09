@@ -6,7 +6,19 @@ const { execFileSync, spawn } = require('child_process')
 const waitPort = require('wait-port')
 const which = require('which')
 const tmp = require('tmp')
+const log = require('npmlog')
+const stripAnsi = require('strip-ansi')
+const { stderr } = require('process')
 tmp.setGracefulCleanup()
+
+const LEVEL = {
+  SILLY: 'silly',
+  VERBOSE: 'verbose',
+  INFO: 'info',
+  HTTP: 'http',
+  WARN: 'warn',
+  ERROR: 'error',
+}
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -85,33 +97,87 @@ const output = (dataDir, name) => {
 const COMPOSE_FILE_PATH = path.resolve(__dirname, 'docker-compose.yml')
 const BAKERY_PATH = path.resolve(__dirname, '../..')
 
-const flyExecute = async (cmdArgs, { image, persist }) => {
-  const children = []
+let stderrLogs = []
+let stdoutLogs = []
+const attachProgress = (level, prefix, proc) => {
+  if (proc.stderr)
+    proc.stderr.on('data', data => {
+      stderrLogs.push(data.toString())
+      const lines = data.toString().split('\n').filter(line => !!line) // remove empty lines
+      const lastLine = lines[lines.length - 1]
+      log.gauge.pulse(stripAnsi(lastLine))
+    })
+  if (proc.stdout)
+    proc.stdout.on('data', data => {
+      stdoutLogs.push(data.toString())
+      const lines = data.toString().split('\n').filter(line => !!line) // remove empty lines
+      const lastLine = lines[lines.length - 1]
+      log.gauge.pulse(stripAnsi(lastLine))
+    })
 
-  process.on('exit', code => {
-    if (code !== 0) {
-      children.forEach(child => {
-        if (child.exitCode == null) {
-          child.kill('SIGINT')
-        }
-      })
-    }
+}
+
+const dumpLogs = () => {
+  console.log('=== Cached stdout from child processes ===')
+  stdoutLogs.forEach(lines => process.stdout.write(lines))
+  console.log('=== Cached stderr from child processes ===')
+  stderrLogs.forEach(lines => process.stderr.write(lines))
+  stdoutLogs = []
+  stderrLogs = []
+}
+
+const flyExecute = async (cmdName, cmdArgs, { image, persist }) => {
+  const children = []
+  const ttyColumns = process.stdout.isTTY && process.stdout.columns || 0 // 0 means it's not a TTY
+  if (ttyColumns > 0) log.enableProgress()
+  log.setGaugeTemplate([
+    // {type: 'progressbar', length: 20},
+    {type: 'activityIndicator', kerning: 1, length: 1},
+    {type: 'section', default: ''},
+    ':',
+    {type: 'logline', kerning: 1, default: ''},
+    {type: 'subsection', kerning: 1, default: ''},
+  ])
+  process.on('SIGINT', () => {
+    console.log('qwioeuqoiwueoqiwue')
+    console.log('qwioeuqowiueoqwueoqwue')
+    console.log('qo9weiuqoiu2eoiq2uoiu')
+    process.exit(123)
+    // dumpLogs()
+    children.forEach(child => {
+      if (child.exitCode == null) {
+        child.kill('SIGINT')
+      }
+    })
   })
+  // process.on('exit', code => {
+  //   let hasActiveChild = false
+  //   children.forEach(child => {
+  //     if (child.exitCode == null) {
+  //       hasActiveChild = true
+  //       child.kill('SIGINT')
+  //     }
+  //   })
+  //   if (hasActiveChild) {
+  //     dumpLogs()
+  //   }
+  // })
 
   const startup = spawn('docker-compose', [
     `--file=${COMPOSE_FILE_PATH}`,
     'up',
     '-d'
   ], {
-    stdio: 'inherit'
+    stdio: ttyColumns > 0 ? ['inherit', 'pipe', 'pipe'] : 'inherit'
   })
+  attachProgress(LEVEL.VERBOSE, 'DockerUp', startup)
   children.push(startup)
   await completion(startup)
 
   let error
   try {
     if (image != null) {
-      console.log('waiting for registry to wake up')
+      log.log(LEVEL.INFO, 'registry', 'waiting for registry to wake up')
       await waitPort({
         protocol: 'http',
         host: 'localhost',
@@ -124,15 +190,16 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
       if (imageStripped === image) {
         throw new Error(`Specified image ${image} does not have prefix 'localhost:5000'. Not safe to automatically push!`)
       }
-      console.log(`uploading image: ${image}`)
+      log.log(LEVEL.VERBOSE, 'registry', `uploading image: ${image}`)
       const pushImage = spawn('docker', [
         'push',
         image
-      ], { stdio: 'inherit' })
+      ], { stdio: ttyColumns > 0 ? ['inherit', 'pipe', 'pipe'] : 'inherit' })
+      attachProgress(LEVEL.VERBOSE, pushImage)
       await completion(pushImage)
     }
 
-    console.log('waiting for concourse to wake up')
+    log.log(LEVEL.INFO, 'concourse', 'waiting for concourse to wake up')
     await waitPort({
       protocol: 'http',
       host: 'localhost',
@@ -142,12 +209,12 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
       output: 'silent'
     })
 
-    console.log('syncing fly')
+    log.log(LEVEL.INFO, 'concourse', 'syncing fly')
     let flyPath
     try {
       flyPath = which.sync('fly')
     } catch {
-      console.log('no fly installation detected on PATH')
+      log.log(LEVEL.ERROR, 'concourse', 'no fly installation detected on PATH')
       const flyDir = path.resolve(process.env.HOME, '.local/bin/')
       flyPath = path.resolve(flyDir, 'bakery-cli-fly')
       fs.mkdirSync(flyDir, { recursive: true })
@@ -155,15 +222,17 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
 
     let needsDownload = false
     if (fs.existsSync(flyPath)) {
-      console.log(`detected fly cli installation at ${flyPath}`)
-      const printOldFlyVersion = spawn(flyPath, ['--version'], { stdio: 'inherit' })
+      log.log(LEVEL.VERBOSE, 'concourse', `detected fly cli installation at ${flyPath}`)
+      const printOldFlyVersion = spawn(flyPath, ['--version'], { stdio: ttyColumns > 0 ? ['inherit', 'pipe', 'pipe'] : 'inherit' })
       children.push(printOldFlyVersion)
+      attachProgress(LEVEL.VERBOSE, 'concourse', printOldFlyVersion)
       await completion(printOldFlyVersion)
       try {
         const sync = spawn(flyPath, [
           'sync',
           '-c', 'http://localhost:8080'
-        ], { stdio: 'inherit' })
+        ], { stdio: ttyColumns > 0 ? ['inherit', 'pipe', 'pipe'] : 'inherit' })
+        attachProgress(LEVEL.VERBOSE, 'concourse', sync)
         children.push(sync)
         await completion(sync)
       } catch (err) {
@@ -174,7 +243,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
     }
 
     if (needsDownload) {
-      console.log('syncing fly cli via direct download')
+      log.log(LEVEL.VERBOSE, 'concourse', 'syncing fly cli via direct download')
       const flyUrl = `http://localhost:8080/api/v1/cli?arch=amd64&platform=${process.platform}`
       const newFly = await new Promise((resolve, reject) => {
         let newFlyData = Buffer.from('')
@@ -192,7 +261,7 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
       await completion(printNewFlyVersion)
     }
 
-    console.log('logging in')
+    log.log(LEVEL.VERBOSE, 'login', 'logging in')
     const login = spawn(flyPath, [
       'login',
       '-k',
@@ -200,11 +269,12 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
       '-c', 'http://localhost:8080',
       '-u', 'admin',
       '-p', 'admin'
-    ], { stdio: 'inherit' })
+    ], { stdio: ttyColumns > 0 ? ['inherit', 'pipe', 'pipe'] : 'inherit' })
+    attachProgress(LEVEL.SILLY, 'login', login)
     children.push(login)
     await completion(login)
 
-    console.log('waiting for concourse to settle')
+    log.log(LEVEL.VERBOSE, 'waiting for concourse to settle')
     await sleep(5000)
 
     const flyArgs = [
@@ -213,14 +283,17 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
       '--include-ignored',
       ...cmdArgs
     ]
-    console.log(`executing fly with args: ${flyArgs}`)
+    log.log(LEVEL.VERBOSE, cmdName, `executing fly with args: ${flyArgs}`)
+
     const execute = spawn(flyPath, flyArgs, {
-      stdio: 'inherit',
+      stdio: ttyColumns > 0 ? ['inherit', 'pipe', 'pipe'] : 'inherit',
       env: {
         ...process.env,
         COLUMNS: process.stdout.columns
       }
     })
+    log.log(LEVEL.INFO, cmdName, 'Running step...')
+    attachProgress(LEVEL.INFO, cmdName, execute)
     children.push(execute)
     await completion(execute)
   } catch (err) {
@@ -232,15 +305,16 @@ const flyExecute = async (cmdArgs, { image, persist }) => {
     error = err
   } finally {
     if (!persist) {
-      console.log('cleaning up')
+      log.log(LEVEL.INFO, 'shutDown', 'cleaning up')
       const cleanUp = spawn('docker-compose', [
         `--file=${COMPOSE_FILE_PATH}`,
         'stop'
-      ], { stdio: 'inherit' })
+      ], { stdio: ttyColumns > 0 ? ['inherit', 'pipe', 'pipe'] : 'inherit' })
+      attachProgress(LEVEL.VERBOSE, 'shutDown', cleanUp)
       children.push(cleanUp)
       await completion(cleanUp)
     } else {
-      console.log('persisting containers')
+      log.log(LEVEL.INFO, 'shutDown', 'persisting containers')
     }
   }
   if (error != null) {
@@ -269,7 +343,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.slug)
 
-      await flyExecute([
+      await flyExecute('fetch-group', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         output(dataDir, 'fetched-book-group'),
@@ -323,7 +397,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      await flyExecute([
+      await flyExecute('fetch', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         output(dataDir, 'fetched-book')
@@ -373,7 +447,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.slug)
 
-      await flyExecute([
+      await flyExecute('assemble-group', [
         '-c', tmpTaskFile.name,
         input(dataDir, 'fetched-book-group'),
         output(dataDir, 'assembled-book-group')
@@ -418,7 +492,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      await flyExecute([
+      await flyExecute('assemble', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'fetched-book'),
@@ -469,7 +543,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.slug)
 
-      await flyExecute([
+      await flyExecute('bake-group', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'assembled-book-group'),
@@ -526,7 +600,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      await flyExecute([
+      await flyExecute('link-extras', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'assembled-book'),
@@ -575,7 +649,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.slug)
 
-      await flyExecute([
+      await flyExecute('link-single', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'fetched-book-group'),
@@ -631,7 +705,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      await flyExecute([
+      await flyExecute('bake', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'linked-extras'),
@@ -679,7 +753,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      await flyExecute([
+      await flyExecute('mathify', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'baked-book'),
@@ -720,7 +794,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.slug)
 
-      await flyExecute([
+      await flyExecute('mathify-single', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'group-style'),
@@ -761,7 +835,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      await flyExecute([
+      await flyExecute('build-pdf', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'mathified-book'),
@@ -801,7 +875,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.slug)
 
-      await flyExecute([
+      await flyExecute('pdfify-single', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'mathified-single'),
@@ -845,7 +919,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      await flyExecute([
+      await flyExecute('assemble-meta', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'assembled-book'),
@@ -886,7 +960,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.slug)
 
-      await flyExecute([
+      await flyExecute('assemble-meta-group', [
         '-c', tmpTaskFile.name,
         input(dataDir, 'fetched-book-group'),
         input(dataDir, 'assembled-book-group'),
@@ -932,7 +1006,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      await flyExecute([
+      await flyExecute('bake-meta', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'fetched-book'),
@@ -975,7 +1049,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.slug)
 
-      await flyExecute([
+      await flyExecute('bake-meta-group', [
         '-c', tmpTaskFile.name,
         input(dataDir, 'fetched-book-group'),
         input(dataDir, 'baked-book-group'),
@@ -1022,7 +1096,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      await flyExecute([
+      await flyExecute('checksum', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'baked-book'),
@@ -1063,7 +1137,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      await flyExecute([
+      await flyExecute('disassemble', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'fetched-book'),
@@ -1106,7 +1180,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.slug)
 
-      await flyExecute([
+      await flyExecute('disassemble-single', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'linked-single'),
@@ -1148,7 +1222,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      await flyExecute([
+      await flyExecute('patch-disassembled-links', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'disassembled-book'),
@@ -1189,7 +1263,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      await flyExecute([
+      await flyExecute('jsonify', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'disassembled-linked-book'),
@@ -1230,7 +1304,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.slug)
 
-      await flyExecute([
+      await flyExecute('patch-disassembled-links-single', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'disassembled-single'),
@@ -1271,7 +1345,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.slug)
 
-      await flyExecute([
+      await flyExecute('jsonify-single', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'disassembled-linked-single'),
@@ -1312,7 +1386,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      await flyExecute([
+      await flyExecute('gdocify', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'disassembled-book'),
@@ -1352,7 +1426,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      await flyExecute([
+      await flyExecute('convert-docx', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, 'gdocified-book'),
@@ -1394,7 +1468,7 @@ const tasks = {
 
       const dataDir = path.resolve(argv.data, argv.collid)
 
-      await flyExecute([
+      await flyExecute('validate-xhtml', [
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
         input(dataDir, argv.inputsource)
