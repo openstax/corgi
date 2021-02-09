@@ -1,0 +1,252 @@
+#!/bin/bash
+
+# Turn on tracing if desired
+if [[ ${LOG_LEVEL} == "trace" ]]
+then
+  export PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '
+  set -x
+fi
+
+
+root_dir=$(dirname "$0")
+temp_dir="${BAKERY_DATA_DIR:=${root_dir}/temp}"
+abl_dir="${temp_dir}/content-manager-approved-books"
+
+steps_to_run='' # Collect all the steps that need to run. We will check for a substring in them to see if the operation is enabled
+skip_existing=0 # or 1 if true
+passthrough_args=''
+book_names=()
+
+c_yellow=$(tput setaf 11)
+c_none=$(tput sgr0)
+_say() {
+    >&2 echo "$*"
+}
+warn() {
+    _say "${c_yellow}Warning: $*${c_none}"
+}
+die() {
+    _say "$0: $*";
+    # shellcheck disable=SC2086
+    exit ${2:-112} # Use the 2nd arg or 112 as the default
+}
+try() { "$@" || die "ERROR: could not run [$*]"; }
+
+
+[[ -d "${temp_dir}" ]] || mkdir "${temp_dir}"
+[[ -d "${abl_dir}" ]] || (_say "Cloning ABL to temp dir"; sleep 10; cd "${temp_dir}" || exit 1; git clone https://github.com/openstax/content-manager-approved-books || exit 1)
+
+
+
+# Returns the following:
+# - book_uuid
+# - collection_id
+# - book_style
+# - book_server
+parse_book_info() {
+    local book_name=$1
+    local book_entry
+
+    # Convert book_slug to a UUID
+    book_uuid=$(jq -r --arg book_slug "${book_name}" 'reduce .[] as $item ({}; . + {($item.slug): $item.uuid}) | .[$book_slug]' < "${abl_dir}/book-slugs.json")
+    if [[ ${book_uuid} == 'null' ]]
+    then
+        die "Could not find book named '${book_name}' in the book-slugs.json file"
+    fi
+
+    # Get the collection ID from the book UUID
+    book_entry=$(jq --arg book_uuid "${book_uuid}" 'reduce .[] as $item ({}; . + {($item.uuid): {name: $item.name, collection_id: $item.collection_id, style: $item.style, server: $item.server}}) | .[$book_uuid]' < "${abl_dir}/approved-books.json")
+
+    collection_id=$(echo "${book_entry}" | jq -r '.collection_id')
+    book_style=$(echo "${book_entry}" | jq -r '.style')
+    book_server=$(echo "${book_entry}" | jq -r '.server')
+
+    if [[ ${collection_id} == 'null' || ${book_style} == 'null' || ${book_server} == 'null' ]]
+    then
+        _say "Skipping '${book_name}' because it does not have an entry in the ABL"
+        return 1
+    fi
+    return 0
+}
+
+do_book() {
+    local book_name=$1
+
+    parse_book_info "${book_name}"
+    return_code=$?
+    [[ ${return_code} == 0 ]] || return ${return_code}
+
+    # At this point the following have been defined:
+    # - book_uuid
+    # - collection_id
+    # - book_style
+    # - book_server
+    generic_args="--data ${temp_dir} ${passthrough_args}"
+    book_col_id=${collection_id}
+    server=${book_server}
+    recipe_name=${book_style}
+    style_file=${book_style}
+
+    for cur_operation in ${all_steps_to_run}
+    do
+        if [[ ${steps_to_run} =~ ${cur_operation} ]]
+        then
+            pointer=dir_for_${cur_operation//-/_} # https://stackoverflow.com/a/55331060 and https://stackoverflow.com/a/5928254
+            test_dir="${temp_dir}/${book_col_id}/${!pointer}"
+            if [[ ${skip_existing} == 0 || ! -d "${test_dir}" ]]
+            then
+                _say "${c_yellow}==>${c_none} ${cur_operation} ${book_name}"
+
+                # Special-case fetch has weird commandline arguments
+                if [[ ${cur_operation} == "${_fetch_arg}" ]]
+                then
+                    try node ./src/cli/execute.js run "${cur_operation}" ${generic_args} "${server}" "${book_col_id}" latest
+                
+                # 'bake' also has weird commandline arguments
+                elif [[ ${cur_operation} == "${_bake_arg}" ]]
+                then
+                    # Verify that the files exist before baking
+                    recipe_file=${CNX_RECIPES_DIR}/recipes/output/${recipe_name}.css
+                    style_file=${CNX_RECIPES_DIR}/styles/output/${recipe_name}-pdf.css
+
+                    [[ -f "${recipe_file}" ]] || die "recipe file not found: ${recipe_file}"
+                    [[ -f "${style_file}" ]] || warn "style file not found. using physics-pdf.css" && sleep 10 && style_file=${CNX_RECIPES_DIR}/styles/output/physics-pdf.css
+                    
+                    try node ./src/cli/execute.js run "${cur_operation}" ${generic_args} "${book_col_id}" "${CNX_RECIPES_DIR}/recipes/output/${recipe_name}.css" "${CNX_RECIPES_DIR}/styles/output/${recipe_name}-pdf.css"
+                
+                # 'link-extras' also has weird commandline arguments
+                elif [[ ${cur_operation} == "${_linkextras_arg}" ]]
+                then
+                    try node ./src/cli/execute.js run "${cur_operation}" ${generic_args} "${book_col_id}" "${server}"
+                else
+                    try node ./src/cli/execute.js run "${cur_operation}" ${generic_args} "${book_col_id}"
+                fi
+
+            else
+                warn "Skipping ${book_name} step ${cur_operation} because dir already exists: '${test_dir}'"
+            fi
+        fi
+    done
+
+}
+
+
+_fetch_arg='fetch'
+_assemble_arg='assemble'
+_linkextras_arg='link-extras'
+_bake_arg='bake'
+_mathify_arg='mathify'
+_pdf_arg='build-pdf'
+
+# These are used by --skip-existing . If these directories exist then we can skip the step (in the variable name).
+# Search for `dir_for_` in the rest of the code to see where it is used.
+dir_for_fetch='fetched-book'
+dir_for_assemble='assembled-book'
+dir_for_link_extras='linked-extras'
+dir_for_bake='baked-book'
+dir_for_mathify='mathified-book'
+dir_for_build_pdf='artifacts'
+
+all_steps_to_run="${_fetch_arg} ${_assemble_arg} ${_linkextras_arg} ${_bake_arg} ${_mathify_arg} ${_pdf_arg}"
+
+usage() {
+    _say "Usage $(basename "$0") [operations] [optional_book_name]"
+    _say ''
+    _say 'Operations can be one or more of the following:'
+    _say "    -${_fetch_arg}"
+    _say "    -${_assemble_arg}"
+    _say "    -${_linkextras_arg}"
+    _say "    -${_bake_arg}"
+    _say "    -${_mathify_arg}"
+    _say "    -${_pdf_arg}"
+    _say "    (add more as you use them)"
+    _say ""
+    _say "    --all           : Run on all books"
+    _say "    --skip-existing : If the output directory of an operation already exists then this will skip the step"
+    _say ""
+    _say "Arguments that are passed on to the bakery CLI:"
+    _say "    --persist"
+    _say "    --data     (TODO)"
+    _say "    --image    (TODO)"
+    _say "    --tag      (TODO)"
+    _say ""
+    _say "Environment Variables:"
+    _say "    CNX_RECIPES_DIR=/path/to : specifies the directory to look for the cnx-recipes repository root"
+    _say "    BAKERY_DATA_DIR=/path/to : specifies a directory to use. default is ./temp/"
+    _say "    LOG_LEVEL=trace          : enables verbose logging of each line that is executed"
+    exit 1
+}
+
+
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+
+    case $key in
+        -${_fetch_arg} | -${_assemble_arg} | -${_bake_arg} | -${_mathify_arg} | -${_pdf_arg})
+            steps_to_run="${steps_to_run} ${key}"
+            shift
+        ;;
+        --all)
+            book_slug_names=$(jq -r '.[].slug' < "${abl_dir}/book-slugs.json")
+
+            for book_name in ${book_slug_names}; do
+                book_names+=("${book_name}")
+            done
+            shift
+        ;;
+        --skip-existing)
+            skip_existing=1
+            shift
+        ;;
+        --persist)
+            passthrough_args="${passthrough_args} --persist"
+        ;;
+        -h|--help)
+            usage
+        ;;
+        -*)
+            _say "Invalid option '${key}'"
+            usage
+        ;;
+        *) # All other arguments should be positional Books to use
+            book_names+=("$1") # save it in an array for later
+            shift
+        ;;
+    esac
+done
+
+if [[ ${steps_to_run} == '' ]]
+then
+    warn "Running all steps because none were specified"
+    sleep 2
+    steps_to_run=${all_steps_to_run}
+fi
+
+if [[ ${steps_to_run} =~ ${_bake_arg} && ! -d "${CNX_RECIPES_DIR}" ]]
+then
+    die "missing environment variable. ${_bake_arg} requires a valid CNX_RECIPES_DIR environment variable to be set"
+fi
+
+# If the user did not specify any books then run against all the books
+book_names_len=${#book_names[@]}
+if [[ ${book_names_len} == 0 ]]
+then
+    _say "ERROR: No books were specified. Use --all or specify a book name"
+    _say "Valid book names (from the ABL book list):"
+    book_slug_names=$(jq -r '.[].slug' < "${abl_dir}/book-slugs.json")
+
+    for book_name in ${book_slug_names}; do
+        _say "    ${book_name}"
+    done
+    exit 1
+fi
+
+
+
+for book_name in "${book_names[@]}"
+do
+    do_book "${book_name}"
+done
+
+_say "The output is available here: ${test_dir}"
