@@ -2475,6 +2475,9 @@ def test_link_single(tmp_path, mocker):
         <li cnx-archive-uri="9f049b16-15e9-4725-8c8b-4908a3e2be5e@">
         <a href="">Page1</a>
         </li>
+        <li cnx-archive-uri="cffe96ff-cab6-453c-9996-ed6abe5d9b13@">
+        <a href="">Page2</a>
+        </li>
         </ol>
         </nav>
         <div data-type="page" id="9f049b16-15e9-4725-8c8b-4908a3e2be5e">
@@ -2488,6 +2491,15 @@ def test_link_single(tmp_path, mocker):
         <p><a id="l2"
             href="/contents/2e51553f-fde8-43a3-8191-fd8b493a6cfa#foobar"
             >Inter-book module link with fragment</a></p>
+        </div>
+        <div data-type="page" id="cffe96ff-cab6-453c-9996-ed6abe5d9b13e">
+        <div data-type="metadata" style="display: none;">
+        <h1 data-type="document-title" itemprop="name">Page2</h1>
+        <span data-type="canonical-book-uuid" data-value="1ba7e813-2d8a-4b73-87a1-876cfb5e7b58"/>
+        </div>
+        <p><a id="l3"
+            href="/contents/9f049b16-15e9-4725-8c8b-4908a3e2be5e"
+            >Intra-book module link</a></p>
         </div>
         </body>
         </html>
@@ -2503,6 +2515,10 @@ def test_link_single(tmp_path, mocker):
                     {
                         "id": "9f049b16-15e9-4725-8c8b-4908a3e2be5e@",
                         "slug": "book1-page1"
+                    },
+                    {
+                        "id": "cffe96ff-cab6-453c-9996-ed6abe5d9b13e@",
+                        "slug": "book1-page2"
                     }
                 ]
             }
@@ -2596,6 +2612,10 @@ def test_link_single(tmp_path, mocker):
             ("data-book-slug", "book2"),
             ("data-page-slug", "book2-page2"),
         ],
+        [
+            ("id", "l3"),
+            ("href", "/contents/9f049b16-15e9-4725-8c8b-4908a3e2be5e")
+        ]
     ]
 
     tree = etree.parse(str(linked_xhtml))
