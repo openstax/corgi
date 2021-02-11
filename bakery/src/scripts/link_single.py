@@ -68,7 +68,7 @@ def get_target_uuid(link):
         parsed).group(1)
 
 
-def gen_page_slug_resolver(baked_meta_dir, book_tree_by_uuid):
+def gen_page_slug_resolver(book_tree_by_uuid):
     """Generate a page slug resolver function"""
 
     def _get_page_slug(book_uuid, page_uuid):
@@ -144,7 +144,6 @@ def transform_links(
     }
     source_book_uuid = uuid_by_slug[source_book_slug]
     page_slug_resolver = gen_page_slug_resolver(
-        baked_meta_dir,
         book_tree_by_uuid
     )
 
