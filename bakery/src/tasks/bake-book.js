@@ -4,7 +4,7 @@ const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
   const imageDefault = {
-    name: 'openstax/cnx-easybake',
+    name: 'openstax/recipes',
     tag: 'trunk'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
@@ -36,7 +36,7 @@ const task = (taskArgs) => {
 
           cp -r linked-extras/* baked-book
           book_dir="baked-book/$(cat book/collection_id)"
-          cnx-easybake -q "cnx-recipes-output/rootfs/recipes/$(cat book/style).css" "$book_dir/collection.linked.xhtml" "$book_dir/collection.baked.xhtml"
+          /code/bake_root -b "$(cat book/style)" -r cnx-recipes-output/rootfs/recipes -i "$book_dir/collection.linked.xhtml" -o "$book_dir/collection.baked.xhtml"
           style_file="cnx-recipes-output/rootfs/styles/$(cat book/style)-pdf.css"
           if [ -f "$style_file" ]
           then

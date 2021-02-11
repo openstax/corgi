@@ -10,7 +10,7 @@
           <img
             src="/title-image.png"
             style="max-height: 100px;"
-          />
+          ></img>
         </v-col>
       </v-row>
       <v-row justify="space-between" class="job-navigation">

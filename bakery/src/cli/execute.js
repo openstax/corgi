@@ -505,6 +505,68 @@ const tasks = {
       }
     }
   },
+  'bake-kitchen-group': (parentCommand) => {
+    const commandUsage = 'bake-kitchen-group <slug> <recipename> <stylefile>'
+    const handler = async argv => {
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
+
+      const imageDetails = imageDetailsFromArgs(argv)
+      const singleBookFlag = argv.single
+      const taskArgs = [`--taskargs=${JSON.stringify({
+        ...imageDetails,
+        singleBookFlag: singleBookFlag,
+        slug: argv.slug
+      })}`]
+      const taskContent = execFileSync(buildExec, ['task', 'bake-book-group', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const styleName = argv.recipename
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'style'), styleName)
+
+      const tmpRecipesDir = tmp.dirSync()
+      fs.mkdirSync(path.resolve(tmpRecipesDir.name, 'rootfs/styles/'), { recursive: true })
+      fs.copyFileSync(path.resolve(argv.stylefile), path.resolve(tmpRecipesDir.name, `rootfs/styles/${styleName}-pdf.css`))
+
+      const dataDir = path.resolve(argv.data, argv.slug)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'assembled-book-group'),
+        `--input=cnx-recipes-output=${tmpRecipesDir.name}`,
+        output(dataDir, 'baked-book-group'),
+        output(dataDir, 'group-style')
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'bgk',
+      describe: 'bake a book group using kitchen',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
+        yargs.positional('slug', {
+          describe: 'slug of collection to work on',
+          type: 'string'
+        }).positional('recipename', {
+          describe: 'kitchen recipe / book name',
+          type: 'string'
+        }).positional('stylefile', {
+          describe: 'path to style file',
+          type: 'string'
+        }).option('s', {
+          alias: 'single',
+          describe: 'process a single book',
+          type: 'boolean',
+          default: false
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
+  },
   'link-extras': (parentCommand) => {
     const commandUsage = 'link-extras <collid> <server>'
     const handler = async argv => {
@@ -650,6 +712,60 @@ const tasks = {
           type: 'string'
         }).positional('recipefile', {
           describe: 'path to recipe file',
+          type: 'string'
+        }).positional('stylefile', {
+          describe: 'path to style file',
+          type: 'string'
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
+  },
+  'bake-kitchen': (parentCommand) => {
+    const commandUsage = 'bake-kitchen <collid> <recipename> <stylefile>'
+    const handler = async argv => {
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
+
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'bake-book', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const styleName = argv.recipename
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'style'), styleName)
+
+      const tmpRecipesDir = tmp.dirSync()
+      fs.mkdirSync(path.resolve(tmpRecipesDir.name, 'rootfs/styles/'), { recursive: true })
+      fs.copyFileSync(path.resolve(argv.stylefile), path.resolve(tmpRecipesDir.name, `rootfs/styles/${styleName}-pdf.css`))
+
+      const dataDir = path.resolve(argv.data, argv.collid)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'linked-extras'),
+        `--input=cnx-recipes-output=${tmpRecipesDir.name}`,
+        output(dataDir, 'baked-book')
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'bk',
+      describe: 'bake a book using kitchen',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
+        yargs.positional('collid', {
+          describe: 'collection id of collection to work on',
+          type: 'string'
+        }).positional('recipename', {
+          describe: 'kitchen recipe / book name',
           type: 'string'
         }).positional('stylefile', {
           describe: 'path to style file',
@@ -1463,7 +1579,9 @@ const yargs = require('yargs')
           .command(tasks['link-extras'](commandUsage))
           .command(tasks['link-single'](commandUsage))
           .command(tasks.bake(commandUsage))
+          .command(tasks['bake-kitchen'](commandUsage))
           .command(tasks['bake-group'](commandUsage))
+          .command(tasks['bake-kitchen-group'](commandUsage))
           .command(tasks.mathify(commandUsage))
           .command(tasks['mathify-single'](commandUsage))
           .command(tasks['build-pdf'](commandUsage))
