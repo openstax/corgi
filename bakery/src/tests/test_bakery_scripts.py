@@ -2484,10 +2484,10 @@ def test_link_single(tmp_path, mocker):
         </div>
         <p><a id="l1"
             href="/contents/4aa9351c-019f-4c06-bb40-d58262ea7ec7"
-            >Intra-book module link</a></p>
+            >Inter-book module link</a></p>
         <p><a id="l2"
             href="/contents/2e51553f-fde8-43a3-8191-fd8b493a6cfa#foobar"
-            >Intra-book module link with fragment</a></p>
+            >Inter-book module link with fragment</a></p>
         </div>
         </body>
         </html>
