@@ -132,7 +132,7 @@ def save_linked_collection(output_path, doc):
 
 
 def transform_links(
-        baked_content_dir, baked_meta_dir, source_book_slug, output_path, target_book):
+        baked_content_dir, baked_meta_dir, source_book_slug, output_path, mock_otherbook):
     doc = load_baked_collection(baked_content_dir, source_book_slug)
     binders = parse_collection_binders(baked_content_dir)
     canonical_map = create_canonical_map(binders)
@@ -154,7 +154,7 @@ def transform_links(
     ):
         link = node.attrib["href"]
 
-        if target_book:
+        if mock_otherbook:
             node.attrib["href"] = "mock-inter-book-link"
             continue
 
@@ -183,7 +183,7 @@ def main():
     parser.add_argument("baked_meta_dir")
     parser.add_argument("source_book_slug")
     parser.add_argument("output_path")
-    parser.add_argument("target_book")
+    parser.add_argument("--mock-otherbook", action="store_true")
     args = parser.parse_args()
 
     transform_links(
@@ -191,7 +191,7 @@ def main():
         args.baked_meta_dir,
         args.source_book_slug,
         args.output_path,
-        args.target_book
+        args.mock_otherbook
     )
 
 
