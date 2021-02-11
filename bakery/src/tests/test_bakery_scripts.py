@@ -2736,7 +2736,8 @@ def test_link_single_with_flag(tmp_path, mocker):
     tree = etree.parse(str(linked_xhtml))
 
     parsed_links = tree.xpath(
-        '//x:a[@href and starts-with(@href, "mock-inter-book-link") or starts-with(@href, "./")]',
+        '//x:a[@href and starts-with(@href, "mock-inter-book-link") or starts-with(@href, "./") '
+        'or starts-with(@href, "/contents")]',
         namespaces={"x": "http://www.w3.org/1999/xhtml"},
     )
 

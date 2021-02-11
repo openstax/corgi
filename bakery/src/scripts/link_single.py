@@ -154,12 +154,16 @@ def transform_links(
     ):
         link = node.attrib["href"]
 
-        if mock_otherbook:
+        target_module_uuid = get_target_uuid(link)
+        canonical_book_uuid = canonical_map.get(target_module_uuid)
+
+        if (canonical_book_uuid is None) and mock_otherbook:
             node.attrib["href"] = "mock-inter-book-link"
             continue
-
-        target_module_uuid = get_target_uuid(link)
-        canonical_book_uuid = canonical_map[target_module_uuid]
+        elif (canonical_book_uuid is None):
+            raise Exception(
+                f"Could not find canonical book for {target_module_uuid}"
+            )
         canonical_book_slug = next(
             (slug for slug, uuid in uuid_by_slug.items()
              if uuid == canonical_book_uuid))
