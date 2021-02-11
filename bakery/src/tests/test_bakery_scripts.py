@@ -2658,6 +2658,9 @@ def test_link_single_with_flag(tmp_path, mocker):
         <li cnx-archive-uri="cffe96ff-cab6-453c-9996-ed6abe5d9b13@">
         <a href="">Page2</a>
         </li>
+        <li cnx-archive-uri="cea7795c-c138-4356-a221-f5eed5ad1adc@">
+        <a href="">Page3</a>
+        </li>
         </ol>
         </nav>
         <div data-type="page" id="9f049b16-15e9-4725-8c8b-4908a3e2be5e">
@@ -2680,6 +2683,16 @@ def test_link_single_with_flag(tmp_path, mocker):
         <p><a id="l3"
             href="/contents/9f049b16-15e9-4725-8c8b-4908a3e2be5e"
             >Intra-book module link</a></p>
+        <p><a id="l4"
+            href="/contents/cea7795c-c138-4356-a221-f5eed5ad1adc"
+            >Intra-book module link for shared page with outside canonical</a></p>
+        </div>
+        <div data-type="page" id="cea7795c-c138-4356-a221-f5eed5ad1adc">
+        <div data-type="metadata" style="display: none;">
+        <h1 data-type="document-title" itemprop="name">Page3</h1>
+        <span data-type="canonical-book-uuid" data-value="6a88da29-8d6a-4139-bafc-e179be9b241d"/>
+        </div>
+        <p>Content</p>
         </div>
         </body>
         </html>
@@ -2699,6 +2712,10 @@ def test_link_single_with_flag(tmp_path, mocker):
                     {
                         "id": "cffe96ff-cab6-453c-9996-ed6abe5d9b13e@",
                         "slug": "book1-page2"
+                    },
+                    {
+                        "id": "cea7795c-c138-4356-a221-f5eed5ad1adc@",
+                        "slug": "book1-page3"
                     }
                 ]
             }
@@ -2730,6 +2747,10 @@ def test_link_single_with_flag(tmp_path, mocker):
         [
             ("id", "l3"),
             ("href", "/contents/9f049b16-15e9-4725-8c8b-4908a3e2be5e")
+        ],
+        [
+            ("id", "l4"),
+            ("href", "mock-inter-book-link")
         ]
     ]
 

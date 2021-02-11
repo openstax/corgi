@@ -157,7 +157,10 @@ def transform_links(
         target_module_uuid = get_target_uuid(link)
         canonical_book_uuid = canonical_map.get(target_module_uuid)
 
-        if (canonical_book_uuid is None) and mock_otherbook:
+        if ((not canonical_book_uuid == source_book_uuid) and mock_otherbook):
+            # If the canonical book UUID doesn't equal the current book (which
+            # includes if the lookup returned None) and we're mocking otherbook
+            # links, go ahead and insert the mock.
             node.attrib["href"] = "mock-inter-book-link"
             continue
         elif (canonical_book_uuid is None):
