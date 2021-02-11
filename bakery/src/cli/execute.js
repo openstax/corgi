@@ -8,7 +8,6 @@ const which = require('which')
 const tmp = require('tmp')
 const log = require('npmlog')
 const stripAnsi = require('strip-ansi')
-const { stderr } = require('process')
 tmp.setGracefulCleanup()
 
 const LEVEL = {
@@ -17,7 +16,7 @@ const LEVEL = {
   INFO: 'info',
   HTTP: 'http',
   WARN: 'warn',
-  ERROR: 'error',
+  ERROR: 'error'
 }
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -100,21 +99,22 @@ const BAKERY_PATH = path.resolve(__dirname, '../..')
 let stderrLogs = []
 let stdoutLogs = []
 const attachProgress = (level, prefix, proc) => {
-  if (proc.stderr)
+  if (proc.stderr) {
     proc.stderr.on('data', data => {
       stderrLogs.push(data.toString())
       const lines = data.toString().split('\n').filter(line => !!line) // remove empty lines
       const lastLine = lines[lines.length - 1]
       log.gauge.pulse(stripAnsi(lastLine))
     })
-  if (proc.stdout)
+  }
+  if (proc.stdout) {
     proc.stdout.on('data', data => {
       stdoutLogs.push(data.toString())
       const lines = data.toString().split('\n').filter(line => !!line) // remove empty lines
       const lastLine = lines[lines.length - 1]
       log.gauge.pulse(stripAnsi(lastLine))
     })
-
+  }
 }
 
 const dumpLogs = () => {
@@ -128,40 +128,38 @@ const dumpLogs = () => {
 
 const flyExecute = async (cmdName, cmdArgs, { image, persist }) => {
   const children = []
-  const ttyColumns = process.stdout.isTTY && process.stdout.columns || 0 // 0 means it's not a TTY
+  const ttyColumns = (process.stdout.isTTY && process.stdout.columns) || 0 // 0 means it's not a TTY
   if (ttyColumns > 0) log.enableProgress()
   log.setGaugeTemplate([
     // {type: 'progressbar', length: 20},
-    {type: 'activityIndicator', kerning: 1, length: 1},
-    {type: 'section', default: ''},
+    { type: 'activityIndicator', kerning: 1, length: 1 },
+    { type: 'section', default: '' },
     ':',
-    {type: 'logline', kerning: 1, default: ''},
-    {type: 'subsection', kerning: 1, default: ''},
+    { type: 'logline', kerning: 1, default: '' },
+    { type: 'subsection', kerning: 1, default: '' }
   ])
   process.on('SIGINT', () => {
-    console.log('qwioeuqoiwueoqiwue')
-    console.log('qwioeuqowiueoqwueoqwue')
-    console.log('qo9weiuqoiu2eoiq2uoiu')
-    process.exit(123)
-    // dumpLogs()
+    console.log('skjdfhksjdhfjksdfh SIGINT')
+    dumpLogs()
     children.forEach(child => {
       if (child.exitCode == null) {
         child.kill('SIGINT')
       }
     })
   })
-  // process.on('exit', code => {
-  //   let hasActiveChild = false
-  //   children.forEach(child => {
-  //     if (child.exitCode == null) {
-  //       hasActiveChild = true
-  //       child.kill('SIGINT')
-  //     }
-  //   })
-  //   if (hasActiveChild) {
-  //     dumpLogs()
-  //   }
-  // })
+  process.on('exit', code => {
+    console.log('skjdfhksjdhfjksdfh EXIT', code)
+    let hasActiveChild = false
+    children.forEach(child => {
+      if (child.exitCode == null) {
+        hasActiveChild = true
+        child.kill('SIGINT')
+      }
+    })
+    if (hasActiveChild) {
+      dumpLogs()
+    }
+  })
 
   const startup = spawn('docker-compose', [
     `--file=${COMPOSE_FILE_PATH}`,
