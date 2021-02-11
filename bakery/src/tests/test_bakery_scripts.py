@@ -2590,7 +2590,7 @@ def test_link_single(tmp_path, mocker):
 
     mocker.patch(
         "sys.argv",
-        ["", baked_dir, baked_meta_dir, source_book_slug, linked_xhtml, ""]
+        ["", str(baked_dir), str(baked_meta_dir), source_book_slug, str(linked_xhtml), ""]
     )
     link_single.main()
 
@@ -2754,7 +2754,8 @@ def test_link_single_with_flag(tmp_path, mocker):
 
     mocker.patch(
         "sys.argv",
-        ["", baked_dir, baked_meta_dir, source_book_slug, linked_xhtml, "-s"]
+        ["", str(baked_dir), str(baked_meta_dir), source_book_slug, str(linked_xhtml),
+         source_book_slug]
     )
     link_single.main()
 

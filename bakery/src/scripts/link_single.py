@@ -3,10 +3,10 @@ Replaces legacy module ids in links to external modules with
 uuids from the target module and corresponding canonical book       .
 """
 
-import sys
 import re
 import json
 from pathlib import Path
+import argparse
 
 from lxml import etree
 from urllib.parse import unquote
@@ -178,20 +178,20 @@ def transform_links(
 
 
 def main():
-    (
-        baked_content_dir,
-        baked_meta_dir,
-        source_book_slug,
-        output_path,
-        target_book
-    ) = sys.argv[1:6]
+    parser = argparse.ArgumentParser()
+    parser.add_argument("baked_content_dir")
+    parser.add_argument("baked_meta_dir")
+    parser.add_argument("source_book_slug")
+    parser.add_argument("output_path")
+    parser.add_argument("target_book")
+    args = parser.parse_args()
 
     transform_links(
-        baked_content_dir,
-        baked_meta_dir,
-        source_book_slug,
-        output_path,
-        target_book
+        args.baked_content_dir,
+        args.baked_meta_dir,
+        args.source_book_slug,
+        args.output_path,
+        args.target_book
     )
 
 
