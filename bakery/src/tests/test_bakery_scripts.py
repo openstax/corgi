@@ -2746,3 +2746,13 @@ def test_link_single_with_flag(tmp_path, mocker):
     ]
 
     assert check_links == expected_links
+
+    with pytest.raises(
+        Exception,
+        match=r'Could not find canonical book'
+    ):
+        mocker.patch(
+            "sys.argv",
+            ["", str(baked_dir), str(baked_meta_dir), source_book_slug, str(linked_xhtml)]
+        )
+        link_single.main()
