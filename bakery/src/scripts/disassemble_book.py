@@ -99,7 +99,7 @@ def main():
             # This is either an intra-book link or inter-book link. We can
             # differentiate the latter by data-book-uuid attrib).
             if not node.attrib.get("data-book-uuid"):
-                node.attrib["data-page-slug"] = slugs.get(page_uuid, "BROKEN_LINK")
+                node.attrib["data-page-slug"] = slugs.get(page_uuid)
                 node.attrib["data-page-uuid"] = page_uuid
                 node.attrib["data-page-fragment"] = page_fragment
 
