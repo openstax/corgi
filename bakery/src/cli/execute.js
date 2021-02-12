@@ -2,12 +2,14 @@
 const path = require('path')
 const fs = require('fs')
 const http = require('http')
-const { execFileSync, spawn } = require('child_process')
+const childProcess = require('child_process')
+const { execFileSync, spawnSync } = require('child_process')
 const waitPort = require('wait-port')
 const which = require('which')
 const tmp = require('tmp')
 const log = require('npmlog')
 const stripAnsi = require('strip-ansi')
+const { option } = require('yargs')
 tmp.setGracefulCleanup()
 
 const LEVEL = {
@@ -96,81 +98,68 @@ const output = (dataDir, name) => {
 const COMPOSE_FILE_PATH = path.resolve(__dirname, 'docker-compose.yml')
 const BAKERY_PATH = path.resolve(__dirname, '../..')
 
-let stderrLogs = []
-let stdoutLogs = []
-const attachProgress = (level, prefix, proc) => {
-  if (proc.stderr) {
-    proc.stderr.on('data', data => {
-      stderrLogs.push(data.toString())
-      const lines = data.toString().split('\n').filter(line => !!line) // remove empty lines
-      const lastLine = lines[lines.length - 1]
-      log.gauge.pulse(stripAnsi(lastLine))
+const ttyColumns = (process.stdout.isTTY && process.stdout.columns) || 0 // 0 means it's not a TTY
+const childProcesses = new Set()
+const collectedLogs = [] // Array<['stdout' | 'stderr', String]>
+
+const lastLine = (multiline) => {
+  const lines = multiline.split('\n').filter(line => !!line) // remove empty lines
+  return lines[lines.length - 1]
+}
+
+const spawnAttachWaitComplete = async (logLevel, stepName, spawnCommand, spawnArgs, spawnOptions) => {
+  const options = {stdio: ttyColumns > 0 ? 'pipe' : 'inherit', ...spawnOptions}
+  const child = childProcess.spawn(spawnCommand, spawnArgs, options)
+  if (ttyColumns > 0) {
+    log.log(logLevel, stepName, 'Running...')
+    ;['stdout', 'stderr'].forEach(stdOutErr => {
+      child[stdOutErr].on('data', data => {
+        data = data.toString()
+        collectedLogs.push([stdOutErr, data])
+        log.gauge.pulse(stripAnsi(lastLine(data)))
+      })
     })
   }
-  if (proc.stdout) {
-    proc.stdout.on('data', data => {
-      stdoutLogs.push(data.toString())
-      const lines = data.toString().split('\n').filter(line => !!line) // remove empty lines
-      const lastLine = lines[lines.length - 1]
-      log.gauge.pulse(stripAnsi(lastLine))
-    })
-  }
+  childProcesses.add(child)
+  await completion(child)
+  childProcesses.delete(child)
+  return
 }
 
 const dumpLogs = () => {
-  console.log('=== Cached stdout from child processes ===')
-  stdoutLogs.forEach(lines => process.stdout.write(lines))
-  console.log('=== Cached stderr from child processes ===')
-  stderrLogs.forEach(lines => process.stderr.write(lines))
-  stdoutLogs = []
-  stderrLogs = []
+  collectedLogs.forEach(([stdOutErr, multiline]) => {
+    // ensure the output always ends with a newline
+    const linesThatEndWithNewline = multiline.split('\n').filter(line => !!line).join('\n') + '\n'
+    process[stdOutErr].write(linesThatEndWithNewline)
+  })
 }
 
-const flyExecute = async (cmdName, cmdArgs, { image, persist }) => {
-  const children = []
-  const ttyColumns = (process.stdout.isTTY && process.stdout.columns) || 0 // 0 means it's not a TTY
-  if (ttyColumns > 0) log.enableProgress()
-  log.setGaugeTemplate([
-    // {type: 'progressbar', length: 20},
-    { type: 'activityIndicator', kerning: 1, length: 1 },
-    { type: 'section', default: '' },
-    ':',
-    { type: 'logline', kerning: 1, default: '' },
-    { type: 'subsection', kerning: 1, default: '' }
-  ])
-  process.on('SIGINT', () => {
-    console.log('skjdfhksjdhfjksdfh SIGINT')
-    dumpLogs()
-    children.forEach(child => {
-      if (child.exitCode == null) {
-        child.kill('SIGINT')
-      }
-    })
-  })
-  process.on('exit', code => {
-    console.log('skjdfhksjdhfjksdfh EXIT', code)
-    let hasActiveChild = false
-    children.forEach(child => {
-      if (child.exitCode == null) {
-        hasActiveChild = true
-        child.kill('SIGINT')
-      }
-    })
-    if (hasActiveChild) {
-      dumpLogs()
+process.on('SIGINT', () => {
+  dumpLogs()
+  childProcesses.forEach(child => {
+    if (child.exitCode == null) {
+      child.kill('SIGINT')
     }
   })
+})
 
-  const startup = spawn('docker-compose', [
+if (ttyColumns > 0) log.enableProgress()
+log.setGaugeTemplate([
+  // {type: 'progressbar', length: 20},
+  { type: 'activityIndicator', kerning: 1, length: 1 },
+  { type: 'section', default: '' },
+  ':',
+  { type: 'logline', kerning: 1, default: '' },
+  { type: 'subsection', kerning: 1, default: '' }
+])
+
+
+const flyExecute = async (cmdName, cmdArgs, { image, persist }) => {
+  await spawnAttachWaitComplete(LEVEL.VERBOSE, 'DockerUp', 'docker-compose', [
     `--file=${COMPOSE_FILE_PATH}`,
     'up',
     '-d'
-  ], {
-    stdio: ttyColumns > 0 ? ['inherit', 'pipe', 'pipe'] : 'inherit'
-  })
-  attachProgress(LEVEL.VERBOSE, 'DockerUp', startup)
-  children.push(startup)
-  await completion(startup)
+  ])
 
   let error
   try {
@@ -188,13 +177,10 @@ const flyExecute = async (cmdName, cmdArgs, { image, persist }) => {
       if (imageStripped === image) {
         throw new Error(`Specified image ${image} does not have prefix 'localhost:5000'. Not safe to automatically push!`)
       }
-      log.log(LEVEL.VERBOSE, 'registry', `uploading image: ${image}`)
-      const pushImage = spawn('docker', [
+      await spawnAttachWaitComplete(LEVEL.VERBOSE, 'registry_push_image', 'docker', [
         'push',
         image
-      ], { stdio: ttyColumns > 0 ? ['inherit', 'pipe', 'pipe'] : 'inherit' })
-      attachProgress(LEVEL.VERBOSE, pushImage)
-      await completion(pushImage)
+      ])
     }
 
     log.log(LEVEL.INFO, 'concourse', 'waiting for concourse to wake up')
@@ -212,7 +198,7 @@ const flyExecute = async (cmdName, cmdArgs, { image, persist }) => {
     try {
       flyPath = which.sync('fly')
     } catch {
-      log.log(LEVEL.ERROR, 'concourse', 'no fly installation detected on PATH')
+      log.log(LEVEL.VERBOSE, 'concourse', 'no fly installation detected on PATH')
       const flyDir = path.resolve(process.env.HOME, '.local/bin/')
       flyPath = path.resolve(flyDir, 'bakery-cli-fly')
       fs.mkdirSync(flyDir, { recursive: true })
@@ -221,18 +207,12 @@ const flyExecute = async (cmdName, cmdArgs, { image, persist }) => {
     let needsDownload = false
     if (fs.existsSync(flyPath)) {
       log.log(LEVEL.VERBOSE, 'concourse', `detected fly cli installation at ${flyPath}`)
-      const printOldFlyVersion = spawn(flyPath, ['--version'], { stdio: ttyColumns > 0 ? ['inherit', 'pipe', 'pipe'] : 'inherit' })
-      children.push(printOldFlyVersion)
-      attachProgress(LEVEL.VERBOSE, 'concourse', printOldFlyVersion)
-      await completion(printOldFlyVersion)
+      // spawnSync(flyPath, ['--version'], { stdio: 'inherit'})
       try {
-        const sync = spawn(flyPath, [
+        await spawnAttachWaitComplete(LEVEL.VERBOSE, 'concourse_sync', flyPath, [
           'sync',
           '-c', 'http://localhost:8080'
-        ], { stdio: ttyColumns > 0 ? ['inherit', 'pipe', 'pipe'] : 'inherit' })
-        attachProgress(LEVEL.VERBOSE, 'concourse', sync)
-        children.push(sync)
-        await completion(sync)
+        ])
       } catch (err) {
         needsDownload = true
       }
@@ -254,23 +234,19 @@ const flyExecute = async (cmdName, cmdArgs, { image, persist }) => {
       })
       fs.writeFileSync(flyPath, newFly)
       fs.chmodSync(flyPath, 0o776)
-      const printNewFlyVersion = spawn(flyPath, ['--version'], { stdio: 'inherit' })
-      children.push(printNewFlyVersion)
-      await completion(printNewFlyVersion)
+      
+      // spawnSync(flyPath, ['--version'], { stdio: 'inherit' })
     }
 
     log.log(LEVEL.VERBOSE, 'login', 'logging in')
-    const login = spawn(flyPath, [
+    await spawnAttachWaitComplete(LEVEL.SILLY, 'login', flyPath, [
       'login',
       '-k',
       '-t', 'bakery-cli',
       '-c', 'http://localhost:8080',
       '-u', 'admin',
       '-p', 'admin'
-    ], { stdio: ttyColumns > 0 ? ['inherit', 'pipe', 'pipe'] : 'inherit' })
-    attachProgress(LEVEL.SILLY, 'login', login)
-    children.push(login)
-    await completion(login)
+    ])
 
     log.log(LEVEL.VERBOSE, 'waiting for concourse to settle')
     await sleep(5000)
@@ -281,19 +257,14 @@ const flyExecute = async (cmdName, cmdArgs, { image, persist }) => {
       '--include-ignored',
       ...cmdArgs
     ]
-    log.log(LEVEL.VERBOSE, cmdName, `executing fly with args: ${flyArgs}`)
+    log.log(LEVEL.SILLY, cmdName, `executing fly with args: ${flyArgs}`)
 
-    const execute = spawn(flyPath, flyArgs, {
-      stdio: ttyColumns > 0 ? ['inherit', 'pipe', 'pipe'] : 'inherit',
+    await spawnAttachWaitComplete(LEVEL.INFO, cmdName, flyPath, flyArgs, {
       env: {
         ...process.env,
         COLUMNS: process.stdout.columns
       }
     })
-    log.log(LEVEL.INFO, cmdName, 'Running step...')
-    attachProgress(LEVEL.INFO, cmdName, execute)
-    children.push(execute)
-    await completion(execute)
   } catch (err) {
     if (err.stdout != null) {
       console.log(err.stdout.toString())
@@ -304,13 +275,10 @@ const flyExecute = async (cmdName, cmdArgs, { image, persist }) => {
   } finally {
     if (!persist) {
       log.log(LEVEL.INFO, 'shutDown', 'cleaning up')
-      const cleanUp = spawn('docker-compose', [
+      await spawnAttachWaitComplete(LEVEL.VERBOSE, 'shutting_down', 'docker-compose', [
         `--file=${COMPOSE_FILE_PATH}`,
         'stop'
-      ], { stdio: ttyColumns > 0 ? ['inherit', 'pipe', 'pipe'] : 'inherit' })
-      attachProgress(LEVEL.VERBOSE, 'shutDown', cleanUp)
-      children.push(cleanUp)
-      await completion(cleanUp)
+      ])
     } else {
       log.log(LEVEL.INFO, 'shutDown', 'persisting containers')
     }
@@ -577,6 +545,68 @@ const tasks = {
       }
     }
   },
+  'bake-kitchen-group': (parentCommand) => {
+    const commandUsage = 'bake-kitchen-group <slug> <recipename> <stylefile>'
+    const handler = async argv => {
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
+
+      const imageDetails = imageDetailsFromArgs(argv)
+      const singleBookFlag = argv.single
+      const taskArgs = [`--taskargs=${JSON.stringify({
+        ...imageDetails,
+        singleBookFlag: singleBookFlag,
+        slug: argv.slug
+      })}`]
+      const taskContent = execFileSync(buildExec, ['task', 'bake-book-group', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const styleName = argv.recipename
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'style'), styleName)
+
+      const tmpRecipesDir = tmp.dirSync()
+      fs.mkdirSync(path.resolve(tmpRecipesDir.name, 'rootfs/styles/'), { recursive: true })
+      fs.copyFileSync(path.resolve(argv.stylefile), path.resolve(tmpRecipesDir.name, `rootfs/styles/${styleName}-pdf.css`))
+
+      const dataDir = path.resolve(argv.data, argv.slug)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'assembled-book-group'),
+        `--input=cnx-recipes-output=${tmpRecipesDir.name}`,
+        output(dataDir, 'baked-book-group'),
+        output(dataDir, 'group-style')
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'bgk',
+      describe: 'bake a book group using kitchen',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
+        yargs.positional('slug', {
+          describe: 'slug of collection to work on',
+          type: 'string'
+        }).positional('recipename', {
+          describe: 'kitchen recipe / book name',
+          type: 'string'
+        }).positional('stylefile', {
+          describe: 'path to style file',
+          type: 'string'
+        }).option('s', {
+          alias: 'single',
+          describe: 'process a single book',
+          type: 'boolean',
+          default: false
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
+  },
   'link-extras': (parentCommand) => {
     const commandUsage = 'link-extras <collid> <server>'
     const handler = async argv => {
@@ -722,6 +752,60 @@ const tasks = {
           type: 'string'
         }).positional('recipefile', {
           describe: 'path to recipe file',
+          type: 'string'
+        }).positional('stylefile', {
+          describe: 'path to style file',
+          type: 'string'
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
+  },
+  'bake-kitchen': (parentCommand) => {
+    const commandUsage = 'bake-kitchen <collid> <recipename> <stylefile>'
+    const handler = async argv => {
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
+
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = imageDetails == null
+        ? []
+        : [`--taskargs=${JSON.stringify(imageDetails)}`]
+      const taskContent = execFileSync(buildExec, ['task', 'bake-book', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const styleName = argv.recipename
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'style'), styleName)
+
+      const tmpRecipesDir = tmp.dirSync()
+      fs.mkdirSync(path.resolve(tmpRecipesDir.name, 'rootfs/styles/'), { recursive: true })
+      fs.copyFileSync(path.resolve(argv.stylefile), path.resolve(tmpRecipesDir.name, `rootfs/styles/${styleName}-pdf.css`))
+
+      const dataDir = path.resolve(argv.data, argv.collid)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, 'linked-extras'),
+        `--input=cnx-recipes-output=${tmpRecipesDir.name}`,
+        output(dataDir, 'baked-book')
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'bk',
+      describe: 'bake a book using kitchen',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
+        yargs.positional('collid', {
+          describe: 'collection id of collection to work on',
+          type: 'string'
+        }).positional('recipename', {
+          describe: 'kitchen recipe / book name',
           type: 'string'
         }).positional('stylefile', {
           describe: 'path to style file',
@@ -1526,7 +1610,9 @@ const yargs = require('yargs')
           .command(tasks['link-extras'](commandUsage))
           .command(tasks['link-single'](commandUsage))
           .command(tasks.bake(commandUsage))
+          .command(tasks['bake-kitchen'](commandUsage))
           .command(tasks['bake-group'](commandUsage))
+          .command(tasks['bake-kitchen-group'](commandUsage))
           .command(tasks.mathify(commandUsage))
           .command(tasks['mathify-single'](commandUsage))
           .command(tasks['build-pdf'](commandUsage))
@@ -1575,12 +1661,11 @@ const yargs = require('yargs')
   .command((() => {
     const commandUsage = 'up'
     const handler = async _ => {
-      const teardown = spawn('docker-compose', [
+      await spawnAttachWaitComplete(LEVEL.VERBOSE, 'teardown', 'docker-compose', [
         `--file=${COMPOSE_FILE_PATH}`,
         'up',
         '-d'
-      ], { stdio: 'inherit' })
-      await completion(teardown)
+      ])
     }
     return {
       command: commandUsage,
@@ -1597,11 +1682,10 @@ const yargs = require('yargs')
     const commandUsage = 'stop'
     const handler = async argv => {
       const composeCmd = argv.destroy ? 'down' : 'stop'
-      const teardown = spawn('docker-compose', [
+      await spawnAttachWaitComplete(LEVEL.VERBOSE, 'teradown', 'docker-compose', [
         `--file=${COMPOSE_FILE_PATH}`,
         composeCmd
-      ], { stdio: 'inherit' })
-      await completion(teardown)
+      ])
     }
     return {
       command: commandUsage,
