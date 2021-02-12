@@ -342,7 +342,7 @@ export default {
     this.serverRules = [v => !!v || 'Please select a server']
     this.gitCollectionRules = [
       v => !!v || 'Repo and slug are required',
-      v => /[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+/.test(v) || 'A valid repo and slug name is required, e.g. repo-name/slug-name'
+      v => /[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+$/.test(v) || 'A valid repo and slug name is required, e.g. repo-name/slug-name'
     ]
     this.headers = [
       {
