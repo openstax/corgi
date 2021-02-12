@@ -33,10 +33,6 @@ die() {
 try() { "$@" || die "ERROR: could not run [$*]"; }
 
 
-[[ -d "${temp_dir}" ]] || mkdir "${temp_dir}"
-[[ -d "${abl_dir}" ]] || (_say "Cloning ABL to temp dir"; sleep 10; cd "${temp_dir}" || exit 1; git clone https://github.com/openstax/content-manager-approved-books || exit 1)
-
-
 
 # Returns the following:
 # - book_uuid
@@ -215,6 +211,11 @@ do
         ;;
     esac
 done
+
+# Ensure directories exist
+[[ -d "${temp_dir}" ]] || mkdir "${temp_dir}"
+[[ -d "${abl_dir}" ]] || (_say "Cloning ABL to temp dir"; sleep 10; cd "${temp_dir}" || exit 1; git clone https://github.com/openstax/content-manager-approved-books || exit 1)
+
 
 if [[ ${steps_to_run} == '' ]]
 then
