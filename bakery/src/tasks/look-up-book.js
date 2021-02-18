@@ -51,7 +51,7 @@ const task = (taskArgs) => {
               ;;
             git)
               cat ${inputSource}/collection_id | awk -F'/' '{ print $1 }' > book/repo
-              cat ${inputSource}/collection_id | awk -F'/' '{ print $2 }' > book/slug
+              cat ${inputSource}/collection_id | awk -F'/' '{ print $2 }' | sed 's/ *$//' > book/slug
               pdf_filename="$(cat book/slug)-$(cat book/version)-git-$(cat book/job_id).pdf"
               echo "$pdf_filename" > book/pdf_filename
               ;;
