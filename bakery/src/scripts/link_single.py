@@ -162,6 +162,7 @@ def transform_links(
             # includes if the lookup returned None) and we're mocking otherbook
             # links, go ahead and insert the mock.
             node.attrib["href"] = "mock-inter-book-link"
+            node.attrib["data-book-uuid"] = "mock-inter-book-uuid"
             continue
         elif (canonical_book_uuid is None):
             raise Exception(

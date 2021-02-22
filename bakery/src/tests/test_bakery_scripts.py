@@ -2737,12 +2737,16 @@ def test_link_single_with_flag(tmp_path, mocker):
         [
             ("id", "l1"),
             ("href",
-             "mock-inter-book-link")
+             "mock-inter-book-link"),
+            ("data-book-uuid",
+             "mock-inter-book-uuid")
         ],
         [
             ("id", "l2"),
             ("href",
-             "mock-inter-book-link")
+             "mock-inter-book-link"),
+            ("data-book-uuid",
+             "mock-inter-book-uuid")
         ],
         [
             ("id", "l3"),
@@ -2750,7 +2754,9 @@ def test_link_single_with_flag(tmp_path, mocker):
         ],
         [
             ("id", "l4"),
-            ("href", "mock-inter-book-link")
+            ("href", "mock-inter-book-link"),
+            ("data-book-uuid",
+             "mock-inter-book-uuid")
         ]
     ]
 
