@@ -3,10 +3,10 @@ Replaces legacy module ids in links to external modules with
 uuids from the target module and corresponding canonical book       .
 """
 
-import sys
 import re
 import json
 from pathlib import Path
+import argparse
 
 from lxml import etree
 from urllib.parse import unquote
@@ -68,7 +68,7 @@ def get_target_uuid(link):
         parsed).group(1)
 
 
-def gen_page_slug_resolver(baked_meta_dir, book_tree_by_uuid):
+def gen_page_slug_resolver(book_tree_by_uuid):
     """Generate a page slug resolver function"""
 
     def _get_page_slug(book_uuid, page_uuid):
@@ -102,6 +102,7 @@ def patch_link(node, source_book_uuid, canonical_book_uuid,
     # /content/m12345/index.xhtml#exercise -> /content/uuid::abcd/index.xhtml#exercise,
     # but if #exercise has moved, then it should be /content/uuid::other/index.xhtml#exercise
     # This can be fixed via searching the baked content when encountering link with a #.... suffix
+
     if not source_book_uuid == canonical_book_uuid:
         page_link = node.attrib["href"].split("/contents/")[1]
         # Link may have fragment
@@ -114,10 +115,12 @@ def patch_link(node, source_book_uuid, canonical_book_uuid,
 
         print('BEFORE:')
         print(node.attrib)
+
         node.attrib["data-book-uuid"] = canonical_book_uuid
         node.attrib["data-book-slug"] = canonical_book_slug
         node.attrib["data-page-slug"] = page_slug
         node.attrib["href"] = f"./{canonical_book_uuid}:{page_id}.xhtml{page_fragment}"
+
         print('AFTER:')
         print(node.attrib)
 
@@ -129,7 +132,7 @@ def save_linked_collection(output_path, doc):
 
 
 def transform_links(
-        baked_content_dir, baked_meta_dir, source_book_slug, output_path):
+        baked_content_dir, baked_meta_dir, source_book_slug, output_path, mock_otherbook):
     doc = load_baked_collection(baked_content_dir, source_book_slug)
     binders = parse_collection_binders(baked_content_dir)
     canonical_map = create_canonical_map(binders)
@@ -141,7 +144,6 @@ def transform_links(
     }
     source_book_uuid = uuid_by_slug[source_book_slug]
     page_slug_resolver = gen_page_slug_resolver(
-        baked_meta_dir,
         book_tree_by_uuid
     )
 
@@ -153,7 +155,19 @@ def transform_links(
         link = node.attrib["href"]
 
         target_module_uuid = get_target_uuid(link)
-        canonical_book_uuid = canonical_map[target_module_uuid]
+        canonical_book_uuid = canonical_map.get(target_module_uuid)
+
+        if ((not canonical_book_uuid == source_book_uuid) and mock_otherbook):
+            # If the canonical book UUID doesn't equal the current book (which
+            # includes if the lookup returned None) and we're mocking otherbook
+            # links, go ahead and insert the mock.
+            node.attrib["href"] = "mock-inter-book-link"
+            node.attrib["data-book-uuid"] = "mock-inter-book-uuid"
+            continue
+        elif (canonical_book_uuid is None):
+            raise Exception(
+                f"Could not find canonical book for {target_module_uuid}"
+            )
         canonical_book_slug = next(
             (slug for slug, uuid in uuid_by_slug.items()
              if uuid == canonical_book_uuid))
@@ -172,12 +186,21 @@ def transform_links(
 
 
 def main():
-    (baked_content_dir,
-        baked_meta_dir,
-        source_book_slug,
-        output_path) = sys.argv[1:5]
+    parser = argparse.ArgumentParser()
+    parser.add_argument("baked_content_dir")
+    parser.add_argument("baked_meta_dir")
+    parser.add_argument("source_book_slug")
+    parser.add_argument("output_path")
+    parser.add_argument("--mock-otherbook", action="store_true")
+    args = parser.parse_args()
+
     transform_links(
-        baked_content_dir, baked_meta_dir, source_book_slug, output_path)
+        args.baked_content_dir,
+        args.baked_meta_dir,
+        args.source_book_slug,
+        args.output_path,
+        args.mock_otherbook
+    )
 
 
 if __name__ == "__main__":

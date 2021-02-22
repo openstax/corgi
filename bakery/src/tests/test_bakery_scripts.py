@@ -2475,6 +2475,9 @@ def test_link_single(tmp_path, mocker):
         <li cnx-archive-uri="9f049b16-15e9-4725-8c8b-4908a3e2be5e@">
         <a href="">Page1</a>
         </li>
+        <li cnx-archive-uri="cffe96ff-cab6-453c-9996-ed6abe5d9b13@">
+        <a href="">Page2</a>
+        </li>
         </ol>
         </nav>
         <div data-type="page" id="9f049b16-15e9-4725-8c8b-4908a3e2be5e">
@@ -2484,10 +2487,19 @@ def test_link_single(tmp_path, mocker):
         </div>
         <p><a id="l1"
             href="/contents/4aa9351c-019f-4c06-bb40-d58262ea7ec7"
-            >Intra-book module link</a></p>
+            >Inter-book module link</a></p>
         <p><a id="l2"
             href="/contents/2e51553f-fde8-43a3-8191-fd8b493a6cfa#foobar"
-            >Intra-book module link with fragment</a></p>
+            >Inter-book module link with fragment</a></p>
+        </div>
+        <div data-type="page" id="cffe96ff-cab6-453c-9996-ed6abe5d9b13e">
+        <div data-type="metadata" style="display: none;">
+        <h1 data-type="document-title" itemprop="name">Page2</h1>
+        <span data-type="canonical-book-uuid" data-value="1ba7e813-2d8a-4b73-87a1-876cfb5e7b58"/>
+        </div>
+        <p><a id="l3"
+            href="/contents/9f049b16-15e9-4725-8c8b-4908a3e2be5e"
+            >Intra-book module link</a></p>
         </div>
         </body>
         </html>
@@ -2503,6 +2515,10 @@ def test_link_single(tmp_path, mocker):
                     {
                         "id": "9f049b16-15e9-4725-8c8b-4908a3e2be5e@",
                         "slug": "book1-page1"
+                    },
+                    {
+                        "id": "cffe96ff-cab6-453c-9996-ed6abe5d9b13e@",
+                        "slug": "book1-page2"
                     }
                 ]
             }
@@ -2574,7 +2590,7 @@ def test_link_single(tmp_path, mocker):
 
     mocker.patch(
         "sys.argv",
-        ["", baked_dir, baked_meta_dir, source_book_slug, linked_xhtml]
+        ["", str(baked_dir), str(baked_meta_dir), source_book_slug, str(linked_xhtml)]
     )
     link_single.main()
 
@@ -2596,6 +2612,10 @@ def test_link_single(tmp_path, mocker):
             ("data-book-slug", "book2"),
             ("data-page-slug", "book2-page2"),
         ],
+        [
+            ("id", "l3"),
+            ("href", "/contents/9f049b16-15e9-4725-8c8b-4908a3e2be5e")
+        ]
     ]
 
     tree = etree.parse(str(linked_xhtml))
@@ -2610,3 +2630,156 @@ def test_link_single(tmp_path, mocker):
     ]
 
     assert check_links == expected_links
+
+
+def test_link_single_with_flag(tmp_path, mocker):
+    """Test link-single script"""
+    baked_dir = tmp_path / "baked-book-group"
+    baked_dir.mkdir()
+    baked_meta_dir = tmp_path / "baked-book-metadata-group"
+    baked_meta_dir.mkdir()
+    source_book_slug = "book1"
+    linked_xhtml = tmp_path / "book1.linked.xhtml"
+
+    book1_baked_content = """
+        <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+        <body itemscope="itemscope" itemtype="http://schema.org/Book">
+        <div data-type="metadata" style="display: none;">
+        <h1 data-type="document-title" itemprop="name">Book1</h1>
+        <span data-type="slug" data-value="book1"></span>
+        <span data-type="cnx-archive-uri"
+            data-value="1ba7e813-2d8a-4b73-87a1-876cfb5e7b58@version"></span>
+        </div>
+        <nav id="toc">
+        <ol>
+        <li cnx-archive-uri="9f049b16-15e9-4725-8c8b-4908a3e2be5e@">
+        <a href="">Page1</a>
+        </li>
+        <li cnx-archive-uri="cffe96ff-cab6-453c-9996-ed6abe5d9b13@">
+        <a href="">Page2</a>
+        </li>
+        <li cnx-archive-uri="cea7795c-c138-4356-a221-f5eed5ad1adc@">
+        <a href="">Page3</a>
+        </li>
+        </ol>
+        </nav>
+        <div data-type="page" id="9f049b16-15e9-4725-8c8b-4908a3e2be5e">
+        <div data-type="metadata" style="display: none;">
+        <h1 data-type="document-title" itemprop="name">Page1</h1>
+        <span data-type="canonical-book-uuid" data-value="1ba7e813-2d8a-4b73-87a1-876cfb5e7b58"/>
+        </div>
+        <p><a id="l1"
+            href="/contents/4aa9351c-019f-4c06-bb40-d58262ea7ec7"
+            >Inter-book module link</a></p>
+        <p><a id="l2"
+            href="/contents/2e51553f-fde8-43a3-8191-fd8b493a6cfa#foobar"
+            >Inter-book module link with fragment</a></p>
+        </div>
+        <div data-type="page" id="cffe96ff-cab6-453c-9996-ed6abe5d9b13e">
+        <div data-type="metadata" style="display: none;">
+        <h1 data-type="document-title" itemprop="name">Page2</h1>
+        <span data-type="canonical-book-uuid" data-value="1ba7e813-2d8a-4b73-87a1-876cfb5e7b58"/>
+        </div>
+        <p><a id="l3"
+            href="/contents/9f049b16-15e9-4725-8c8b-4908a3e2be5e"
+            >Intra-book module link</a></p>
+        <p><a id="l4"
+            href="/contents/cea7795c-c138-4356-a221-f5eed5ad1adc"
+            >Intra-book module link for shared page with outside canonical</a></p>
+        </div>
+        <div data-type="page" id="cea7795c-c138-4356-a221-f5eed5ad1adc">
+        <div data-type="metadata" style="display: none;">
+        <h1 data-type="document-title" itemprop="name">Page3</h1>
+        <span data-type="canonical-book-uuid" data-value="6a88da29-8d6a-4139-bafc-e179be9b241d"/>
+        </div>
+        <p>Content</p>
+        </div>
+        </body>
+        </html>
+    """
+    book1_baked_meta_content = {
+        "1ba7e813-2d8a-4b73-87a1-876cfb5e7b58@version": {
+            "id": "1ba7e813-2d8a-4b73-87a1-876cfb5e7b58",
+            "slug": "book1",
+            "tree": {
+                "id": "1ba7e813-2d8a-4b73-87a1-876cfb5e7b58@version",
+                "slug": "book1",
+                "contents": [
+                    {
+                        "id": "9f049b16-15e9-4725-8c8b-4908a3e2be5e@",
+                        "slug": "book1-page1"
+                    },
+                    {
+                        "id": "cffe96ff-cab6-453c-9996-ed6abe5d9b13e@",
+                        "slug": "book1-page2"
+                    },
+                    {
+                        "id": "cea7795c-c138-4356-a221-f5eed5ad1adc@",
+                        "slug": "book1-page3"
+                    }
+                ]
+            }
+        }
+    }
+    book1_baked = baked_dir / "book1.baked.xhtml"
+    book1_baked_meta = baked_meta_dir / "book1.baked-metadata.json"
+    book1_baked.write_text(book1_baked_content)
+    book1_baked_meta.write_text(json.dumps(book1_baked_meta_content))
+
+    mocker.patch(
+        "sys.argv",
+        ["", str(baked_dir), str(baked_meta_dir), source_book_slug, str(linked_xhtml),
+         "--mock-otherbook"]
+    )
+    link_single.main()
+
+    expected_links = [
+        [
+            ("id", "l1"),
+            ("href",
+             "mock-inter-book-link"),
+            ("data-book-uuid",
+             "mock-inter-book-uuid")
+        ],
+        [
+            ("id", "l2"),
+            ("href",
+             "mock-inter-book-link"),
+            ("data-book-uuid",
+             "mock-inter-book-uuid")
+        ],
+        [
+            ("id", "l3"),
+            ("href", "/contents/9f049b16-15e9-4725-8c8b-4908a3e2be5e")
+        ],
+        [
+            ("id", "l4"),
+            ("href", "mock-inter-book-link"),
+            ("data-book-uuid",
+             "mock-inter-book-uuid")
+        ]
+    ]
+
+    tree = etree.parse(str(linked_xhtml))
+
+    parsed_links = tree.xpath(
+        '//x:a[@href and starts-with(@href, "mock-inter-book-link") or starts-with(@href, "./") '
+        'or starts-with(@href, "/contents")]',
+        namespaces={"x": "http://www.w3.org/1999/xhtml"},
+    )
+
+    check_links = [
+        link.items() for link in parsed_links
+    ]
+
+    assert check_links == expected_links
+
+    with pytest.raises(
+        Exception,
+        match=r'Could not find canonical book'
+    ):
+        mocker.patch(
+            "sys.argv",
+            ["", str(baked_dir), str(baked_meta_dir), source_book_slug, str(linked_xhtml)]
+        )
+        link_single.main()
