@@ -1,6 +1,8 @@
-# output-producer-service
+# Content Output Review and Generation Interface (CORGI)
 
-AKA: COPS, "cops service", "cops backend", etc. The "C" stands for Content.
+![CORGI](docs/_static/images/corgi.jpg)
+
+_FKA: "COPS", Content Output Production Service_
 
 ## Requirements
 
@@ -16,14 +18,22 @@ After installing Docker, navigate to the Docker Desktop GUI preferences and incr
 
 ## Architecture
 
-The output-producer-service contains of two parts:
+The CORGI system consists of 2 parts:
 
-1. Backend
-2. Frontend
+1. Job Manager
+2. Bakery pipeline
 
-The backend is written using Python and the FastAPI ASGI Framework.
+### Job Manager
 
-The frontend is written using nuxt.js.
+The Job Manager itself is also split into two parts containing the front-end and the backend. The Job Manager acts mainly as a "queue" of jobs to be processed by the Bakery pipeline.
+
+1. Backend - written using Python and the [FastAPI ASGI Framework](https://fastapi.tiangolo.com/). The backend API is used by the front-end and bakery to create, retrieve, or update job information. 
+
+2. Frontend - written using [nuxt.js](https://nuxtjs.org/) and acts as the main dashboard interface of the CORGI system. You can see the list of jobs, create jobs, or abort a job that's in progress. Shows information pertaining to errors and status.
+
+### Bakery Pipeline
+
+The [bakery](bakery/README.md) pipeline is developed using the Concourse CI system and follows the pipeline pattern for producing book outputs.
 
 ## Backend local development
 
