@@ -11,10 +11,15 @@ fi
 root_dir=$(dirname "$0")
 temp_dir="${BAKERY_DATA_DIR:=${root_dir}/temp}"
 abl_dir="${temp_dir}/content-manager-approved-books"
+if [[ ${ABL_DIR} ]]
+then
+    abl_dir=${ABL_DIR}
+fi
 
 steps_to_run='' # Collect all the steps that need to run. We will check for a substring in them to see if the operation is enabled
 skip_existing=0 # or 1 if true
 passthrough_args=''
+print_versions=0
 book_names=()
 
 c_yellow=$(tput setaf 11)
@@ -39,9 +44,12 @@ try() { "$@" || die "ERROR: could not run [$*]"; }
 # - collection_id
 # - book_style
 # - book_server
+# - book_versions
 parse_book_info() {
     local book_name=$1
     local book_entry
+
+    # See https://github.com/stedolan/jq/wiki/Cookbook and https://stedolan.github.io/jq/manual/ for jq Documentation
 
     # Convert book_slug to a UUID
     book_uuid=$(jq -r --arg book_slug "${book_name}" 'reduce .[] as $item ({}; . + {($item.slug): $item.uuid}) | .[$book_slug]' < "${abl_dir}/book-slugs.json")
@@ -56,6 +64,8 @@ parse_book_info() {
     collection_id=$(echo "${book_entry}" | jq -r '.collection_id')
     book_style=$(echo "${book_entry}" | jq -r '.style')
     book_server=$(echo "${book_entry}" | jq -r '.server')
+
+    book_versions=$(jq -r --arg book_uuid "${book_uuid}" '.[] | select(.uuid == $book_uuid).version' < "${abl_dir}/approved-books.json")
 
     if [[ ${collection_id} == 'null' || ${book_style} == 'null' || ${book_server} == 'null' ]]
     then
@@ -118,6 +128,10 @@ do_book() {
                     try node ./src/cli/execute.js run "${cur_operation}" ${generic_args} "${book_col_id}"
                 fi
 
+                # Save the hash of this directory so we can tell if it has changed
+                # & therefore subsequent steps need to re-run
+                pushd "${test_dir}" && find . -type f -exec md5sum {} \; | md5sum > "${test_dir}.dir.md5" && popd
+
             else
                 warn "Skipping ${book_name} step ${cur_operation} because dir already exists: '${test_dir}'"
             fi
@@ -143,6 +157,14 @@ dir_for_bake='baked-book'
 dir_for_mathify='mathified-book'
 dir_for_build_pdf='artifacts'
 
+inputs_for_fetch=''
+inputs_for_assemble='fetch'
+inputs_for_link_extras='assemble'
+inputs_for_bake='link-extras'
+inputs_for_mathify='bake'
+inputs_for_build_pdf='mathify'
+
+
 all_steps_to_run="${_fetch_arg} ${_assemble_arg} ${_linkextras_arg} ${_bake_arg} ${_mathify_arg} ${_pdf_arg}"
 
 usage() {
@@ -159,6 +181,7 @@ usage() {
     _say ""
     _say "    --all           : Run on all books"
     _say "    --skip-existing : If the output directory of an operation already exists then this will skip the step"
+    _say "    --versions      : Print all the versions of each book in the Approved Book List (ABL)"
     _say ""
     _say "Arguments that are passed on to the bakery CLI:"
     _say "    --persist"
@@ -170,6 +193,9 @@ usage() {
     _say "    CNX_RECIPES_DIR=/path/to : specifies the directory to look for the cnx-recipes repository root"
     _say "    BAKERY_DATA_DIR=/path/to : specifies a directory to use. default is ./temp/"
     _say "    LOG_LEVEL=trace          : enables verbose logging of each line that is executed"
+    _say "    ABL_DIR=/path/to         : specifies the directory of the cloned local copy of"
+    _say "                               https://github.com/openstax/content-manager-approved-books"
+    _say "                               Default is BAKERY_DATA_DIR/content-manager-approved-books"
     exit 1
 }
 
@@ -197,6 +223,10 @@ do
         ;;
         --persist)
             passthrough_args="${passthrough_args} --persist"
+        ;;
+        --versions)
+            print_versions=1
+            shift
         ;;
         -h|--help)
             usage
@@ -231,14 +261,21 @@ fi
 
 # If the user did not specify any books then run against all the books
 book_names_len=${#book_names[@]}
-if [[ ${book_names_len} == 0 ]]
+if [[ ${book_names_len} == 0 || ${print_versions} == 1 ]]
 then
     _say "ERROR: No books were specified. Use --all or specify a book name"
     _say "Valid book names (from the ABL book list):"
-    book_slug_names=$(jq -r '.[].slug' < "${abl_dir}/book-slugs.json")
+    book_slug_names=$(jq -r '.[].slug' < "${abl_dir}/book-slugs.json" | sort)
 
     for book_name in ${book_slug_names}; do
-        _say "    ${book_name}"
+        if [[ ${print_versions} == 1 ]]
+        then
+            parse_book_info "${book_name}"
+            # book_versions is now defined
+            _say "${book_name} @ ${book_versions}"
+        else
+            _say "${book_name}"
+        fi
     done
     exit 1
 fi
