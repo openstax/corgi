@@ -68,7 +68,7 @@ You should see no pipelines running.
 -------
 
 2. Define Pipeline Environment Variables
-=====================================
+========================================
 The Distribution Pipeline is configured using multiple variables in the environment
 specific JSON file in ``bakery/env``. Some of these are shared with the PDF pipeline,
 while others pertain only to it:
