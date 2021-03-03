@@ -1,9 +1,9 @@
 .. _distribution-pipeline-overview:
 
 
-##############
+########
 Overview
-##############
+########
 
 The Distribution Pipeline generates JSON files corresponding to the page and book
 contents. The source repository contains schemas for the
