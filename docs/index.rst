@@ -5,9 +5,9 @@
 
 ----
 
-############################################
+######################################################
 Content Output Review and Generation Interface (CORGI)
-############################################
+######################################################
 
 CORGI an overarching system that contain different ways to 
 produce Openstax book content for various users (Content Manangers (CMs), 
@@ -41,6 +41,8 @@ CORGI at a Glance
    operations/updating_bakery_scripts
    operations/generate_pipeline_config
    operations/cli
+   operations/find_git_ref
+   operations/select_code_version_tag
 
 .. toctree::
    :maxdepth: 2
