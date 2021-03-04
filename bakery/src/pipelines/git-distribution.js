@@ -107,7 +107,7 @@ const pipeline = (env) => {
         contentSource: 'git'
       }),
       taskUploadSingle({
-        distBucket: env.WEB_S3_BUICKET,
+        distBucket: env.WEB_S3_BUCKET,
         distBucketPath: 'apps/archive/',
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,

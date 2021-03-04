@@ -9,7 +9,7 @@
   "WEB_GIT_FEED_FILE_URL": "https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/approved-git-books.json",
   "WEB_BUCKET_AKI_SECRET_NAME": "((prod-web-hosting-content-gatekeeper-access-key-id))",
   "WEB_BUCKET_SAK_SECRET_NAME": "((prod-web-hosting-content-gatekeeper-secret-access-key))",
-  "WEB_S3_BUICKET": "openstax-web-hosting-content-gatekeeper",
+  "WEB_S3_BUCKET": "openstax-web-hosting-content-gatekeeper",
   "WEB_QUEUE_STATE_S3_BUCKET": "openstax-web-hosting-content-queue-state",
   "WEB_ARCHIVE_QUEUE_FILENAME": "distribution-queue.json",
   "WEB_GIT_QUEUE_FILENAME": "git-distribution-queue.json",

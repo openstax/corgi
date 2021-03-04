@@ -106,7 +106,7 @@ const pipeline = (env) => {
       }),
       taskUploadBook({
         image: imageOverrides,
-        distBucket: env.WEB_S3_BUICKET,
+        distBucket: env.WEB_S3_BUCKET,
         distBucketPath: 'apps/archive/',
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
