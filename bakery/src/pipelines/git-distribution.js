@@ -18,7 +18,7 @@ const pipeline = (env) => {
   const awsSecretAccessKey = env.S3_SECRET_ACCESS_KEY
   const codeVersionFromTag = env.IMAGE_TAG || 'version-unknown'
   const githubSecretCreds = env.GH_SECRET_CREDS
-  const queueFilename = `${codeVersionFromTag}.${env.DIST_GIT_QUEUE_FILENAME}`
+  const queueFilename = `${codeVersionFromTag}.${env.WEB_GIT_QUEUE_FILENAME}`
   const queueStatePrefix = 'git-dist'
   const lockedTag = env.IMAGE_TAG || 'trunk'
 
@@ -40,7 +40,7 @@ const pipeline = (env) => {
       name: 's3-queue',
       type: 's3',
       source: {
-        bucket: env.DIST_QUEUE_STATE_S3_BUCKET,
+        bucket: env.WEB_QUEUE_STATE_S3_BUCKET,
         versioned_file: queueFilename,
         initial_version: 'initializing',
         access_key_id: awsAccessKeyId,
@@ -63,8 +63,8 @@ const pipeline = (env) => {
       taskCheckFeed({
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
-        feedFileUrl: env.DIST_GIT_FEED_FILE_URL,
-        queueStateBucket: env.DIST_QUEUE_STATE_S3_BUCKET,
+        feedFileUrl: env.WEB_GIT_FEED_FILE_URL,
+        queueStateBucket: env.WEB_QUEUE_STATE_S3_BUCKET,
         queueFilename: queueFilename,
         codeVersion: codeVersionFromTag,
         maxBooksPerRun: env.MAX_BOOKS_PER_TICK,
@@ -107,7 +107,7 @@ const pipeline = (env) => {
         contentSource: 'git'
       }),
       taskUploadSingle({
-        distBucket: env.DIST_S3_BUCKET,
+        distBucket: env.WEB_S3_BUCKET,
         distBucketPath: 'apps/archive/',
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
@@ -118,7 +118,7 @@ const pipeline = (env) => {
         image: imageOverrides,
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
-        queueStateBucket: env.DIST_QUEUE_STATE_S3_BUCKET,
+        queueStateBucket: env.WEB_QUEUE_STATE_S3_BUCKET,
         codeVersion: codeVersionFromTag,
         statePrefix: queueStatePrefix,
         contentSource: 'git'

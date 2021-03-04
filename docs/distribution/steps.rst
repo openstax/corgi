@@ -76,8 +76,8 @@ while others pertain only to it:
 * ``S3_ACCESS_KEY_ID``: AWS credential for S3 access
 * ``S3_SECRET_ACCESS_KEY``: AWS credential for S3 access
 * ``QUEUE_FILENAME``: A filename to use for the versioned S3 file
-* ``DIST_S3_BUCKET``: The S3 bucket where the pipeline should upload content (e.g. JSON and XHTML files)
-* ``DIST_QUEUE_STATE_S3_BUCKET``: The S3 bucket where the pipeline will create files of two forms:
+* ``WEB_S3_BUCKET``: The S3 bucket where the pipeline should upload content (e.g. JSON and XHTML files)
+* ``WEB_QUEUE_STATE_S3_BUCKET``: The S3 bucket where the pipeline will create files of two forms:
 
     * ``<code version>/.<collection_id>@<version>.complete``: These are code version and book specific
       files indicating completion of a build. Their content inludes an ISO-8601 timestamp of when the ``upload-task`` created and uploaded the marker file.
@@ -93,10 +93,10 @@ while others pertain only to it:
 
 .. important::
     The value of ``QUEUE_FILENAME`` should be selected such that the file ``<code version>.<QUEUE_FILENAME>`` in
-    ``DIST_QUEUE_STATE_S3_BUCKET`` has never existed prior to the pipeline being created. The reason being otherwise even "deleting"
+    ``WEB_QUEUE_STATE_S3_BUCKET`` has never existed prior to the pipeline being created. The reason being otherwise even "deleting"
     a file will cause Concourse to see a version preceding the delete, and it will pick it up as a
     job. In production this will be less of a  concern since only pipelines will write to the environment.
-    However, for development you can adopt a convention such as ``distribution-queue-<your initials>-<nonce>.json``
+    However, for development you can adopt a convention such as ``web-hosting-queue-<your initials>-<nonce>.json``
     so as you iterate testing within a code version you can maintain a unique filename (you only need the initials if
     the bucket you use in AWS is shared by multiple users for dev / QA).
 
@@ -111,8 +111,8 @@ S3 to host your feed file):
         "COPS_ARTIFACTS_S3_BUCKET": "artifacts-bucket",
         "S3_ACCESS_KEY_ID": "MODIFY ME",
         "S3_SECRET_ACCESS_KEY": "MODIFY_ME",
-        "DIST_QUEUE_STATE_S3_BUCKET": "ce-rap-dev-dist2",
-        "QUEUE_FILENAME": "distribution-queue-abc-1.json",
+        "WEB_QUEUE_STATE_S3_BUCKET": "ce-rap-dev-dist2",
+        "QUEUE_FILENAME": "web-hosting-queue-abc-1.json",
         "DIST_FEED_FILE_URL": "https://ce-rap-dev-dist2.s3.amazonaws.com/distribution-feed.json",
         "PIPELINE_TICK_INTERVAL": "20m",
         "MAX_BOOKS_PER_TICK": "3"

@@ -18,7 +18,7 @@ const pipeline = (env) => {
   const awsAccessKeyId = env.S3_ACCESS_KEY_ID
   const awsSecretAccessKey = env.S3_SECRET_ACCESS_KEY
   const codeVersionFromTag = env.IMAGE_TAG || 'version-unknown'
-  const queueFilename = `${codeVersionFromTag}.${env.DIST_ARCHIVE_QUEUE_FILENAME}`
+  const queueFilename = `${codeVersionFromTag}.${env.WEB_ARCHIVE_QUEUE_FILENAME}`
   const queueStatePrefix = 'archive-dist'
 
   const lockedTag = env.IMAGE_TAG || 'trunk'
@@ -41,7 +41,7 @@ const pipeline = (env) => {
       name: 's3-queue',
       type: 's3',
       source: {
-        bucket: env.DIST_QUEUE_STATE_S3_BUCKET,
+        bucket: env.WEB_QUEUE_STATE_S3_BUCKET,
         versioned_file: queueFilename,
         initial_version: 'initializing',
         access_key_id: awsAccessKeyId,
@@ -64,8 +64,8 @@ const pipeline = (env) => {
       taskCheckFeed({
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
-        feedFileUrl: env.DIST_ARCHIVE_FEED_FILE_URL,
-        queueStateBucket: env.DIST_QUEUE_STATE_S3_BUCKET,
+        feedFileUrl: env.WEB_ARCHIVE_FEED_FILE_URL,
+        queueStateBucket: env.WEB_QUEUE_STATE_S3_BUCKET,
         queueFilename: queueFilename,
         codeVersion: codeVersionFromTag,
         maxBooksPerRun: env.MAX_BOOKS_PER_TICK,
@@ -106,7 +106,7 @@ const pipeline = (env) => {
       }),
       taskUploadBook({
         image: imageOverrides,
-        distBucket: env.DIST_S3_BUCKET,
+        distBucket: env.WEB_S3_BUCKET,
         distBucketPath: 'apps/archive/',
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
@@ -116,7 +116,7 @@ const pipeline = (env) => {
         image: imageOverrides,
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
-        queueStateBucket: env.DIST_QUEUE_STATE_S3_BUCKET,
+        queueStateBucket: env.WEB_QUEUE_STATE_S3_BUCKET,
         codeVersion: codeVersionFromTag,
         statePrefix: queueStatePrefix
       })

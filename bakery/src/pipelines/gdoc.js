@@ -41,7 +41,7 @@ const pipeline = (env) => {
       name: 's3-queue',
       type: 's3',
       source: {
-        bucket: env.DIST_QUEUE_STATE_S3_BUCKET,
+        bucket: env.WEB_QUEUE_STATE_S3_BUCKET,
         versioned_file: queueFilename,
         initial_version: 'initializing',
         access_key_id: awsAccessKeyId,
@@ -65,7 +65,7 @@ const pipeline = (env) => {
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
         feedFileUrl: env.GDOC_FEED_FILE_URL,
-        queueStateBucket: env.DIST_QUEUE_STATE_S3_BUCKET,
+        queueStateBucket: env.WEB_QUEUE_STATE_S3_BUCKET,
         queueFilename: queueFilename,
         codeVersion: codeVersionFromTag,
         maxBooksPerRun: env.MAX_BOOKS_PER_TICK,
@@ -109,7 +109,7 @@ const pipeline = (env) => {
         parentGoogleFolderId: parentGoogleFolderId,
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
-        queueStateBucket: env.DIST_QUEUE_STATE_S3_BUCKET,
+        queueStateBucket: env.WEB_QUEUE_STATE_S3_BUCKET,
         codeVersion: codeVersionFromTag,
         statePrefix: queueStatePrefix
       })
