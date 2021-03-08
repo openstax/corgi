@@ -43,6 +43,7 @@ pypom==2.2.0
 pyrsistent==0.15.6
 pytest==5.3.1
 pytest-selenium==1.17.0
+pytest-testrail==2.9.0
 python-dateutil==2.8.1
 pyzmq==18.1.1
 requests==2.22.0
