@@ -2,7 +2,10 @@ import pytest
 
 from pages.home import Home
 
+from pytest_testrail.plugin import pytestrail
 
+
+@pytestrail.case("C624693")
 @pytest.mark.ui
 @pytest.mark.nondestructive
 def test_create_new_job_button_is_displayed(selenium, base_url):
@@ -15,6 +18,7 @@ def test_create_new_job_button_is_displayed(selenium, base_url):
     assert home.is_create_new_job_button_displayed
 
 
+@pytestrail.case("C624694")
 @pytest.mark.ui
 @pytest.mark.nondestructive
 def test_create_new_job_modal_form_opens_and_closes(selenium, base_url):

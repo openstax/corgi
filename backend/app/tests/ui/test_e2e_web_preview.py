@@ -2,7 +2,10 @@ import pytest
 
 from pages.home import Home
 
+from pytest_testrail.plugin import pytestrail
 
+
+@pytestrail.case("C614652")
 @pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive

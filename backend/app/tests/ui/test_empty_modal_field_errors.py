@@ -2,7 +2,10 @@ import pytest
 
 from pages.home import Home
 
+from pytest_testrail.plugin import pytestrail
 
+
+@pytestrail.case("C624691")
 @pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
@@ -53,6 +56,7 @@ def test_empty_modal_field_errors(selenium, base_url):
     assert "Style is required" == text_style
 
 
+@pytestrail.case("C624692")
 @pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive

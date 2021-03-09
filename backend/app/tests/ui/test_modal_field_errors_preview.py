@@ -2,7 +2,10 @@ import pytest
 
 from pages.home import Home
 
+from pytest_testrail.plugin import pytestrail
 
+
+@pytestrail.case("C624696")
 @pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
@@ -54,7 +57,10 @@ def test_invalid_colid_error_preview(selenium, base_url):
     text_col_id_slug_incorrect = split_col_id_slug_incorrect[1]
 
     # THEN: Correct error message appears in collection id and style field
-    assert "A valid repo and slug name is required, e.g. repo-name/slug-name" == text_col_id_slug_incorrect
+    assert (
+        "A valid repo and slug name is required, e.g. repo-name/slug-name"
+        == text_col_id_slug_incorrect
+    )
 
     split_style = modal.style_field_error.text.splitlines()
     text_style = split_style[1]
