@@ -88,9 +88,9 @@
                   <v-row>
                     <v-radio-group v-model="jobType" row mandatory :default="jobTypes.PDF" @change="resetFormValidation">
                       <v-radio label="PDF" :value="jobTypes.PDF" class="pdf-radio-button" />
-                      <v-radio label="Web Preview" :value="jobTypes.DIST_PREVIEW" class="preview-radio-button" />
+                      <v-radio label="Web Preview" :value="jobTypes.WEB_PREVIEW" class="preview-radio-button" />
                       <v-radio label="PDF (git)" :value="jobTypes.GIT_PDF" class="git-pdf-radio-button" />
-                      <v-radio label="Web Preview (git)" :value="jobTypes.GIT_DIST_PREVIEW" class="git-preview-radio-button" />
+                      <v-radio label="Web Preview (git)" :value="jobTypes.GIT_WEB_PREVIEW" class="git-preview-radio-button" />
                     </v-radio-group>
                   </v-row>
                   <v-row>
@@ -363,7 +363,7 @@ export default {
       { text: 'Updated at', value: 'updated_at' }
     ]
     // This value corresponds to the seeded id in the backend
-    this.jobTypes = { PDF: 1, DIST_PREVIEW: 2, GIT_PDF: 3, GIT_DIST_PREVIEW: 4 }
+    this.jobTypes = { PDF: 1, WEB_PREVIEW: 2, GIT_PDF: 3, GIT_WEB_PREVIEW: 4 }
     this.getUrlEntries = (input) => {
       if (input == null) {
         return []
