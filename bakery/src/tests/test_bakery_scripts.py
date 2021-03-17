@@ -1017,24 +1017,72 @@ def test_bake_book_metadata_git(tmp_path, mocker):
 
 def test_check_feed(tmp_path, mocker):
     """Test check_feed script"""
-    input_book_feed = [
-        {
-            "name": "Introduction to Sociology 2e",
-            "collection_id": "col11762",
-            "style": "sociology",
-            "version": "1.14.1",
-            "server": "cnx.foobar.org",
-            "uuid": "02040312-72c8-441e-a685-20e9333f3e1d",
-        },
-        {
-            "name": "College Physics",
-            "collection_id": "col11406",
-            "style": "college-physics",
-            "version": "1.20.15",
-            "server": "cnx.foobar.org",
-            "uuid": "031da8d3-b525-429c-80cf-6c8ed997733a",
-        },
-    ]
+    input_book_feed = {
+        "approved_books": [
+            {
+                "collection_id": "col11762",
+                "style": "sociology",
+                "server": "cnx.foobar.org",
+                "tutor_only": False,
+                "books": [
+                    {
+                        "uuid": "02040312-72c8-441e-a685-20e9333f3e1d",
+                        "slug": "introduction-sociology-2e"
+                    }
+                ]
+            },
+            {
+                "collection_id": "col11406",
+                "style": "college-physics",
+                "server": "cnx.foobar.org",
+                "tutor_only": False,
+                "books": [
+                    {
+                        "uuid": "031da8d3-b525-429c-80cf-6c8ed997733a",
+                        "slug": "college-physics"
+                    }
+                ]
+            },
+            {
+                "repo": "osbooks-college-algebra-bundle",
+                "style": "precalculus",
+                "tutor_only": False,
+                "books": [
+                    {
+                        "uuid": "9b08c294-057f-4201-9f48-5d6ad992740d",
+                        "slug": "college-algebra"
+                    },
+                    {
+                        "uuid": "13ac107a-f15f-49d2-97e8-60ab2e3b519c",
+                        "slug": "algebra-and-trigonometry"
+                    }
+                ]
+            }
+        ],
+        "approved_versions": [
+            {
+                "collection_id": "col11762",
+                "content_version": "1.14.1",
+                "min_code_version": "20210101.00000000"
+            },
+            {
+                # This version should be ignored due to code version
+                "collection_id": "col11762",
+                "content_version": "1.14.2",
+                "min_code_version": "20210101.00000002"
+            },
+            {
+                "collection_id": "col11406",
+                "content_version": "1.20.15",
+                "min_code_version": "20210101.00000001"
+            },
+            {
+                "repo": "osbooks-college-algebra-bundle",
+                "content_version": "1",
+                "min_code_version": "20210101.00000001"
+            }
+        ]
+    }
 
     json_feed_input = tmp_path / "book-feed.json"
     json_feed_input.write_text(json.dumps(input_book_feed))
@@ -1046,14 +1094,14 @@ def test_check_feed(tmp_path, mocker):
     #
     # Expected s3 requests / responses by invocation:
     #
-    # Invocation 1:
+    # Invocation 1 (archive):
     #   - book 1
     #       - Initial check for .complete: head_object => Return a 404
     #       - Check for .pending: head_object => Return a 404
     #       - put_object by script with book data
     #       - put_object by script with .pending state
 
-    # Invocation 2:
+    # Invocation 2 (archive):
     #   - book 1 (emulate a failure from first invocation)
     #       - Check for .complete => head_object => Return a 404
     #       - Check for .pending: head_object => Return data
@@ -1061,7 +1109,7 @@ def test_check_feed(tmp_path, mocker):
     #       - put_object by script with book data
     #       - put_object by script with .retry state
     #
-    # Invocation 3:
+    # Invocation 3 (archive):
     #   - book 1
     #       - Check for .complete => head_object return object
     #   - book 2
@@ -1069,15 +1117,45 @@ def test_check_feed(tmp_path, mocker):
     #       - Check for .pending head_object => Return a 404
     #       - put_object by script with book data
     #       - put_object by script with .pending state
+    #
+    # Invocation 4 (git):
+    #   - book 3
+    #       - Initial check for .complete: head_object => Return a 404
+    #       - Check for .pending head_object => Return a 404
+    #       - put_object by script with book data
+    #       - put_object by script with .pending state
+    #
+    # Invocation 5 (git):
+    #   - book 3
+    #       - Check for .complete => head_object return object
+    #   - book 4
+    #       - Initial check for .complete: head_object => Return a 404
+    #       - Check for .pending head_object => Return a 404
+    #       - put_object by script with book data
+    #       - put_object by script with .pending state
 
     queue_state_bucket = "queue-state-bucket"
     queue_filename = "queue-state-filename.json"
-    code_version = "code-version"
+    code_version = "20210101.00000001"
     state_prefix = "foobar"
-    book1 = input_book_feed[0]
+    book1 = {
+        "collection_id": "col11762",
+        "server": "cnx.foobar.org",
+        "style": "sociology",
+        "uuid": "02040312-72c8-441e-a685-20e9333f3e1d",
+        "slug": "introduction-sociology-2e",
+        "version": "1.14.1"
+    }
     book1_col = book1["collection_id"]
     book1_vers = book1["version"]
-    book2 = input_book_feed[1]
+    book2 = {
+        "collection_id": "col11406",
+        "server": "cnx.foobar.org",
+        "style": "college-physics",
+        "uuid": "031da8d3-b525-429c-80cf-6c8ed997733a",
+        "slug": "college-physics",
+        "version": "1.20.15"
+    }
     book2_col = book2["collection_id"]
     book2_vers = book2["version"]
 
@@ -1114,6 +1192,8 @@ def test_check_feed(tmp_path, mocker):
                 "Body": expected_body,
             },
         )
+
+    # Add expected calls for archive books
 
     # Book 1: Check for .complete file
     _stubber_add_head_object_404(
@@ -1194,12 +1274,114 @@ def test_check_feed(tmp_path, mocker):
             queue_state_bucket,
             queue_filename,
             1,
-            state_prefix
+            state_prefix,
+            "archive"
         ],
     )
 
     for _ in range(3):
         check_feed.main()
+
+    s3_stubber.assert_no_pending_responses()
+
+    # Add expected calls for git books
+
+    book3 = {
+        "repo": "osbooks-college-algebra-bundle",
+        "style": "precalculus",
+        "uuid": "9b08c294-057f-4201-9f48-5d6ad992740d",
+        "slug": "college-algebra",
+        "version": "1"
+    }
+    book3_slug = book3["slug"]
+    book3_vers = book3["version"]
+    book4 = {
+        "repo": "osbooks-college-algebra-bundle",
+        "style": "precalculus",
+        "uuid": "13ac107a-f15f-49d2-97e8-60ab2e3b519c",
+        "slug": "algebra-and-trigonometry",
+        "version": "1"
+    }
+    book4_slug = book4["slug"]
+    book4_vers = book4["version"]
+
+    # Book 3: Check for .complete file
+    _stubber_add_head_object_404(
+        f"{code_version}/.{state_prefix}.{book3_slug}@{book3_vers}.complete"
+    )
+
+    # Book 3: Check for .pending file
+    _stubber_add_head_object_404(
+        f"{code_version}/.{state_prefix}.{book3_slug}@{book3_vers}.pending"
+    )
+
+    # Book 3: Put book data
+    _stubber_add_put_object(queue_filename, json.dumps(book3))
+
+    # Book 3: Put book .pending
+    _stubber_add_put_object(
+        f"{code_version}/.{state_prefix}.{book3_slug}@{book3_vers}.pending",
+        botocore.stub.ANY
+    )
+
+    # Book3: Check for .complete file
+    _stubber_add_head_object(
+        f"{code_version}/.{state_prefix}.{book3_slug}@{book3_vers}.complete"
+    )
+
+    # Book 4: Check for .complete file
+    _stubber_add_head_object_404(
+        f"{code_version}/.{state_prefix}.{book4_slug}@{book4_vers}.complete"
+    )
+
+    # Book 4: Check for .pending file
+    _stubber_add_head_object_404(
+        f"{code_version}/.{state_prefix}.{book4_slug}@{book4_vers}.pending"
+    )
+
+    # Book 4: Put book data
+    _stubber_add_put_object(queue_filename, json.dumps(book4))
+
+    # Book 4: Put book .pending
+    _stubber_add_put_object(
+        f"{code_version}/.{state_prefix}.{book4_slug}@{book4_vers}.pending",
+        botocore.stub.ANY
+    )
+
+    mocker.patch(
+        "sys.argv",
+        [
+            "",
+            json_feed_input,
+            code_version,
+            queue_state_bucket,
+            queue_filename,
+            1,
+            state_prefix,
+            "git"
+        ],
+    )
+
+    for _ in range(2):
+        check_feed.main()
+
+    s3_stubber.assert_no_pending_responses()
+
+    mocker.patch(
+        "sys.argv",
+        [
+            "",
+            json_feed_input,
+            code_version,
+            queue_state_bucket,
+            queue_filename,
+            1,
+            state_prefix,
+            "invalidfilter"
+        ],
+    )
+
+    check_feed.main()
 
     s3_stubber.assert_no_pending_responses()
     s3_stubber.deactivate()
