@@ -45,7 +45,8 @@ const task = (taskArgs) => {
           book_license="$(cat $book_metadata | jq '.license')"
           book_dir="baked-book/$collection_id"
           target_dir="baked-book-metadata/$collection_id"
-          book_slugs_file="$book_dir/book-slugs.json"
+          book_slugs_file="/tmp/book-slugs.json"
+          cat "$book_dir/approved-books.json" | jq ".approved_books|map(.books)|flatten" > "$book_slugs_file"
           mkdir "$target_dir"
           cp "$book_dir/collection.baked.xhtml" "$target_dir/collection.baked.xhtml"
           cat "assembled-book-metadata/$collection_id/collection.assembled-metadata.json" | \

@@ -33,7 +33,8 @@ const task = (taskArgs) => {
           collection_id="$(cat book/collection_id)"
           book_dir="gdocified-book/$collection_id/disassembled"
           target_dir="gdocified-book/$collection_id/gdocified"
-          book_slugs_file="gdocified-book/$collection_id/book-slugs.json"
+          book_slugs_file="/tmp/book-slugs.json"
+          cat "gdocified-book/$collection_id/approved-books.json" | jq ".approved_books|map(.books)|flatten" > "$book_slugs_file"
           mkdir "$target_dir"
           curl -o /tmp/AdobeICCProfiles.zip https://download.adobe.com/pub/adobe/iccprofiles/win/AdobeICCProfilesCS4Win_end-user.zip
           unzip -o -j "/tmp/AdobeICCProfiles.zip" "Adobe ICC Profiles (end-user)/CMYK/USWebCoatedSWOP.icc" -d /usr/share/color/icc/
