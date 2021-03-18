@@ -1044,7 +1044,7 @@ def test_check_feed(tmp_path, mocker):
                 ]
             },
             {
-                "repo": "osbooks-college-algebra-bundle",
+                "repository_name": "osbooks-college-algebra-bundle",
                 "style": "precalculus",
                 "tutor_only": False,
                 "books": [
@@ -1077,7 +1077,7 @@ def test_check_feed(tmp_path, mocker):
                 "min_code_version": "20210101.00000001"
             },
             {
-                "repo": "osbooks-college-algebra-bundle",
+                "repository_name": "osbooks-college-algebra-bundle",
                 "content_version": "1",
                 "min_code_version": "20210101.00000001"
             }

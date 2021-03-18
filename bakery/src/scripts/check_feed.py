@@ -7,16 +7,19 @@ import botocore
 
 
 def flatten_feed(feed_data, feed_filter, code_version):
+    ARCHIVE_BOOK_ID_KEY = "collection_id"
+    GIT_BOOK_ID_KEY = "repository_name"
+
     def _is_archive_entry(entry):
-        return entry.get('collection_id') is not None
+        return entry.get(ARCHIVE_BOOK_ID_KEY) is not None
 
     def _is_git_entry(entry):
-        return entry.get('repo') is not None
+        return entry.get(GIT_BOOK_ID_KEY) is not None
 
     def _convert_archive_entry(book, version):
         # Archive approved book items should only have a single book entry
         return [{
-            "collection_id": book["collection_id"],
+            "collection_id": book[ARCHIVE_BOOK_ID_KEY],
             "server": book["server"],
             "style": book["style"],
             "uuid": book["books"][0]["uuid"],
@@ -29,7 +32,7 @@ def flatten_feed(feed_data, feed_filter, code_version):
         result = []
         for repo_book in book["books"]:
             result.append({
-                "repo": book["repo"],
+                "repo": book[GIT_BOOK_ID_KEY],
                 "style": book["style"],
                 "uuid": repo_book["uuid"],
                 "slug": repo_book["slug"],
@@ -43,11 +46,11 @@ def flatten_feed(feed_data, feed_filter, code_version):
     if feed_filter == "archive":
         filter_function = _is_archive_entry
         convert_function = _convert_archive_entry
-        book_id_key = "collection_id"
+        book_id_key = ARCHIVE_BOOK_ID_KEY
     elif feed_filter == "git":
         filter_function = _is_git_entry
         convert_function = _convert_git_entry
-        book_id_key = "repo"
+        book_id_key = GIT_BOOK_ID_KEY
     else:
         # An unexpected filter value. Just return an empty list of books
         return []
