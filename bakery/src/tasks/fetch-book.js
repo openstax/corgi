@@ -10,7 +10,7 @@ const task = (taskArgs) => {
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const nebGetFlags = taskArgs != null && taskArgs.nebGetFlags != null ? taskArgs.nebGetFlags : ''
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
-  const bookSlugsUrl = 'https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/approved-books.json'
+  const bookSlugsUrl = 'https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/approved-book-list.json'
 
   return {
     task: 'fetch book',
@@ -36,7 +36,7 @@ const task = (taskArgs) => {
           cd fetched-book
           book_dir="$(cat ../book/collection_id)"
           yes | neb get ${nebGetFlags} -r -d "$book_dir/raw" "$(cat ../book/server)" "$(cat ../book/collection_id)" "$(cat ../book/version)"
-          wget ${bookSlugsUrl} -O "$book_dir/approved-books.json"
+          wget ${bookSlugsUrl} -O "$book_dir/approved-book-list.json"
         `
         ]
       }
