@@ -63,7 +63,7 @@ const pipeline = (env) => {
       taskCheckFeed({
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
-        feedFileUrl: env.WEB_GIT_FEED_FILE_URL,
+        feedFileUrl: env.WEB_FEED_FILE_URL,
         feedFileFilter: 'git',
         queueStateBucket: env.WEB_QUEUE_STATE_S3_BUCKET,
         queueFilename: queueFilename,
