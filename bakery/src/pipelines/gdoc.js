@@ -65,6 +65,7 @@ const pipeline = (env) => {
         awsAccessKeyId: awsAccessKeyId,
         awsSecretAccessKey: awsSecretAccessKey,
         feedFileUrl: env.GDOC_FEED_FILE_URL,
+        feedFileFilter: 'archive',
         queueStateBucket: env.WEB_QUEUE_STATE_S3_BUCKET,
         queueFilename: queueFilename,
         codeVersion: codeVersionFromTag,
