@@ -52,8 +52,8 @@ def flatten_feed(feed_data, feed_filter, code_version):
         convert_function = _convert_git_entry
         book_id_key = GIT_BOOK_ID_KEY
     else:
-        # An unexpected filter value. Just return an empty list of books
-        return []
+        # An unexpected filter value.
+        raise Exception("Invalid feed filter value")
 
     approved_books = filter(
         filter_function,

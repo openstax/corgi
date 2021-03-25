@@ -1381,7 +1381,8 @@ def test_check_feed(tmp_path, mocker):
         ],
     )
 
-    check_feed.main()
+    with pytest.raises(Exception, match='Invalid feed filter value'):
+        check_feed.main()
 
     s3_stubber.assert_no_pending_responses()
     s3_stubber.deactivate()
