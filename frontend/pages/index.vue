@@ -217,9 +217,9 @@
             </td>
           </template>
           <template #item.created_at="{ item }">
-            <span>
-              {{ $moment.utc(item.created_at).local().format('lll') }}
-            </span>
+            <time datetime="{{item.created_at}}" :title="$moment.utc(item.created_at).local().format('lll')">
+              {{ $moment.utc(item.created_at).fromNow() }}
+            </time>
           </template>
           <template #item.pdf_url="{ item }">
             <ul
@@ -254,9 +254,9 @@
             </v-chip>
           </template>
           <template #item.updated_at="{ item }">
-            <span>
-              {{ $moment.utc(item.updated_at).local().format('lll') }}
-            </span>
+            <time datetime="{{item.updated_at}}" :title="$moment.utc(item.updated_at).local().format('lll')">
+              {{ $moment.utc(item.updated_at).fromNow() }}
+            </time>
           </template>
         </v-data-table>
       </v-row>
