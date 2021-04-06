@@ -560,3 +560,97 @@ test('stable flow in pdf and distribution pipeline', async t => {
   await Promise.all([branchPdf, branchDistribution])
   t.pass()
 })
+
+test('stable flow in git pdf', async t => {
+  // Prepare test data
+  const bookSlug = 'business-law-i-essentials'
+  const outputDir = 'src/tests/output-git'
+  const dataDir = 'src/tests/data'
+  try {
+    await fs.rmdir(outputDir, { recursive: true })
+  } catch { }
+  await fs.copy(`${dataDir}/${bookSlug}`, `${outputDir}/${bookSlug}`)
+  const commonArgs = [
+    'run',
+    `--data=${outputDir}`,
+    '--persist'
+  ]
+  // Build local cops-bakery-scripts image
+  const scriptsImageBuild = spawn('docker', [
+    'build',
+    'src/scripts',
+    '--tag=localhost:5000/openstax/cops-bakery-scripts:test'
+  ])
+  await completion(scriptsImageBuild)
+  // Log a heartbeat every minute so CI doesn't timeout
+  setInterval(() => {
+    console.log('HEARTBEAT\n   /\\ \n__/  \\  _ \n      \\/')
+  }, 50000)
+
+  // Start running tasks
+  const assemble = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    'assemble-group',
+    bookSlug
+  ])
+  const assembleResult = await completion(assemble)
+  t.truthy(fs.existsSync(`${outputDir}/${bookSlug}/assembled-book-group/${bookSlug}.assembled.xhtml`), formatSubprocessOutput(assembleResult))
+  const assembleMeta = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+    'assemble-meta-group',
+    bookSlug
+  ])
+  const assembleMetaResult = await completion(assembleMeta)
+  t.truthy(fs.existsSync(`${outputDir}/${bookSlug}/assembled-book-metadata-group/${bookSlug}.assembled-metadata.json`), formatSubprocessOutput(assembleMetaResult))
+  const bake = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    'bake-group',
+    bookSlug,
+    `${dataDir}/col30149-recipe.css`,
+    `${dataDir}/blank-style.css`
+  ])
+  const bakeResult = await completion(bake)
+  t.truthy(fs.existsSync(`${outputDir}/${bookSlug}/baked-book-group/${bookSlug}.baked.xhtml`), formatSubprocessOutput(bakeResult))
+  const bakeMeta = spawn('node', [
+    'src/cli/execute.js',
+    'run',
+    `--data=${outputDir}`,
+    '--persist',
+    'bake-meta-group',
+    bookSlug
+  ])
+  const expectedOutputG = `${outputDir}/${bookSlug}/baked-book-metadata-group/${bookSlug}.baked-metadata.json`
+  const bakeMetaResult = await completion(bakeMeta)
+  t.truthy(fs.existsSync(expectedOutputG), formatSubprocessOutput(bakeMetaResult))
+  const linkSingle = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+    'link-single',
+    bookSlug
+  ])
+  const linkResult = await completion(linkSingle)
+  t.truthy(fs.existsSync(`${outputDir}/${bookSlug}/linked-single/${bookSlug}.linked.xhtml`), formatSubprocessOutput(linkResult))
+  const mathify = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    'mathify-single',
+    bookSlug
+  ])
+  const mathifyResult = await completion(mathify)
+  t.truthy(fs.existsSync(`${outputDir}/${bookSlug}/mathified-single/${bookSlug}.mathified.xhtml`), formatSubprocessOutput(mathifyResult))
+  const buildPdf = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    'pdfify-single',
+    bookSlug
+  ])
+  const buildPdfResult = await completion(buildPdf)
+  t.truthy(fs.existsSync(`${outputDir}/${bookSlug}/artifacts-single/collection.pdf`), formatSubprocessOutput(buildPdfResult))
+  t.is(fs.readFileSync(`${outputDir}/${bookSlug}/artifacts-single/pdf_url`, { encoding: 'utf8' }), 'https://none.s3.amazonaws.com/collection.pdf', formatSubprocessOutput(buildPdfResult))
+  t.pass()
+})
