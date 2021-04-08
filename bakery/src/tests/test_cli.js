@@ -654,3 +654,128 @@ test('stable flow in git pdf', async t => {
   t.is(fs.readFileSync(`${outputDir}/${bookSlug}/artifacts-single/pdf_url`, { encoding: 'utf8' }), 'https://none.s3.amazonaws.com/collection.pdf', formatSubprocessOutput(buildPdfResult))
   t.pass()
 })
+
+test('stable flow in git distribution pipeline', async t => {
+  // Prepare test data
+  const bookSlug = 'business-law-i-essentials'
+  const outputDir = 'src/tests/output-web-git'
+  const dataDir = 'src/tests/data'
+  try {
+    await fs.rmdir(outputDir, { recursive: true })
+  } catch { }
+  await fs.copy(`${dataDir}/${bookSlug}`, `${outputDir}/${bookSlug}`)
+
+  const commonArgs = [
+    'run',
+    `--data=${outputDir}`,
+    '--persist'
+  ]
+
+  // Build local cops-bakery-scripts image
+  const scriptsImageBuild = spawn('docker', [
+    'build',
+    'src/scripts',
+    '--tag=localhost:5000/openstax/cops-bakery-scripts:test'
+  ])
+  await completion(scriptsImageBuild)
+
+  // Log a heartbeat every minute so CI doesn't timeout
+  setInterval(() => {
+    console.log('HEARTBEAT\n   /\\ \n__/  \\  _ \n      \\/')
+  }, 60000)
+
+  // Start running tasks
+  const assemble = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    'assemble-group',
+    bookSlug
+  ])
+  const assembleResult = await completion(assemble)
+  t.truthy(fs.existsSync(`${outputDir}/${bookSlug}/assembled-book-group/${bookSlug}.assembled.xhtml`), formatSubprocessOutput(assembleResult))
+  const assembleMeta = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+    'assemble-meta-group',
+    bookSlug
+  ])
+  const assembleMetaResult = await completion(assembleMeta)
+  t.truthy(fs.existsSync(`${outputDir}/${bookSlug}/assembled-book-metadata-group/${bookSlug}.assembled-metadata.json`), formatSubprocessOutput(assembleMetaResult))
+  const bake = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    'bake-group',
+    bookSlug,
+    `${dataDir}/col30149-recipe.css`,
+    `${dataDir}/blank-style.css`
+  ])
+  const bakeResult = await completion(bake)
+  t.truthy(fs.existsSync(`${outputDir}/${bookSlug}/baked-book-group/${bookSlug}.baked.xhtml`), formatSubprocessOutput(bakeResult))
+  const bakeMeta = spawn('node', [
+    'src/cli/execute.js',
+    'run',
+    `--data=${outputDir}`,
+    '--persist',
+    'bake-meta-group',
+    bookSlug
+  ])
+  const expectedOutputG = `${outputDir}/${bookSlug}/baked-book-metadata-group/${bookSlug}.baked-metadata.json`
+  const bakeMetaResult = await completion(bakeMeta)
+  t.truthy(fs.existsSync(expectedOutputG), formatSubprocessOutput(bakeMetaResult))
+  const linkSingle = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+    'link-single',
+    bookSlug
+  ])
+  const linkResult = await completion(linkSingle)
+  t.truthy(fs.existsSync(`${outputDir}/${bookSlug}/linked-single/${bookSlug}.linked.xhtml`), formatSubprocessOutput(linkResult))
+
+  const disassemble = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+    'disassemble-single',
+    bookSlug
+  ])
+  const disassembleResult = await completion(disassemble)
+  t.truthy(fs.existsSync(`${outputDir}/${bookSlug}/disassembled-single/${bookSlug}.toc.xhtml`), formatSubprocessOutput(disassembleResult))
+
+  const patchDisassembledLinks = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+    'patch-disassembled-links-single',
+    bookSlug
+  ])
+  const patchDisassembledLinksResult = await completion(patchDisassembledLinks)
+  t.truthy(fs.existsSync(`${outputDir}/${bookSlug}/disassembled-linked-single/${bookSlug}.toc.xhtml`), formatSubprocessOutput(patchDisassembledLinksResult))
+  t.truthy(fs.existsSync(`${outputDir}/${bookSlug}/disassembled-linked-single/${bookSlug}.toc-metadata.json`), formatSubprocessOutput(patchDisassembledLinksResult))
+
+  // error is happening with legacy module numbers, but what is supposed to happen here? its a validation
+  const jsonify = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+    'jsonify-single',
+    bookSlug
+  ])
+  const jsonifyResult = await completion(jsonify)
+  t.truthy(fs.existsSync(`${outputDir}/${bookSlug}/jsonified-single/${bookSlug}.toc.json`), formatSubprocessOutput(jsonifyResult))
+  t.truthy(fs.existsSync(`${outputDir}/${bookSlug}/jsonified-single/${bookSlug}.toc.xhtml`), formatSubprocessOutput(jsonifyResult))
+
+  const jsonifiedValidateXhtml = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    'validate-xhtml',
+    bookSlug,
+    'jsonified-single',
+    '/*@*.xhtml',
+    '--contentsource=git'
+  ])
+  await completion(jsonifiedValidateXhtml)
+
+  t.pass()
+})
