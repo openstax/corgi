@@ -402,6 +402,138 @@ test('stable flow in pdf and distribution pipeline', async t => {
   ])
   await completion(bakeValidateXhtml)
 
+  const bookSlug = 'business-law-i-essentials'
+  const gitOutputDir = 'src/tests/output-git'
+  try {
+    await fs.rmdir(gitOutputDir, { recursive: true })
+  } catch { }
+  await fs.copy(`${dataDir}/${bookSlug}`, `${gitOutputDir}/${bookSlug}`)
+
+  const gitCommonArgs = [
+    'run',
+    `--data=${gitOutputDir}`,
+    '--persist'
+  ]
+
+  // Start running tasks
+  const gitAssemble = spawn('node', [
+    'src/cli/execute.js',
+    ...gitCommonArgs,
+    'assemble-group',
+    bookSlug
+  ])
+  const gitAssembleResult = await completion(gitAssemble)
+  t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/assembled-book-group/${bookSlug}.assembled.xhtml`), formatSubprocessOutput(gitAssembleResult))
+  const gitAssembleMeta = spawn('node', [
+    'src/cli/execute.js',
+    ...gitCommonArgs,
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+    'assemble-meta-group',
+    bookSlug
+  ])
+  const gitAssembleMetaResult = await completion(gitAssembleMeta)
+  t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/assembled-book-metadata-group/${bookSlug}.assembled-metadata.json`), formatSubprocessOutput(gitAssembleMetaResult))
+  const gitBake = spawn('node', [
+    'src/cli/execute.js',
+    ...gitCommonArgs,
+    'bake-group',
+    bookSlug,
+    `${dataDir}/col30149-recipe.css`,
+    `${dataDir}/blank-style.css`
+  ])
+  const gitBakeResult = await completion(gitBake)
+  t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/baked-book-group/${bookSlug}.baked.xhtml`), formatSubprocessOutput(gitBakeResult))
+  const gitBakeMeta = spawn('node', [
+    'src/cli/execute.js',
+    'run',
+    `--data=${gitOutputDir}`,
+    '--persist',
+    'bake-meta-group',
+    bookSlug
+  ])
+  const expectedOutputG = `${gitOutputDir}/${bookSlug}/baked-book-metadata-group/${bookSlug}.baked-metadata.json`
+  const gitBakeMetaResult = await completion(gitBakeMeta)
+  t.truthy(fs.existsSync(expectedOutputG), formatSubprocessOutput(gitBakeMetaResult))
+  const gitLinkSingle = spawn('node', [
+    'src/cli/execute.js',
+    ...gitCommonArgs,
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+    'link-single',
+    bookSlug
+  ])
+  const gitLinkResult = await completion(gitLinkSingle)
+  t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/linked-single/${bookSlug}.linked.xhtml`), formatSubprocessOutput(gitLinkResult))
+
+  // PDF
+  const gitMathify = spawn('node', [
+    'src/cli/execute.js',
+    ...gitCommonArgs,
+    'mathify-single',
+    bookSlug
+  ])
+
+  // Web Hosting
+  const gitDisassemble = spawn('node', [
+    'src/cli/execute.js',
+    ...gitCommonArgs,
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+    'disassemble-single',
+    bookSlug
+  ])
+
+  const branchWebHosting = completion(gitDisassemble).then(async (gitDisassembleResult) => {
+    // dissemble assertion
+    t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/disassembled-single/${bookSlug}.toc.xhtml`), formatSubprocessOutput(gitDisassembleResult))
+
+    const gitPatchDisassembledLinks = spawn('node', [
+      'src/cli/execute.js',
+      ...gitCommonArgs,
+      '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+      'patch-disassembled-links-single',
+      bookSlug
+    ])
+    const gitPatchDisassembledLinksResult = await completion(gitPatchDisassembledLinks)
+    t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/disassembled-linked-single/${bookSlug}.toc.xhtml`), formatSubprocessOutput(gitPatchDisassembledLinksResult))
+    t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/disassembled-linked-single/${bookSlug}.toc-metadata.json`), formatSubprocessOutput(gitPatchDisassembledLinksResult))
+
+    const gitJsonify = spawn('node', [
+      'src/cli/execute.js',
+      ...gitCommonArgs,
+      '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+      'jsonify-single',
+      bookSlug
+    ])
+    const gitJsonifyResult = await completion(gitJsonify)
+    t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/jsonified-single/${bookSlug}.toc.json`), formatSubprocessOutput(gitJsonifyResult))
+    t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/jsonified-single/${bookSlug}.toc.xhtml`), formatSubprocessOutput(gitJsonifyResult))
+
+    const gitJsonifiedValidateXhtml = spawn('node', [
+      'src/cli/execute.js',
+      ...gitCommonArgs,
+      'validate-xhtml',
+      bookSlug,
+      'jsonified-single',
+      '/*@*.xhtml',
+      '--contentsource=git'
+    ])
+    await completion(gitJsonifiedValidateXhtml)
+  })
+
+  // Continue PDF
+  const branchGitPDF = completion(gitMathify).then(async (gitMathifyResult) => {
+    // mathify assertion
+    t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/mathified-single/${bookSlug}.mathified.xhtml`), formatSubprocessOutput(gitMathifyResult))
+    const gitBuildPdf = spawn('node', [
+      'src/cli/execute.js',
+      ...gitCommonArgs,
+      'pdfify-single',
+      bookSlug
+    ])
+    const gitBuildPdfResult = await completion(gitBuildPdf)
+    t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/artifacts-single/collection.pdf`), formatSubprocessOutput(gitBuildPdfResult))
+    t.is(fs.readFileSync(`${gitOutputDir}/${bookSlug}/artifacts-single/pdf_url`, { encoding: 'utf8' }), 'https://none.s3.amazonaws.com/collection.pdf', formatSubprocessOutput(gitBuildPdfResult))
+  })
+
   // PDF
   const mathify = spawn('node', [
     'src/cli/execute.js',
@@ -557,157 +689,7 @@ test('stable flow in pdf and distribution pipeline', async t => {
     t.truthy(fs.existsSync(`${outputDir}/${bookId}/docx-book/${bookId}/docx/1-introduction.docx`), formatSubprocessOutput(convertDocxResult))
   })
 
-  await Promise.all([branchPdf, branchDistribution])
+  await Promise.all([branchPdf, branchDistribution, branchGitPDF, branchWebHosting])
   t.pass()
 })
 
-test('stable flow in git pipelines', async t => {
-  // Prepare test data
-  const bookSlug = 'business-law-i-essentials'
-  const gitOutputDir = 'src/tests/output-git'
-  const gitDataDir = 'src/tests/data'
-  try {
-    await fs.rmdir(gitOutputDir, { recursive: true })
-  } catch { }
-  await fs.copy(`${gitDataDir}/${bookSlug}`, `${gitOutputDir}/${bookSlug}`)
-
-  const gitCommonArgs = [
-    'run',
-    `--data=${gitOutputDir}`,
-    '--persist'
-  ]
-
-  // Build local cops-bakery-scripts image
-  const scriptsImageBuild = spawn('docker', [
-    'build',
-    'src/scripts',
-    '--tag=localhost:5000/openstax/cops-bakery-scripts:test'
-  ])
-  await completion(scriptsImageBuild)
-
-  // Log a heartbeat every minute so CI doesn't timeout
-  setInterval(() => {
-    console.log('HEARTBEAT\n   /\\ \n__/  \\  _ \n      \\/')
-  }, 60000)
-
-  // Start running tasks
-  const gitAssemble = spawn('node', [
-    'src/cli/execute.js',
-    ...gitCommonArgs,
-    'assemble-group',
-    bookSlug
-  ])
-  const gitAssembleResult = await completion(gitAssemble)
-  t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/assembled-book-group/${bookSlug}.assembled.xhtml`), formatSubprocessOutput(gitAssembleResult))
-  const gitAssembleMeta = spawn('node', [
-    'src/cli/execute.js',
-    ...gitCommonArgs,
-    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
-    'assemble-meta-group',
-    bookSlug
-  ])
-  const gitAssembleMetaResult = await completion(gitAssembleMeta)
-  t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/assembled-book-metadata-group/${bookSlug}.assembled-metadata.json`), formatSubprocessOutput(gitAssembleMetaResult))
-  const gitBake = spawn('node', [
-    'src/cli/execute.js',
-    ...gitCommonArgs,
-    'bake-group',
-    bookSlug,
-    `${gitDataDir}/col30149-recipe.css`,
-    `${gitDataDir}/blank-style.css`
-  ])
-  const gitBakeResult = await completion(gitBake)
-  t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/baked-book-group/${bookSlug}.baked.xhtml`), formatSubprocessOutput(gitBakeResult))
-  const gitBakeMeta = spawn('node', [
-    'src/cli/execute.js',
-    'run',
-    `--data=${gitOutputDir}`,
-    '--persist',
-    'bake-meta-group',
-    bookSlug
-  ])
-  const expectedOutputG = `${gitOutputDir}/${bookSlug}/baked-book-metadata-group/${bookSlug}.baked-metadata.json`
-  const gitBakeMetaResult = await completion(gitBakeMeta)
-  t.truthy(fs.existsSync(expectedOutputG), formatSubprocessOutput(gitBakeMetaResult))
-  const gitLinkSingle = spawn('node', [
-    'src/cli/execute.js',
-    ...gitCommonArgs,
-    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
-    'link-single',
-    bookSlug
-  ])
-  const gitLinkResult = await completion(gitLinkSingle)
-  t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/linked-single/${bookSlug}.linked.xhtml`), formatSubprocessOutput(gitLinkResult))
-
-  // PDF
-  const gitMathify = spawn('node', [
-    'src/cli/execute.js',
-    ...gitCommonArgs,
-    'mathify-single',
-    bookSlug
-  ])
-
-  // Web Hosting
-  const gitDisassemble = spawn('node', [
-    'src/cli/execute.js',
-    ...gitCommonArgs,
-    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
-    'disassemble-single',
-    bookSlug
-  ])
-
-  const branchWebHosting = completion(gitDisassemble).then(async (gitDisassembleResult) => {
-    // dissemble assertion
-    t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/disassembled-single/${bookSlug}.toc.xhtml`), formatSubprocessOutput(gitDisassembleResult))
-
-    const gitPatchDisassembledLinks = spawn('node', [
-      'src/cli/execute.js',
-      ...gitCommonArgs,
-      '--image=localhost:5000/openstax/cops-bakery-scripts:test',
-      'patch-disassembled-links-single',
-      bookSlug
-    ])
-    const gitPatchDisassembledLinksResult = await completion(gitPatchDisassembledLinks)
-    t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/disassembled-linked-single/${bookSlug}.toc.xhtml`), formatSubprocessOutput(gitPatchDisassembledLinksResult))
-    t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/disassembled-linked-single/${bookSlug}.toc-metadata.json`), formatSubprocessOutput(gitPatchDisassembledLinksResult))
-
-    const gitJsonify = spawn('node', [
-      'src/cli/execute.js',
-      ...gitCommonArgs,
-      '--image=localhost:5000/openstax/cops-bakery-scripts:test',
-      'jsonify-single',
-      bookSlug
-    ])
-    const gitJsonifyResult = await completion(gitJsonify)
-    t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/jsonified-single/${bookSlug}.toc.json`), formatSubprocessOutput(gitJsonifyResult))
-    t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/jsonified-single/${bookSlug}.toc.xhtml`), formatSubprocessOutput(gitJsonifyResult))
-
-    const gitJsonifiedValidateXhtml = spawn('node', [
-      'src/cli/execute.js',
-      ...gitCommonArgs,
-      'validate-xhtml',
-      bookSlug,
-      'jsonified-single',
-      '/*@*.xhtml',
-      '--contentsource=git'
-    ])
-    await completion(gitJsonifiedValidateXhtml)
-  })
-
-  // Continue PDF
-  const branchGitPDF = completion(gitMathify).then(async (gitMathifyResult) => {
-    // mathify assertion
-    t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/mathified-single/${bookSlug}.mathified.xhtml`), formatSubprocessOutput(gitMathifyResult))
-    const gitBuildPdf = spawn('node', [
-      'src/cli/execute.js',
-      ...gitCommonArgs,
-      'pdfify-single',
-      bookSlug
-    ])
-    const gitBuildPdfResult = await completion(gitBuildPdf)
-    t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/artifacts-single/collection.pdf`), formatSubprocessOutput(gitBuildPdfResult))
-    t.is(fs.readFileSync(`${gitOutputDir}/${bookSlug}/artifacts-single/pdf_url`, { encoding: 'utf8' }), 'https://none.s3.amazonaws.com/collection.pdf', formatSubprocessOutput(gitBuildPdfResult))
-  })
-  await Promise.all([branchGitPDF, branchWebHosting])
-  t.pass()
-})
