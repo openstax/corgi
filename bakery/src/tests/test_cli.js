@@ -323,12 +323,17 @@ const wipeSlateClean = async (outputDir, dataDir, bookId) => {
   await fs.copy(`${dataDir}/${bookId}`, `${outputDir}/${bookId}`)
 }
 
-test('stable flow archive pipelines', async t => {
+test('stable flow pipelines', async t => {
   // Prepare Test Data for Archive Pipelines
   const dataDir = 'src/tests/data'
   const bookId = 'col30149'
   const outputDir = 'src/tests/output'
   wipeSlateClean(outputDir, dataDir, bookId)
+
+  // Prepare test data for Git Piplines
+  const bookSlug = 'business-law-i-essentials'
+  const gitOutputDir = 'src/tests/output-git'
+  wipeSlateClean(gitOutputDir, dataDir, bookSlug)
 
   // Build Local cops-bakery-scripts Image
   const scriptsImageBuild = spawn('docker', [
@@ -575,34 +580,6 @@ test('stable flow archive pipelines', async t => {
     t.truthy(fs.existsSync(outputConvertIntro), formatSubprocessOutput(convertDocxResult))
   })
 
-  const destroyContainers = spawn('node', [
-    'src/cli/execute.js',
-    'stop',
-    '-d'
-  ])
-  await completion(destroyContainers)
-
-  await Promise.all([branchArchivePDF, branchArchiveWebHosting])
-  t.pass()
-})
-
-test('stable flow pipelines', async t => {
-  // Prepare test data for Git Piplines
-  const dataDir = 'src/tests/data'
-  const bookSlug = 'business-law-i-essentials'
-  const gitOutputDir = 'src/tests/output-git'
-  wipeSlateClean(gitOutputDir, dataDir, bookSlug)
-
-  // Build Local cops-bakery-scripts Image
-  const scriptsImageBuild = spawn('docker', [
-    'build',
-    'src/scripts',
-    '--tag=localhost:5000/openstax/cops-bakery-scripts:test'
-  ])
-  await completion(scriptsImageBuild)
-
-  startHeartBeat()
-
   // Start Running (Joint) Git Pipeline Tasks
   const gitCommonArgs = [
     'run',
@@ -739,13 +716,6 @@ test('stable flow pipelines', async t => {
     t.is(fs.readFileSync(outputGitPdfUrl, { encoding: 'utf8' }), 'https://none.s3.amazonaws.com/collection.pdf', formatSubprocessOutput(gitBuildPdfResult))
   })
 
-  const destroyContainers = spawn('node', [
-    'src/cli/execute.js',
-    'stop',
-    '-d'
-  ])
-  await completion(destroyContainers)
-
-  await Promise.all([branchGitPDF, branchGitWebHosting])
+  await Promise.all([branchArchivePDF, branchArchiveWebHosting, branchGitPDF, branchGitWebHosting])
   t.pass()
 })
