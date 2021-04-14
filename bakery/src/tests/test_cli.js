@@ -309,23 +309,33 @@ test('pin pipeline tasks to versions', async t => {
   }
 })
 
-test('stable flow in pdf and distribution pipeline', async t => {
-  // Prepare test data
-  const bookId = 'col30149'
-  const outputDir = 'src/tests/output'
-  const dataDir = 'src/tests/data'
+const startHeartBeat = () => {
+  // Log a heartbeat every minute so CI doesn't timeout
+  setInterval(() => {
+    console.log('HEARTBEAT\n   /\\ \n__/  \\  _ \n      \\/')
+  }, 60000)
+}
+
+const wipeSlateClean = async (outputDir, dataDir, bookId) => {
   try {
     await fs.rmdir(outputDir, { recursive: true })
   } catch { }
   await fs.copy(`${dataDir}/${bookId}`, `${outputDir}/${bookId}`)
+}
 
-  const commonArgs = [
-    'run',
-    `--data=${outputDir}`,
-    '--persist'
-  ]
+test('stable flow pipelines', async t => {
+  // Prepare Test Data for Archive Pipelines
+  const dataDir = 'src/tests/data'
+  const bookId = 'col30149'
+  const outputDir = 'src/tests/output'
+  wipeSlateClean(outputDir, dataDir, bookId)
 
-  // Build local cops-bakery-scripts image
+  // Prepare test data for Git Piplines
+  const bookSlug = 'business-law-i-essentials'
+  const gitOutputDir = 'src/tests/output-git'
+  wipeSlateClean(gitOutputDir, dataDir, bookSlug)
+
+  // Build Local cops-bakery-scripts Image
   const scriptsImageBuild = spawn('docker', [
     'build',
     'src/scripts',
@@ -333,12 +343,15 @@ test('stable flow in pdf and distribution pipeline', async t => {
   ])
   await completion(scriptsImageBuild)
 
-  // Log a heartbeat every minute so CI doesn't timeout
-  setInterval(() => {
-    console.log('HEARTBEAT\n   /\\ \n__/  \\  _ \n      \\/')
-  }, 60000)
+  startHeartBeat()
 
-  // Start running tasks
+  // Start Running (Joint) Archive Pipeline Tasks
+  const commonArgs = [
+    'run',
+    `--data=${outputDir}`,
+    '--persist'
+  ]
+
   const assemble = spawn('node', [
     'src/cli/execute.js',
     ...commonArgs,
@@ -346,7 +359,8 @@ test('stable flow in pdf and distribution pipeline', async t => {
     bookId
   ])
   const assembleResult = await completion(assemble)
-  t.truthy(fs.existsSync(`${outputDir}/${bookId}/assembled-book/${bookId}/collection.assembled.xhtml`), formatSubprocessOutput(assembleResult))
+  const outputAssemble = `${outputDir}/${bookId}/assembled-book/${bookId}/collection.assembled.xhtml`
+  t.truthy(fs.existsSync(outputAssemble), formatSubprocessOutput(assembleResult))
 
   const assembleValidateXhtml = spawn('node', [
     'src/cli/execute.js',
@@ -367,7 +381,8 @@ test('stable flow in pdf and distribution pipeline', async t => {
     bookId
   ])
   const assembleMetaResult = await completion(assembleMeta)
-  t.truthy(fs.existsSync(`${outputDir}/${bookId}/assembled-book-metadata/${bookId}/collection.assembled-metadata.json`), formatSubprocessOutput(assembleMetaResult))
+  const outputAssembleMeta = `${outputDir}/${bookId}/assembled-book-metadata/${bookId}/collection.assembled-metadata.json`
+  t.truthy(fs.existsSync(outputAssembleMeta), formatSubprocessOutput(assembleMetaResult))
 
   const linkExtras = spawn('node', [
     'src/cli/execute.js',
@@ -378,7 +393,8 @@ test('stable flow in pdf and distribution pipeline', async t => {
     'dummy-archive'
   ])
   const linkResult = await completion(linkExtras)
-  t.truthy(fs.existsSync(`${outputDir}/${bookId}/linked-extras/${bookId}/collection.linked.xhtml`), formatSubprocessOutput(linkResult))
+  const outputLinkExtras = `${outputDir}/${bookId}/linked-extras/${bookId}/collection.linked.xhtml`
+  t.truthy(fs.existsSync(outputLinkExtras), formatSubprocessOutput(linkResult))
 
   const bake = spawn('node', [
     'src/cli/execute.js',
@@ -389,7 +405,8 @@ test('stable flow in pdf and distribution pipeline', async t => {
     `${dataDir}/blank-style.css`
   ])
   const bakeResult = await completion(bake)
-  t.truthy(fs.existsSync(`${outputDir}/${bookId}/baked-book/${bookId}/collection.baked.xhtml`), formatSubprocessOutput(bakeResult))
+  const outputBake = `${outputDir}/${bookId}/baked-book/${bookId}/collection.baked.xhtml`
+  t.truthy(fs.existsSync(outputBake), formatSubprocessOutput(bakeResult))
 
   const bakeValidateXhtml = spawn('node', [
     'src/cli/execute.js',
@@ -402,27 +419,16 @@ test('stable flow in pdf and distribution pipeline', async t => {
   ])
   await completion(bakeValidateXhtml)
 
-  // PDF
+  // Continue Archive PDF Pipeline
   const mathify = spawn('node', [
     'src/cli/execute.js',
     ...commonArgs,
     'mathify',
     bookId
   ])
-
-  // Distribution
-  const checksum = spawn('node', [
-    'src/cli/execute.js',
-    ...commonArgs,
-    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
-    'checksum',
-    bookId
-  ])
-
-  // PDF continued
-  const branchPdf = completion(mathify).then(async (mathifyResult) => {
-    // mathify assertion
-    t.truthy(fs.existsSync(`${outputDir}/${bookId}/mathified-book/${bookId}/collection.mathified.xhtml`), formatSubprocessOutput(mathifyResult))
+  const branchArchivePDF = completion(mathify).then(async (mathifyResult) => {
+    const outputMathified = `${outputDir}/${bookId}/mathified-book/${bookId}/collection.mathified.xhtml`
+    t.truthy(fs.existsSync(outputMathified), formatSubprocessOutput(mathifyResult))
 
     const mathifyValidateXhtml = spawn('node', [
       'src/cli/execute.js',
@@ -442,14 +448,24 @@ test('stable flow in pdf and distribution pipeline', async t => {
       bookId
     ])
     const buildPdfResult = await completion(buildPdf)
-    t.truthy(fs.existsSync(`${outputDir}/${bookId}/artifacts/collection.pdf`), formatSubprocessOutput(buildPdfResult))
-    t.is(fs.readFileSync(`${outputDir}/${bookId}/artifacts/pdf_url`, { encoding: 'utf8' }), 'https://none.s3.amazonaws.com/collection.pdf', formatSubprocessOutput(buildPdfResult))
+    const outputPDF = `${outputDir}/${bookId}/artifacts/collection.pdf`
+    const outputPDFUrl = `${outputDir}/${bookId}/artifacts/pdf_url`
+    t.truthy(fs.existsSync(outputPDF), formatSubprocessOutput(buildPdfResult))
+    t.is(fs.readFileSync(outputPDFUrl, { encoding: 'utf8' }), 'https://none.s3.amazonaws.com/collection.pdf', formatSubprocessOutput(buildPdfResult))
   })
 
-  // Distribution continued
-  const branchDistribution = completion(checksum).then(async (checksumResult) => {
+  // Continue Archive Web Hosting Pipeline
+  const checksum = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+    'checksum',
+    bookId
+  ])
+  const branchArchiveWebHosting = completion(checksum).then(async (checksumResult) => {
     // checksum assertion
-    t.truthy(fs.existsSync(`${outputDir}/${bookId}/checksum-book/${bookId}/resources`), formatSubprocessOutput(checksumResult))
+    const outputChecksum = `${outputDir}/${bookId}/checksum-book/${bookId}/resources`
+    t.truthy(fs.existsSync(outputChecksum), formatSubprocessOutput(checksumResult))
 
     const checksumValidateXhtml = spawn('node', [
       'src/cli/execute.js',
@@ -470,7 +486,8 @@ test('stable flow in pdf and distribution pipeline', async t => {
       bookId
     ])
     const bakeMetaResult = await completion(bakeMeta)
-    t.truthy(fs.existsSync(`${outputDir}/${bookId}/baked-book-metadata/${bookId}/collection.baked-metadata.json`), formatSubprocessOutput(bakeMetaResult))
+    const outputBakeMeta = `${outputDir}/${bookId}/baked-book-metadata/${bookId}/collection.baked-metadata.json`
+    t.truthy(fs.existsSync(outputBakeMeta), formatSubprocessOutput(bakeMetaResult))
 
     const disassemble = spawn('node', [
       'src/cli/execute.js',
@@ -480,7 +497,8 @@ test('stable flow in pdf and distribution pipeline', async t => {
       bookId
     ])
     const disassembleResult = await completion(disassemble)
-    t.truthy(fs.existsSync(`${outputDir}/${bookId}/disassembled-book/${bookId}/disassembled/collection.toc.xhtml`), formatSubprocessOutput(disassembleResult))
+    const outputDisassemble = `${outputDir}/${bookId}/disassembled-book/${bookId}/disassembled/collection.toc.xhtml`
+    t.truthy(fs.existsSync(outputDisassemble), formatSubprocessOutput(disassembleResult))
 
     const disassembleValidateXhtml = spawn('node', [
       'src/cli/execute.js',
@@ -501,8 +519,10 @@ test('stable flow in pdf and distribution pipeline', async t => {
       bookId
     ])
     const patchDisassembledLinksResult = await completion(patchDisassembledLinks)
-    t.truthy(fs.existsSync(`${outputDir}/${bookId}/disassembled-linked-book/${bookId}/disassembled-linked/collection.toc.xhtml`), formatSubprocessOutput(patchDisassembledLinksResult))
-    t.truthy(fs.existsSync(`${outputDir}/${bookId}/disassembled-linked-book/${bookId}/disassembled-linked/collection.toc-metadata.json`), formatSubprocessOutput(patchDisassembledLinksResult))
+    const outputPatchDisassembleXHTML = `${outputDir}/${bookId}/disassembled-linked-book/${bookId}/disassembled-linked/collection.toc.xhtml`
+    const outputPatchDisassembleJSON = `${outputDir}/${bookId}/disassembled-linked-book/${bookId}/disassembled-linked/collection.toc-metadata.json`
+    t.truthy(fs.existsSync(outputPatchDisassembleXHTML), formatSubprocessOutput(patchDisassembledLinksResult))
+    t.truthy(fs.existsSync(outputPatchDisassembleJSON), formatSubprocessOutput(patchDisassembledLinksResult))
 
     const patchDisassembledLinksValidateXhtml = spawn('node', [
       'src/cli/execute.js',
@@ -523,7 +543,8 @@ test('stable flow in pdf and distribution pipeline', async t => {
       bookId
     ])
     const jsonifyResult = await completion(jsonify)
-    t.truthy(fs.existsSync(`${outputDir}/${bookId}/jsonified-book/${bookId}/jsonified/collection.toc.json`), formatSubprocessOutput(jsonifyResult))
+    const outputJsonify = `${outputDir}/${bookId}/jsonified-book/${bookId}/jsonified/collection.toc.json`
+    t.truthy(fs.existsSync(outputJsonify), formatSubprocessOutput(jsonifyResult))
 
     const jsonifyValidateXhtml = spawn('node', [
       'src/cli/execute.js',
@@ -553,10 +574,148 @@ test('stable flow in pdf and distribution pipeline', async t => {
       bookId
     ])
     const convertDocxResult = await completion(convertDocx)
-    t.truthy(fs.existsSync(`${outputDir}/${bookId}/docx-book/${bookId}/docx/preface.docx`), formatSubprocessOutput(convertDocxResult))
-    t.truthy(fs.existsSync(`${outputDir}/${bookId}/docx-book/${bookId}/docx/1-introduction.docx`), formatSubprocessOutput(convertDocxResult))
+    const outputConvertIntro = `${outputDir}/${bookId}/docx-book/${bookId}/docx/1-introduction.docx`
+    const outputConvertPreface = `${outputDir}/${bookId}/docx-book/${bookId}/docx/preface.docx`
+    t.truthy(fs.existsSync(outputConvertPreface), formatSubprocessOutput(convertDocxResult))
+    t.truthy(fs.existsSync(outputConvertIntro), formatSubprocessOutput(convertDocxResult))
   })
 
-  await Promise.all([branchPdf, branchDistribution])
+  // Start Running (Joint) Git Pipeline Tasks
+  const gitCommonArgs = [
+    'run',
+    `--data=${gitOutputDir}`,
+    '--persist'
+  ]
+
+  const gitAssemble = spawn('node', [
+    'src/cli/execute.js',
+    ...gitCommonArgs,
+    'assemble-group',
+    bookSlug
+  ])
+  const gitAssembleResult = await completion(gitAssemble)
+  const outputGitAssemble = `${gitOutputDir}/${bookSlug}/assembled-book-group/${bookSlug}.assembled.xhtml`
+  t.truthy(fs.existsSync(outputGitAssemble), formatSubprocessOutput(gitAssembleResult))
+
+  const gitAssembleMeta = spawn('node', [
+    'src/cli/execute.js',
+    ...gitCommonArgs,
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+    'assemble-meta-group',
+    bookSlug
+  ])
+  const gitAssembleMetaResult = await completion(gitAssembleMeta)
+  const outputGitAssembleMeta = `${gitOutputDir}/${bookSlug}/assembled-book-metadata-group/${bookSlug}.assembled-metadata.json`
+  t.truthy(fs.existsSync(outputGitAssembleMeta), formatSubprocessOutput(gitAssembleMetaResult))
+
+  const gitBake = spawn('node', [
+    'src/cli/execute.js',
+    ...gitCommonArgs,
+    'bake-group',
+    bookSlug,
+    `${dataDir}/col30149-recipe.css`,
+    `${dataDir}/blank-style.css`
+  ])
+  const gitBakeResult = await completion(gitBake)
+  const outputGitBake = `${gitOutputDir}/${bookSlug}/baked-book-group/${bookSlug}.baked.xhtml`
+  t.truthy(fs.existsSync(outputGitBake), formatSubprocessOutput(gitBakeResult))
+
+  const gitBakeMeta = spawn('node', [
+    'src/cli/execute.js',
+    'run',
+    `--data=${gitOutputDir}`,
+    '--persist',
+    'bake-meta-group',
+    bookSlug
+  ])
+  const gitBakeMetaResult = await completion(gitBakeMeta)
+  const outputGitBakeMeta = `${gitOutputDir}/${bookSlug}/baked-book-metadata-group/${bookSlug}.baked-metadata.json`
+  t.truthy(fs.existsSync(outputGitBakeMeta), formatSubprocessOutput(gitBakeMetaResult))
+
+  const gitLinkSingle = spawn('node', [
+    'src/cli/execute.js',
+    ...gitCommonArgs,
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+    'link-single',
+    bookSlug
+  ])
+  const gitLinkResult = await completion(gitLinkSingle)
+  const outputGitLink = `${gitOutputDir}/${bookSlug}/linked-single/${bookSlug}.linked.xhtml`
+  t.truthy(fs.existsSync(outputGitLink), formatSubprocessOutput(gitLinkResult))
+
+  // Continue Git Web Hosting Pipeline
+  const gitDisassemble = spawn('node', [
+    'src/cli/execute.js',
+    ...gitCommonArgs,
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+    'disassemble-single',
+    bookSlug
+  ])
+  const branchGitWebHosting = completion(gitDisassemble).then(async (gitDisassembleResult) => {
+    // dissemble assertion
+    t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/disassembled-single/${bookSlug}.toc.xhtml`), formatSubprocessOutput(gitDisassembleResult))
+
+    const gitPatchDisassembledLinks = spawn('node', [
+      'src/cli/execute.js',
+      ...gitCommonArgs,
+      '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+      'patch-disassembled-links-single',
+      bookSlug
+    ])
+    const gitPatchDisassembledLinksResult = await completion(gitPatchDisassembledLinks)
+    const outputGitPatchXHTML = `${gitOutputDir}/${bookSlug}/disassembled-linked-single/${bookSlug}.toc.xhtml`
+    const outputGitPatchJSON = `${gitOutputDir}/${bookSlug}/disassembled-linked-single/${bookSlug}.toc-metadata.json`
+    t.truthy(fs.existsSync(outputGitPatchXHTML), formatSubprocessOutput(gitPatchDisassembledLinksResult))
+    t.truthy(fs.existsSync(outputGitPatchJSON), formatSubprocessOutput(gitPatchDisassembledLinksResult))
+
+    const gitJsonify = spawn('node', [
+      'src/cli/execute.js',
+      ...gitCommonArgs,
+      '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+      'jsonify-single',
+      bookSlug
+    ])
+    const gitJsonifyResult = await completion(gitJsonify)
+    const outputGitJsonifyXHTML = `${gitOutputDir}/${bookSlug}/jsonified-single/${bookSlug}.toc.xhtml`
+    const outputGitJsonifyJSON = `${gitOutputDir}/${bookSlug}/jsonified-single/${bookSlug}.toc.json`
+    t.truthy(fs.existsSync(outputGitJsonifyJSON), formatSubprocessOutput(gitJsonifyResult))
+    t.truthy(fs.existsSync(outputGitJsonifyXHTML), formatSubprocessOutput(gitJsonifyResult))
+
+    const gitJsonifiedValidateXhtml = spawn('node', [
+      'src/cli/execute.js',
+      ...gitCommonArgs,
+      'validate-xhtml',
+      bookSlug,
+      'jsonified-single',
+      '/*@*.xhtml',
+      '--contentsource=git'
+    ])
+    await completion(gitJsonifiedValidateXhtml)
+  })
+
+  // Continue Git PDF Pipeline
+  const gitMathify = spawn('node', [
+    'src/cli/execute.js',
+    ...gitCommonArgs,
+    'mathify-single',
+    bookSlug
+  ])
+  const branchGitPDF = completion(gitMathify).then(async (gitMathifyResult) => {
+    // mathify assertion
+    t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/mathified-single/${bookSlug}.mathified.xhtml`), formatSubprocessOutput(gitMathifyResult))
+    const gitBuildPdf = spawn('node', [
+      'src/cli/execute.js',
+      ...gitCommonArgs,
+      'pdfify-single',
+      bookSlug
+    ])
+    const gitBuildPdfResult = await completion(gitBuildPdf)
+    const outputGitBuildPdf = `${gitOutputDir}/${bookSlug}/artifacts-single/collection.pdf`
+    const outputGitPdfUrl = `${gitOutputDir}/${bookSlug}/artifacts-single/pdf_url`
+    t.truthy(fs.existsSync(outputGitBuildPdf), formatSubprocessOutput(gitBuildPdfResult))
+    t.is(fs.readFileSync(outputGitPdfUrl, { encoding: 'utf8' }), 'https://none.s3.amazonaws.com/collection.pdf', formatSubprocessOutput(gitBuildPdfResult))
+  })
+
+  await Promise.all([branchArchivePDF, branchArchiveWebHosting, branchGitPDF, branchGitWebHosting])
   t.pass()
 })

@@ -1,0 +1,96 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml" xmlns:bib="http://bibtexml.sf.net/" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:q="http://cnx.rice.edu/qml/1.0" xmlns:data="http://www.w3.org/TR/html5/dom.html#custom-data-attribute" id="new" cnxml-version="0.7" module-id="new">
+
+<title>Breach of Contract and Remedies</title>
+<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">
+  <md:content-id>m78898</md:content-id>
+  <md:title>Breach of Contract and Remedies</md:title>
+  <md:abstract/>
+  <md:uuid>a72d42d4-baa0-45cd-a889-f2b42a0cc986</md:uuid>
+<md:revised>2021-04-06T17:20:41+00:00</md:revised>
+<md:canonical-book-uuid>464a3fba-68c1-426a-99f9-597e739dc911</md:canonical-book-uuid>
+</metadata>
+
+<content>
+<para id="fs-idm379350672">Once a contract is legally formed, both parties are generally expected to perform according to the terms of the contract. A breach of contract claim arises when either (or both) parties claim that there was a failure, without legal excuse, to perform on any, or all, parts and promises of the contract.</para>
+<para id="fs-idm361607952">Several inquiries are triggered when a breach of contract claims is initiated. The first step is to determine whether a contract existed in the first place. If it did, the following questions may be asked: What did the terms of the contract require of the parties? Were the contractual terms modified at any point? Did the breach actually occur? Was the claimed breach material to the contract? Does any legal excuse or defense to enforcement of the contract exist? What damages were caused by the breach?</para>
+<section id="fs-idm381187088">
+<title>Material vs. Minor Breach</title>
+<para id="fs-idm377262288">The parties’ obligations and remedies for a breach of contract depend on whether the breach is considered material or minor.</para>
+<para id="fs-idm379177888">When something substantially different from what was expected under the terms of the contract is delivered, the breach will be considered material. For example, the breach will be considered material if the contract promises the delivery of Christmas ornaments, but the buyer receives a box of candies. In the case of a material breach, the non-breaching party has the right to all remedies for breach of the entire contract and is no longer expected to perform their obligations. In considering whether a breach is material, courts will determine whether the non-breaching party still received a benefit, and if so, how much was received, adequate compensation for the damages, the extent of the performance (if any) by the breaching party, any hardship to the breaching party, the negligence or intent behind the behavior of the breaching party, and finally, the possibility that the breaching party will perform the remainder of the contract.</para>
+<para id="fs-idm358889216">There are times, however, that despite the breaching party’s failure to perform some of the contract, the other party still receives a majority of the goods or services specified in the contract. In this case, the breach will be considered minor. For example, the breaching party may be late on delivering goods or services promised under a contract that does not specify a firm delivery date and that doesn’t state that time is of the essence. In this case, a reasonably short delay would likely only be considered a minor breach of the contract. Consequently, the non-breaching party would still be required to perform as pursuant to the contract. However, damages may be available to them if they suffered some harm as a result of the delay.</para>
+</section>
+<section id="fs-idm367618048">
+<title>Remedies</title>
+<para id="fs-idm376897344">Typically, the remedies that will be available if a breach of contract is found are money damages, restitution, rescission, reformation, and specific performance.</para>
+
+<figure id="fs-idm381608864"><media id="fs-idm379143120" alt="A court gavel with a dollar sign on the sound block."><image src="../resources/b1e23407bd4d65836fd1e2715cbe45cb2edd3a90" mime-type="image/jpg"/></media>
+<caption>When there is a breach of contract, the courts might get involved to help determine the remedy. (Credit: succo/ pixabay/ License: CC0)</caption></figure><para id="fs-idm380687488">Money damages include compensation for financial losses caused by the breach.</para>
+<para id="fs-idm380911536">Restitution restores the injured party to status quo or the position they had prior to the formation of the contract, by returning to the plaintiff any money or property given pursuant to the contract. This type of relief is typically sought when a contract is voided by courts due to a finding that the defendant is incompetent or lacks capacity.</para>
+<para id="fs-idm371497680">Rescission or reformation may be available to parties who enter into contracts by mistake, fraud, undue influence, or duress. Rescission terminates the duties of both parties under the contract, while reformation allows courts to equitably change the contract’s substance.</para>
+<para id="fs-idm357187248">Specific performance compels one party to perform the promises stated in the contract as nearly as practicable. Specific performance is only mandated when money damages do not adequately compensate for the breach. Personal service, however, may not be used to compel specific performance, since doing so would constitute forced labor, i.e. slavery, which is in violation of the U.S. Constitution.</para>
+<para id="fs-idm378722640">Inevitably, when valid contracts are created, the potential for breach exists. An understanding of what happens when a contract’s terms are breached is fundamental to an understanding of contract law.</para>
+</section>
+<section id="fs-idm375838752" class="references"><title>Sources</title><para id="fs-idm375742400">Breach of Contract, Remedies that can be Pursued. HG.org. Retrieved from: https://www.hg.org/legal-articles/breach-of-contract-legal-remedies-that-can-be-pursued-22797.</para>
+<para id="fs-idm381742528">Remedies for Breaches of Contract. LawTeacher. Retrieved from: https://www.lawteacher.net/free-law-essays/contract-law/remedies-for-breaches-of-contract-law-essay.php.</para>
+<para id="fs-idm378586416">Contracts—termination and contractual claims and remedies—overview. Lexis PSL. Retrieved from: https://www.lexisnexis.com/uk/lexispsl/bankingandfinance/document/391289/5FKM-GJ81-F185-X1CM-00000-00/Contracts_termination_and_contractual_claims_and_remedies_overview.</para>
+</section>
+<section class="assessment-questions" id="fs-136373">
+
+  <exercise id="fs-212323">
+    <problem id="fa-212423">
+      <para id="fa-212623">Define a material breach.</para>
+    </problem>
+    <solution id="fa-2127823">
+        <para id="fs-1231231434">A material breach is when something substantially different from what was expected under the terms of the contract is delivered, the breach is considered material.</para>
+    </solution>
+  </exercise>
+
+
+  <exercise id="fs-212323156">
+  <problem id="fa-212423156">
+  <para id="fa-212623156">Typical remedies available for a breach of contract include:</para>
+  <list list-type="enumerated" number-style="lower-alpha" id="fa-212523156">
+  <item>Money damages.</item>
+  <item>Rescission.</item>
+  <item>Specific Performance.</item>
+  <item>All of the above.</item>
+  </list>
+  </problem>
+  </exercise>
+
+
+  <exercise id="fs-21232">
+    <problem id="fa-21242">
+      <para id="fa-21262">Distinguish between rescission and reformation.</para>
+    </problem>
+    <solution id="fa-212782">
+        <para id="fs-123123143">Rescission terminates the duties of both parties under the contract, while reformation allows courts to equitably change the contracts substance.</para>
+    </solution>
+  </exercise>
+
+
+  <exercise id="fs-21232315">
+  <problem id="fa-21242315">
+  <para id="fa-21262315">Courts of equity will not grant specific performance of contracts:</para>
+  <list list-type="enumerated" number-style="lower-alpha" id="fa-21252315">
+  <item>For a personal service contract.</item>
+  <item>For the sale of real estate.</item>
+  <item>For the sale of the original manuscript of a rare edition book.</item>
+  <item>All of these are correct.</item>
+  </list>
+  </problem>
+  </exercise>
+
+  <exercise id="fs-2123">
+    <problem id="fa-2124">
+      <para id="fa-2126">Define restitution.</para>
+    </problem>
+    <solution id="fa-21278">
+        <para id="fs-12312314">Restitution restores the injured party to status quo or the position they had prior to the formation of the contract, by returning to the plaintiff any money or property given to the defendant pursuant to the contract.</para>
+    </solution>
+  </exercise>
+
+
+</section>
+</content>
+</document>

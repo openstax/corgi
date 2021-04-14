@@ -85,21 +85,21 @@ module.exports.handler = argv => {
     }
   }).call()
   const dockerCredentials = (() => {
-    let docker_username
-    let docker_password
+    let dockerUsername
+    let dockerPassword
 
     if (env.ENV_NAME === 'local') {
-      docker_username = process.env.DOCKERHUB_USERNAME
-      docker_password = process.env.DOCKERHUB_PASSWORD
+      dockerUsername = process.env.DOCKERHUB_USERNAME
+      dockerPassword = process.env.DOCKERHUB_PASSWORD
     } else {
-      docker_username = env.DOCKERHUB_USERNAME
-      docker_password = env.DOCKERHUB_PASSWORD
+      dockerUsername = env.DOCKERHUB_USERNAME
+      dockerPassword = env.DOCKERHUB_PASSWORD
     }
-    if ((docker_username != null) && (docker_password != null)) {
+    if ((dockerUsername != null) && (dockerPassword != null)) {
       return {
         dockerCredentials: {
-          username: docker_username,
-          password: docker_password
+          username: dockerUsername,
+          password: dockerPassword
         }
       }
     } else {
@@ -123,7 +123,7 @@ module.exports.handler = argv => {
     output = forward + yaml.safeDump(pipelineConfig)
   } catch (err) {
     console.error(yaml.dump(pipelineConfig))
-    console.error("An error occurred during safeDump. ^^ A dump without safety is above ^^ grep on stderr might help?")
+    console.error('An error occurred during safeDump. ^^ A dump without safety is above ^^ grep on stderr might help?')
     throw err
   }
 

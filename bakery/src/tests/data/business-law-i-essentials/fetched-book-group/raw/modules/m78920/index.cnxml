@@ -1,0 +1,109 @@
+<document xmlns="http://cnx.rice.edu/cnxml" xmlns:md="http://cnx.rice.edu/mdml" xmlns:bib="http://bibtexml.sf.net/" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:q="http://cnx.rice.edu/qml/1.0" xmlns:data="http://www.w3.org/TR/html5/dom.html#custom-data-attribute" id="new" cnxml-version="0.7" module-id="new">
+
+<title>The Framework of Securities Regulation</title>
+<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">
+  <md:content-id>m78920</md:content-id>
+  <md:title>The Framework of Securities Regulation</md:title>
+  <md:abstract/>
+  <md:uuid>5874b800-753d-486b-b4a8-cfe2e81b8574</md:uuid>
+<md:revised>2021-04-06T17:20:41+00:00</md:revised>
+<md:canonical-book-uuid>464a3fba-68c1-426a-99f9-597e739dc911</md:canonical-book-uuid>
+</metadata>
+
+<content>
+<section id="fs-idm351062304">
+			<title>The Securities Exchange Act of 1934</title>
+			<para id="fs-idm333610736">In 1929, the United States stock market crashed and lost $25 billion, which would be approximately $319 billion today. The Stock Market crash of 1929 was one cause of the American Great Depression of the 1930s, which caused the failure of nearly half of American banks and created unemployment rates of almost 25 percent by 1933. These dire economic conditions created the need for <term>breadlines</term>, quite literally, hungry people who waited in line at charitable and government organizations for loaves of bread, and <term>shanty towns</term>, or areas where families who had lost their homes lived in cloistered tents on the outskirts of cities. Farmers could not even afford to harvest their crops.</para>
+			<figure id="sad"><media id="fs-idm341942960" alt="A black and white photo shows a desperate-looking woman sitting with two children who bury their faces against her shoulders."><image mime-type="image/jpg" src="../resources/20d9e53b4a1b643bf9209a2a1e65625e10718b38"/></media>
+			<caption>Florence Owens Thompson and her children were living on frozen vegetables and birds they killed in this famous photograph taken in 1936 in California. (Credit: Dorothea Lange/ wikimedia/ License: Public Domain)</caption></figure><para id="fs-idm332317808">It was amid this social and economic unrest that Congress passed the Securities Exchange Act of 1934. Signed by President Franklin D. Roosevelt, the Securities Exchange Act of 1934 recognized that the stock market crash of 1929 was caused by wild speculation, large and sudden fluctuations, and manipulations involving securities. An article in the 1934 <term>California Law Review</term> described the condition of the market at the time by writing, “Artificial prices of securities were the rule rather than the exception.… The result was vast economic power, with all that implies in a democracy, in the hand of men whose ethical standards were substantially those of gangsters.”</para>
+			<para id="fs-idm334729840">Roosevelt wanted to enact legislature to try to prevent this wild speculation in securities from happening again and to restore the public’s faith. He recognized that stock market crashes would not only destroy wealth in securities markets, but they were also instrumental to the financial security of the nation as a whole. The passing of the Security Exchange Act of 1934 was not only a reaction to the market crash, but it also represented a broad shift in the social and economic paradigms and legal frameworks of the United States. Previously, the United States had largely followed a <term>laissez-faire</term> economic policy. Laissez faire, as popularized by Scottish economist Adam Smith and British philosopher Herbert Spencer, describes an economic philosophy that markets function best when left to their own devices, i.e., without, or with minimal, government involvement or regulations. The rejection of laissez faire was part of a larger social shift that opposed the long hours, unsafe working conditions, and child labor that had become commonplace as a result of the Industrial Revolution.</para>
+	</section>
+			<section id="fs-idm335248896">
+			<title class="Heading-2">The SEC</title>
+			<para id="fs-idm337646992">Section 4 of the Securities Exchange Act of 1934 created the <term>Securities and Exchange Commission (SEC)</term> to enforce its ongoing mission. The SEC is an independent agency of the United States federal government. It regulates securities laws and regulations. The first chairperson of the SEC was Joseph P. Kennedy, the father of President John F. Kennedy. The SEC is led by five presidentially appointed commissioners and has five divisions: Division of Corporation Finance, Division of Investment Management, Division of Trading and Markets, Division of Enforcement, and Division of Economic and Risk Analysis.</para>
+			<para id="fs-idm334001680">The SEC also oversees <term>self-regulatory organizations (SROs)</term>, or private organizations that create and enforce industry standards. These organizations are allowed to “police” themselves, but are subject to compliance with SEC regulations. The various well-known securities exchanges such as the New York Stock Exchange (NYSE), the National Association of Securities Dealers Automated Quotation System (NASDAQ), and the Chicago Board of Options are SROs. Per Section 12(g), companies with total assets exceeding $10 million and with 500 or more owners of any class of securities must register with the SEC unless they meets exemption requirements.</para>
+			<para id="fs-idm335983456">The SEC makes new laws in response to emerging technologies. For example, Title III of the Jumpstart Our Business Startups (JOBS) Act of 2012 was added, and in it, Section 4(a)(6) allows <term>crowdfunding</term>, or raising small amounts of money from many people to fund a venture or project, usually over the internet. Crowdfunding transactions are exempt from registration as long as the amount raised does not exceed $1,070,000 in a 12-month period.</para>
+			</section>
+			<section id="fs-idm330800048">
+			<title class="Heading-2">Secondary Markets</title>
+			<para id="fs-idm337182688">The Securities Exchange Act of 1934 governs <term>secondary markets</term>, or what is typically referred to as the “stock market.” In contrast to the <term>primary market</term>, which involves the <term>initial</term> sale of a security, such as through an <term>initial public offering (IPO)</term>, secondary markets involve subsequent buyers and sellers of securities. One key difference is that primary market prices are set in advance, while secondary market prices are subject to constantly changing market valuations, as determined by supply and demand and investor expectations. For example, when Facebook initiated its IPO in May of 2012, the price was $38 per share, and technical issues on the NASDAQ complicated the offering. After the IPO, the stock traded <term>sideways</term>, meaning that it stayed within a range that did not indicate strong upward or downward movement. However, Facebook has gone on to trade at values more than four times its initial IPO valuation, due to investor beliefs and expectations. Not all stocks go up in value after their IPO; some vacillate between highs and lows and frustrate investors with their unstable valuation swings.</para>
+			<figure id="secure"><media id="fs-idm344183232" alt="A photo of a screen that shows a variety of line charts depicting securities activities."><image mime-type="image/jpg" src="../resources/48cb232a161ce69683d1c9dfead40e0739c05e72"/></media>
+			<caption>Stocks on the secondary market fluctuate in value. (Credit: 3844328/ pixabay/ License: CC0)</caption></figure></section>
+			<section id="fs-idm348472352">
+			<title class="Heading-2">Reporting Requirements</title>
+			<para id="fs-idm354045456">The Securities Exchange Act of 1934 created numerous reporting requirements for public companies. The purpose of these requirements was <term>transparency</term>, that is, keeping the public up to date and informed of changes that might impact securities prices. Public companies with securities registered under Section 12 or that are subject to Section 15(d) must file reports with the SEC. Section 12 requires the registration of certain securities and outlines the procedures necessary to do so. Information required by Section 12 includes the nature of the business, its financial structure, the different classes of securities, the names of officers and directors along with their salaries and bonus arrangements, and financial statements. Section 15 requires brokers and dealers to register with the SEC. Individuals who buy and sell securities are considered traders, and therefore, are not subject to filing under Section 15. Section 15(d) requires registered companies to file periodic reports, such as the annual Form 10-K and the quarterly Form 10-Q. These reports will be explained in detail in the next section of this chapter. The SEC Commission makes these reports available to all investors through the EDGAR website to help them make informed investment decisions.</para>
+		</section>
+		<section id="fs-idm344869024">
+			<title class="Heading-2">Registration Requirements</title>
+			<para id="fs-idm343434800">The Securities Act of 1933 required companies initiating securities offers and exchanges to register with the SEC, unless they met exemption criteria. Section 5 of the Securities Exchange Act of 1934 built upon this foundation and made it unlawful to transact on unregistered exchanges and specifically extended this regulation to the usage of the mail and interstate commerce. 15 U.S. Code § 78f states that exchanges must not only register with the SEC, but they must also have rules that “prevent fraudulent and manipulative acts and practices, to promote just and equitable principles of trade, to foster cooperation and coordination with persons engaged in regulating, clearing, settling, processing information with respect to, and facilitating transactions in securities, to remove impediments to and perfect the mechanism of a free and open market and a national market system, and, in general, to protect investors and the public interest …”</para>
+		</section>
+		<section id="fs-idm346702400">
+			<title class="Heading-2">Blue Sky Laws</title>
+			<para id="fs-idm352653568">When the Securities Exchange Act is discussed, <term>blue sky laws</term> are often mentioned. In 1911, Kansas bank commissioner J.N. Dolley became concerned about what he called “swindles,” in which investors at the time lost money by investing in “fake mines” or “a Central American plantation that was nine parts imagination.” Therefore, he lobbied for the first “comprehensive” securities law in the United States because, as he phrased it, these investments were backed by nothing except the blue skies of Kansas. So, state-level securities laws aimed to combat fraud are called blue sky laws. The SEC does not have jurisdiction over activities within states and does not enforce blue sky laws.</para>
+			<figure id="actually-rain"><media id="fs-idm354071952" alt="A photo shows a blue sky with light scattered clouds."><image mime-type="image/jpg" src="../resources/ddeeff0c10b63efe388b28e3c546248a974137b0"/></media>
+			<caption>In addition to the Securities Exchange Act of 1934, blue sky laws provide an additional state-level layer of legal protection for the public. (Credit: Elia Clerici/ pexels/ License: CC0)</caption></figure></section>
+		<section id="fs-idm331457408" class="references"><title>Sources</title><para id="fs-idm336850672">Engle, E. (2006). What you don’t know can hurt you: human rights, shareholder activism and SEC reporting requirements. <emphasis effect="italics">Syracuse Law. Review</emphasis>, <emphasis effect="italics">57</emphasis>, 63.</para>
+			<para id="fs-idm337802064">If you had invested right after facebook’s IPO (FB, TWTR). Investopedia. Retrieved from: https://www.investopedia.com/articles/markets/081415/if-your-would-have-invested-right-after-facebooks-ipo.asp.</para>
+			<para id="fs-idm349264208">Macey, J. R., &amp; Miller, G. P. (1991). Origin of the blue sky laws. <emphasis effect="italics">Texas. Law Review</emphasis>, <emphasis effect="italics">70</emphasis>, 347.</para>
+			<para id="fs-idm352620800">Payne, W. (1911) How Kansas drove out a set of thieves. <emphasis effect="italics">The Saturday Evening Post, 184</emphasis>, 23.</para>
+			<para id="fs-idm349169840">Regulation Crowdfunding: A Small Entity Compliance Guide for Issuers. (n.d). U.S. Securities and Exchange Commission. Retrieved from: https://www.sec.gov/info/smallbus/secg/rccomplianceguide-051316.htm#_ftn1.</para>
+			<para id="fs-idm337222544">Soifer, A. (1987). The Paradox of Paternalism and Laissez-Faire Constitutionalism: United States Supreme Court, 1888–1921. <emphasis effect="italics">Law and History Review</emphasis>, <emphasis effect="italics">5</emphasis>(1), 249–279.</para>
+			<para id="fs-idm353623120">Suddath, C. (October, 2008). The crash of 1929. <emphasis effect="italics">Time</emphasis>. Retrieved from: http://content.time.com/time/nation/article/0,8599,1854569,00.html.</para>
+			<para id="fs-idm338832080">What we do. (n.d). U.S. Securities and Exchange Commission. Retrieved from: https://www.sec.gov/Article/whatwedo.html.</para>
+			<para id="fs-idm351865552">White, E. N. (1990). The stock market boom and crash of 1929 revisited. <emphasis effect="italics">Journal of Economic perspectives</emphasis>, <emphasis effect="italics">4</emphasis>(2), 67–83.</para>
+</section>
+<section class="assessment-questions" id="fs-136373">
+
+  <exercise id="fs-223136">
+  <problem id="fa-214356">
+  <para id="fa-2158236">Define insider trading.</para>
+  </problem>
+  </exercise>
+
+  <exercise id="fs-2232531356">
+  <problem id="fa-2128343156">
+  <para id="fa-2156832356">All of the following are considered reports required by the Securities Exchange Act of 1934 except:</para>
+  <list list-type="enumerated" number-style="lower-alpha" id="fa-25252156">
+  <item>Form 8k.</item>
+  <item>Form 10 k.</item>
+  <item>Form 10Q.</item>
+  <item>All of the above.</item>
+  </list>
+  </problem>
+  <solution id="fa-28375823156">
+  <para id="fa-22838523156">d</para>
+  </solution>
+  </exercise>
+
+  <exercise id="fs-223253356">
+  <problem id="fa-21283156">
+  <para id="fa-215683236">Corporate insiders include officers, directors, and beneficial owners who own _____ % of a class of securities registered under Section 12 of the Securities Exchange Act of 1934.</para>
+  <list list-type="enumerated" number-style="lower-alpha" id="fa-2552156">
+  <item>5.</item>
+  <item>10.</item>
+  <item>15.</item>
+  <item>20.</item>
+  </list>
+  </problem>
+  </exercise>
+
+  <exercise id="fs-22136">
+  <problem id="fa-21356">
+  <para id="fa-215836">Explain Schedule 13D.</para>
+  </problem>
+  <solution id="fa-2832156">
+  <para id="fa-2288156">In 1968, the Williams Act amended the Securities Exchange Act of 1934 so that investors could have advance warning of possible corporate takeovers. If someone (individual/corporation) becomes the beneficial owner of more than 5% of a company’s stock, that entity must file a Schedule 13D with the SEC within 10 days of purchase. A beneficial owner is anyone with “voting and investment power over their shares.” There are a few exceptions that apply, such as qualified institutional investors—large investors who are deemed to have sophisticated knowledge of securities such that they do not need the same level of protection as general investors. Insurance companies, state employee benefits plans, and investment companies are examples of qualified institutional investors who are allowed to report their holdings at the end of the calendar year.</para>
+  </solution>
+  </exercise>
+
+  <exercise id="fs-2136">
+  <problem id="fa-2356">
+  <para id="fa-21536">What’s the purpose of Proxy Statements?</para>
+  </problem>
+  </exercise>
+
+</section>
+ </content>
+
+
+</document>

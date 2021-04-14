@@ -1499,7 +1499,7 @@ const tasks = {
 
       const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = [`--taskargs=${JSON.stringify(
-        { ...imageDetails, ...{ inputSource: argv.inputsource, inputPath: argv.inputpath, validationNames: argv.validationnames } }
+        { ...imageDetails, ...{ inputSource: argv.inputsource, inputPath: argv.inputpath, contentSource: argv.contentsource, validationNames: argv.validationnames } }
       )}`]
       const taskContent = execFileSync(buildExec, ['task', 'validate-xhtml', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
@@ -1523,7 +1523,7 @@ const tasks = {
       builder: yargs => {
         yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
         yargs.positional('collid', {
-          describe: 'collection id of collection to work on',
+          describe: 'collection id of collection to work on (or book slug)',
           type: 'string'
         }).positional('inputsource', {
           describe: 'input source to consume data from. e.g. baked-book, assembled-book, ...',
@@ -1534,6 +1534,11 @@ const tasks = {
         }).positional('validationnames', {
           describe: 'a list of validations to run on the XHTML files',
           type: 'array'
+        }).option('c', {
+          alias: 'contentsource',
+          describe: 'content source is either "git" or "archive"',
+          type: 'string',
+          default: 'archive'
         })
       },
       handler: argv => {
