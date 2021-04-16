@@ -19,7 +19,8 @@
     },
     "revised": {
       "type": "string",
-      "description": "The revision date of this version of the book"
+      "description": "The revision date of this version of the book as ISO8601",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}([.]\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
     },
     "license": {
       "type": "object",
