@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from cnxepub.collation import reconstitute
 from cnxepub.models import flatten_to_documents
+from . import utils
 
 
 def main():
@@ -25,7 +26,7 @@ def main():
         revised = uuid_to_revised_map.get(doc.id) or doc.metadata["revised"]
         json_data[doc.ident_hash] = {
             "abstract": abstract,
-            "revised": revised
+            "revised": utils.ensure_isoformat(revised)
         }
 
     with open(output_file_path, "w") as out_file:

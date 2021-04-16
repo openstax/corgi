@@ -2,6 +2,8 @@ import hashlib
 import magic
 from cnxepub.models import TRANSLUCENT_BINDER_ID, TranslucentBinder
 from cnxcommon.urlslug import generate_slug
+from dateutil import parser
+from datetime import datetime, timedelta, timezone
 
 # same as boto3 default chunk size. Don't modify.
 BUF_SIZE = 8 * 1024 * 1024
@@ -85,3 +87,42 @@ def parse_uri(uri):
         return None
     legacy_id, legacy_version = uri.split('@')
     return legacy_id, legacy_version
+
+
+def ensure_isoformat(timestamp):
+    """Given a timestsamp string either validate it is already ISO8601 and
+    return or attempt to convert it.
+    """
+    try:
+        # Using dateutil.parser here instead of datetime.fromisoformat as the
+        # former seems to be more robust and avoids some false negatives seen
+        # with the latter (e.g. with "2021-03-22T14:14:33.17588-05:00")
+        parser.isoparse(timestamp)
+        return timestamp
+    except ValueError:
+        # The provided timestamp needs to be converted
+        pass
+
+    # Try with a timezone offset value that we can parse
+    try:
+        return datetime.strptime(timestamp, "%Y/%m/%d %H:%M:%S %z").isoformat()
+    except ValueError:
+        pass
+
+    # Try with timezone strings that we can interpret as offset -0500
+    supported_formats = [
+        "%Y/%m/%d %H:%M:%S.%f GMT-5",
+        "%Y/%m/%d %H:%M:%S GMT-5",
+        "%Y/%m/%d %H:%M:%S.%f US/Central"
+    ]
+    for fmt in supported_formats:
+        try:
+            unaware_time = datetime.strptime(timestamp, fmt)
+            aware_time = unaware_time.replace(
+                tzinfo=timezone(-timedelta(hours=5))
+            )
+            return aware_time.isoformat()
+        except ValueError:
+            pass
+
+    raise Exception(f"Could not convert non ISO8601 timestamp: {timestamp}")
