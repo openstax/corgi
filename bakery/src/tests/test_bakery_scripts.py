@@ -966,7 +966,7 @@ def test_bake_book_metadata(tmp_path, mocker):
     assert "license" in book_metadata.keys()
     assert (
         book_metadata["revised"]
-        == "2021-02-26T10:51:35.574000-05:00"
+        == "2021-02-26T10:51:35.574000-06:00"
     )
     assert "College Physics" in book_metadata["title"]
     assert book_metadata["slug"] == "test-book-slug"
@@ -2981,7 +2981,7 @@ def test_ensure_isoformat():
     assert utils.ensure_isoformat("2018/10/01 14:04:45 -0500") == \
         "2018-10-01T14:04:45-05:00"
     assert utils.ensure_isoformat("2020/12/21 16:05:52.185 US/Central") == \
-        "2020-12-21T16:05:52.185000-05:00"
+        "2020-12-21T16:05:52.185000-06:00"
     assert utils.ensure_isoformat("2020/09/15 13:39:55.802 GMT-5") == \
         "2020-09-15T13:39:55.802000-05:00"
     assert utils.ensure_isoformat("2018/09/25 06:57:44 GMT-5") == \

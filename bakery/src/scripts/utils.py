@@ -2,8 +2,7 @@ import hashlib
 import magic
 from cnxepub.models import TRANSLUCENT_BINDER_ID, TranslucentBinder
 from cnxcommon.urlslug import generate_slug
-from dateutil import parser
-from datetime import datetime, timedelta, timezone
+from dateutil import parser, tz
 
 # same as boto3 default chunk size. Don't modify.
 BUF_SIZE = 8 * 1024 * 1024
@@ -103,26 +102,25 @@ def ensure_isoformat(timestamp):
         # The provided timestamp needs to be converted
         pass
 
-    # Try with a timezone offset value that we can parse
+    # Try parsing timezone separately to catch cases like 'GMT-5' and
+    # 'US/Central'
+    #
+    # Note: We're attempting this before dateutil.parser.parse because if we
+    # don't cases like GMT-5 will end up as offset +5:00
+    # (see https://github.com/dateutil/dateutil/issues/70)
     try:
-        return datetime.strptime(timestamp, "%Y/%m/%d %H:%M:%S %z").isoformat()
+        timestamp_notz, timestamp_tz = timestamp.rsplit(' ', 1)
+        parsed_tz = tz.gettz(timestamp_tz)
+        # The parsed timezone may be None (e.g. for '-0500')
+        if parsed_tz:
+            return parser.parse(timestamp_notz).replace(tzinfo=parsed_tz).isoformat()
     except ValueError:
         pass
 
-    # Try with timezone strings that we can interpret as offset -0500
-    supported_formats = [
-        "%Y/%m/%d %H:%M:%S.%f GMT-5",
-        "%Y/%m/%d %H:%M:%S GMT-5",
-        "%Y/%m/%d %H:%M:%S.%f US/Central"
-    ]
-    for fmt in supported_formats:
-        try:
-            unaware_time = datetime.strptime(timestamp, fmt)
-            aware_time = unaware_time.replace(
-                tzinfo=timezone(-timedelta(hours=5))
-            )
-            return aware_time.isoformat()
-        except ValueError:
-            pass
+    # Final attempt with just dateutil parser
+    try:
+        return parser.parse(timestamp).isoformat()
+    except ValueError:
+        pass
 
     raise Exception(f"Could not convert non ISO8601 timestamp: {timestamp}")
