@@ -17,6 +17,7 @@ from googleapiclient.http import RequestMockBuilder
 from PIL import Image
 from pathlib import Path
 from filecmp import cmp
+from datetime import datetime
 
 from cnxepub.html_parsers import HTML_DOCUMENT_NAMESPACES
 from cnxepub.collation import reconstitute
@@ -36,6 +37,7 @@ from bakery_scripts import (
     fetch_update_metadata,
     link_single,
     patch_same_book_links,
+    utils
 )
 
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -247,6 +249,8 @@ def test_disassemble_book(tmp_path, mocker):
         == "Explain the difference between a model and a theory"
     )
     assert m42092_data["revised"] is not None
+    # Verify the generated timestamp is ISO8601 and includes timezone info
+    assert datetime.fromisoformat(m42092_data["revised"]).tzinfo is not None
 
     toc_output = disassembled_output / "collection.toc.xhtml"
     assert toc_output.exists()
@@ -883,11 +887,11 @@ def test_assemble_book_metadata(tmp_path, mocker):
     )
     assert (
         assembled_metadata["m42092@1.10"]["revised"]
-        == "2018/09/18 09:55:13.413 GMT-5"
+        == "2018-09-18T09:55:13.413000-05:00"
     )
     assert (
         assembled_metadata["m42119@1.6"]["revised"]
-        == "2018/08/03 15:49:52 -0500"
+        == "2018-08-03T15:49:52-05:00"
     )
 
 
@@ -912,11 +916,11 @@ def test_assemble_book_metadata_empty_revised_json(tmp_path, mocker):
     assembled_metadata = json.loads(assembled_metadata_output.read_text())
     assert (
         assembled_metadata["m42092@1.10"]["revised"]
-        == "2018/09/18 09:55:13.413 GMT-5"
+        == "2018-09-18T09:55:13.413000-05:00"
     )
     assert (
         assembled_metadata["m42119@1.6"]["revised"]
-        == "2018/08/03 15:49:52 -0500"
+        == "2018-08-03T15:49:52-05:00"
     )
 
 
@@ -962,7 +966,7 @@ def test_bake_book_metadata(tmp_path, mocker):
     assert "license" in book_metadata.keys()
     assert (
         book_metadata["revised"]
-        == "2019-08-30T16:35:37.569966-05:00"
+        == "2021-02-26T10:51:35.574000-06:00"
     )
     assert "College Physics" in book_metadata["title"]
     assert book_metadata["slug"] == "test-book-slug"
@@ -2966,3 +2970,24 @@ def test_link_single_with_flag(tmp_path, mocker):
             ["", str(baked_dir), str(baked_meta_dir), source_book_slug, str(linked_xhtml)]
         )
         link_single.main()
+
+
+def test_ensure_isoformat():
+    """Test ensure_isoformat utility function"""
+    assert utils.ensure_isoformat("2021-03-22T14:14:33.17588-05:00") == \
+        "2021-03-22T14:14:33.17588-05:00"
+    assert utils.ensure_isoformat("2021-03-23T11:34:33.989606-05:00") == \
+        "2021-03-23T11:34:33.989606-05:00"
+    assert utils.ensure_isoformat("2018/10/01 14:04:45 -0500") == \
+        "2018-10-01T14:04:45-05:00"
+    assert utils.ensure_isoformat("2020/12/21 16:05:52.185 US/Central") == \
+        "2020-12-21T16:05:52.185000-06:00"
+    assert utils.ensure_isoformat("2020/09/15 13:39:55.802 GMT-5") == \
+        "2020-09-15T13:39:55.802000-05:00"
+    assert utils.ensure_isoformat("2018/09/25 06:57:44 GMT-5") == \
+        "2018-09-25T06:57:44-05:00"
+    with pytest.raises(
+        Exception,
+        match="Could not convert non ISO8601 timestamp: unexpectedtimeformat"
+    ):
+        utils.ensure_isoformat("unexpectedtimeformat")

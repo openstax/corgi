@@ -39,7 +39,7 @@ def main():
 
     baked_book_json = {
         "title": metadata.title,
-        "revised": metadata.revised,
+        "revised": utils.ensure_isoformat(metadata.revised),
         "tree": tree,
         "slug": book_slug,
         "id": book_metadata.get("id") or binder.id,

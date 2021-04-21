@@ -2,7 +2,7 @@ import sys
 import json
 from . import utils
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 from lxml import etree
 from lxml.builder import ElementMaker, E
@@ -202,7 +202,7 @@ def main():
                 "title": doc.metadata.get("title"),
                 "abstract": None,
                 "id": doc.id,
-                "revised": datetime.now().isoformat()
+                "revised": datetime.now(timezone.utc).isoformat()
             }
 
             # Add / override metadata from baking if available

@@ -2,6 +2,7 @@ import hashlib
 import magic
 from cnxepub.models import TRANSLUCENT_BINDER_ID, TranslucentBinder
 from cnxcommon.urlslug import generate_slug
+from dateutil import parser, tz
 
 # same as boto3 default chunk size. Don't modify.
 BUF_SIZE = 8 * 1024 * 1024
@@ -85,3 +86,41 @@ def parse_uri(uri):
         return None
     legacy_id, legacy_version = uri.split('@')
     return legacy_id, legacy_version
+
+
+def ensure_isoformat(timestamp):
+    """Given a timestsamp string either validate it is already ISO8601 and
+    return or attempt to convert it.
+    """
+    try:
+        # Using dateutil.parser here instead of datetime.fromisoformat as the
+        # former seems to be more robust and avoids some false negatives seen
+        # with the latter (e.g. with "2021-03-22T14:14:33.17588-05:00")
+        parser.isoparse(timestamp)
+        return timestamp
+    except ValueError:
+        # The provided timestamp needs to be converted
+        pass
+
+    # Try parsing timezone separately to catch cases like 'GMT-5' and
+    # 'US/Central'
+    #
+    # Note: We're attempting this before dateutil.parser.parse because if we
+    # don't cases like GMT-5 will end up as offset +5:00
+    # (see https://github.com/dateutil/dateutil/issues/70)
+    try:
+        timestamp_notz, timestamp_tz = timestamp.rsplit(' ', 1)
+        parsed_tz = tz.gettz(timestamp_tz)
+        # The parsed timezone may be None (e.g. for '-0500')
+        if parsed_tz:
+            return parser.parse(timestamp_notz).replace(tzinfo=parsed_tz).isoformat()
+    except ValueError:
+        pass
+
+    # Final attempt with just dateutil parser
+    try:
+        return parser.parse(timestamp).isoformat()
+    except ValueError:
+        pass
+
+    raise Exception(f"Could not convert non ISO8601 timestamp: {timestamp}")
