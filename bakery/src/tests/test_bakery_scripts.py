@@ -2063,6 +2063,7 @@ def test_s3_existence(tmp_path, mocker):
 
     aws_key = 'dummy-key'
     aws_secret = 'dummy-secret'
+    aws_token = None
 
     s3_client = boto3.client('s3')
     s3_stubber = botocore.stub.Stubber(s3_client)
@@ -2077,7 +2078,7 @@ def test_s3_existence(tmp_path, mocker):
     s3_stubber.activate()
 
     upload_resource = copy_resources_s3.check_s3_existence(
-        aws_key, aws_secret,
+        aws_key, aws_secret, aws_token,
         bucket, test_resource,
         disable_check=False
     )
@@ -2110,6 +2111,7 @@ def test_s3_existence_404(tmp_path, mocker):
 
     aws_key = 'dummy-key'
     aws_secret = 'dummy-secret'
+    aws_token = None
 
     s3_client = boto3.client('s3')
     s3_stubber = botocore.stub.Stubber(s3_client)
@@ -2117,7 +2119,7 @@ def test_s3_existence_404(tmp_path, mocker):
 
     with pytest.raises(FileNotFoundError):
         copy_resources_s3.check_s3_existence(
-            aws_key, aws_secret,
+            aws_key, aws_secret, aws_token,
             bucket, resource_for_test,
             disable_check=False
         )

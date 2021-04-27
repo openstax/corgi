@@ -43,14 +43,15 @@ def slash_join(*args):
     return "/".join(arg.strip("/") for arg in args)
 
 
-def is_s3_folder_empty(aws_key, aws_secret, bucket, key):
+def is_s3_folder_empty(aws_key, aws_secret, aws_session_token, bucket, key):
     """ check if s3 folder is empty or not existing """
     result = False
     session = boto3.session.Session()
     s3_client = session.client(
         's3',
         aws_access_key_id=aws_key,
-        aws_secret_access_key=aws_secret)
+        aws_secret_access_key=aws_secret,
+        aws_session_token=aws_session_token)
     prefix = key
     if prefix[-1] != '/':
         prefix = prefix + '/'
@@ -66,7 +67,7 @@ def is_s3_folder_empty(aws_key, aws_secret, bucket, key):
     return result
 
 
-def check_s3_existence(aws_key, aws_secret, bucket, resource,
+def check_s3_existence(aws_key, aws_secret, aws_session_token, bucket, resource,
                        disable_check=False):
     """ check if resource is already existing or needs uploading """
     def s3_md5sum(s3_client, bucket_name, resource_name):
@@ -94,7 +95,8 @@ def check_s3_existence(aws_key, aws_secret, bucket, resource,
             s3_client = session.client(
                 's3',
                 aws_access_key_id=aws_key,
-                aws_secret_access_key=aws_secret)
+                aws_secret_access_key=aws_secret,
+                aws_session_token=aws_session_token)
             if data['s3_md5'] != s3_md5sum(s3_client, bucket,
                                            resource['output_s3']):
                 upload_resource = resource
@@ -105,13 +107,16 @@ def check_s3_existence(aws_key, aws_secret, bucket, resource,
         raise(e)
 
 
-def upload_s3(aws_key, aws_secret, filename, bucket, key, content_type):
+def upload_s3(aws_key, aws_secret, aws_session_token, filename, bucket, key, content_type):
     """ upload s3 process for ThreadPoolExecutor """
     # use session for multithreading according to
     # https://boto3.amazonaws.com/v1/documentation/api/latest/guide/resources.html?highlight=multithreading#multithreading-multiprocessing
     session = boto3.session.Session()
     s3_client = session.client(
-        's3', aws_access_key_id=aws_key, aws_secret_access_key=aws_secret)
+        's3',
+        aws_access_key_id=aws_key,
+        aws_secret_access_key=aws_secret,
+        aws_session_token=aws_session_token)
     s3_client.upload_file(
         Filename=filename,
         Bucket=bucket,
@@ -132,10 +137,12 @@ def upload(in_dir, bucket, bucket_folder):
 
     aws_key = os.getenv('AWS_ACCESS_KEY_ID')
     aws_secret = os.getenv('AWS_SECRET_ACCESS_KEY')
+    aws_session_token = os.getenv('AWS_SESSION_TOKEN')
 
     disable_deep_folder_check = is_s3_folder_empty(
         aws_key=aws_key,
         aws_secret=aws_secret,
+        aws_session_token=aws_session_token,
         bucket=bucket,
         key=bucket_folder)
 
@@ -174,6 +181,7 @@ def upload(in_dir, bucket, bucket_folder):
                     check_s3_existence,
                     aws_key=aws_key,
                     aws_secret=aws_secret,
+                    aws_session_token=aws_session_token,
                     bucket=bucket,
                     resource=resource,
                     disable_check=disable_deep_folder_check)
@@ -222,6 +230,7 @@ def upload(in_dir, bucket, bucket_folder):
                     upload_s3,
                     aws_key=aws_key,
                     aws_secret=aws_secret,
+                    aws_session_token=aws_session_token,
                     filename=resource['input_metadata_file'],
                     bucket=bucket,
                     key=resource['output_s3_metadata'],
@@ -233,6 +242,7 @@ def upload(in_dir, bucket, bucket_folder):
                     upload_s3,
                     aws_key=aws_key,
                     aws_secret=aws_secret,
+                    aws_session_token=aws_session_token,
                     filename=resource['input_file'],
                     bucket=bucket,
                     key=resource['output_s3'],
