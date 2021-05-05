@@ -1,5 +1,5 @@
 node_modules/
-src/tests/output/
+src/tests/output*
 **/__pycache__/
 dist/
 *.egg-info
