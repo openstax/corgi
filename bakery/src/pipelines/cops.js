@@ -7,6 +7,7 @@ const pipeline = (env) => {
   const taskMathifyBook = require('../tasks/mathify-book')
   const taskBuildPdf = require('../tasks/build-pdf')
   const taskValidateXhtml = require('../tasks/validate-xhtml')
+  const taskValidateCnxml = require('../tasks/validate-cnxml')
 
   const taskAssembleBookMeta = require('../tasks/assemble-book-metadata')
   const taskBakeBookMeta = require('../tasks/bake-book-metadata')
@@ -217,6 +218,13 @@ const pipeline = (env) => {
         image: imageOverrides,
         githubSecretCreds: env.GH_SECRET_CREDS
       }),
+      taskValidateCnxml({
+        image: imageOverrides,
+        inputSource: 'fetched-book-group',
+        modulesPath: 'raw/modules/**/*.cnxml',
+        collectionsPath: 'raw/collections/*.xml',
+        contentSource: 'git'
+      }),
       taskAssembleBookGroup({ image: imageOverrides }),
       taskAssembleBookMetadataGroup({ image: imageOverrides }),
       taskBakeBookGroup({ image: imageOverrides }),
@@ -253,6 +261,12 @@ const pipeline = (env) => {
       taskLookUpBook({ inputSource: resource, image: imageOverrides }),
       report(Status.PROCESSING),
       taskFetchBook({ image: imageOverrides }),
+      taskValidateCnxml({
+        image: imageOverrides,
+        inputSource: 'fetched-book',
+        modulesPath: 'raw/**/*.cnxml',
+        collectionsPath: 'raw/collection.xml'
+      }),
       taskAssembleBook({ image: imageOverrides }),
       taskLinkExtras({
         image: imageOverrides,
@@ -296,6 +310,12 @@ const pipeline = (env) => {
       taskLookUpBook({ inputSource: resource, image: imageOverrides }),
       report(Status.PROCESSING),
       taskFetchBook({ image: imageOverrides }),
+      taskValidateCnxml({
+        image: imageOverrides,
+        inputSource: 'fetched-book',
+        modulesPath: 'raw/**/*.cnxml',
+        collectionsPath: 'raw/collection.xml'
+      }),
       taskAssembleBook({ image: imageOverrides }),
       taskLinkExtras({
         image: imageOverrides,
@@ -351,6 +371,13 @@ const pipeline = (env) => {
       taskFetchBookGroup({
         image: imageOverrides,
         githubSecretCreds: env.GH_SECRET_CREDS
+      }),
+      taskValidateCnxml({
+        image: imageOverrides,
+        inputSource: 'fetched-book-group',
+        modulesPath: 'raw/modules/**/*.cnxml',
+        collectionsPath: 'raw/collections/*.xml',
+        contentSource: 'git'
       }),
       taskAssembleBookGroup({ image: imageOverrides }),
       taskAssembleBookMetadataGroup({ image: imageOverrides }),
