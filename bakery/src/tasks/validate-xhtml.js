@@ -50,10 +50,14 @@ const task = (taskArgs) => {
               exit 1
               ;;
           esac
+          failure=false
           for xhtmlfile in $xhtmlfiles_path
           do
-            java -cp /xhtml-validator.jar org.openstax.xml.Main "$xhtmlfile" ${validationNames.join(' ')}
+            java -cp /xhtml-validator.jar org.openstax.xml.Main "$xhtmlfile" ${validationNames.join(' ')} || failure=true
           done
+          if $failure; then
+            exit 1
+          fi
         `
         ]
       }
