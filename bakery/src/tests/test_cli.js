@@ -352,6 +352,18 @@ test('stable flow pipelines', async t => {
     '--persist'
   ]
 
+  const validateCnxml = spawn('node', [
+    'src/cli/execute.js',
+    ...commonArgs,
+    'validate-cnxml',
+    bookId,
+    'fetched-book',
+    'raw/**/*.cnxml',
+    'raw/collection.xml'
+  ])
+
+  await completion(validateCnxml)
+
   const assemble = spawn('node', [
     'src/cli/execute.js',
     ...commonArgs,
@@ -586,6 +598,19 @@ test('stable flow pipelines', async t => {
     `--data=${gitOutputDir}`,
     '--persist'
   ]
+
+  const gitValidateCnxml = spawn('node', [
+    'src/cli/execute.js',
+    ...gitCommonArgs,
+    'validate-cnxml',
+    bookSlug,
+    'fetched-book-group',
+    'raw/modules/**/*.cnxml',
+    'raw/collections/*.xml',
+    '--contentsource=git'
+  ])
+
+  await completion(gitValidateCnxml)
 
   const gitAssemble = spawn('node', [
     'src/cli/execute.js',

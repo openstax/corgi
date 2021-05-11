@@ -11,6 +11,7 @@ const pipeline = (env) => {
   const taskPatchDisassembledLinksSingle = require('../tasks/patch-disassembled-links-single')
   const taskJsonifySingle = require('../tasks/jsonify-single')
   const taskValidateXhtml = require('../tasks/validate-xhtml')
+  const taskValidateCnxml = require('../tasks/validate-cnxml')
   const taskUploadSingle = require('../tasks/upload-single')
   const taskReportStateComplete = require('../tasks/report-state-complete')
 
@@ -89,6 +90,13 @@ const pipeline = (env) => {
       taskFetchBookGroup({
         githubSecretCreds: githubSecretCreds,
         image: imageOverrides
+      }),
+      taskValidateCnxml({
+        image: imageOverrides,
+        inputSource: 'fetched-book-group',
+        modulesPath: 'raw/modules/**/*.cnxml',
+        collectionsPath: 'raw/collections/*.xml',
+        contentSource: 'git'
       }),
       taskAssembleBookGroup({ image: imageOverrides }),
       taskAssembleBookMetaGroup({ image: imageOverrides }),

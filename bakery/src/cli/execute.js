@@ -1545,6 +1545,60 @@ const tasks = {
         handler(argv).catch((err) => { console.error(err); process.exit(1) })
       }
     }
+  },
+  'validate-cnxml': (parentCommand) => {
+    const commandUsage = 'validate-cnxml <name> <inputsource> <modulespath> <collectionspath>'
+    const handler = async argv => {
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
+
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = [`--taskargs=${JSON.stringify(
+        { ...imageDetails, ...{ inputSource: argv.inputsource, modulesPath: argv.modulespath, collectionsPath: argv.collectionspath, contentSource: argv.contentsource } }
+      )}`]
+      const taskContent = execFileSync(buildExec, ['task', 'validate-cnxml', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const tmpBookDir = tmp.dirSync()
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.name)
+
+      const dataDir = path.resolve(argv.data, argv.name)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, argv.inputsource)
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      aliases: 'v',
+      describe: 'validate CNXML / collection file(s) from a task',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
+        yargs.positional('name', {
+          describe: 'collection id or book slug to work on',
+          type: 'string'
+        }).positional('inputsource', {
+          describe: 'input source to consume data from. e.g. baked-book, assembled-book, ...',
+          type: 'string'
+        }).positional('modulespath', {
+          describe: 'path to module files to validate relative to input (e.g. raw/modules/**.*.cnxml)',
+          type: 'string'
+        }).positional('collectionspath', {
+          describe: 'path to collection files to validate relative to input (e.g. raw/collections/*.xml)',
+          type: 'string'
+        }).option('c', {
+          alias: 'contentsource',
+          describe: 'content source is either "git" or "archive"',
+          type: 'string',
+          default: 'archive'
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
   }
 }
 
@@ -1596,6 +1650,7 @@ const yargs = require('yargs')
           .command(tasks.gdocify(commandUsage))
           .command(tasks['convert-docx'](commandUsage))
           .command(tasks['validate-xhtml'](commandUsage))
+          .command(tasks['validate-cnxml'](commandUsage))
           .option('d', {
             alias: 'data',
             demandOption: true,

@@ -13,6 +13,7 @@ const pipeline = (env) => {
   const taskJsonifyBook = require('../tasks/jsonify-book')
   const taskUploadBook = require('../tasks/upload-book')
   const taskValidateXhtml = require('../tasks/validate-xhtml')
+  const taskValidateCnxml = require('../tasks/validate-cnxml')
   const taskReportStateComplete = require('../tasks/report-state-complete')
 
   const awsAccessKeyId = env.S3_ACCESS_KEY_ID
@@ -87,6 +88,12 @@ const pipeline = (env) => {
         image: imageOverrides
       }),
       taskFetchBook({ image: imageOverrides }),
+      taskValidateCnxml({
+        image: imageOverrides,
+        inputSource: 'fetched-book',
+        modulesPath: 'raw/**/*.cnxml',
+        collectionsPath: 'raw/collection.xml'
+      }),
       taskAssembleBook({ image: imageOverrides }),
       taskLinkExtras({
         image: imageOverrides,

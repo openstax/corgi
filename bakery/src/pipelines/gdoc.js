@@ -10,6 +10,7 @@ const pipeline = (env) => {
   const taskChecksumBook = require('../tasks/checksum-book')
   const taskDisassembleBook = require('../tasks/disassemble-book')
   const taskValidateXhtml = require('../tasks/validate-xhtml')
+  const taskValidateCnxml = require('../tasks/validate-cnxml')
   const taskGdocifyBook = require('../tasks/gdocify-book')
   const taskConvertDocx = require('../tasks/convert-docx')
   const taskUploadDocx = require('../tasks/upload-docx')
@@ -87,6 +88,12 @@ const pipeline = (env) => {
         image: imageOverrides
       }),
       taskFetchBook({ image: imageOverrides }),
+      taskValidateCnxml({
+        image: imageOverrides,
+        inputSource: 'fetched-book',
+        modulesPath: 'raw/**/*.cnxml',
+        collectionsPath: 'raw/collection.xml'
+      }),
       taskAssembleBook({ image: imageOverrides }),
       taskLinkExtras({
         image: imageOverrides,
