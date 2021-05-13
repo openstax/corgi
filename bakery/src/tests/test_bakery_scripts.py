@@ -974,6 +974,7 @@ def test_bake_book_metadata(tmp_path, mocker):
     assert book_metadata["version"] == "injected_version"
     assert book_metadata["legacy_id"] == "injected_legacy_id"
     assert book_metadata["legacy_version"] == "injected_legacy_version"
+    assert book_metadata["language"] == "en"
 
 
 def test_bake_book_metadata_git(tmp_path, mocker):
@@ -1017,6 +1018,7 @@ def test_bake_book_metadata_git(tmp_path, mocker):
     assert book_metadata["slug"] == "physics"
     assert book_metadata["id"] == "c7795d04-cfca-4ec6-a30f-f48d06336635"
     assert book_metadata["version"] == "1.2.3"
+    assert book_metadata["language"] == "en"
 
 
 def test_check_feed(tmp_path, mocker):

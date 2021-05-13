@@ -22,6 +22,10 @@
       "description": "The revision date of this version of the book as ISO8601",
       "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}([.]\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
     },
+    "language": {
+      "type": "string",
+      "description": "The book language code"
+    },
     "license": {
       "type": "object",
       "description": "License information for book",
@@ -52,6 +56,6 @@
     }
   },
   "additionalProperties": false,
-  "required": ["title", "id", "version", "revised", "license", "slug",
+  "required": ["title", "id", "version", "revised", "language", "license", "slug",
                "tree", "content"]
 }

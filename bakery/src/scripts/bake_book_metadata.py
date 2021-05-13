@@ -47,7 +47,8 @@ def main():
         "license": book_metadata.get("license") or {
             "url": metadata.license_url,
             "name": metadata.license_text
-        }
+        },
+        "language": metadata.language
     }
 
     # If there is existing book metadata provided, update with data above
