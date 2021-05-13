@@ -647,9 +647,8 @@ test('stable flow pipelines', async t => {
 
   const gitBakeMeta = spawn('node', [
     'src/cli/execute.js',
-    'run',
-    `--data=${gitOutputDir}`,
-    '--persist',
+    ...gitCommonArgs,
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
     'bake-meta-group',
     bookSlug
   ])
