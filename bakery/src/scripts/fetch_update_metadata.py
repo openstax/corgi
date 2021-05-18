@@ -96,9 +96,10 @@ def main():
     ).isoformat()
     book_version = determine_book_version(reference, repo, commit)
 
+    # Get list of module files while filtering orphans using canonical_mapping
     module_files = [
-        cf.resolve(strict=True) for cf in modules_dir.glob("**/*")
-        if cf.is_file() and cf.name == "index.cnxml"
+        mf.resolve(strict=True) for mf in modules_dir.glob("**/*")
+        if mf.is_file() and mf.name == "index.cnxml" and mf.parent.name in canonical_mapping
     ]
 
     collection_files = [

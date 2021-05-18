@@ -2410,6 +2410,16 @@ def test_fetch_update_metadata(tmp_path, mocker):
     )
     module_00001.write_text(module_00001_content)
 
+    orphan_module_00002_dir = modules_dir / "m00002"
+    orphan_module_00002_dir.mkdir()
+    orphan_module_00002 = modules_dir / "m00002/index.cnxml"
+    orphan_module_00002_content = (
+        '<document xmlns="http://cnx.rice.edu/cnxml">'
+        '<metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5"/>'
+        '</document>'
+    )
+    orphan_module_00002.write_text(orphan_module_00002_content)
+
     repo_mock = mocker.MagicMock()
     commit_mock = repo_mock().revparse_single()
     commit_mock.commit_time = 1610500380
@@ -2438,6 +2448,11 @@ def test_fetch_update_metadata(tmp_path, mocker):
         '</metadata>'
         '</document>'
     )
+    assert etree.tostring(tree, encoding="utf8") == expected.encode("utf8")
+
+    tree = etree.parse(str(orphan_module_00002))
+    # Orphans should be unmodified
+    expected = orphan_module_00002_content
     assert etree.tostring(tree, encoding="utf8") == expected.encode("utf8")
 
     tree = etree.parse(str(coll_file))
