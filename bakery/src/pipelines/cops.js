@@ -264,7 +264,7 @@ const pipeline = (env) => {
       taskValidateCnxml({
         image: imageOverrides,
         inputSource: 'fetched-book',
-        modulesPath: 'raw/**/*.cnxml',
+        modulesPath: 'raw/**/index.cnxml',
         collectionsPath: 'raw/collection.xml'
       }),
       taskAssembleBook({ image: imageOverrides }),
@@ -313,7 +313,7 @@ const pipeline = (env) => {
       taskValidateCnxml({
         image: imageOverrides,
         inputSource: 'fetched-book',
-        modulesPath: 'raw/**/*.cnxml',
+        modulesPath: 'raw/**/index.cnxml',
         collectionsPath: 'raw/collection.xml'
       }),
       taskAssembleBook({ image: imageOverrides }),

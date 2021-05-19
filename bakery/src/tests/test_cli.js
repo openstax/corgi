@@ -358,7 +358,7 @@ test('stable flow pipelines', async t => {
     'validate-cnxml',
     bookId,
     'fetched-book',
-    'raw/**/*.cnxml',
+    'raw/**/index.cnxml',
     'raw/collection.xml'
   ])
 
