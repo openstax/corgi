@@ -43,7 +43,8 @@ Start the stack with Docker Compose:
 
 View the API Docs here:
 
-http://localhost:5001/docs
+* http://localhost/docs (Swagger)
+* http://localhost/redoc (ReDoc)
 
 To check the logs run:
 
