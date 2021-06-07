@@ -259,13 +259,13 @@ const pipeline = (env) => {
         server: 'archive.cnx.org'
       }),
       taskBakeBook({ image: imageOverrides }),
-      taskMathifyBook({ image: imageOverrides }),
       taskValidateXhtml({
         image: imageOverrides,
-        inputSource: 'mathified-book',
-        inputPath: 'collection.mathified.xhtml',
-        validationNames: ['link-to-duplicate-id']
+        inputSource: 'baked-book',
+        inputPath: 'collection.baked.xhtml',
+        validationNames: ['duplicate-id', 'broken-link']
       }),
+      taskMathifyBook({ image: imageOverrides }),
       taskBuildPdf({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),
       taskOverrideCommonLog({ image: imageOverrides, message: s3UploadFailMessage }),
       {
