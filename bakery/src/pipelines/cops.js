@@ -220,6 +220,13 @@ const pipeline = (env) => {
       taskAssembleBookGroup({ image: imageOverrides }),
       taskAssembleBookMetadataGroup({ image: imageOverrides }),
       taskBakeBookGroup({ image: imageOverrides }),
+      taskValidateXhtml({
+        image: imageOverrides,
+        inputSource: 'baked-book-group',
+        inputPath: '*.baked.xhtml',
+        validationNames: ['duplicate-id', 'broken-link'],
+        contentSource: 'git'
+      }),
       taskBakeBookMetadataGroup({ image: imageOverrides }),
       taskLinkSingle({ image: imageOverrides }),
       taskMathifySingle({ image: imageOverrides }),
