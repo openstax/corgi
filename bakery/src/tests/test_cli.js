@@ -711,7 +711,7 @@ test('stable flow pipelines', async t => {
       'validate-xhtml',
       bookSlug,
       'jsonified-single',
-      '/*@*.xhtml',
+      '*@*.xhtml',
       '--contentsource=git'
     ])
     await completion(gitJsonifiedValidateXhtml)

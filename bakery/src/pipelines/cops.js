@@ -365,7 +365,7 @@ const pipeline = (env) => {
       taskValidateXhtml({
         image: imageOverrides,
         inputSource: 'jsonified-single',
-        inputPath: '/*@*.xhtml',
+        inputPath: '*@*.xhtml',
         validationNames: ['duplicate-id', 'broken-link'],
         contentSource: 'git'
       }),

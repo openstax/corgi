@@ -43,7 +43,7 @@ const task = (taskArgs) => {
               xhtmlfiles_path="${inputSource}/$collection_id/"${inputPath}
               ;;
             git)
-              xhtmlfiles_path="${inputSource}"${inputPath}
+              xhtmlfiles_path="${inputSource}/"${inputPath}
               ;;
             *)
               echo "CONTENT_SOURCE unrecognized: $CONTENT_SOURCE"
