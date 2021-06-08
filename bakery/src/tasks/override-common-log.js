@@ -16,7 +16,7 @@ const task = (taskArgs) => {
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/override_common_log.sh'), { encoding: 'utf-8' })
 
   return {
-    task: 'generate preview urls',
+    task: 'override common log',
     config: {
       platform: 'linux',
       image_resource: {
