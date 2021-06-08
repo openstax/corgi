@@ -220,16 +220,16 @@ const pipeline = (env) => {
       taskAssembleBookGroup({ image: imageOverrides }),
       taskAssembleBookMetadataGroup({ image: imageOverrides }),
       taskBakeBookGroup({ image: imageOverrides }),
-      taskValidateXhtml({
-        image: imageOverrides,
-        inputSource: 'baked-book-group',
-        inputPath: '*.baked.xhtml',
-        validationNames: ['duplicate-id', 'broken-link'],
-        contentSource: 'git'
-      }),
       taskBakeBookMetadataGroup({ image: imageOverrides }),
       taskLinkSingle({ image: imageOverrides }),
       taskMathifySingle({ image: imageOverrides }),
+      taskValidateXhtml({
+        image: imageOverrides,
+        inputSource: 'mathified-single',
+        inputPath: '*.mathified.xhtml',
+        validationNames: ['link-to-duplicate-id', 'broken-link'],
+        contentSource: 'git'
+      }),
       taskPdfifySingle({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),
       taskOverrideCommonLog({ image: imageOverrides, message: s3UploadFailMessage }),
       {
@@ -266,13 +266,13 @@ const pipeline = (env) => {
         server: 'archive.cnx.org'
       }),
       taskBakeBook({ image: imageOverrides }),
+      taskMathifyBook({ image: imageOverrides }),
       taskValidateXhtml({
         image: imageOverrides,
-        inputSource: 'baked-book',
-        inputPath: 'collection.baked.xhtml',
-        validationNames: ['duplicate-id', 'broken-link']
+        inputSource: 'mathified-book',
+        inputPath: 'collection.mathified.xhtml',
+        validationNames: ['link-to-duplicate-id', 'broken-link']
       }),
-      taskMathifyBook({ image: imageOverrides }),
       taskBuildPdf({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),
       taskOverrideCommonLog({ image: imageOverrides, message: s3UploadFailMessage }),
       {
