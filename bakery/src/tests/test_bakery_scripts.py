@@ -90,6 +90,8 @@ def test_checksum_resource(tmp_path, mocker):
     html_content = ('<html xmlns="http://www.w3.org/1999/xhtml">'
                     '<img src="0/image_src.svg"/>'
                     '<a href="image_href.svg">linko</a>'
+                    '<img src="0/image_src_missing.jpg"/>'
+                    '<a href="image_href_missing.svg">linko</a>'
                     '</html>')
     html_file.write_text(html_content)
 
@@ -130,6 +132,8 @@ def test_checksum_resource(tmp_path, mocker):
     expected = (f'<html xmlns="http://www.w3.org/1999/xhtml">'
                 f'<img src="../resources/{image_src_sha1_expected}"/>'
                 f'<a href="../resources/{image_href_sha1_expected}">linko</a>'
+                '<img src="0/image_src_missing.jpg"/>'
+                '<a href="image_href_missing.svg">linko</a>'
                 f'</html>')
     assert etree.tostring(tree, encoding="utf8") == expected.encode("utf8")
 
