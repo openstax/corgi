@@ -645,6 +645,18 @@ test('stable flow pipelines', async t => {
   const outputGitBake = `${gitOutputDir}/${bookSlug}/baked-book-group/${bookSlug}.baked.xhtml`
   t.truthy(fs.existsSync(outputGitBake), formatSubprocessOutput(gitBakeResult))
 
+  const gitBakedValidateXhtml = spawn('node', [
+    'src/cli/execute.js',
+    ...gitCommonArgs,
+    'validate-xhtml',
+    bookSlug,
+    'baked-book-group',
+    '*.baked.xhtml',
+    'duplicate-id broken-link',
+    '--contentsource=git'
+  ])
+  await completion(gitBakedValidateXhtml)
+
   const gitBakeMeta = spawn('node', [
     'src/cli/execute.js',
     ...gitCommonArgs,
@@ -711,7 +723,7 @@ test('stable flow pipelines', async t => {
       'validate-xhtml',
       bookSlug,
       'jsonified-single',
-      '/*@*.xhtml',
+      '*@*.xhtml',
       '--contentsource=git'
     ])
     await completion(gitJsonifiedValidateXhtml)
