@@ -59,6 +59,8 @@ def generate_checksum_resources_from_xhtml(filename, output_dir):
             create_symlink(img_filename, output_dir, sha1)
             create_json_metadata(output_dir, sha1, mime_type, s3_md5,
                                  img_basename)
+        else:
+            print('MISSING_FILE: {}'.format(img_filename))
 
     # get all a @href resources
     href_xpath = '//x:a[@href and not(starts-with(@href, "http") or ' \
@@ -82,6 +84,8 @@ def generate_checksum_resources_from_xhtml(filename, output_dir):
             create_symlink(img_filename, output_dir, sha1)
             create_json_metadata(output_dir, sha1, mime_type, s3_md5,
                                  img_basename)
+        else:
+            print('MISSING_FILE: {}'.format(img_filename))
 
     output_file = os.path.join(output_dir, basename)
     # note: non self closing tags in xhtml are probably not respected here
