@@ -258,7 +258,9 @@ const pipeline = (env) => {
         image: imageOverrides,
         server: 'archive.cnx.org'
       }),
+      taskAssembleBookMeta({ image: imageOverrides }),
       taskBakeBook({ image: imageOverrides }),
+      taskBakeBookMeta({ image: imageOverrides }),
       taskMathifyBook({ image: imageOverrides }),
       taskValidateXhtml({
         image: imageOverrides,
