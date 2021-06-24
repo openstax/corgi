@@ -29,6 +29,7 @@ const pipeline = (env) => {
   const taskMathifySingle = require('../tasks/mathify-single')
   const taskPdfifySingle = require('../tasks/pdfify-single')
   const taskGenPreviewUrls = require('../tasks/gen-preview-urls')
+  const taskLinkRex = require('../tasks/link-rex')
 
   const taskOverrideCommonLog = require('../tasks/override-common-log')
   const taskStatusCheck = require('../tasks/status-check')
@@ -223,6 +224,12 @@ const pipeline = (env) => {
       taskBakeBookMetadataGroup({ image: imageOverrides }),
       taskLinkSingle({ image: imageOverrides }),
       taskMathifySingle({ image: imageOverrides }),
+      taskLinkRex({
+        image: imageOverrides,
+        inputSource: 'mathified-single',
+        inputPath: 'collection.mathified.xhtml',
+        contentSource: 'git'
+      }),
       taskPdfifySingle({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),
       taskOverrideCommonLog({ image: imageOverrides, message: s3UploadFailMessage }),
       {
@@ -258,10 +265,13 @@ const pipeline = (env) => {
         image: imageOverrides,
         server: 'archive.cnx.org'
       }),
-      taskAssembleBookMeta({ image: imageOverrides }),
       taskBakeBook({ image: imageOverrides }),
-      taskBakeBookMeta({ image: imageOverrides }),
       taskMathifyBook({ image: imageOverrides }),
+      taskLinkRex({
+        image: imageOverrides,
+        inputSource: 'mathified-book',
+        inputPath: 'collection.mathified.xhtml',
+       }),
       taskValidateXhtml({
         image: imageOverrides,
         inputSource: 'mathified-book',
