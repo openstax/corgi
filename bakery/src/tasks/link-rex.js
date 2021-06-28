@@ -3,14 +3,14 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
-    const { inputSource, inputPath, contentSource: maybeContentSource } = taskArgs
-    const imageDefault = {
-      name: 'openstax/cops-bakery-scripts',
-      tag: 'trunk'
-    }
-    const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
-    const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
-    const contentSource = maybeContentSource != null ? maybeContentSource : 'archive'
+  const { inputSource, inputPath, contentSource: maybeContentSource } = taskArgs
+  const imageDefault = {
+    name: 'openstax/cops-bakery-scripts',
+    tag: 'trunk'
+  }
+  const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
+  const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
+  const contentSource = maybeContentSource != null ? maybeContentSource : 'archive'
 
   return {
     task: 'link rex',
@@ -28,6 +28,9 @@ const task = (taskArgs) => {
         { name: 'artifacts' },
         { name: 'common-log' }
       ],
+      params: {
+        CONTENT_SOURCE: contentSource
+      },
       run: {
         user: 'root',
         path: '/bin/bash',

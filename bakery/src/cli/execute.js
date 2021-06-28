@@ -1418,7 +1418,7 @@ const tasks = {
 
       const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = [`--taskargs=${JSON.stringify(
-        { ...imageDetails, ...{ inputSource: argv.inputsource, inputPath: argv.inputpath, contentSource: argv.contentsource} }
+        { ...imageDetails, ...{ inputSource: argv.inputsource, inputPath: argv.inputpath, contentSource: argv.contentsource } }
       )}`]
       const taskContent = execFileSync(buildExec, ['task', 'link-rex', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()

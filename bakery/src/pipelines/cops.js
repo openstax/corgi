@@ -270,8 +270,8 @@ const pipeline = (env) => {
       taskLinkRex({
         image: imageOverrides,
         inputSource: 'mathified-book',
-        inputPath: 'collection.mathified.xhtml',
-       }),
+        inputPath: 'collection.mathified.xhtml'
+      }),
       taskValidateXhtml({
         image: imageOverrides,
         inputSource: 'mathified-book',

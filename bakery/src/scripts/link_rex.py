@@ -31,7 +31,7 @@ def update_doc_links(doc, book_slugs_by_uuid):
 
 def main():
     """Main function"""
-    xhtmlfile = Path(sys.argv[1]).resolve(strict=True)
+    xhtml_file = Path(sys.argv[1]).resolve(strict=True)
     book_slugs_file = Path(sys.argv[2]).resolve(strict=True)
     # out_dir = Path(sys.argv[3]).resolve(strict=True)
 
