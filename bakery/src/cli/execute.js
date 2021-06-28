@@ -1411,7 +1411,7 @@ const tasks = {
     }
   },
   linkRex: (parentCommand) => {
-    const commandUsage = 'link-rex <collid> <inputsource> <inputpath>'
+    const commandUsage = 'link-rex <identifier> <inputsource> <inputpath>'
     const handler = async argv => {
       console.log(argv.inputpath)
       const buildExec = path.resolve(BAKERY_PATH, 'build')
@@ -1425,15 +1425,15 @@ const tasks = {
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
       const tmpBookDir = tmp.dirSync()
-      fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.collid)
+      fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.identifier)
 
-      const dataDir = path.resolve(argv.data, argv.collid)
+      const dataDir = path.resolve(argv.data, argv.identifier)
 
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'mathified-book'),
-        output(dataDir, 'artifacts')
+        input(dataDir, argv.inputsource),
+        output(dataDir, argv.inputsource)
       ], { image: argv.image, persist: argv.persist })
     }
     return {
@@ -1441,7 +1441,7 @@ const tasks = {
       describe: 'update external pdf book links to rex',
       builder: yargs => {
         yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
-        yargs.positional('collid', {
+        yargs.positional('identifier', {
           describe: 'collection id of collection to work on (or book slug)',
           type: 'string'
         }).positional('inputsource', {

@@ -33,7 +33,7 @@ def main():
     """Main function"""
     xhtml_file = Path(sys.argv[1]).resolve(strict=True)
     book_slugs_file = Path(sys.argv[2]).resolve(strict=True)
-    # out_dir = Path(sys.argv[3]).resolve(strict=True)
+    out_dir = Path(sys.argv[3]).resolve(strict=True)
 
     # Build map of book UUIDs to slugs that can be used to construct both
     # inter-book and intra-book links
@@ -43,12 +43,12 @@ def main():
             elem["uuid"]: elem["slug"] for elem in json_data
         }
 
-    doc = etree.parse(xhtml_file)
+    doc = etree.parse(str(xhtml_file))
     update_doc_links(
         doc,
         book_slugs_by_uuid
     )
-    # doc.write(str(out_dir / xhtml_file.name), encoding="utf8")
+    doc.write(str(out_dir / xhtml_file.name), encoding="utf8")
 
 
 if __name__ == "__main__":

@@ -11,6 +11,7 @@ const task = (taskArgs) => {
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
   const contentSource = maybeContentSource != null ? maybeContentSource : 'archive'
+  const bookSlugsUrl = 'https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/approved-book-list.json'
 
   return {
     task: 'link rex',
@@ -25,7 +26,7 @@ const task = (taskArgs) => {
         { name: `${inputSource}` }
       ],
       outputs: [
-        { name: 'artifacts' },
+        { name: `${inputSource}` },
         { name: 'common-log' }
       ],
       params: {
@@ -42,9 +43,15 @@ const task = (taskArgs) => {
             archive)
               collection_id="$(cat book/collection_id)"
               xhtmlfiles_path="${inputSource}/$collection_id/"${inputPath}
+              book_dir="${inputSource}/$collection_id"
+              abl_file="$book_dir/approved-book-list.json"
+              target_dir="${inputSource}/$collection_id"
               ;;
             git)
               xhtmlfiles_path="${inputSource}"${inputPath}
+              abl_file=/tmp/approved-book-list.json
+              wget ${bookSlugsUrl} -O $abl_file
+              target_dir="${inputSource}"
               ;;
             *)
               echo "CONTENT_SOURCE unrecognized: $CONTENT_SOURCE"
@@ -52,10 +59,11 @@ const task = (taskArgs) => {
               ;;
           esac
           book_slugs_file="/tmp/book-slugs.json"
-          cat "$book_dir/approved-book-list.json" | jq ".approved_books|map(.books)|flatten" > "$book_slugs_file"
+          cat $abl_file | jq ".approved_books|map(.books)|flatten" > "$book_slugs_file"
+          cat $book_slugs_file
           for xhtmlfile in $xhtmlfiles_path
           do
-            link-rex "$xhtmlfile" "$book_slugs_file"
+            link-rex "$xhtmlfile" "$book_slugs_file" "$target_dir"
           done
         `
         ]
