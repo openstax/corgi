@@ -79,7 +79,6 @@ const extractLocalImageDetails = imageArg => {
 const input = (dataDir, name) => `--input=${name}=${dataDir}/${name}`
 const output = (dataDir, name) => {
   const outputDir = path.resolve(dataDir, name)
-  if (fs.existsSync(outputDir)) { fs.rmdirSync(outputDir, { recursive: true }) }
   return `--output=${name}=${outputDir}`
 }
 const COMPOSE_FILE_PATH = path.resolve(__dirname, 'docker-compose.yml')
