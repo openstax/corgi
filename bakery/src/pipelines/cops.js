@@ -230,6 +230,13 @@ const pipeline = (env) => {
         inputPath: '/*.mathified.xhtml',
         contentSource: 'git'
       }),
+      taskValidateXhtml({
+        image: imageOverrides,
+        inputSource: 'mathified-single',
+        inputPath: '*.mathified.xhtml',
+        validationNames: ['link-to-duplicate-id', 'broken-link'],
+        contentSource: 'git'
+      }),
       taskPdfifySingle({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),
       taskOverrideCommonLog({ image: imageOverrides, message: s3UploadFailMessage }),
       {
@@ -276,7 +283,7 @@ const pipeline = (env) => {
         image: imageOverrides,
         inputSource: 'mathified-book',
         inputPath: 'collection.mathified.xhtml',
-        validationNames: ['link-to-duplicate-id']
+        validationNames: ['link-to-duplicate-id', 'broken-link']
       }),
       taskBuildPdf({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),
       taskOverrideCommonLog({ image: imageOverrides, message: s3UploadFailMessage }),
@@ -377,7 +384,7 @@ const pipeline = (env) => {
       taskValidateXhtml({
         image: imageOverrides,
         inputSource: 'jsonified-single',
-        inputPath: '/*@*.xhtml',
+        inputPath: '*@*.xhtml',
         validationNames: ['duplicate-id', 'broken-link'],
         contentSource: 'git'
       }),

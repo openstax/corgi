@@ -110,6 +110,33 @@ $ bakery run build-pdf col30939 -d ./data/prealgebra-2e/
 
 ---
 
+##### Using with kitchen recipes
+
+There are two typical use cases for the CLI when testing / developing [kitchen recipes](https://github.com/openstax/recipes):
+
+1. Building PDFs with the version of recipes on the `main` branch
+2. Building PDFs with a local version of a recipe under development
+
+
+Scenario 1 can be achieved by using the `bake-kitchen` CLI task in lieu of the `bake` task, where the first argument is the recipe name versus the path:
+
+```
+$ bakery run bake-kitchen col30939 {recipe-name} {path-to-style} -d ./data/prealgebra-2e/
+```
+
+Scenario 2 requires building a local Docker image with the desired recipe and invoking the CLI with the `-i` option. First, from the recipes directory:
+
+```
+$ cd recipes
+$ docker build -f docker/Dockerfile -t localhost:5000/recipes:dev --target runtime-env .
+```
+
+Then, reference the image when invoking `bake-kitchen`:
+
+```
+$ bakery run bake-kitchen col30939 {recipe-name} {path-to-style} -d ./data/prealgebra-2e/ -i localhost:5000/recipes:dev
+```
+
 #### >> With local installation of the Bakery CLI
 
 For now, when inside `/bakery` directory the file `src/cli/execute.js` is the entry point for the Bakery CLI, and must be called as an argument to `node`, e.g:
