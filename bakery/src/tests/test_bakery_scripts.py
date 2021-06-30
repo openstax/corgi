@@ -46,6 +46,7 @@ TEST_DATA_DIR = os.path.join(HERE, "data")
 TEST_JPEG_DIR = os.path.join(HERE, "test_jpeg_colorspace")
 SCRIPT_DIR = os.path.join(HERE, "../scripts")
 
+
 def test_link_rex(tmp_path, mocker):
     def unformatted_rex_links(doc):
         external_link_elems = doc.xpath(
@@ -78,6 +79,7 @@ def test_link_rex(tmp_path, mocker):
     outfile = out_dir / xhtml_file
     updated_doc = etree.parse(str(outfile))
     assert len(unformatted_rex_links(updated_doc)) == 0
+
 
 def test_checksum_resource(tmp_path, mocker):
     book_dir = tmp_path / "col00000"

@@ -227,7 +227,7 @@ const pipeline = (env) => {
       taskLinkRex({
         image: imageOverrides,
         inputSource: 'mathified-single',
-        inputPath: 'collection.mathified.xhtml',
+        inputPath: '/*.mathified.xhtml',
         contentSource: 'git'
       }),
       taskPdfifySingle({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),
