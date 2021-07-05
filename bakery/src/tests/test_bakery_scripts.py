@@ -47,14 +47,31 @@ TEST_JPEG_DIR = os.path.join(HERE, "test_jpeg_colorspace")
 SCRIPT_DIR = os.path.join(HERE, "../scripts")
 
 
-def test_link_rex(tmp_path, mocker):
-    def unformatted_rex_links(doc):
-        external_link_elems = doc.xpath(
-            '//x:a[@href and starts-with(@href, "./")]',
-            namespaces={"x": "http://www.w3.org/1999/xhtml"},
-        )
-        return external_link_elems
+def test_link_rex_git(tmp_path, mocker):
+    xhtml_file = "collection.mathified.xhtml"
+    in_dir = tmp_path / "in"
+    in_dir.mkdir()
 
+    input_xhtml = os.path.join(TEST_DATA_DIR, xhtml_file)
+    input_xhtml_file = in_dir / xhtml_file
+    input_xhtml_file.write_bytes(open(input_xhtml, "rb").read())
+
+    doc = etree.parse(str(input_xhtml_file))
+    assert len(utils.unformatted_rex_links(doc)) > 0
+
+    out_dir = tmp_path / "out"
+    out_dir.mkdir()
+
+    mocker.patch("sys.argv", ["", input_xhtml_file,
+                              "idontexistforGit", out_dir])
+    link_rex.main()
+
+    outfile = out_dir / xhtml_file
+    updated_doc = etree.parse(str(outfile))
+    assert len(utils.unformatted_rex_links(updated_doc)) == 0
+
+
+def test_link_rex_archive(tmp_path, mocker):
     xhtml_file = "collection.mathified.xhtml"
     in_dir = tmp_path / "in"
     in_dir.mkdir()
@@ -68,7 +85,7 @@ def test_link_rex(tmp_path, mocker):
     input_xhtml_file.write_bytes(open(input_xhtml, "rb").read())
 
     doc = etree.parse(str(input_xhtml_file))
-    assert len(unformatted_rex_links(doc)) > 0
+    assert len(utils.unformatted_rex_links(doc)) > 0
 
     out_dir = tmp_path / "out"
     out_dir.mkdir()
@@ -78,7 +95,8 @@ def test_link_rex(tmp_path, mocker):
 
     outfile = out_dir / xhtml_file
     updated_doc = etree.parse(str(outfile))
-    assert len(unformatted_rex_links(updated_doc)) == 0
+    assert len(utils.unformatted_rex_links(updated_doc)) == 0
+
 
 
 def test_checksum_resource(tmp_path, mocker):
