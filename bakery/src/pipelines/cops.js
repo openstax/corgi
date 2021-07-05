@@ -227,7 +227,7 @@ const pipeline = (env) => {
       taskLinkRex({
         image: imageOverrides,
         inputSource: 'mathified-single',
-        inputPath: '/*.mathified.xhtml',
+        inputPath: '*.mathified.xhtml',
         contentSource: 'git'
       }),
       taskValidateXhtml({

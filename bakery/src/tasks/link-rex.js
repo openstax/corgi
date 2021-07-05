@@ -48,7 +48,7 @@ const task = (taskArgs) => {
               target_dir="${inputSource}/$collection_id"
               ;;
             git)
-              xhtmlfiles_path="${inputSource}"${inputPath}
+              xhtmlfiles_path="${inputSource}/"${inputPath}
               abl_file=/tmp/approved-book-list.json
               wget ${bookSlugsUrl} -O $abl_file
               target_dir="${inputSource}"
