@@ -15,6 +15,7 @@ def unformatted_rex_links(doc):
     )
     return external_link_elems
 
+
 # https://stackoverflow.com/a/22058673/756056
 def get_checksums(filename):
     """ generate SHA1 and S3 MD5 etag checksums from file """

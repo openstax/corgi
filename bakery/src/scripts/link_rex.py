@@ -34,6 +34,7 @@ def main():
     """Main function"""
     xhtml_file = Path(sys.argv[1]).resolve(strict=True)
     out_dir = Path(sys.argv[3]).resolve(strict=True)
+    filename = sys.argv[4]
     try:
         book_slugs_file = Path(sys.argv[2]).resolve(strict=True)
     except FileNotFoundError:
@@ -52,7 +53,7 @@ def main():
         doc,
         book_slugs_by_uuid
     )
-    doc.write(str(out_dir / xhtml_file.name), encoding="utf8")
+    doc.write(str(out_dir / filename), encoding="utf8")
 
 
 if __name__ == "__main__":

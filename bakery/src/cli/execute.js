@@ -79,6 +79,7 @@ const extractLocalImageDetails = imageArg => {
 const input = (dataDir, name) => `--input=${name}=${dataDir}/${name}`
 const output = (dataDir, name) => {
   const outputDir = path.resolve(dataDir, name)
+  if (fs.existsSync(outputDir)) { fs.rmdirSync(outputDir, { recursive: true }) }
   return `--output=${name}=${outputDir}`
 }
 const COMPOSE_FILE_PATH = path.resolve(__dirname, 'docker-compose.yml')
@@ -879,7 +880,7 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'mathified-book'),
+        input(dataDir, 'rex-linked'),
         output(dataDir, 'artifacts')
       ], { image: argv.image, persist: argv.persist })
     }
@@ -919,7 +920,7 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'mathified-single'),
+        input(dataDir, 'rex-linked'),
         input(dataDir, 'group-style'),
         input(dataDir, 'fetched-book-group'),
         input(dataDir, 'resources'),
@@ -1410,13 +1411,18 @@ const tasks = {
     }
   },
   linkRex: (parentCommand) => {
-    const commandUsage = 'link-rex <identifier> <inputsource> <inputpath>'
+    const commandUsage = 'link-rex <identifier>'
     const handler = async argv => {
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
+      const re = /^(col)\\d{5}$/
+      const archive = re.test(argv.identifier)
+      const inputSrc = archive ? 'mathified-book' : 'mathified-single'
+      const contentSrc = archive ? 'archive' : 'git'
+
       const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = [`--taskargs=${JSON.stringify(
-        { ...imageDetails, ...{ inputSource: argv.inputsource, inputPath: argv.inputpath, contentSource: argv.contentsource } }
+        { ...imageDetails, ...{ inputSource: inputSrc, contentSource: contentSrc } }
       )}`]
       const taskContent = execFileSync(buildExec, ['task', 'link-rex', ...taskArgs])
       const tmpTaskFile = tmp.fileSync()
@@ -1430,8 +1436,8 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, argv.inputsource),
-        output(dataDir, argv.inputsource)
+        input(dataDir, inputSrc),
+        output(dataDir, 'rex-linked')
       ], { image: argv.image, persist: argv.persist })
     }
     return {
@@ -1442,17 +1448,6 @@ const tasks = {
         yargs.positional('identifier', {
           describe: 'collection id of collection to work on (or book slug)',
           type: 'string'
-        }).positional('inputsource', {
-          describe: 'input source to consume data from. e.g. baked-book, assembled-book, ...',
-          type: 'string'
-        }).positional('inputpath', {
-          describe: 'path with task outputs for XHTML file(s) to update links',
-          type: 'string'
-        }).option('c', {
-          alias: 'contentsource',
-          describe: 'content source is either "git" or "archive"',
-          type: 'string',
-          default: 'archive'
         })
       },
       handler: argv => {

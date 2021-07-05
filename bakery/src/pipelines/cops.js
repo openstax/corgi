@@ -226,8 +226,6 @@ const pipeline = (env) => {
       taskMathifySingle({ image: imageOverrides }),
       taskLinkRex({
         image: imageOverrides,
-        inputSource: 'mathified-single',
-        inputPath: '*.mathified.xhtml',
         contentSource: 'git'
       }),
       taskValidateXhtml({
@@ -274,11 +272,7 @@ const pipeline = (env) => {
       }),
       taskBakeBook({ image: imageOverrides }),
       taskMathifyBook({ image: imageOverrides }),
-      taskLinkRex({
-        image: imageOverrides,
-        inputSource: 'mathified-book',
-        inputPath: 'collection.mathified.xhtml'
-      }),
+      taskLinkRex({ image: imageOverrides }),
       taskValidateXhtml({
         image: imageOverrides,
         inputSource: 'mathified-book',

@@ -61,12 +61,13 @@ def test_link_rex_git(tmp_path, mocker):
 
     out_dir = tmp_path / "out"
     out_dir.mkdir()
+    filename = 'osbook.rex-linked.xhtml'
 
     mocker.patch("sys.argv", ["", input_xhtml_file,
-                              "idontexistforGit", out_dir])
+                              "idontexistforGit", out_dir, filename])
     link_rex.main()
 
-    outfile = out_dir / xhtml_file
+    outfile = os.path.join(out_dir, filename)
     updated_doc = etree.parse(str(outfile))
     assert len(utils.unformatted_rex_links(updated_doc)) == 0
 
@@ -89,14 +90,14 @@ def test_link_rex_archive(tmp_path, mocker):
 
     out_dir = tmp_path / "out"
     out_dir.mkdir()
+    filename = 'osbook.rex-linked.xhtml'
 
-    mocker.patch("sys.argv", ["", input_xhtml_file, book_slugs_file, out_dir])
+    mocker.patch("sys.argv", ["", input_xhtml_file, book_slugs_file, out_dir, filename])
     link_rex.main()
 
-    outfile = out_dir / xhtml_file
+    outfile = os.path.join(out_dir, filename)
     updated_doc = etree.parse(str(outfile))
     assert len(utils.unformatted_rex_links(updated_doc)) == 0
-
 
 
 def test_checksum_resource(tmp_path, mocker):

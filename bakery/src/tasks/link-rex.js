@@ -3,14 +3,13 @@ const dedent = require('dedent')
 const { constructImageSource } = require('../task-util/task-util')
 
 const task = (taskArgs) => {
-  const { inputSource, inputPath, contentSource: maybeContentSource } = taskArgs
+  const { inputSource, contentSource } = taskArgs
   const imageDefault = {
     name: 'openstax/cops-bakery-scripts',
     tag: 'trunk'
   }
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
-  const contentSource = maybeContentSource != null ? maybeContentSource : 'archive'
 
   return {
     task: 'link rex',
@@ -25,7 +24,7 @@ const task = (taskArgs) => {
         { name: `${inputSource}` }
       ],
       outputs: [
-        { name: `${inputSource}` },
+        { name: 'rex-linked' },
         { name: 'common-log' }
       ],
       params: {
@@ -41,16 +40,18 @@ const task = (taskArgs) => {
           case $CONTENT_SOURCE in
             archive)
               collection_id="$(cat book/collection_id)"
-              xhtmlfiles_path="${inputSource}/$collection_id/"${inputPath}
               book_dir="${inputSource}/$collection_id"
+              xhtmlfiles_path="$book_dir/collection.mathified.xhtml"
               abl_file="$book_dir/approved-book-list.json"
-              target_dir="${inputSource}/$collection_id"
+              target_dir="rex-linked/$collection_id/"
+              filename="collection.rex-linked.xhtml"
               book_slugs_file="/tmp/book-slugs.json"
               cat $abl_file | jq ".approved_books|map(.books)|flatten" > "$book_slugs_file"
               ;;
             git)
-              xhtmlfiles_path="${inputSource}/"${inputPath}
-              target_dir="${inputSource}"
+              xhtmlfiles_path="${inputSource}/*.mathified.xhtml"
+              target_dir="rex-linked"
+              filename="$(cat book/slug).rex-linked.xhtml"
               book_slugs_file="idontexistforGit"
               ;;
             *)
@@ -61,7 +62,7 @@ const task = (taskArgs) => {
 
           for xhtmlfile in $xhtmlfiles_path
           do
-            link-rex "$xhtmlfile" "$book_slugs_file" "$target_dir"
+            link-rex "$xhtmlfile" "$book_slugs_file" "$target_dir" "$filename"
           done
         `
         ]
