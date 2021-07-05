@@ -1412,7 +1412,6 @@ const tasks = {
   linkRex: (parentCommand) => {
     const commandUsage = 'link-rex <identifier> <inputsource> <inputpath>'
     const handler = async argv => {
-      console.log(argv.inputpath)
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
       const imageDetails = imageDetailsFromArgs(argv)
@@ -1544,7 +1543,6 @@ const tasks = {
   'validate-xhtml': (parentCommand) => {
     const commandUsage = 'validate-xhtml <collid> <inputsource> <inputpath> [validationnames...]'
     const handler = async argv => {
-      console.log(argv.inputpath)
       console.log(argv.validationnames)
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
