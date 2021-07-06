@@ -85,9 +85,6 @@ def main():
             '//xhtml:a[@href and starts-with(@href, "/contents/")]',
             namespaces=HTML_DOCUMENT_NAMESPACES
         ):
-            print('BEFORE:')
-            print(node.attrib)
-
             page_link = node.attrib["href"].split("/")[-1]
             # Link may have fragment
             if "#" in page_link:
@@ -102,9 +99,6 @@ def main():
                 node.attrib["data-page-slug"] = slugs.get(page_uuid)
                 node.attrib["data-page-uuid"] = page_uuid
                 node.attrib["data-page-fragment"] = page_fragment
-
-            print('AFTER:')
-            print(node.attrib)
 
         doc.content = etree_to_content(module_etree)
 
