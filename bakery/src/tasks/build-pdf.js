@@ -21,7 +21,7 @@ const task = (taskArgs) => {
       },
       inputs: [
         { name: 'book' },
-        { name: 'mathified-book' }
+        { name: 'rex-linked' }
       ],
       outputs: [
         { name: 'artifacts' },
@@ -35,9 +35,9 @@ const task = (taskArgs) => {
           dedent`
           exec > >(tee common-log/log >&2) 2>&1
 
-          book_dir="mathified-book/$(cat book/collection_id)"
+          book_dir="rex-linked/$(cat book/collection_id)"
           echo -n "https://${bucketName}.s3.amazonaws.com/$(cat book/pdf_filename)" >artifacts/pdf_url
-          prince -v --output="artifacts/$(cat book/pdf_filename)" "$book_dir/collection.mathified.xhtml"
+          prince -v --output="artifacts/$(cat book/pdf_filename)" "$book_dir/collection.rex-linked.xhtml"
         `
         ]
       }

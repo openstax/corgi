@@ -224,15 +224,15 @@ const pipeline = (env) => {
       taskBakeBookMetadataGroup({ image: imageOverrides }),
       taskLinkSingle({ image: imageOverrides }),
       taskMathifySingle({ image: imageOverrides }),
-      taskLinkRex({
-        image: imageOverrides,
-        contentSource: 'git'
-      }),
       taskValidateXhtml({
         image: imageOverrides,
         inputSource: 'mathified-single',
         inputPath: '*.mathified.xhtml',
         validationNames: ['link-to-duplicate-id', 'broken-link'],
+        contentSource: 'git'
+      }),
+      taskLinkRex({
+        image: imageOverrides,
         contentSource: 'git'
       }),
       taskPdfifySingle({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),

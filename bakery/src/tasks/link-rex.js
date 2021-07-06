@@ -28,7 +28,7 @@ const task = (taskArgs) => {
         { name: 'common-log' }
       ],
       params: {
-        CONTENT_SOURCE: contentSource
+        CONTENT_SOURCE: `${contentSource}`
       },
       run: {
         user: 'root',
@@ -44,6 +44,7 @@ const task = (taskArgs) => {
               xhtmlfiles_path="$book_dir/collection.mathified.xhtml"
               abl_file="$book_dir/approved-book-list.json"
               target_dir="rex-linked/$collection_id/"
+              mkdir "$target_dir"
               filename="collection.rex-linked.xhtml"
               book_slugs_file="/tmp/book-slugs.json"
               cat $abl_file | jq ".approved_books|map(.books)|flatten" > "$book_slugs_file"

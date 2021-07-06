@@ -45,6 +45,11 @@ const stripLocalPrefix = imageArg => {
   return imageArg.replace(/^(localhost:5000)\//, '')
 }
 
+const isArchive = identifier => {
+  const re = /col\d{5}/
+  return re.test(identifier)
+}
+
 const imageDetailsFromArgs = (argv) => {
   let imageDetails = {}
   if (argv.image) {
@@ -1415,11 +1420,9 @@ const tasks = {
     const handler = async argv => {
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
-      const re = /^(col)\\d{5}$/
-      const archive = re.test(argv.identifier)
+      const archive = isArchive(argv.identifier)
       const inputSrc = archive ? 'mathified-book' : 'mathified-single'
       const contentSrc = archive ? 'archive' : 'git'
-
       const imageDetails = imageDetailsFromArgs(argv)
       const taskArgs = [`--taskargs=${JSON.stringify(
         { ...imageDetails, ...{ inputSource: inputSrc, contentSource: contentSrc } }
@@ -1429,7 +1432,8 @@ const tasks = {
       fs.writeFileSync(tmpTaskFile.name, taskContent)
 
       const tmpBookDir = tmp.dirSync()
-      fs.writeFileSync(path.resolve(tmpBookDir.name, 'collection_id'), argv.identifier)
+      const dirname = archive ? 'collection_id' : 'slug'
+      fs.writeFileSync(path.resolve(tmpBookDir.name, dirname), argv.identifier)
 
       const dataDir = path.resolve(argv.data, argv.identifier)
 
