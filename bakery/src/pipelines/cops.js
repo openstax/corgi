@@ -29,6 +29,7 @@ const pipeline = (env) => {
   const taskMathifySingle = require('../tasks/mathify-single')
   const taskPdfifySingle = require('../tasks/pdfify-single')
   const taskGenPreviewUrls = require('../tasks/gen-preview-urls')
+  const taskLinkRex = require('../tasks/link-rex')
 
   const taskOverrideCommonLog = require('../tasks/override-common-log')
   const taskStatusCheck = require('../tasks/status-check')
@@ -230,6 +231,10 @@ const pipeline = (env) => {
         validationNames: ['link-to-duplicate-id', 'broken-link'],
         contentSource: 'git'
       }),
+      taskLinkRex({
+        image: imageOverrides,
+        contentSource: 'git'
+      }),
       taskPdfifySingle({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),
       taskOverrideCommonLog({ image: imageOverrides, message: s3UploadFailMessage }),
       {
@@ -267,6 +272,7 @@ const pipeline = (env) => {
       }),
       taskBakeBook({ image: imageOverrides }),
       taskMathifyBook({ image: imageOverrides }),
+      taskLinkRex({ image: imageOverrides }),
       taskValidateXhtml({
         image: imageOverrides,
         inputSource: 'mathified-book',

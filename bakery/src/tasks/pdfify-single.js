@@ -15,7 +15,7 @@ const task = (taskArgs) => {
   const fetchedInput = 'fetched-book-group'
   const fetchedResourcesInput = 'resources'
   const styleInput = 'group-style'
-  const mathifiedInput = 'mathified-single'
+  const rexLinkedInput = 'rex-linked'
   const artifactsOutput = 'artifacts-single'
   const commonLogOutput = 'common-log'
   const shellScript = fs.readFileSync(path.resolve(__dirname, '../scripts/pdfify_single.sh'), { encoding: 'utf-8' })
@@ -33,7 +33,7 @@ const task = (taskArgs) => {
         { name: fetchedInput },
         { name: fetchedResourcesInput },
         { name: styleInput },
-        { name: mathifiedInput }
+        { name: rexLinkedInput }
       ],
       outputs: [
         { name: artifactsOutput },
@@ -41,7 +41,7 @@ const task = (taskArgs) => {
       ],
       params: {
         ARTIFACTS_OUTPUT: artifactsOutput,
-        MATHIFIED_INPUT: mathifiedInput,
+        REXLINKED_INPUT: rexLinkedInput,
         STYLE_INPUT: styleInput,
         BUCKET_NAME: bucketName,
         BOOK_INPUT: bookInput,

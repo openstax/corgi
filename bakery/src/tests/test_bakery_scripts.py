@@ -37,6 +37,7 @@ from bakery_scripts import (
     fetch_update_metadata,
     link_single,
     patch_same_book_links,
+    link_rex,
     utils
 )
 
@@ -44,6 +45,59 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 TEST_DATA_DIR = os.path.join(HERE, "data")
 TEST_JPEG_DIR = os.path.join(HERE, "test_jpeg_colorspace")
 SCRIPT_DIR = os.path.join(HERE, "../scripts")
+
+
+def test_link_rex_git(tmp_path, mocker):
+    xhtml_file = "collection.mathified.xhtml"
+    in_dir = tmp_path / "in"
+    in_dir.mkdir()
+
+    input_xhtml = os.path.join(TEST_DATA_DIR, xhtml_file)
+    input_xhtml_file = in_dir / xhtml_file
+    input_xhtml_file.write_bytes(open(input_xhtml, "rb").read())
+
+    doc = etree.parse(str(input_xhtml_file))
+    assert len(utils.unformatted_rex_links(doc)) > 0
+
+    out_dir = tmp_path / "out"
+    out_dir.mkdir()
+    filename = 'osbook.rex-linked.xhtml'
+
+    mocker.patch("sys.argv", ["", input_xhtml_file,
+                              "idontexistforGit", out_dir, filename])
+    link_rex.main()
+
+    outfile = os.path.join(out_dir, filename)
+    updated_doc = etree.parse(str(outfile))
+    assert len(utils.unformatted_rex_links(updated_doc)) == 0
+
+
+def test_link_rex_archive(tmp_path, mocker):
+    xhtml_file = "collection.mathified.xhtml"
+    in_dir = tmp_path / "in"
+    in_dir.mkdir()
+
+    book_slugs = os.path.join(TEST_DATA_DIR, "book-slugs.json")
+    book_slugs_file = in_dir / "book-slugs.json"
+    book_slugs_file.write_bytes(open(book_slugs, "rb").read())
+
+    input_xhtml = os.path.join(TEST_DATA_DIR, xhtml_file)
+    input_xhtml_file = in_dir / xhtml_file
+    input_xhtml_file.write_bytes(open(input_xhtml, "rb").read())
+
+    doc = etree.parse(str(input_xhtml_file))
+    assert len(utils.unformatted_rex_links(doc)) > 0
+
+    out_dir = tmp_path / "out"
+    out_dir.mkdir()
+    filename = 'osbook.rex-linked.xhtml'
+
+    mocker.patch("sys.argv", ["", input_xhtml_file, book_slugs_file, out_dir, filename])
+    link_rex.main()
+
+    outfile = os.path.join(out_dir, filename)
+    updated_doc = etree.parse(str(outfile))
+    assert len(utils.unformatted_rex_links(updated_doc)) == 0
 
 
 def test_checksum_resource(tmp_path, mocker):

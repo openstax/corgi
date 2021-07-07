@@ -45,6 +45,11 @@ const stripLocalPrefix = imageArg => {
   return imageArg.replace(/^(localhost:5000)\//, '')
 }
 
+const isArchive = identifier => {
+  const re = /col\d{5}/
+  return re.test(identifier)
+}
+
 const imageDetailsFromArgs = (argv) => {
   let imageDetails = {}
   if (argv.image) {
@@ -880,7 +885,7 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'mathified-book'),
+        input(dataDir, 'rex-linked'),
         output(dataDir, 'artifacts')
       ], { image: argv.image, persist: argv.persist })
     }
@@ -920,7 +925,7 @@ const tasks = {
       await flyExecute([
         '-c', tmpTaskFile.name,
         `--input=book=${tmpBookDir.name}`,
-        input(dataDir, 'mathified-single'),
+        input(dataDir, 'rex-linked'),
         input(dataDir, 'group-style'),
         input(dataDir, 'fetched-book-group'),
         input(dataDir, 'resources'),
@@ -1410,6 +1415,50 @@ const tasks = {
       }
     }
   },
+  linkRex: (parentCommand) => {
+    const commandUsage = 'link-rex <identifier>'
+    const handler = async argv => {
+      const buildExec = path.resolve(BAKERY_PATH, 'build')
+
+      const archive = isArchive(argv.identifier)
+      const inputSrc = archive ? 'mathified-book' : 'mathified-single'
+      const contentSrc = archive ? 'archive' : 'git'
+      const imageDetails = imageDetailsFromArgs(argv)
+      const taskArgs = [`--taskargs=${JSON.stringify(
+        { ...imageDetails, ...{ inputSource: inputSrc, contentSource: contentSrc } }
+      )}`]
+      const taskContent = execFileSync(buildExec, ['task', 'link-rex', ...taskArgs])
+      const tmpTaskFile = tmp.fileSync()
+      fs.writeFileSync(tmpTaskFile.name, taskContent)
+
+      const tmpBookDir = tmp.dirSync()
+      const dirname = archive ? 'collection_id' : 'slug'
+      fs.writeFileSync(path.resolve(tmpBookDir.name, dirname), argv.identifier)
+
+      const dataDir = path.resolve(argv.data, argv.identifier)
+
+      await flyExecute([
+        '-c', tmpTaskFile.name,
+        `--input=book=${tmpBookDir.name}`,
+        input(dataDir, inputSrc),
+        output(dataDir, 'rex-linked')
+      ], { image: argv.image, persist: argv.persist })
+    }
+    return {
+      command: commandUsage,
+      describe: 'update external pdf book links to rex',
+      builder: yargs => {
+        yargs.usage(`Usage: ${process.env.CALLER || `$0 ${parentCommand}`} ${commandUsage}`)
+        yargs.positional('identifier', {
+          describe: 'collection id of collection to work on (or book slug)',
+          type: 'string'
+        })
+      },
+      handler: argv => {
+        handler(argv).catch((err) => { console.error(err); process.exit(1) })
+      }
+    }
+  },
   gdocify: (parentCommand) => {
     const commandUsage = 'gdocify <collid>'
     const handler = async argv => {
@@ -1493,7 +1542,6 @@ const tasks = {
   'validate-xhtml': (parentCommand) => {
     const commandUsage = 'validate-xhtml <collid> <inputsource> <inputpath> [validationnames...]'
     const handler = async argv => {
-      console.log(argv.inputpath)
       console.log(argv.validationnames)
       const buildExec = path.resolve(BAKERY_PATH, 'build')
 
@@ -1647,6 +1695,7 @@ const yargs = require('yargs')
           .command(tasks['patch-disassembled-links-single'](commandUsage))
           .command(tasks.jsonify(commandUsage))
           .command(tasks['jsonify-single'](commandUsage))
+          .command(tasks.linkRex(commandUsage))
           .command(tasks.gdocify(commandUsage))
           .command(tasks['convert-docx'](commandUsage))
           .command(tasks['validate-xhtml'](commandUsage))

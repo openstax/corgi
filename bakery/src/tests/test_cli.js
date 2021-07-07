@@ -453,6 +453,17 @@ test('stable flow pipelines', async t => {
     ])
     await completion(mathifyValidateXhtml)
 
+    const linkRexArchive = spawn('node', [
+      'src/cli/execute.js',
+      ...commonArgs,
+      '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+      'link-rex',
+      bookId
+    ])
+    const linkRexArchiveResult = await completion(linkRexArchive)
+    const outputRexLinkedArchive = `${outputDir}/${bookId}/rex-linked/${bookId}/collection.rex-linked.xhtml`
+    t.truthy(fs.existsSync(outputRexLinkedArchive), formatSubprocessOutput(linkRexArchiveResult))
+
     const buildPdf = spawn('node', [
       'src/cli/execute.js',
       ...commonArgs,
@@ -736,9 +747,21 @@ test('stable flow pipelines', async t => {
     'mathify-single',
     bookSlug
   ])
-  const branchGitPDF = completion(gitMathify).then(async (gitMathifyResult) => {
-    // mathify assertion
-    t.truthy(fs.existsSync(`${gitOutputDir}/${bookSlug}/mathified-single/${bookSlug}.mathified.xhtml`), formatSubprocessOutput(gitMathifyResult))
+  const gitMathifyResult = await completion(gitMathify)
+  const outputGitMathify = `${gitOutputDir}/${bookSlug}/mathified-single/${bookSlug}.mathified.xhtml`
+  t.truthy(fs.existsSync(outputGitMathify), formatSubprocessOutput(gitMathifyResult))
+
+  const linkRexGit = spawn('node', [
+    'src/cli/execute.js',
+    ...gitCommonArgs,
+    '--image=localhost:5000/openstax/cops-bakery-scripts:test',
+    'link-rex',
+    bookSlug
+  ])
+  const branchGitPDF = completion(linkRexGit).then(async (linkRexGitResult) => {
+    const outputRexLinkedGit = `${gitOutputDir}/${bookSlug}/rex-linked/${bookSlug}.rex-linked.xhtml`
+    t.truthy(fs.existsSync(outputRexLinkedGit), formatSubprocessOutput(linkRexGitResult))
+
     const gitBuildPdf = spawn('node', [
       'src/cli/execute.js',
       ...gitCommonArgs,

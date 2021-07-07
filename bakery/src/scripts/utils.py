@@ -8,6 +8,14 @@ from dateutil import parser, tz
 BUF_SIZE = 8 * 1024 * 1024
 
 
+def unformatted_rex_links(doc):
+    external_link_elems = doc.xpath(
+        '//x:a[@href and starts-with(@href, "./")]',
+        namespaces={"x": "http://www.w3.org/1999/xhtml"},
+    )
+    return external_link_elems
+
+
 # https://stackoverflow.com/a/22058673/756056
 def get_checksums(filename):
     """ generate SHA1 and S3 MD5 etag checksums from file """
