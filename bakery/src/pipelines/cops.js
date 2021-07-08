@@ -233,6 +233,7 @@ const pipeline = (env) => {
       }),
       taskLinkRex({
         image: imageOverrides,
+        inputSource: 'mathified-single',
         contentSource: 'git'
       }),
       taskPdfifySingle({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),
@@ -272,12 +273,15 @@ const pipeline = (env) => {
       }),
       taskBakeBook({ image: imageOverrides }),
       taskMathifyBook({ image: imageOverrides }),
-      taskLinkRex({ image: imageOverrides }),
       taskValidateXhtml({
         image: imageOverrides,
         inputSource: 'mathified-book',
         inputPath: 'collection.mathified.xhtml',
         validationNames: ['link-to-duplicate-id', 'broken-link']
+      }),
+      taskLinkRex({
+        image: imageOverrides,
+        inputSource: 'mathified-book'
       }),
       taskBuildPdf({ bucketName: env.COPS_ARTIFACTS_S3_BUCKET, image: imageOverrides }),
       taskOverrideCommonLog({ image: imageOverrides, message: s3UploadFailMessage }),
