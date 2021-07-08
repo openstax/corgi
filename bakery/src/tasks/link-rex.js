@@ -40,12 +40,12 @@ const task = (taskArgs) => {
           exec > >(tee common-log/log >&2) 2>&1
           case $CONTENT_SOURCE in
             archive)
+              cp -r "${inputSource}"/* rex-linked
               collection_id="$(cat book/collection_id)"
               book_dir="${inputSource}/$collection_id"
               xhtmlfiles_path="$book_dir/collection.mathified.xhtml"
               abl_file="$book_dir/approved-book-list.json"
               target_dir="rex-linked/$collection_id/"
-              mkdir "$target_dir"
               filename="collection.rex-linked.xhtml"
               book_slugs_file="/tmp/book-slugs.json"
               cat $abl_file | jq ".approved_books|map(.books)|flatten" > "$book_slugs_file"
