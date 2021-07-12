@@ -102,6 +102,12 @@ To mathify the book:
 $ bakery run mathify col30939 -d ./data/prealgebra-2e/
 ```
 
+To update links for REX:
+
+```
+$ bakery run link-rex col30939 -d ./data/prealgebra-2e/
+```
+
 To build the PDF:
 
 ```
