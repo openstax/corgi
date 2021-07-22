@@ -1,23 +1,23 @@
 .. _operations-updating-the-stack:
 
-############################
+#############################
 Update and Deploy CORGI Stack
-############################
+#############################
 
 **********************
-The 2-Part Stack Story 
+The 2-Part Stack Story
 **********************
 The CORGI Stack is composed of 2 parts, the **CORGI System** (Backend, Frontend, etc.) and **CORGI Pipeline**.
 The parts can be deployed separately, but we've decided to keep the entire CORGI stack 
-in sync, by making sure they are always deployed together.  
+in sync, by making sure they are always deployed together.
 
 Therefore, if changes are only made to the CORGI Pipeline the CORGI System (Docker Swarm) will still need a deployed . 
-Vice versa, if changes are made to the CORGI System a new CORGI Pipeline will need to be set. 
+Vice versa, if changes are made to the CORGI System a new CORGI Pipeline will need to be set.
 
-1. The CORGI System is deployed using `Docker Swarm <https://docs.docker.com/engine/swarm/>`_. 
-=============================================================================================
+1. The CORGI System is deployed using `Docker Swarm <https://docs.docker.com/engine/swarm/>`_.
+==============================================================================================
 
-Docker Swarm provides a ``docker stack`` command that will deploy and update a set of services based on a docker-compose file.  
+Docker Swarm provides a ``docker stack`` command that will deploy and update a set of services based on a docker-compose file.
 
 Refer to :ref:`operations-setting-up-the-swarm` to do the initial setup of the servers with swarm.
 
@@ -45,22 +45,25 @@ Build and Push Docker Images
 *************
 Prerequisites
 *************
-1. Install `Docker Auto Labels <https://github.com/tiangolo/docker-auto-labels>`_
-=================================================================================
+
+**Use Python 3.8.x when possible**, Python 3.9.x and above is not supported yet.
+
+1. Install `Docker Auto Labels <https://github.com/tiangolo/docker-auto-labels>`_ and six
+=========================================================================================
 This will ensure proper labels are applied to the docker swarm nodes.
 
 **It is recommended to install docker-auto-labels, deploy to staging, and promote to production in a python virtual enviornment.**
 
 .. code-block:: bash
 
-   pip install docker-auto-labels
+   pip install six docker-auto-labels
 
 For example, the database should only be running on ``server1.corgi-prod.openstax.org``.
 This is done by applying a label to that node and adding a constraint to the
 docker-compose file.
 
 2. Set up Port Forward to CORGI Server (AWS) through Bastion2
-============================================================
+=============================================================
 
 **Make sure you already have local identity files to:**
 
@@ -96,14 +99,14 @@ You can copy down your ``corgi.pem`` into your ``~/.ssh`` from bastion2 by:
 
 ----
 
-***********************
+************************
 CORGI Stack Deploy Steps
-***********************
+************************
 
 0. Update Buildout and JS Dependencies
-===========================================
+======================================
 
-**Make sure you are checked out to the** `git-ref` **of the latest output-producer-service tagged deploy.**  
+**Make sure you are checked out to the** `git-ref` **of the latest output-producer-service tagged deploy.**
 
 .. code-block:: bash
 
@@ -117,12 +120,12 @@ Refer to :ref:`operations-find-git-ref` to find a git-ref with given TAG.
 
 .. code-block:: bash
 
-   $ cd bakery 
+   $ cd bakery
    $ npm install    # yarn v1.x also works
    $ cd ..
 
 1. Set Up SSH Tunnel to CORGI
-============================  
+=============================
 
 **In a fresh terminal window, establish an SSH tunnel to a manager node in AWS:**
 
@@ -135,7 +138,7 @@ This will port forward CORGI Server to Local Docker Socket. This command doesn't
 **Keep terminal open until the end of the deployment process. No other commands will be typed into this window.**
 
 2. Deploy CORGI System to Staging Swarm
-======================================
+=======================================
 
 .. note:: This window should only be used to run the deploy script.
    All docker commands you run in this window will be like running them on the remote host.
@@ -147,7 +150,7 @@ This will port forward CORGI Server to Local Docker Socket. This command doesn't
    $ export DOCKER_HOST="localhost:9999"
 
 The above command will set up the terminal window to communicate with Docker Swarm Manager Node 
-that was set up in the previous step.  
+that was set up in the previous step.
 
 **Continue in terminal window, set staging environment variables:**
 
@@ -165,7 +168,7 @@ The above script will set the staging environment variables for your deploy.
 
 The above command will set the environment variable for the code version of your choice.    
 
-Refer to :ref:`operations-select-code-version-tag` to find a tag.  
+Refer to :ref:`operations-select-code-version-tag` to find a tag.
 
 **Continue in terminal window, deploy to staging:**
 
@@ -179,7 +182,7 @@ The above script will deploy the Docker Swarm System with the previously set sta
    The deploy script will fail and exit without deploying if any of the required environment variables are not set.
 
 3. Set up CORGI Pipeline, on Concourse
-=====================================
+======================================
 
 **Continue in the same terminal from deploy, login to Concourse via** ``fly`` **:**
 
