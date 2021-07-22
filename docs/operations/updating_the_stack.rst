@@ -236,7 +236,12 @@ version of fly from the UI.
 
 4. Promote Staging to Production
 ================================
-Once Staging CORGI stack looks good (Steps 3 & 4) ensure SSH tunnel to CORGI is still up (Step 2).
+Once Staging CORGI stack looks good and is tested (Steps 3 & 4) ensure that:
+
+- You have the same version checked out (step 0)
+- SSH tunnel to CORGI is up (step 1).
+- You have all environment variables set up (step 2 **without** deploy script at the end)
+- You are logged in with fly (fly login in step 3)
 
 **Continue in terminal window, promote staging to deploy:**
 
