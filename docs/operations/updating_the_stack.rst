@@ -46,7 +46,7 @@ Build and Push Docker Images
 Prerequisites
 *************
 
-**Use Python 3.8.x when possible**, Python 3.9.x and above is not supported yet.
+**Use Python 3.8.x when possible**, Python 3.9.x and above is not supported yet. It may be useful to use pyenv.
 
 1. Install `Docker Auto Labels <https://github.com/tiangolo/docker-auto-labels>`_ and six
 =========================================================================================
@@ -96,6 +96,40 @@ You can copy down your ``corgi.pem`` into your ``~/.ssh`` from bastion2 by:
 
 .. note:: Example above assumes that a copy of ``corgi.pem`` for  **IdentityFile** is copied to where your ssh keys are.
 
+3. Check if you use the docker-compose v1 in your PATH
+======================================================
+
+docker-compose 2 beta may be used as standard on new docker installations (2021-07-22). But we need docker-compose 1.x for our deployment.
+
+Check the docker-compose version
+
+.. code-block:: bash
+
+   $ docker-compose --version
+
+*If you see a version >= 2.x we need to manual install the last 1.x version.* The steps are similar for Mac and Linux.
+
+Download `latest 1.x release from github <https://github.com/docker/compose/releases>`_ and make it available in your path.
+
+Code example for Mac. You can change directories and version to your liking.
+
+.. code-block:: bash
+
+   $ mkdir -p ~/tmp/docker-compose
+   $ cd ~/tmp/docker-compose
+   $ curl -o docker-compose https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Darwin-x86_64
+   $ chmod +x docker-compose
+   $ export PATH="~/tmp/docker-compose:$PATH"
+
+If you run
+
+.. code-block:: bash
+
+   $ docker-compose --version
+
+you should see version 1.x.
+
+Note: After the deployment you can delete the directory `~/tmp/docker-compose`.
 
 ----
 
