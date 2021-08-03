@@ -10,7 +10,7 @@ const task = (taskArgs) => {
   const imageOverrides = taskArgs != null && taskArgs.image != null ? taskArgs.image : {}
   const nebGetFlags = taskArgs != null && taskArgs.nebGetFlags != null ? taskArgs.nebGetFlags : ''
   const imageSource = constructImageSource({ ...imageDefault, ...imageOverrides })
-  const bookSlugsUrl = 'https://raw.githubusercontent.com/openstax/content-manager-approved-books/master/approved-book-list.json'
+  const bookSlugsUrl = 'https://raw.githubusercontent.com/openstax/content-manager-approved-books/main/approved-book-list.json'
 
   return {
     task: 'fetch book',
