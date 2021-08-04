@@ -92,7 +92,7 @@ const pipeline = (env) => {
                 resource: resource,
                 apiRoot: env.COPS_TARGET,
                 image: imageOverrides,
-                processingStates: [Status.ASSIGNED, Status.PROCESSING],
+                processingStates: [Status.QUEUED, Status.ASSIGNED, Status.PROCESSING],
                 completedStates: [Status.FAILED, Status.SUCCEEDED],
                 abortedStates: [Status.ABORTED]
               })
