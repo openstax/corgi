@@ -1,14 +1,14 @@
-.. _distribution-pipeline-steps:
+.. _distribution-pipeline-dev-steps:
 
-############################
-Distribution Pipeline Set Up
-############################
+#########################
+Developer Pipeline Set Up
+#########################
 
 Internal Development and/or Debugging of Distribution Pipeline Steps
 The approach allows developers / QA to inspect all input / output files for tasks
 to confirm data is being generated as expected.
 
-Each step of the distirbution pipeline can be run individually and step by step.
+Each step of the distribution pipeline can be run individually and step by step.
 
 ----
 

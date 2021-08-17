@@ -60,7 +60,8 @@ CORGI at a Glance
    :hidden:
 
    distribution/overview
-   distribution/steps
+   distribution/dev-steps
+   distribution/prod-steps
 
 .. toctree::
    :maxdepth: 2
