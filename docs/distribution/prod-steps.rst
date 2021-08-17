@@ -6,7 +6,7 @@ Staging and Production Pipeline Deploy
 
 The following instructions are used to deploy the webhosting pipeline to Concourse for both staging
 and production deployments. The instructions will assume we're deploying to staging and all steps
-can be completed for production with all references to `staging` replaced with `prod`.
+can be completed for production with all references to ``staging`` replaced with ``prod``.
 
 **STEP 1: Get the correct tag and sha to be used for the deployment**
 
@@ -15,10 +15,10 @@ can be completed for production with all references to `staging` replaced with `
 
    1. The tag that is applied to every piece of software used to produce a book. This allows us to ensure our books are
       idempotent. A book should build the same way every time given the same tag for every dependency used to produce the
-      book.
+      book. In other words, given the same content version and code version we should always produce the same book.
    2. The commit sha to be used to checkout the correct version of the output-producer-service repository.
 
-Log into the Concourse server where the ``ce-image-autotag`` pipline is running.
+Log into the Concourse server where the ``ce-image-autotag`` pipeline is running.
 
 Select to view the jobs inside of the ``ce-image-autotag`` pipeline and select the most recent job.
 
