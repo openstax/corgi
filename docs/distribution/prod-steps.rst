@@ -69,7 +69,7 @@ For the following steps we'll login into Concourse using ``fly`` and set the pip
    fly --target v7 login --concourse-url https://concourse-v7.openstax.org --team-name CE
 
    # Use the set-pipeline command to configure the pipeline in Concourse
-   fly --target v6 set-pipeline -c webhost-staging-20210813.211457.yml -p webhost-staging-20210813.211457
+   fly --target v7 set-pipeline -c webhost-staging-20210813.211457.yml -p webhost-staging-20210813.211457
 
    # Unpause the pipeline so that it starts working
-   fly --target v6 unpause-pipeline webhost-staging-20210813.211457
+   fly --target v7 unpause-pipeline webhost-staging-20210813.211457
