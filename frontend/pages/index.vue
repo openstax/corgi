@@ -217,7 +217,7 @@
             </td>
           </template>
           <template #item.created_at="{ item }">
-            <time datetime="{{item.created_at}}" :title="$moment.utc(item.created_at).local().format('lll')">
+            <time :datetime="item.created_at" :title="$moment.utc(item.created_at).local().format('lll')">
               {{ $moment.utc(item.created_at).fromNow() }}
             </time>
           </template>
@@ -254,7 +254,7 @@
             </v-chip>
           </template>
           <template #item.updated_at="{ item }">
-            <time datetime="{{item.updated_at}}" :title="$moment.utc(item.updated_at).local().format('lll')">
+            <time :datetime="item.updated_at" :title="$moment.utc(item.updated_at).local().format('lll')">
               {{ $moment.utc(item.updated_at).fromNow() }}
             </time>
           </template>
