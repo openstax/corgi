@@ -69,8 +69,8 @@ def test_invalid_colid_error(selenium, base_url):
         "e.g. repo-name/slug-name"
         == text_col_id_slug_incorrect
     )
-    # Let's test some Chinese (bookcollection1/book1)
-    modal.fill_collection_id_field("藏书1/第一册")
+    # Let's test some Chinese (bookcollection1/book2)
+    modal.fill_collection_id_field("藏书1/书2")
     split_col_id_slug_incorrect = (
         modal.collection_id_slug_incorrect_field_error.text.splitlines()
     )
