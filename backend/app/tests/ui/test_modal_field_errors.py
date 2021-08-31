@@ -76,7 +76,7 @@ def test_invalid_colid_error(selenium, base_url):
     )
     text_col_id_slug_incorrect = split_col_id_slug_incorrect[1]
     assert (
-       "A valid repo and slug name is required, e.g. repo-name/slug-name"
+        "A valid repo and slug name is required, e.g. repo-name/slug-name"
         == text_col_id_slug_incorrect
     )
 
