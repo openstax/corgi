@@ -59,6 +59,27 @@ def test_invalid_colid_error(selenium, base_url):
         == text_col_id_slug_incorrect
     )
 
+    # Test unicode book collection (here Polish)
+    modal.fill_collection_id_field("osbooks_fizyka_bundle2/fizyka-dla-szkół-wyższych-tom-1")
+    split_col_id_slug_incorrect = (
+        modal.collection_id_slug_incorrect_field_error.text.splitlines()
+    )
+    text_col_id_slug_incorrect = split_col_id_slug_incorrect[1]
+    assert (
+        "e.g. repo-name/slug-name"
+        == text_col_id_slug_incorrect
+    )
+    # Unallowed characters
+    modal.fill_collection_id_field("osbooks_fizyka_bundle1/fizyka=dla-szkół-wyższych-tom-1")
+    split_col_id_slug_incorrect = (
+        modal.collection_id_slug_incorrect_field_error.text.splitlines()
+    )
+    text_col_id_slug_incorrect = split_col_id_slug_incorrect[1]
+    assert (
+        "A valid repo and slug name is required, e.g. repo-name/slug-name"
+        == text_col_id_slug_incorrect
+    )
+
     split_style = modal.style_field_error.text.splitlines()
     text_style = split_style[1]
     assert "Style is required" == text_style
