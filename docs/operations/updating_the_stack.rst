@@ -48,19 +48,15 @@ Prerequisites
 
 **Use Python 3.8.x when possible**, Python 3.9.x and above is not supported yet. It may be useful to use pyenv.
 
-1. Install `Docker Auto Labels <https://github.com/tiangolo/docker-auto-labels>`_ and six
+1. Install `Paramiko <https://pypi.org/project/paramiko/>`_
 =========================================================================================
-This will ensure proper labels are applied to the docker swarm nodes.
+This will ensure you can use SSH to manage the docker swarm nodes.
 
-**It is recommended to install docker-auto-labels, deploy to staging, and promote to production in a python virtual enviornment.**
+**It is recommended to install paramiko, deploy to staging, and promote to production in a python virtual enviornment.**
 
 .. code-block:: bash
 
-   pip install six docker-auto-labels
-
-For example, the database should only be running on ``server1.corgi-prod.openstax.org``.
-This is done by applying a label to that node and adding a constraint to the
-docker-compose file.
+   pip install paramiko
 
 2. Set up Port Forward to CORGI Server (AWS) through Bastion2
 =============================================================
@@ -158,20 +154,7 @@ Refer to :ref:`operations-find-git-ref` to find a git-ref with given TAG.
    $ npm install    # yarn v1.x also works
    $ cd ..
 
-1. Set Up SSH Tunnel to CORGI
-=============================
-
-**In a fresh terminal window, establish an SSH tunnel to a manager node in AWS:**
-
-.. code-block:: bash
-
-   ssh corgi -NL 9999:/var/run/docker.sock
-
-This will port forward CORGI Server to Local Docker Socket. This command doesn't produce any output unless there is an error.
-
-**Keep terminal open until the end of the deployment process. No other commands will be typed into this window.**
-
-2. Deploy CORGI System to Staging Swarm
+1. Deploy CORGI System to Staging Swarm
 =======================================
 
 .. note:: This window should only be used to run the deploy script.
@@ -215,7 +198,7 @@ The above script will deploy the Docker Swarm System with the previously set sta
 .. warning::
    The deploy script will fail and exit without deploying if any of the required environment variables are not set.
 
-3. Set up CORGI Pipeline, on Concourse
+2. Set up CORGI Pipeline, on Concourse
 ======================================
 
 **Continue in the same terminal from deploy, login to Concourse via** ``fly`` **:**
@@ -234,7 +217,7 @@ The above ``fly`` command will set a new pipeline named ``corgi-staging`` with s
 The above assumes ``fly`` is installed. Depending on your environment, you may need to get the correct 
 version of fly from the UI.
 
-4. Promote Staging to Production
+3. Promote Staging to Production
 ================================
 Once Staging CORGI stack looks good and is tested (Steps 3 & 4) ensure that:
 
@@ -262,7 +245,7 @@ There is no need to set any environment variables for production or pick a tag.
 
 The above ``fly`` command will set a new pipeline named ``corgi-prod`` with production pipeline variables.
 
-5. Cleanup
+4. Cleanup
 ==========
 Close all terminal windows when deployment is complete.
 

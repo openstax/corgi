@@ -161,13 +161,15 @@ Create Main Traefik Service
 
    export NODE_ID=$(docker info -f '{{.Swarm.NodeID}}')
 
-**STEP 3: Add node label to the master node in the swarm**
+**STEP 3: Add labels to the master node in the swarm**
 
 .. code-block:: bash
 
    docker node update --label-add proxy=true $NODE_ID
+   docker node update --label-add app-db-data=true $NODE_ID
 
-.. note:: Traefik will always be started on this node.
+.. note:: Traefik and database containers will always be started on this node.
+
 
 **STEP 4: Create shared network for Traefik and containers deployed as part of stack**
 
