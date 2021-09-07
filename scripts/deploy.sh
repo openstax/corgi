@@ -27,6 +27,4 @@ docker-compose \
 -f docker-compose.deploy.secrets.yml \
 config > docker-stack.yml
 
-docker-auto-labels docker-stack.yml
-
-docker stack deploy -c docker-stack.yml --with-registry-auth "${STACK_NAME}"
+docker -H http://corgi stack deploy -c docker-stack.yml --with-registry-auth "${STACK_NAME}"
