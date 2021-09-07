@@ -48,19 +48,15 @@ Prerequisites
 
 **Use Python 3.8.x when possible**, Python 3.9.x and above is not supported yet. It may be useful to use pyenv.
 
-1. Install `Docker Auto Labels <https://github.com/tiangolo/docker-auto-labels>`_ and six
+1. Install `Paramiko <https://pypi.org/project/paramiko/>`_
 =========================================================================================
-This will ensure proper labels are applied to the docker swarm nodes.
+This will ensure you can use SSH to manage the docker swarm nodes.
 
-**It is recommended to install docker-auto-labels, deploy to staging, and promote to production in a python virtual enviornment.**
+**It is recommended to install paramiko, deploy to staging, and promote to production in a python virtual enviornment.**
 
 .. code-block:: bash
 
-   pip install six docker-auto-labels
-
-For example, the database should only be running on ``server1.corgi-prod.openstax.org``.
-This is done by applying a label to that node and adding a constraint to the
-docker-compose file.
+   pip install paramiko
 
 2. Set up Port Forward to CORGI Server (AWS) through Bastion2
 =============================================================
