@@ -8,6 +8,7 @@
       <v-row>
         <v-col class="title-image">
           <img
+            alt="Content Output Review and Generation Interface"
             src="/title-image.png"
             style="max-height: 100px;"
           ></img>
