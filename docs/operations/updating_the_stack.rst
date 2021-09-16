@@ -51,7 +51,7 @@ Prerequisites
 **Use Python 3.8.x when possible**, Python 3.9.x and above is not supported yet. It may be useful to use pyenv.
 
 1. Install `Paramiko <https://pypi.org/project/paramiko/>`_
-=========================================================================================
+===========================================================
 This will ensure you can use SSH to manage the docker swarm nodes.
 
 **It is recommended to install paramiko, deploy to staging, and promote to production in a python virtual enviornment.**
