@@ -1,0 +1,94 @@
+.. _operations-backup-up-and-restore-db:
+
+###############################
+Backup and Restore the Database
+###############################
+
+.. note::
+     These instructions will assume the commands will be executed on a staging
+     environment. Replace all references to ``staging`` with ``prod`` to indicate
+     the production environment.
+
+.. warning::
+     We are currently working towards using AWS RDS to replace the way we are using
+     a postgres container. These instructions may become out of date so ensure before
+     you start that these are accurate.
+
+
+*************
+Prerequisites
+*************
+
+Ensure you have followed the instructions in the first section of this page:
+:ref:`Prerequisite Updating the Stack<Prereq Update the Stack>`. You should be
+able to run the docker commands used in the rest of the article.
+
+*******************
+Backup the Database
+*******************
+
+Ensure we can connect to the CORGI manager instance.
+
+.. code-block:: bash
+
+   docker -H ssh://corgi info -f '{{.Swarm.NodeID}}'
+
+You should see output the resembles the following:
+
+.. code-block:: bash
+
+   cupwsrlecgdz3rptrqypc8x1v
+
+This is the NodeID of the manager node and we'll need this value when running future
+commands.
+
+To help facilitate using this rather long value we can export that to an environment
+variable.
+
+.. code-block:: bash
+
+   # Set NODE_ID
+   export NODE_ID=$(docker -H ssh://corgi info -f '{{.Swarm.NodeID}}')
+
+
+Now that we have the ``$NODE_ID`` we can continue to find the database container that is running
+our database. We'll execute the following command:
+
+.. code-block:: bash
+
+   docker -H ssh://corgi stack services corgi_stag
+
+You should see the following result:
+
+.. code-block:: bash
+
+    ID             NAME                  MODE         REPLICAS   IMAGE                                               PORTS
+    cldj5exbaw01   corgi_stag_backend    replicated   2/2        openstax/output-producer-backend:20210913.154927
+    cqqt3wb35mqv   corgi_stag_db         replicated   1/1        postgres:12
+    wlhqpf656ykh   corgi_stag_frontend   replicated   2/2        openstax/output-producer-frontend:20210913.154927
+    a0k806brkral   corgi_stag_proxy      replicated   1/1        traefik:v1.7
+
+We have all the services running. The one that we are primarily interested in is the one labeled
+``corgi_stag_db``. However, this information is not enough to run the commands that we need to do the database backup.
+
+A way to get the correct container is to grep based on all the containers that are running on the node and awk the
+output in order to find the name:
+
+.. code-block:: bash
+
+    # Print the name of the container
+    docker -H ssh://corgi ps | grep corgi_stag_db | awk '{ print $11 }'
+
+    # Export the $CONTAINER_NAME to an environment variable for future use
+    export DB_CONTAINER=$(docker -H ssh://corgi ps | grep corgi_stag_db | awk '{ print $11 }')
+    echo "$DB_CONTAINER"
+
+Create the backup using the following command utilizing ``pg_dump``:
+
+.. code-block:: bash
+
+    docker -H ssh://corgi exec -it $DB_CONTAINER pg_dump -h db -U postgres -h db --no-owner cops > corgi-stag-db.backup.sql
+
+********************
+Restore the Database
+********************
