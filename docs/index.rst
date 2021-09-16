@@ -43,6 +43,7 @@ CORGI at a Glance
    operations/cli
    operations/find_git_ref
    operations/select_code_version_tag
+   operations/backup_and_restore_db
 
 .. toctree::
    :maxdepth: 2
