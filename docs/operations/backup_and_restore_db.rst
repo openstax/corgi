@@ -14,7 +14,6 @@ Backup and Restore the Database
      a postgres container. These instructions may become out of date so ensure before
      you start that these are accurate.
 
-
 *************
 Prerequisites
 *************
@@ -23,13 +22,12 @@ Ensure you have followed the instructions in the first section of this page:
 :ref:`Prerequisite Updating the Stack<Prereq Update the Stack>`. You should be
 able to run the docker commands used in the rest of the article.
 
-
 *******************
 Backup the Database
 *******************
 
-Set the $NODE_ID
-================
+Check Connection to Swarm
+=========================
 
 Ensure we can connect to the CORGI manager instance.
 
@@ -43,19 +41,7 @@ You should see output the resembles the following:
 
    cupwsrlecgdz3rptrqypc8x1v
 
-This is the NodeID of the manager node and we'll need this value when running future
-commands.
-
-To help facilitate using this rather long value we can export that to an environment
-variable.
-
-.. code-block:: bash
-
-   # Set NODE_ID
-   export NODE_ID=$(docker -H ssh://corgi info -f '{{.Swarm.NodeID}}')
-
-
-Now that we have the ``$NODE_ID`` we can continue to find the database container that is running
+Now that we can get the ``NodeID`` we can continue to find the database container that is running
 our database.
 
 Find the database container
@@ -97,7 +83,6 @@ output in order to find the name:
     echo "$DB_CONTAINER"
     corgi_stag_db.1.yssodl9rgl5tg54zxa2id549c
 
-
 Create the backup
 =================
 
@@ -112,7 +97,7 @@ Restore the Database
 ********************
 
 .. warning::
-    Ensure you've created a backup filse as described in :ref:`Backup the Database`.
+    Ensure you've created a database dump file as described in :ref:`Backup the Database`.
 
 Prepare the environment
 =======================
