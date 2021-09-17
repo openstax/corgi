@@ -18,9 +18,10 @@ Backup and Restore the Database
 Prerequisites
 *************
 
-Ensure you have followed the instructions in the first section of this page:
-:ref:`Prerequisite Updating the Stack<Prereq Update the Stack>`. You should be
-able to run the docker commands used in the rest of the article.
+- Ensure you have followed the instructions in the first section of this page:
+  :ref:`Prerequisite Updating the Stack<Prereq Update the Stack>`. You should be
+  able to run the docker commands used in the rest of the article.
+- Install `jq <https://stedolan.github.io/jq/>`_.
 
 *******************
 Backup the Database
