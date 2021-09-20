@@ -28,7 +28,8 @@ author = 'OpenStax Content Engineering'
 # ones.
 extensions = [
     'sphinxcontrib.blockdiag',
-    'sphinxcontrib.seqdiag'
+    'sphinxcontrib.seqdiag',
+    'sphinx.ext.autosectionlabel'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

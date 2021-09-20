@@ -22,7 +22,7 @@ Docker Swarm provides a ``docker stack`` command that will deploy and update a s
 Refer to :ref:`operations-setting-up-the-swarm` to do the initial setup of the servers with swarm.
 
 2. The CORGI Pipeline is set on a Concourse server.
-==================================================
+===================================================
 
 The CORGI pipeline is set up using Concourse through the use ``fly`` commands, Concourse's CLI.
 
@@ -30,7 +30,7 @@ The CORGI pipeline is set up using Concourse through the use ``fly`` commands, C
 Overview of Steps
 *****************
 
-Set Up SSH Tunnel
+Set Up SSH Config for implicit tunnel
    - Set up Portforwarding to AWS by Tunneling through Bastion2. Bastion2 is the only with permission to talk to the AWS Server. Where our CORGI Stack is deployed.
    - Set up Terminal for Communication with Docker Swarm Manager Node
 Deploy CORGI Stack to Staging
@@ -42,6 +42,8 @@ Build and Push Docker Images
 
 ----
 
+.. _Prereq Update the Stack:
+
 *************
 Prerequisites
 *************
@@ -49,7 +51,7 @@ Prerequisites
 **Use Python 3.8.x when possible**, Python 3.9.x and above is not supported yet. It may be useful to use pyenv.
 
 1. Install `Paramiko <https://pypi.org/project/paramiko/>`_
-=========================================================================================
+===========================================================
 This will ensure you can use SSH to manage the docker swarm nodes.
 
 **It is recommended to install paramiko, deploy to staging, and promote to production in a python virtual enviornment.**
@@ -258,6 +260,7 @@ Rotating Basic Auth Secrets
 To update basic auth secrets for CORGI, a dev must copy an ``htaccess`` file sourced from AWS SecretsManager and rotate the secret in the swarm with:
 
 .. code-block:: bash
+
    # ... Properly target the CORGI swarm through ssh and set DOCKER_HOST
    # And then:
    export COPS_HTACCESS_FILE=</path/to/file>

@@ -38,5 +38,5 @@ Git-Ref by Tag
             }
 
 .. note:: Another way to find a git-ref would be from the 
-    `ce-image-autotag pipeline <https://concourse-v6.openstax.org/teams/CE/pipelines/ce-image-autotag>`_. 
+    `ce-image-autotag pipeline <https://concourse-v7.openstax.org/teams/CE/pipelines/ce-image-autotag>`_.
     However, this can be a bit of a pain if it’s not the most recent-ish build.
