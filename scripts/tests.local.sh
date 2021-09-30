@@ -8,6 +8,9 @@ if [ "$(uname -s)" = "Linux" ]; then
     sudo find . -type d -name __pycache__ -exec rm -r {} \+
 fi
 
+STACK_NAME=dev \
+REVISION=dev \
+TAG=dev \
 docker-compose \
     -f docker-compose.tests.yml \
     -f docker-compose.shared.admin.yml \
