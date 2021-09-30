@@ -20,5 +20,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=
       - POSTGRES_DB=tests
+      - TAG=dev
+      - REVISION=dev
+      - STACK_NAME=dev
   backend:
     environment: *testenv
