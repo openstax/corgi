@@ -11,6 +11,7 @@ fi
 STACK_NAME=dev \
 REVISION=dev \
 TAG=dev \
+DEPLOYED_AT=20210101.111111 \
 docker-compose \
     -f docker-compose.tests.yml \
     -f docker-compose.shared.admin.yml \
