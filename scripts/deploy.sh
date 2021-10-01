@@ -28,4 +28,4 @@ docker-compose \
 -f docker-compose.deploy.secrets.yml \
 config > docker-stack.yml
 
-#docker -H ssh://corgi stack deploy -c docker-stack.yml --with-registry-auth "${STACK_NAME}"
+docker -H ssh://corgi stack deploy -c docker-stack.yml --with-registry-auth "${STACK_NAME}"
