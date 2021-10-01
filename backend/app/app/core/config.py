@@ -19,3 +19,4 @@ BACKEND_CORS_ORIGINS = os.getenv(
 REVISION = os.getenv("REVISION")
 TAG = os.getenv("TAG")
 STACK_NAME = os.getenv("STACK_NAME")
+DEPLOYED_AT = os.getenv("DEPLOYED_AT")

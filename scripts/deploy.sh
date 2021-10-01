@@ -13,6 +13,7 @@ TRAEFIK_TAG=${TRAEFIK_TAG} \
 STACK_NAME=${STACK_NAME} \
 TAG=${TAG} \
 REVISION=$(git --git-dir=./.git rev-parse --short HEAD) \
+DEPLOYED_AT=$(date '+%Y%m%d.%H%M%S') \
 docker-compose \
 -f docker-compose.shared.admin.yml \
 -f docker-compose.shared.base-images.yml \
