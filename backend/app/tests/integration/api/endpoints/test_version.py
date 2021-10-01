@@ -3,6 +3,7 @@ import requests
 
 ENDPOINT = "version"
 
+
 @pytest.mark.integration
 @pytest.mark.nondestructive
 def test_version_get_request(api_url):
