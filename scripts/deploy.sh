@@ -12,6 +12,7 @@ DOMAIN=${DOMAIN} \
 TRAEFIK_TAG=${TRAEFIK_TAG} \
 STACK_NAME=${STACK_NAME} \
 TAG=${TAG} \
+REVISION=$(git --git-dir=./.git rev-parse --short HEAD) \
 docker-compose \
 -f docker-compose.shared.admin.yml \
 -f docker-compose.shared.base-images.yml \
@@ -27,4 +28,4 @@ docker-compose \
 -f docker-compose.deploy.secrets.yml \
 config > docker-stack.yml
 
-docker -H ssh://corgi stack deploy -c docker-stack.yml --with-registry-auth "${STACK_NAME}"
+#docker -H ssh://corgi stack deploy -c docker-stack.yml --with-registry-auth "${STACK_NAME}"
