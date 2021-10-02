@@ -8,6 +8,10 @@ TEST_RESULTS=${TEST_RESULTS-./junit.xml}
 echo "Test results will be saved in: ${TEST_RESULTS}"
 
 DOMAIN=backend \
+REVISION=dev \
+TAG=dev \
+STACK_NAME=dev \
+DEPLOYED_AT=20210101.111111 \
 docker-compose \
     -f docker-compose.shared.base-images.yml \
     -f docker-compose.shared.depends.yml \
