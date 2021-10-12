@@ -16,7 +16,10 @@
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.12.5",
-    "nuxt": "^2.14.12"
+    "babel-polyfill": "^6.26.0",
+    "nuxt": "^2.14.12",
+    "puzzlescript": "^6.0.0-alpha.0",
+    "puzzlescript-web": "^6.0.0-alpha.1"
   },
   "devDependencies": {
     "@ava/babel": "^1.0.1",

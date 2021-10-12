@@ -31,7 +31,10 @@ export default {
   ** Plugins to load before mounting the App
   */
   plugins: [
-    '~/plugins/axios.js'
+    '~/plugins/axios.js',
+    // '~/node_modules/puzzlescript/lib/index-browser.js',
+    // '~/node_modules/puzzlescript-web/lib/browser/SyncTableEngine.js'
+    '~/plugins/puzzlescript.js',
   ],
   /*
   ** Nuxt.js dev-modules
