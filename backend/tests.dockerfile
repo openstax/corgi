@@ -1,4 +1,4 @@
-FROM openstax/selenium-chrome-debug:20210303.201802
+FROM openstax/selenium-chrome-debug:20210927.132755
 
 USER root
 
