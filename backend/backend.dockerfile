@@ -15,11 +15,6 @@ ENV POETRY_VERSION 1.0.5
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
 ENV PATH "/root/.poetry/bin:/opt/venv/bin:${PATH}"
 
-# install wait-for-it
-# allows us to wait for specific services to be up before executing scripts
-RUN curl https://raw.githubusercontent.com/vishnubob/wait-for-it/54d1f0bfeb6557adf8a3204455389d0901652242/wait-for-it.sh \
-  -o /usr/local/bin/wait-for-it && chmod a+x /usr/local/bin/wait-for-it
-
 # copy files
 COPY ./app /build/
 
@@ -37,6 +32,11 @@ RUN bash -c "if [ $INSTALL_DEV == 'true' ] ; then . /opt/venv/bin/activate && po
 
 # start a new build stage
 FROM base as runner
+
+# install wait-for-it
+# allows us to wait for specific services to be up before executing scripts
+RUN curl https://raw.githubusercontent.com/vishnubob/wait-for-it/54d1f0bfeb6557adf8a3204455389d0901652242/wait-for-it.sh \
+  -o /usr/local/bin/wait-for-it && chmod a+x /usr/local/bin/wait-for-it
 
 # copy everything from /opt
 COPY --from=builder /opt/venv /opt/venv
