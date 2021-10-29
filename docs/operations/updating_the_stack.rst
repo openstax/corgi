@@ -7,15 +7,16 @@ Update and Deploy CORGI Stack
 **********************
 The 2-Part Stack Story
 **********************
-The CORGI Stack is composed of 2 parts, the **CORGI System** (Backend, Frontend, etc.) and **CORGI Pipeline**.
-The parts can be deployed separately, but we've decided to keep the entire CORGI stack 
+The CORGI system is composed of 2 parts, the **CORGI Dashboard** (Backend, Frontend, etc.) and **CORGI Pipeline**.
+
+The parts can be deployed separately, but we've decided to keep the entire CORGI stack
 in sync, by making sure they are always deployed together.
 
-Therefore, if changes are only made to the CORGI Pipeline the CORGI System (Docker Swarm) will still need a deployed . 
+Therefore, if changes are only made to the CORGI Pipeline the CORGI System (Docker Swarm) will still need a deployed.
 Vice versa, if changes are made to the CORGI System a new CORGI Pipeline will need to be set.
 
-1. The CORGI System is deployed using `Docker Swarm <https://docs.docker.com/engine/swarm/>`_.
-==============================================================================================
+1. The CORGI Dashboard is deployed using `Docker Swarm <https://docs.docker.com/engine/swarm/>`_.
+=================================================================================================
 
 Docker Swarm provides a ``docker stack`` command that will deploy and update a set of services based on a docker-compose file.
 
@@ -24,11 +25,63 @@ Refer to :ref:`operations-setting-up-the-swarm` to do the initial setup of the s
 2. The CORGI Pipeline is set on a Concourse server.
 ===================================================
 
-The CORGI pipeline is set up using Concourse through the use ``fly`` commands, Concourse's CLI.
+The CORGI pipeline is set up using Concourse through the use ``fly``, Concourse's CLI, or via ``set-pipeline`` from within a pipeline config.
 
-*****************
+*****************************
+Automated Deployment of CORGI
+*****************************
+
+1. Open the `auto-deploy-corgi pipeline <https://concourse-v7.openstax.org/teams/CE/pipelines/auto-deploy-corgi>`_
+==================================================================================================================
+
+2. Click on the "Update CORGI Staging" job
+==========================================
+
+.. image:: images/auto_deploy_01.jpg
+   :scale: 50%
+   :alt: click-update-corgi-staging
+   :align: center
+
+3. Click the + plus sign in the top right to start a new job
+============================================================
+
+.. image:: images/auto_deploy_02.jpg
+   :scale: 50%
+   :alt: start-staging-job
+   :align: center
+
+Congratulations you've now deployed the environment to `staging <https://corgi-staging.openstax.org>`_!
+
+4. Promote the stack to production
+==================================
+
+When testing has been completed on `staging <https://corgi-staging.openstax.org>`_ and we have the go ahead
+to deploy to production we can return to the main job screen and click on `promote-corgi-prod <https://concourse-v7.openstax.org/teams/CE/pipelines/auto-deploy-corgi/jobs/promote-corgi-prod/builds/18>`_.
+
+.. image:: images/auto_deploy_03.jpg
+   :scale: 50%
+   :alt: click-promote-corgi-prod
+   :align: center
+
+5. Click the + plus sign in the top right to start a new promote to production job
+==================================================================================
+
+This step is similar to step 3 for staging. Simply click the `+` sign and you'll promote the entire stack and pipeline
+to `production <https://corgi.openstax.org>`_!
+
+.. image:: images/auto_deploy_04.jpg
+   :scale: 50%
+   :alt: start-promote-corgi-prod
+   :align: center
+
+
+
+**************************
+Manual Deployment of CORGI
+**************************
+
 Overview of Steps
-*****************
+=================
 
 Set Up SSH Config for implicit tunnel
    - Set up Portforwarding to AWS by Tunneling through Bastion2. Bastion2 is the only with permission to talk to the AWS Server. Where our CORGI Stack is deployed.
@@ -44,14 +97,14 @@ Build and Push Docker Images
 
 .. _Prereq Update the Stack:
 
-*************
+
 Prerequisites
-*************
+=============
 
 **Use Python 3.8.x when possible**, Python 3.9.x and above is not supported yet. It may be useful to use pyenv.
 
 1. Install `Paramiko <https://pypi.org/project/paramiko/>`_
-===========================================================
+-----------------------------------------------------------
 This will ensure you can use SSH to manage the docker swarm nodes.
 
 **It is recommended to install paramiko, deploy to staging, and promote to production in a python virtual enviornment.**
@@ -61,8 +114,7 @@ This will ensure you can use SSH to manage the docker swarm nodes.
    pip install paramiko
 
 2. Set up Port Forward to CORGI Server (AWS) through Bastion2
-=============================================================
-
+-------------------------------------------------------------
 **Make sure you already have local identity files to:**
 
    - ``bastion2.cnx.org`` (e.g. at ~/.ssh/bastion2_id_rsa)
@@ -95,7 +147,7 @@ You can copy down your ``corgi.pem`` into your ``~/.ssh`` from bastion2 by:
 .. note:: Example above assumes that a copy of ``corgi.pem`` for  **IdentityFile** is copied to where your ssh keys are.
 
 3. Check if you use the docker-compose v1 in your PATH
-======================================================
+------------------------------------------------------
 
 docker-compose 2 beta may be used as standard on new docker installations (2021-07-22). But we need docker-compose 1.x for our deployment.
 
@@ -131,12 +183,11 @@ Note: After the deployment you can delete the directory `~/tmp/docker-compose`.
 
 ----
 
-************************
 CORGI Stack Deploy Steps
-************************
+========================
 
 0. Update Buildout and JS Dependencies
-======================================
+--------------------------------------
 
 **Make sure you are checked out to the** `git-ref` **of the latest output-producer-service tagged deploy.**
 
@@ -157,7 +208,7 @@ Refer to :ref:`operations-find-git-ref` to find a git-ref with given TAG.
    $ cd ..
 
 1. Deploy CORGI System to Staging Swarm
-=======================================
+---------------------------------------
 
 .. note:: This window should only be used to run the deploy script.
    All docker commands you run in this window will be like running them on the remote host.
@@ -201,7 +252,7 @@ The above script will deploy the Docker Swarm System with the previously set sta
    The deploy script will fail and exit without deploying if any of the required environment variables are not set.
 
 2. Set up CORGI Pipeline, on Concourse
-======================================
+--------------------------------------
 
 **Continue in the same terminal from deploy, login to Concourse via** ``fly`` **:**
 
@@ -220,7 +271,7 @@ The above assumes ``fly`` is installed. Depending on your environment, you may n
 version of fly from the UI.
 
 3. Promote Staging to Production
-================================
+--------------------------------
 Once Staging CORGI stack looks good and is tested (Steps 3 & 4) ensure that:
 
 - You have the same version checked out (step 0)
@@ -248,7 +299,7 @@ There is no need to set any environment variables for production or pick a tag.
 The above ``fly`` command will set a new pipeline named ``corgi-prod`` with production pipeline variables.
 
 4. Cleanup
-==========
+----------
 Close all terminal windows when deployment is complete.
 
 ----
@@ -257,14 +308,5 @@ Close all terminal windows when deployment is complete.
 Rotating Basic Auth Secrets
 ***************************
 
-To update basic auth secrets for CORGI, a dev must copy an ``htaccess`` file sourced from AWS SecretsManager and rotate the secret in the swarm with:
-
-.. code-block:: bash
-
-   # ... Properly target the CORGI swarm through ssh and set DOCKER_HOST
-   # And then:
-   export COPS_HTACCESS_FILE=</path/to/file>
-   ./scripts/rotate-auth-secrets.sh
-
-This script will rotate the secrets temporarily on CORGI staging (so that the caller can ensure that the rotation works as expected) and then the caller can accept the change, in which case the secret is propagated to both staging and prod in a more permanent fashion (and the old secret will be removed).
-Rotation in the manner above will likely lead to inability to login for a very brief period of time (less than 30sec).
+Due to the sensitive nature of managing secrets we keep the instructions on how to rotate them in
+`Confluence <https://openstax.atlassian.net/wiki/spaces/CE/pages/670760961/CORGI+Basic+Auth+Credentials+Management>`_.
