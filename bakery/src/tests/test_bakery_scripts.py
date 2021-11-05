@@ -2426,6 +2426,10 @@ def test_fetch_map_resources(tmp_path, mocker):
     assert set(file.name for file in unused_resources_dir.glob('**/*')) == set([
         "image_unused.svg"
     ])
+    
+    assert os.path.exists(resources_dir / "Interactives")
+
+
 
 
 def test_fetch_update_metadata(tmp_path, mocker):
