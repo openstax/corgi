@@ -8,8 +8,6 @@ from pathlib import Path
 from lxml import etree
 from . import utils
 
-import os
-
 # relative links must work both locally, on PDF, and on REX, and images are
 # uploaded with the prefix 'resources/' in S3 for REX
 # so the output directory name MUST be resources
@@ -46,7 +44,6 @@ def main():
         if child.is_dir():
             shutil.copytree(child, resources_dir / child.name)
 
-
     for cnxml_file in cnxml_files:
         doc = etree.parse(str(cnxml_file))
         for node in doc.xpath(
@@ -79,7 +76,7 @@ def main():
         ):
             resource_original_src = node.attrib["src"]
 
-            abs_path_pattern = re.compile("^https?:\/\/")
+            abs_path_pattern = re.compile("^https?://")
             if abs_path_pattern.match(resource_original_src):
                 continue
 
