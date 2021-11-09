@@ -1,11 +1,14 @@
 """Map resource files used in CNXML to provided path"""
 
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
 from lxml import etree
 from . import utils
+
+import os
 
 # relative links must work both locally, on PDF, and on REX, and images are
 # uploaded with the prefix 'resources/' in S3 for REX
@@ -43,6 +46,7 @@ def main():
         if child.is_dir():
             shutil.copytree(child, resources_dir / child.name)
 
+
     for cnxml_file in cnxml_files:
         doc = etree.parse(str(cnxml_file))
         for node in doc.xpath(
@@ -68,6 +72,27 @@ def main():
             filename_to_data[resource_original_filepath.name] = \
                 (sha1, s3_md5, mime_type, resource_original_filepath)
             node.attrib["src"] = f"../{RESOURCES_DIR_NAME}/{sha1}"
+
+        for node in doc.xpath(
+            '//x:iframe',
+            namespaces={"x": "http://cnx.rice.edu/cnxml"}
+        ):
+            resource_original_src = node.attrib["src"]
+
+            abs_path_pattern = re.compile("^https?:\/\/")
+            if abs_path_pattern.match(resource_original_src):
+                continue
+
+            resource_original_filepath = \
+                (cnxml_file.parent / resource_original_src).resolve()
+
+            foopath = (cnxml_file.parent / "../../media").resolve()
+            new_resource_child_path = resource_original_filepath.relative_to(foopath)
+
+            new_resource_src = f"../{RESOURCES_DIR_NAME}/{new_resource_child_path}"
+
+            print(f"rewriting iframe source from {resource_original_src} to {new_resource_src}")
+            node.attrib["src"] = new_resource_src
 
         with cnxml_file.open(mode="wb") as f:
             doc.write(f, encoding="utf-8", xml_declaration=False)
