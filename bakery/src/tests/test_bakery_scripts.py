@@ -2427,7 +2427,7 @@ def test_fetch_map_resources(tmp_path, mocker):
         "image_unused.svg"
     ])
 
-    assert os.path.exists(resources_dir / "Interactives")
+    assert(resources_dir.is_dir())
 
 
 def test_fetch_update_metadata(tmp_path, mocker):
