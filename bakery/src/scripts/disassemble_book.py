@@ -46,6 +46,7 @@ def main():
 
     with open(xhtml_file, "rb") as file:
         html_root = etree.parse(file)
+        file.seek(0)
         binder = reconstitute(file)
         slugs = extract_slugs_from_binder(binder)
 
