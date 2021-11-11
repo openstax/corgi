@@ -2346,12 +2346,14 @@ def test_fetch_map_resources(tmp_path, mocker):
     """Test fetch-map-resources script"""
     book_dir = tmp_path / "book_slug/fetched-book-group/raw/modules"
     original_resources_dir = tmp_path / "book_slug/fetched-book-group/raw/media"
+    original_interactives_dir = tmp_path / "book_slug/fetched-book-group/raw/media/interactives"
     resources_parent_dir = tmp_path / "book_slug"
     resources_dir = resources_parent_dir / "resources"
     unused_resources_dir = tmp_path / "unused-resources"
 
     book_dir.mkdir(parents=True)
     original_resources_dir.mkdir(parents=True)
+    original_interactives_dir.mkdir(parents=True)
     resources_parent_dir.mkdir(exist_ok=True)
     unused_resources_dir.mkdir()
 
