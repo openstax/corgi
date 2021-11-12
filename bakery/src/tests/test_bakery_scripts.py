@@ -2346,7 +2346,7 @@ def test_fetch_map_resources(tmp_path, mocker):
     """Test fetch-map-resources script"""
     book_dir = tmp_path / "book_slug/fetched-book-group/raw/modules"
     original_resources_dir = tmp_path / "book_slug/fetched-book-group/raw/media"
-    original_interactives_dir = tmp_path / "book_slug/fetched-book-group/raw/media/interactives"
+    original_interactives_dir = tmp_path / "book_slug/fetched-book-group/raw/media/Interactives"
     resources_parent_dir = tmp_path / "book_slug"
     resources_dir = resources_parent_dir / "resources"
     unused_resources_dir = tmp_path / "unused-resources"
@@ -2412,7 +2412,8 @@ def test_fetch_map_resources(tmp_path, mocker):
     }
     assert set(file.name for file in resources_dir.glob('**/*')) == set([
         image_src_sha1_expected,
-        image_src_meta
+        image_src_meta,
+        "Interactives"
     ])
     tree = etree.parse(str(module_00001))
     expected = (
@@ -2426,7 +2427,8 @@ def test_fetch_map_resources(tmp_path, mocker):
     )
     assert etree.tostring(tree, encoding="utf8") == expected.encode("utf8")
     assert set(file.name for file in unused_resources_dir.glob('**/*')) == set([
-        "image_unused.svg"
+        "image_unused.svg",
+        "Interactives"
     ])
 
     assert(resources_dir.is_dir())
