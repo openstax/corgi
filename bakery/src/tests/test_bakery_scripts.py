@@ -2346,14 +2346,26 @@ def test_fetch_map_resources(tmp_path, mocker):
     """Test fetch-map-resources script"""
     book_dir = tmp_path / "book_slug/fetched-book-group/raw/modules"
     original_resources_dir = tmp_path / "book_slug/fetched-book-group/raw/media"
-    original_interactives_dir = tmp_path / "book_slug/fetched-book-group/raw/media/Interactives"
+    original_interactive_dir = tmp_path / "book_slug/fetched-book-group/raw/media/interactive"
     resources_parent_dir = tmp_path / "book_slug"
     resources_dir = resources_parent_dir / "resources"
     unused_resources_dir = tmp_path / "unused-resources"
 
     book_dir.mkdir(parents=True)
     original_resources_dir.mkdir(parents=True)
-    original_interactives_dir.mkdir(parents=True)
+    original_interactive_dir.mkdir(parents=True)
+
+    interactive = original_interactive_dir / "index.xhtml"
+    interactive_content = (
+        '<!DOCTYPE html>'
+        '<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">'
+        '<body>'
+        '<p>Hello! I am an interactive. I should eventually have CSS and javascript</p>'
+        '</body>'
+        '</html>'
+    )
+    interactive.write_text(interactive_content)
+
     resources_parent_dir.mkdir(exist_ok=True)
     unused_resources_dir.mkdir()
 
@@ -2391,6 +2403,7 @@ def test_fetch_map_resources(tmp_path, mocker):
         '<image src="../../media/image_src.svg"/>'
         '<image src="../../media/image_missing.jpg"/>'
         '<image src="../../media/image_src.svg"/>'
+        '<iframe src="../../media/interactive/index.xhtml"/>'
         '</content>'
         '</document>'
     )
@@ -2413,7 +2426,8 @@ def test_fetch_map_resources(tmp_path, mocker):
     assert set(file.name for file in resources_dir.glob('**/*')) == set([
         image_src_sha1_expected,
         image_src_meta,
-        "Interactives"
+        "interactive",
+        "index.xhtml"
     ])
     tree = etree.parse(str(module_00001))
     expected = (
@@ -2422,13 +2436,13 @@ def test_fetch_map_resources(tmp_path, mocker):
         f'<image src="../resources/{image_src_sha1_expected}"/>'
         f'<image src="../../media/image_missing.jpg"/>'
         f'<image src="../resources/{image_src_sha1_expected}"/>'
+        f'<iframe src="../resources/interactive/index.xhtml"/>'
         f'</content>'
         f'</document>'
     )
     assert etree.tostring(tree, encoding="utf8") == expected.encode("utf8")
     assert set(file.name for file in unused_resources_dir.glob('**/*')) == set([
         "image_unused.svg",
-        "Interactives"
     ])
 
     assert(resources_dir.is_dir())

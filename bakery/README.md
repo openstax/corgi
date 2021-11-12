@@ -397,5 +397,10 @@ Test python scripts in the bakery tasks located in `bakery/src/tests`:
 $ apt-get install -y imagemagick icc-profiles-free ghostscript
 $ pip install bakery/src/scripts/.[test]
 $ pytest bakery
+...
 
+On subsequent tests:
+
+```
+$ pip install bakery/src/scripts/.[test] && pytest bakery
 ```
