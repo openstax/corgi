@@ -1,4 +1,4 @@
-FROM python:3.8-slim as base
+FROM openstax/python3-base:20211117.170559 as base
 
 RUN apt-get update -qq \
  && apt-get install -y --no-install-recommends \
@@ -7,13 +7,7 @@ RUN apt-get update -qq \
     curl \
  && apt-get autoremove -y
 
-FROM base as builder
-
-# install poetry
-# keep this in sync with the version in pyproject.toml and Dockerfile
-ENV POETRY_VERSION 1.0.5
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
-ENV PATH "/root/.poetry/bin:/opt/venv/bin:${PATH}"
+FROM openstax/python3-poetry:20211117.174217 as dev-builder
 
 # copy files
 COPY ./app /build/
