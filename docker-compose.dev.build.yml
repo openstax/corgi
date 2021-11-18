@@ -4,8 +4,7 @@ services:
     build:
       context: ./backend
       dockerfile: backend.dockerfile
-      args:
-        INSTALL_DEV: 'true'
+      target: dev-runner
   frontend:
     build:
       context: ./frontend
