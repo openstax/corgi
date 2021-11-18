@@ -20,6 +20,7 @@ def flatten_feed(feed_data, feed_filter, code_version):
         # Archive approved book items should only have a single book entry
         return [{
             "collection_id": book[ARCHIVE_BOOK_ID_KEY],
+            "sha": book["commit_sha"],
             "server": book["server"],
             "style": book["style"],
             "uuid": book["books"][0]["uuid"],
@@ -68,11 +69,44 @@ def flatten_feed(feed_data, feed_filter, code_version):
         book_id = item[book_id_key]
         books_by_id[book_id] = item
 
-    for item in approved_versions:
-        book_id = item[book_id_key]
-        book = books_by_id[book_id]
-        if code_version >= item["min_code_version"]:
-            flattened_feed += convert_function(book, item["content_version"])
+    if feed_filter == "archive":
+        for item in approved_versions:
+            book_id = item[book_id_key]
+            book = books_by_id[book_id]
+            if code_version >= item["min_code_version"]:
+                flattened_feed += convert_function(book, item["content_version"])
+
+    if feed_filter == "git":
+        # item = {
+        #     repository_name: "osbooks-college-algebra-bundle",
+        #     versions: [
+        #     {
+        #         min_code_version: "20210224.204120",
+        #         commit_sha: "cede276a22287dd000406feb1c0e112af168aef9",
+        #           ...
+
+        for item in approved_books:
+            repository_name = item[GIT_BOOK_ID_KEY]
+            for version in item["versions"]:
+                min_code_version = version["min_code_version"]
+                commit_sha = version["commit_sha"]
+
+                if code_version >= min_code_version:
+                    flattened_feed.append({
+                        "repo": repository_name,
+                        "version": commit_sha
+                    })
+                else:
+                    print(f"Skipping entry because codeversion is too new. This pipeline codeversion: {code_version}. min_code_version for the ABL entry: {min_code_version}")
+
+    # flattened_feed format
+    # {
+    #     "repo": book[GIT_BOOK_ID_KEY],
+    #     "style": book["style"],
+    #     "uuid": repo_book["uuid"],
+    #     "slug": repo_book["slug"],
+    #     "version": version
+    # }
 
     return flattened_feed
 
@@ -105,7 +139,7 @@ def main():
         if books_queued >= max_books_per_run:
             break
 
-        book_identifier = book.get('collection_id', book.get('slug'))
+        book_identifier = book.get('collection_id', book.get('repo'))
 
         book_prefix = \
             f".{state_prefix}.{book_identifier}@{book['version']}"
@@ -142,19 +176,19 @@ def main():
                 error_code = error.response['Error']['Code']
                 if error_code == '404':
                     print(f"Found feed entry to build: {book}")
-                    s3_client.put_object(
-                        Bucket=queue_state_bucket,
-                        Key=queue_filename,
-                        Body=json.dumps(book)
-                    )
-                    # Mark state to not be entered again
-                    s3_client.put_object(
-                        Bucket=queue_state_bucket,
-                        Key=state_key,
-                        Body=datetime.now().astimezone().isoformat(
-                            timespec='seconds'
-                        )
-                    )
+                    # s3_client.put_object(
+                    #     Bucket=queue_state_bucket,
+                    #     Key=queue_filename,
+                    #     Body=json.dumps(book)
+                    # )
+                    # # Mark state to not be entered again
+                    # s3_client.put_object(
+                    #     Bucket=queue_state_bucket,
+                    #     Key=state_key,
+                    #     Body=datetime.now().astimezone().isoformat(
+                    #         timespec='seconds'
+                    #     )
+                    # )
                     books_queued += 1
                     # Book was queued, don't try to queue it again
                     break
