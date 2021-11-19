@@ -96,7 +96,6 @@ workflows:
   run-tests:
     jobs:
       - integration-test
-      - cli-functional-test
       - bakery-scripts-test
       - lint-bakery
       - frontend-unit
