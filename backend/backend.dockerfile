@@ -18,7 +18,7 @@ WORKDIR /build
 # Create Virtualenv
 RUN python -m venv /opt/venv && \
   . /opt/venv/bin/activate && \
-  pip install --no-cache-dir -U 'pip<20' && \
+  pip install --no-cache-dir -U 'pip' && \
   poetry install --no-root --no-interaction
 
 FROM openstax/python3-poetry:20211117.174217 as prod-builder
@@ -32,7 +32,7 @@ WORKDIR /build
 # Create Virtualenv
 RUN python -m venv /opt/venv && \
   . /opt/venv/bin/activate && \
-  pip install --no-cache-dir -U 'pip<20' && \
+  pip install --no-cache-dir -U 'pip' && \
   poetry install --no-dev --no-root --no-interaction
 
 FROM base as dev-runner
