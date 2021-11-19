@@ -1,0 +1,55 @@
+pick 2b146b7 Updated fetch_map_resources script to copy all dir found in path
+pick f101006 Added Interactive folder to test book and assert for that during test_fetch_map_resources
+pick 5301c08 fixup: fix lint errors
+pick 7b986bb rewrite iframe src
+pick 6274eef lint fix
+pick 0d0d541 fix path assertion
+pick 3417a64 coverage
+pick 2383139 fix test_fetch_map_resources
+pick 180ee86 add test for interactives, fix unused warning
+pick 2b4c8cf Added poetry for dependency management
+pick 90ce862 fixup: added uvicorn and tenacity to poetry.lock file
+pick ab187dc updated dockerfile to use poetry for installing dependencies
+pick d90eceb fixup: added uvicorn and tenacity to pyproject.toml file
+pick db34211 fixup: remove user permissions and add PYTHONPATH var
+pick a0157a2 Update build arg var for setting INSTALL_DEV dependencies
+pick d09596e fixup: change True to true in docker-compoes.dev.build.yml
+pick 5aeb1bc fixup: sync poetry version with backend dockerfile
+pick 0d4e201 fixup: move install of wait-for-it below poetry
+pick 0d412b1 Moving wait-for-it to the runner stage as per Thomas' comment
+pick cab35d5 Use the openstax maintained images in Dockerfile
+pick a17863f Use multi-stage build for dev and prod dependencies and runner
+pick ec2c841 Update docker-compose services to use new targets for dockerfile
+pick dd101e2 Updated pyproject.toml file to top level only dependencies
+pick dac5cd1 Updated poetry.lock file
+pick eed25a0 Use multi-stage build for tests.dockerfile w/ poetry
+pick 27e4b33 Added jupyterlab as a dev dependency
+pick 2034030 Updated backend.dockerfile to use multi-stage builds
+pick f55cb2e Remove unnecessary build arguments
+pick da525cf Update README.md documentation
+pick 5fdbaa7 remove curl from backend.dockerfile base stage
+
+# Rebase 45b5494..5fdbaa7 onto 45b5494 (30 commands)
+
+# Commands:
+# p, pick <commit> = use commit
+# r, reword <commit> = use commit, but edit the commit message
+# e, edit <commit> = use commit, but stop for amending
+# s, squash <commit> = use commit, but meld into previous commit
+# f, fixup <commit> = like "squash", but discard this commit's log message
+# x, exec <command> = run command (the rest of the line) using shell
+# b, break = stop here (continue rebase later with 'git rebase --continue')
+# d, drop <commit> = remove commit
+# l, label <label> = label current HEAD with a name
+# t, reset <label> = reset HEAD to a label
+# m, merge [-C <commit> | -c <commit>] <label> [# <oneline>]
+# .       create a merge commit using the original merge commit's
+# .       message (or the oneline, if no original merge commit was
+# .       specified). Use -c <commit> to reword the commit message.
+#
+# These lines can be re-ordered; they are executed from top to bottom.
+#
+# If you remove a line here THAT COMMIT WILL BE LOST.
+#
+# However, if you remove everything, the rebase will be aborted.
+#

@@ -4,8 +4,6 @@ services:
     build:
       context: ./backend
       dockerfile: tests.dockerfile
-      args:
-        env: dev
     volumes:
       - /tmp/test-results:/tmp/test-results
       - ./backend/app:/app
