@@ -28,42 +28,6 @@ jobs:
       - store_test_results:
           path: /tmp/test-results
 
-  cli-functional-test:
-    machine:
-      image: ubuntu-1604:202004-01
-
-    steps:
-      - checkout
-
-      - run:
-          name: Install node
-          command: |
-            export NVM_DIR=/opt/circleci/.nvm
-            [ -s "${NVM_DIR}/nvm.sh" ] && \. "${NVM_DIR}/nvm.sh"
-            nvm install v12.16.1
-            nvm alias default v12.16.1
-            echo 'export NVM_DIR=/opt/circleci/.nvm' >> $BASH_ENV
-            echo "[ -s \"${NVM_DIR}/nvm.sh\" ] && . \"${NVM_DIR}/nvm.sh\"" >> $BASH_ENV
-
-      - run:
-          name: Setup fly
-          command: |
-            mkdir -p ~/.local/bin
-            curl -L https://github.com/concourse/concourse/releases/download/v6.3.1/fly-6.3.1-linux-amd64.tgz -o fly.tgz
-            tar -xvzf fly.tgz
-            chmod +x fly
-            mv fly ~/.local/bin
-            echo 'export PATH=${HOME}/.local/bin:${PATH}' >> $BASH_ENV
-
-      - run:
-          name: Run tests
-          command: |
-            node --version
-            fly --version
-            cd ./bakery
-            npm install
-            npm run test
-
   bakery-scripts-test:
     docker:
       - image: circleci/python:3.7
