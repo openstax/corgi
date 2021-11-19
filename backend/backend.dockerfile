@@ -4,7 +4,6 @@ RUN apt-get update -qq \
  && apt-get install -y --no-install-recommends \
     # required by psycopg2 at build and runtime
     libpq-dev \
-    curl \
  && apt-get autoremove -y
 
 FROM openstax/python3-poetry:20211117.174217 as dev-builder
