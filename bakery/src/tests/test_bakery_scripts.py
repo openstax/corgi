@@ -1104,20 +1104,23 @@ def test_check_feed(tmp_path, mocker):
                 ]
             },
             {
-                "repository_name": "osbooks-college-algebra-bundle",
-                "style": "precalculus",
-                "tutor_only": False,
-                "books": [
-                    {
-                        "uuid": "9b08c294-057f-4201-9f48-5d6ad992740d",
-                        "slug": "college-algebra"
-                    },
-                    {
-                        "uuid": "13ac107a-f15f-49d2-97e8-60ab2e3b519c",
-                        "slug": "algebra-and-trigonometry"
+                "repository_name": "osbooks-writing-guide",
+                "style": "english-composition",
+                "platforms": ["rex"],
+                "versions": [{
+                    "repository_name": "osbooks-writing-guide",
+                    "min_code_version": "1.42",
+                    "edition": 1,
+                    "commit_sha": "4ff250a4779bc500660063acb85b7aab7df94396",
+                    "commit_metadata": {
+                        "committed_at": "2021-10-25T10:47:06+00:00",
+                        "books": [{
+                            "uuid": "ee7ce46b-0972-4b2c-bc6e-8998c785cd57",
+                            "slug": "writing-guide"
+                        }]
                     }
-                ]
-            }
+                }]
+            }       
         ],
         "approved_versions": [
             {
@@ -1347,24 +1350,15 @@ def test_check_feed(tmp_path, mocker):
     # Add expected calls for git books
 
     book3 = {
-        "repo": "osbooks-college-algebra-bundle",
-        "style": "precalculus",
-        "uuid": "9b08c294-057f-4201-9f48-5d6ad992740d",
-        "slug": "college-algebra",
-        "version": "1"
+        "repo": "osbooks-writing-guide",
+        "style": "english-composition",
+        "uuid": "ee7ce46b-0972-4b2c-bc6e-8998c785cd57",
+        "slug": "writing-guide",
+        "version": "4ff250a4779bc500660063acb85b7aab7df94396"
     }
-    book3_slug = book3["slug"]
+    book3_slug = book3["repo"]
     book3_vers = book3["version"]
-    book4 = {
-        "repo": "osbooks-college-algebra-bundle",
-        "style": "precalculus",
-        "uuid": "13ac107a-f15f-49d2-97e8-60ab2e3b519c",
-        "slug": "algebra-and-trigonometry",
-        "version": "1"
-    }
-    book4_slug = book4["slug"]
-    book4_vers = book4["version"]
-
+    
     # Book 3: Check for .complete file
     _stubber_add_head_object_404(
         f"{code_version}/.{state_prefix}.{book3_slug}@{book3_vers}.complete"
@@ -1387,25 +1381,6 @@ def test_check_feed(tmp_path, mocker):
     # Book3: Check for .complete file
     _stubber_add_head_object(
         f"{code_version}/.{state_prefix}.{book3_slug}@{book3_vers}.complete"
-    )
-
-    # Book 4: Check for .complete file
-    _stubber_add_head_object_404(
-        f"{code_version}/.{state_prefix}.{book4_slug}@{book4_vers}.complete"
-    )
-
-    # Book 4: Check for .pending file
-    _stubber_add_head_object_404(
-        f"{code_version}/.{state_prefix}.{book4_slug}@{book4_vers}.pending"
-    )
-
-    # Book 4: Put book data
-    _stubber_add_put_object(queue_filename, json.dumps(book4))
-
-    # Book 4: Put book .pending
-    _stubber_add_put_object(
-        f"{code_version}/.{state_prefix}.{book4_slug}@{book4_vers}.pending",
-        botocore.stub.ANY
     )
 
     mocker.patch(
