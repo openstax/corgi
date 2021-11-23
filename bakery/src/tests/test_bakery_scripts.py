@@ -1120,7 +1120,7 @@ def test_check_feed(tmp_path, mocker):
                         }]
                     }
                 }]
-            }       
+            }
         ],
         "approved_versions": [
             {
@@ -1358,7 +1358,7 @@ def test_check_feed(tmp_path, mocker):
     }
     book3_slug = book3["repo"]
     book3_vers = book3["version"]
-    
+
     # Book 3: Check for .complete file
     _stubber_add_head_object_404(
         f"{code_version}/.{state_prefix}.{book3_slug}@{book3_vers}.complete"

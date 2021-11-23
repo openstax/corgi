@@ -104,7 +104,11 @@ def flatten_feed(feed_data, feed_filter, code_version):
                             "version": commit_sha
                         })
                 else:
-                    print(f"Skipping entry because codeversion is too new. This pipeline codeversion: {code_version}. min_code_version for the ABL entry: {min_code_version}")
+                    print(
+                        "Skipping entry because codeversion is too new. "
+                        f"This pipeline codeversion: {code_version}. "
+                        f"min_code_version for the ABL entry: {min_code_version}"
+                    )
 
     # flattened_feed format
     # {
