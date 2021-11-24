@@ -27,20 +27,6 @@ def flatten_feed(feed_data, feed_filter, code_version):
             "version": version
         }]
 
-    def _convert_git_entry(book, version):
-        # Git book repo can bundle multiple books
-        result = []
-        for repo_book in book["books"]:
-            result.append({
-                "repo": book[GIT_BOOK_ID_KEY],
-                "sha": book["commit_sha"],
-                "style": book["style"],
-                "uuid": repo_book["uuid"],
-                "slug": repo_book["slug"],
-                "version": version
-            })
-        return result
-
     books_by_id = {}
     flattened_feed = []
 
@@ -50,7 +36,6 @@ def flatten_feed(feed_data, feed_filter, code_version):
         book_id_key = ARCHIVE_BOOK_ID_KEY
     elif feed_filter == "git":
         filter_function = _is_git_entry
-        convert_function = _convert_git_entry
         book_id_key = GIT_BOOK_ID_KEY
     else:
         # An unexpected filter value.
@@ -60,9 +45,6 @@ def flatten_feed(feed_data, feed_filter, code_version):
         filter_function,
         feed_data["approved_books"]
     ))
-
-    # if (feed_filter == "git"):
-    #     raise Exception(approved_books)
 
     approved_versions = filter(
         filter_function,
@@ -103,7 +85,7 @@ def flatten_feed(feed_data, feed_filter, code_version):
                             "slug": book["slug"],
                             "version": commit_sha
                         })
-                else:
+                else:  # pragma: no cover
                     print(
                         "Skipping entry because codeversion is too new. "
                         f"This pipeline codeversion: {code_version}. "
@@ -169,7 +151,7 @@ def main():
             continue
         except botocore.exceptions.ClientError as error:
             error_code = error.response['Error']['Code']
-            if error_code != '404':
+            if error_code != '404':  # pragma: no cover
                 # Not an expected 404 error
                 raise
             # Otherwise, book is not complete and we check other states
@@ -205,7 +187,7 @@ def main():
                     books_queued += 1
                     # Book was queued, don't try to queue it again
                     break
-                else:
+                else:  # pragma: no cover
                     # Not an expected 404 error
                     raise
 

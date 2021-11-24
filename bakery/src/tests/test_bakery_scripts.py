@@ -1120,7 +1120,7 @@ def test_check_feed(tmp_path, mocker):
                         }]
                     }
                 }]
-            }
+            },
         ],
         "approved_versions": [
             {
@@ -1356,6 +1356,7 @@ def test_check_feed(tmp_path, mocker):
         "slug": "writing-guide",
         "version": "4ff250a4779bc500660063acb85b7aab7df94396"
     }
+
     book3_slug = book3["repo"]
     book3_vers = book3["version"]
 
@@ -1378,7 +1379,7 @@ def test_check_feed(tmp_path, mocker):
         botocore.stub.ANY
     )
 
-    # Book3: Check for .complete file
+    # Book 3: Check for .complete file
     _stubber_add_head_object(
         f"{code_version}/.{state_prefix}.{book3_slug}@{book3_vers}.complete"
     )
