@@ -27,19 +27,6 @@ def flatten_feed(feed_data, feed_filter, code_version):
             "version": version
         }]
 
-    def _convert_git_entry(book, version):
-        # Git book repo can bundle multiple books
-        result = []
-        for repo_book in book["books"]:
-            result.append({
-                "repo": book[GIT_BOOK_ID_KEY],
-                "style": book["style"],
-                "uuid": repo_book["uuid"],
-                "slug": repo_book["slug"],
-                "version": version
-            })
-        return result
-
     books_by_id = {}
     flattened_feed = []
 
@@ -49,16 +36,16 @@ def flatten_feed(feed_data, feed_filter, code_version):
         book_id_key = ARCHIVE_BOOK_ID_KEY
     elif feed_filter == "git":
         filter_function = _is_git_entry
-        convert_function = _convert_git_entry
         book_id_key = GIT_BOOK_ID_KEY
     else:
         # An unexpected filter value.
         raise Exception("Invalid feed filter value")
 
-    approved_books = filter(
+    approved_books = list(filter(
         filter_function,
         feed_data["approved_books"]
-    )
+    ))
+
     approved_versions = filter(
         filter_function,
         feed_data["approved_versions"]
@@ -68,11 +55,51 @@ def flatten_feed(feed_data, feed_filter, code_version):
         book_id = item[book_id_key]
         books_by_id[book_id] = item
 
-    for item in approved_versions:
-        book_id = item[book_id_key]
-        book = books_by_id[book_id]
-        if code_version >= item["min_code_version"]:
-            flattened_feed += convert_function(book, item["content_version"])
+    if feed_filter == "archive":
+        for item in approved_versions:
+            book_id = item[book_id_key]
+            book = books_by_id[book_id]
+            if code_version >= item["min_code_version"]:
+                flattened_feed += convert_function(book, item["content_version"])
+
+    if feed_filter == "git":
+        # item = {
+        #     repository_name: "osbooks-college-algebra-bundle",
+        #     versions: [
+        #     {
+        #         min_code_version: "20210224.204120",
+        #         commit_sha: "cede276a22287dd000406feb1c0e112af168aef9",
+        #           ...
+
+        for item in approved_books:
+            repository_name = item[GIT_BOOK_ID_KEY]
+            for version in item["versions"]:
+                min_code_version = version["min_code_version"]
+                commit_sha = version["commit_sha"]
+                if code_version >= min_code_version:
+                    for book in version["commit_metadata"]["books"]:
+                        flattened_feed.append({
+                            "repo": repository_name,
+                            "style": item["style"],
+                            "uuid": book["uuid"],
+                            "slug": book["slug"],
+                            "version": commit_sha
+                        })
+                else:  # pragma: no cover
+                    print(
+                        "Skipping entry because codeversion is too new. "
+                        f"This pipeline codeversion: {code_version}. "
+                        f"min_code_version for the ABL entry: {min_code_version}"
+                    )
+
+    # flattened_feed format
+    # {
+    #     "repo": book[GIT_BOOK_ID_KEY],
+    #     "style": book["style"],
+    #     "uuid": repo_book["uuid"],
+    #     "slug": repo_book["slug"],
+    #     "version": version
+    # }
 
     return flattened_feed
 
@@ -93,6 +120,8 @@ def main():
     books_queued = 0
 
     flattened_feed = flatten_feed(feed_data, feed_filter, code_version)
+    # if (feed_filter == "git"):
+    #     raise Exception(flattened_feed)
 
     # Iterate through feed and check for a book that is not completed based
     # upon existence of a {code_version}/.{collection_id}@{version}.complete
@@ -105,7 +134,7 @@ def main():
         if books_queued >= max_books_per_run:
             break
 
-        book_identifier = book.get('collection_id', book.get('slug'))
+        book_identifier = book.get('collection_id', book.get('repo'))
 
         book_prefix = \
             f".{state_prefix}.{book_identifier}@{book['version']}"
@@ -122,7 +151,7 @@ def main():
             continue
         except botocore.exceptions.ClientError as error:
             error_code = error.response['Error']['Code']
-            if error_code != '404':
+            if error_code != '404':  # pragma: no cover
                 # Not an expected 404 error
                 raise
             # Otherwise, book is not complete and we check other states
@@ -158,7 +187,7 @@ def main():
                     books_queued += 1
                     # Book was queued, don't try to queue it again
                     break
-                else:
+                else:  # pragma: no cover
                     # Not an expected 404 error
                     raise
 
