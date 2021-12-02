@@ -5,6 +5,13 @@ from datetime import datetime
 import boto3
 import botocore
 
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        pass
+    return False
 
 def flatten_feed(feed_data, feed_filter, code_version):
     ARCHIVE_BOOK_ID_KEY = "collection_id"
@@ -71,12 +78,17 @@ def flatten_feed(feed_data, feed_filter, code_version):
         #         commit_sha: "cede276a22287dd000406feb1c0e112af168aef9",
         #           ...
 
+        if not is_number(code_version):
+            print('----------------------------')
+            print(f"Ignoring min_code_version because code_version is not a number '{code_version}' (dev testing)")
+            print('----------------------------')
+
         for item in approved_books:
             repository_name = item[GIT_BOOK_ID_KEY]
             for version in item["versions"]:
                 min_code_version = version["min_code_version"]
                 commit_sha = version["commit_sha"]
-                if code_version >= min_code_version:
+                if not not is_number(code_version) or code_version >= min_code_version:
                     for book in version["commit_metadata"]["books"]:
                         flattened_feed.append({
                             "repo": repository_name,
