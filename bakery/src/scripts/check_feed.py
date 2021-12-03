@@ -6,6 +6,15 @@ import boto3
 import botocore
 
 
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:  # pragma: no cover
+        pass
+    return False
+
+
 def flatten_feed(feed_data, feed_filter, code_version):
     ARCHIVE_BOOK_ID_KEY = "collection_id"
     GIT_BOOK_ID_KEY = "repository_name"
@@ -71,6 +80,13 @@ def flatten_feed(feed_data, feed_filter, code_version):
         #         commit_sha: "cede276a22287dd000406feb1c0e112af168aef9",
         #           ...
 
+        if not is_number(code_version):  # pragma: no cover
+            print('----------------------------')
+            print('Ignoring min_code_version because code_version')
+            print(f"  is not a number '{code_version}' (dev testing)")
+            print('----------------------------')
+            code_version = 99999999  # 9999-99-99
+
         for item in approved_books:
             repository_name = item[GIT_BOOK_ID_KEY]
             for version in item["versions"]:
@@ -80,7 +96,6 @@ def flatten_feed(feed_data, feed_filter, code_version):
                     for book in version["commit_metadata"]["books"]:
                         flattened_feed.append({
                             "repo": repository_name,
-                            "style": item["style"],
                             "uuid": book["uuid"],
                             "slug": book["slug"],
                             "version": commit_sha
@@ -95,7 +110,6 @@ def flatten_feed(feed_data, feed_filter, code_version):
     # flattened_feed format
     # {
     #     "repo": book[GIT_BOOK_ID_KEY],
-    #     "style": book["style"],
     #     "uuid": repo_book["uuid"],
     #     "slug": repo_book["slug"],
     #     "version": version
@@ -195,4 +209,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()  # pragma: no cover

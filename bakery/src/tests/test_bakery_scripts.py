@@ -1105,7 +1105,6 @@ def test_check_feed(tmp_path, mocker):
             },
             {
                 "repository_name": "osbooks-writing-guide",
-                "style": "english-composition",
                 "platforms": ["rex"],
                 "versions": [{
                     "repository_name": "osbooks-writing-guide",
@@ -1116,6 +1115,7 @@ def test_check_feed(tmp_path, mocker):
                         "committed_at": "2021-10-25T10:47:06+00:00",
                         "books": [{
                             "uuid": "ee7ce46b-0972-4b2c-bc6e-8998c785cd57",
+                            "style": "english-composition",
                             "slug": "writing-guide"
                         }]
                     }
@@ -1351,7 +1351,6 @@ def test_check_feed(tmp_path, mocker):
 
     book3 = {
         "repo": "osbooks-writing-guide",
-        "style": "english-composition",
         "uuid": "ee7ce46b-0972-4b2c-bc6e-8998c785cd57",
         "slug": "writing-guide",
         "version": "4ff250a4779bc500660063acb85b7aab7df94396"
