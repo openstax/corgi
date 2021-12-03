@@ -95,7 +95,6 @@ def flatten_feed(feed_data, feed_filter, code_version):
                     for book in version["commit_metadata"]["books"]:
                         flattened_feed.append({
                             "repo": repository_name,
-                            "style": item["style"],
                             "uuid": book["uuid"],
                             "slug": book["slug"],
                             "version": commit_sha
@@ -110,7 +109,6 @@ def flatten_feed(feed_data, feed_filter, code_version):
     # flattened_feed format
     # {
     #     "repo": book[GIT_BOOK_ID_KEY],
-    #     "style": book["style"],
     #     "uuid": repo_book["uuid"],
     #     "slug": repo_book["slug"],
     #     "version": version
