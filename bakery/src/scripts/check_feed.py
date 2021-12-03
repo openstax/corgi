@@ -10,7 +10,7 @@ def is_number(s):
     try:
         float(s)
         return True
-    except ValueError:
+    except ValueError:  # pragma: no cover
         pass
     return False
 
@@ -80,18 +80,19 @@ def flatten_feed(feed_data, feed_filter, code_version):
         #         commit_sha: "cede276a22287dd000406feb1c0e112af168aef9",
         #           ...
 
-        if not is_number(code_version):
+        if not is_number(code_version):  # pragma: no cover
             print('----------------------------')
             print('Ignoring min_code_version because code_version')
             print(f"  is not a number '{code_version}' (dev testing)")
             print('----------------------------')
+            code_version = 99999999  # 9999-99-99
 
         for item in approved_books:
             repository_name = item[GIT_BOOK_ID_KEY]
             for version in item["versions"]:
                 min_code_version = version["min_code_version"]
                 commit_sha = version["commit_sha"]
-                if not not is_number(code_version) or code_version >= min_code_version:
+                if code_version >= min_code_version:
                     for book in version["commit_metadata"]["books"]:
                         flattened_feed.append({
                             "repo": repository_name,
@@ -208,4 +209,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()  # pragma: no cover
