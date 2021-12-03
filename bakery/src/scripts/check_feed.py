@@ -5,6 +5,7 @@ from datetime import datetime
 import boto3
 import botocore
 
+
 def is_number(s):
     try:
         float(s)
@@ -12,6 +13,7 @@ def is_number(s):
     except ValueError:
         pass
     return False
+
 
 def flatten_feed(feed_data, feed_filter, code_version):
     ARCHIVE_BOOK_ID_KEY = "collection_id"
@@ -80,7 +82,8 @@ def flatten_feed(feed_data, feed_filter, code_version):
 
         if not is_number(code_version):
             print('----------------------------')
-            print(f"Ignoring min_code_version because code_version is not a number '{code_version}' (dev testing)")
+            print('Ignoring min_code_version because code_version')
+            print(f"  is not a number '{code_version}' (dev testing)")
             print('----------------------------')
 
         for item in approved_books:
