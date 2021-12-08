@@ -1351,8 +1351,6 @@ def test_check_feed(tmp_path, mocker):
 
     book3 = {
         "repo": "osbooks-writing-guide",
-        "uuid": "ee7ce46b-0972-4b2c-bc6e-8998c785cd57",
-        "slug": "writing-guide",
         "version": "4ff250a4779bc500660063acb85b7aab7df94396"
     }
 
