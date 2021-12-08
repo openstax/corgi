@@ -93,13 +93,10 @@ def flatten_feed(feed_data, feed_filter, code_version):
                 min_code_version = version["min_code_version"]
                 commit_sha = version["commit_sha"]
                 if code_version >= min_code_version:
-                    for book in version["commit_metadata"]["books"]:
-                        flattened_feed.append({
-                            "repo": repository_name,
-                            "uuid": book["uuid"],
-                            "slug": book["slug"],
-                            "version": commit_sha
-                        })
+                    flattened_feed.append({
+                        "repo": repository_name,
+                        "version": commit_sha
+                    })
                 else:  # pragma: no cover
                     print(
                         "Skipping entry because codeversion is too new. "
@@ -134,8 +131,6 @@ def main():
     books_queued = 0
 
     flattened_feed = flatten_feed(feed_data, feed_filter, code_version)
-    # if (feed_filter == "git"):
-    #     raise Exception(flattened_feed)
 
     # Iterate through feed and check for a book that is not completed based
     # upon existence of a {code_version}/.{collection_id}@{version}.complete
