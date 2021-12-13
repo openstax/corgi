@@ -26,7 +26,7 @@ trap revert_any_temp EXIT
 echo "Creating a temp rotation on staging for acceptance..."
 docker service update --secret-rm $auth_secret_name $corgi_test_proxy_target
 docker service update --secret-add "source=${auth_secret_name_temp},target=${auth_secret_name}" $corgi_test_proxy_target
-echo "Temp rotation in place on staging. Try it: https://corgi-staging.openstax.org"
+echo "Temp rotation in place on staging. Try it: https://corgi-staging.ce.openstax.org"
 read -r -n 1 -p "(R)evert | (a)ccept: " accept_char
 
 echo

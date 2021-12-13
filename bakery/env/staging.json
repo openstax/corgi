@@ -1,6 +1,6 @@
 {
   "ENV_NAME": "staging",
-  "COPS_TARGET": "https://corgi-staging.openstax.org/api",
+  "COPS_TARGET": "https://corgi-staging.ce.openstax.org/api",
   "COPS_BUCKET_AKI_SECRET_NAME": "((aws-sandbox-secret-key-id))",
   "COPS_BUCKET_SAK_SECRET_NAME": "((aws-sandbox-secret-access-key))",
   "COPS_ARTIFACTS_S3_BUCKET": "openstax-sandbox-cops-artifacts",

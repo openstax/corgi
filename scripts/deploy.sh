@@ -3,7 +3,7 @@
 # Exit in case of error
 set -e
 
-[ "${DOMAIN}" = '' ] && echo "ERROR: Remember to set DOMAIN. e.g. DOMAIN=cops-staging.openstax.org" && exit 1
+[ "${DOMAIN}" = '' ] && echo "ERROR: Remember to set DOMAIN. e.g. DOMAIN=cops-staging.ce.openstax.org" && exit 1
 [ "${TRAEFIK_TAG}" = '' ] && echo "ERROR: Remember to set TRAEFIK_TAG. e.g. TRAEFIK_TAG=traefik-staging" && exit 1
 [ "${STACK_NAME}" = '' ] && echo "ERROR: Remember to set STACK_NAME. e.g. STACK_NAME=cops-stag" && exit 1
 [ "${TAG}" = '' ] && echo "ERROR: Remember to set TAG." && exit 1

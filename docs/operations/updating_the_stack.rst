@@ -50,12 +50,12 @@ Automated Deployment of CORGI
    :alt: start-staging-job
    :align: center
 
-Congratulations you've now deployed the environment to `staging <https://corgi-staging.openstax.org>`_!
+Congratulations you've now deployed the environment to `staging <https://corgi-staging.ce.openstax.org>`_!
 
 4. Promote the stack to production
 ==================================
 
-When testing has been completed on `staging <https://corgi-staging.openstax.org>`_ and we have the go ahead
+When testing has been completed on `staging <https://corgi-staging.ce.openstax.org>`_ and we have the go ahead
 to deploy to production we can return to the main job screen and click on `promote-corgi-prod <https://concourse-v7.openstax.org/teams/CE/pipelines/auto-deploy-corgi/jobs/promote-corgi-prod/builds/18>`_.
 
 .. image:: images/auto_deploy_03.jpg
@@ -67,7 +67,7 @@ to deploy to production we can return to the main job screen and click on `promo
 ==================================================================================
 
 This step is similar to step 3 for staging. Simply click the `+` sign and you'll promote the entire stack and pipeline
-to `production <https://corgi.openstax.org>`_!
+to `production <https://corgi.ce.openstax.org>`_!
 
 .. image:: images/auto_deploy_04.jpg
    :scale: 50%
@@ -79,7 +79,8 @@ to `production <https://corgi.openstax.org>`_!
 **************************
 Manual Deployment of CORGI
 **************************
-
+..
+    FIXME remove reliance on bastion2
 Overview of Steps
 =================
 
