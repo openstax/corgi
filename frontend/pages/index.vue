@@ -318,7 +318,10 @@ export default {
       'business-ethics',
       'calculus',
       'chemistry',
+      'college-physics',
       'college-success',
+      'computer-science',
+      'contemporary-math',
       'dev-math',
       'economics',
       'english-composition',
@@ -328,8 +331,8 @@ export default {
       'hs-physics',
       'intro-business',
       'microbiology',
-      'college-physics',
       'philosophy',
+      'pl-psychology',
       'pl-u-physics',
       'political-science',
       'precalculus',
@@ -338,7 +341,8 @@ export default {
       'psychology',
       'sociology',
       'statistics',
-      'u-physics'
+      'u-physics',
+      'world-history'
     ]
     this.styleItems.sort()
     this.collectionRules = [
