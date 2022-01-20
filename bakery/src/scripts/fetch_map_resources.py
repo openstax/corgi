@@ -41,7 +41,7 @@ def main():
 
     for child in original_resources_dir.glob('*'):
         if child.is_dir():
-            shutil.move(child, resources_dir / child.name)
+            shutil.move(str(child), str(resources_dir / child.name))
 
     for cnxml_file in cnxml_files:
         doc = etree.parse(str(cnxml_file))
