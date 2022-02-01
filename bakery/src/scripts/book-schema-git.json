@@ -63,7 +63,7 @@
       "description": "The name of the style used"
     },
     "style_href": {
-      "type": "string",
+      "type": ["string", "null"],
       "description": "The path to the style to use"
     }
   },
