@@ -17,6 +17,10 @@
       "type": "string",
       "description": "The book version string"
     },
+    "repo_schema_version": {
+      "description": "Describes the repo structure and migrations to use",
+      "enum": [1, 2, 3]
+    },
     "revised": {
       "type": "string",
       "description": "The revision date of this version of the book as ISO8601",
@@ -53,9 +57,17 @@
     "content": {
       "type": "string",
       "description": "The XHTML TOC content for the book"
+    },
+    "style_name": {
+      "type": "string",
+      "description": "The name of the style used"
+    },
+    "style_href": {
+      "type": "string",
+      "description": "The path to the style to use"
     }
   },
   "additionalProperties": false,
-  "required": ["title", "id", "version", "revised", "language", "license", "slug",
-               "tree", "content"]
+  "required": ["title", "id", "version", "repo_schema_version", "revised", "language", "license", "slug",
+               "tree", "content", "style_name", "style_href"]
 }
