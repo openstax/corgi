@@ -95,6 +95,24 @@ To run the tests execute:
 
     ./scripts/tests.local.sh
 
+## How to develop UI tests
+
+It's useful to run the stack locally when developing UI tests. The same script above in `Run integration tests` section can be edited in order to support interactive testing.
+
+In the [./scripts/tests.ci.local](./scripts/tests.ci.local) file comment out the last line. This will keep all the containers alive after running the tests. Then you can continue to develop your tests and not need to re-create the environment everytime. 
+
+In order to view the browser first list all the containers for the docker-stack.yml file:
+
+    $ docker-compose -f docker-stack.yml ps
+
+
+A table will be displayed with column names. Find the one labeled PORTS
+
+    PORTS
+    4444/tcp, 0.0.0.0:32778->5900/tcp
+
+Use a VNC application to connect to `0.0.0.0:32778`. The port number `32778` may be different.
+The password for the VNC session is `secret`.
 ## Clear the database
 
 Start the stack as described above
