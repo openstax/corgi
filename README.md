@@ -105,8 +105,7 @@ In order to view the browser first list all the containers for the docker-stack.
 
     $ docker-compose -f docker-stack.yml ps
 
-
-A table will be displayed with column names. Find the one labeled PORTS
+A table will be displayed with column names. Find the one labeled PORTS for the backend-tests container.
 
     PORTS
     4444/tcp, 0.0.0.0:32778->5900/tcp
