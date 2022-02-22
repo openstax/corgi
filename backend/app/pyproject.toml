@@ -24,6 +24,7 @@ importlib-metadata = "^4.8.2"
 PyPOM = "2.2.0"
 selenium = "3.141.0"
 jupyterlab = "3.2.4"
+playwright = "1.19.0"
 
 [build-system]
 requires = ["poetry>=1.0.5"]
