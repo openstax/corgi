@@ -217,6 +217,10 @@
               </v-row>
             </td>
           </template>
+          <template #item.version="{ item }">
+            <!-- create the link in here, item.version is the version -->
+            <a v-if="item.job_type_id > 2" :href="`https://github.com/openstax/${item.collection_id.split('/')[0]}/tree/${ref(item)}`">{{ ref(item) }}</a>
+          </template>
           <template #item.created_at="{ item }">
             <time :datetime="item.created_at" :title="$moment.utc(item.created_at).local().format('lll')">
               {{ $moment.utc(item.created_at).fromNow() }}
@@ -345,6 +349,7 @@ export default {
       'world-history'
     ]
     this.styleItems.sort()
+    this.styleItems = ['default', ...this.styleItems]
     this.collectionRules = [
       v => !!v || 'Collection ID is required',
       v => /^col\d*$/.test(v) || 'A valid collection ID is required, e.g. col12345'
@@ -452,6 +457,9 @@ export default {
         this.submitCollection(collectionId, contentServerId, version, style, jobType)
         this.closeDialog()
       }
+    },
+    ref (item) {
+      return !item.version ? 'main' : item.version.trim(' ')
     },
     async abortJob (jobId) {
       const data = {
