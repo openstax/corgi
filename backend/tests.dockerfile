@@ -1,16 +1,9 @@
-FROM openstax/selenium-chrome-debug:20210303.201802 as base
+FROM openstax/selenium-chrome-debug:latest as base
 
 # We have a poetry image available but it uses python 3.8 which causes issues
 # The qa selenium base image uses python 3.7 so we need to build specifically
 # for that version. When the selenium image is updated to 3.8+ we can update this.
-FROM python:3.7-buster as builder
-
-ENV POETRY_VERSION 1.1.7
-
-# install poetry
-# keep this in sync with the version in pyproject.toml and Dockerfile
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
-ENV PATH "/root/.poetry/bin:/opt/venv/bin:${PATH}"
+FROM openstax/python3-poetry:latest as builder
 
 # copy files
 COPY ./app /build/
