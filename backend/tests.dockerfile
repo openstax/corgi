@@ -26,6 +26,11 @@ RUN python -m venv /opt/venv && \
   pip install --no-cache-dir -U 'pip' && \
   poetry install --no-root --no-interaction
 
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
+RUN mkdir /ms-playwright && \
+    playwright install --with-deps
+
 FROM base as runner
 
 USER root
@@ -34,6 +39,7 @@ RUN curl https://raw.githubusercontent.com/vishnubob/wait-for-it/54d1f0bfeb6557a
   -o /usr/local/bin/wait-for-it && chmod a+x /usr/local/bin/wait-for-it
 
 COPY --from=builder /opt/venv /opt/venv
+COPY --from=builder /ms-playwright /ms-playwright
 COPY --chown=seluser ./app /app
 WORKDIR /app/
 
@@ -42,5 +48,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # add our app to the path
 ENV PYTHONPATH="/app:$PYTHONPATH"
+
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 USER seluser
