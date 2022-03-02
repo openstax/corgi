@@ -1,9 +1,18 @@
-FROM openstax/selenium-chrome-debug:latest as base
+FROM openstax/selenium-chrome-debug:20220302.210634 as base
 
-# We have a poetry image available but it uses python 3.8 which causes issues
-# The qa selenium base image uses python 3.7 so we need to build specifically
-# for that version. When the selenium image is updated to 3.8+ we can update this.
 FROM openstax/python3-poetry:latest as builder
+
+# copy files
+COPY ./app /build/
+
+# change working directory
+WORKDIR /build
+
+# Create Virtualenv
+RUN python -m venv /opt/venv && \
+  . /opt/venv/bin/activate && \
+  pip install --no-cache-dir -U 'pip' && \
+  poetry install --no-root --no-interaction
 
 # copy files
 COPY ./app /build/
