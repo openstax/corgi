@@ -1,8 +1,4 @@
 FROM openstax/python3-base:20211117.170559 as base
-FROM mcr.microsoft.com/playwright:focal
-
-RUN pip install playwright
-RUN playwright install-deps
 
 RUN apt-get update -qq \
  && apt-get install -y --no-install-recommends \

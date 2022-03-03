@@ -8,3 +8,7 @@ class Home:
 
     def click_create_new_job_button(self):
         self.create_new_job_button_locator.click()
+
+    @property
+    def create_button_locator(self):
+        return self.page.wait_for_selector("button.create-button-start-job")
