@@ -79,26 +79,12 @@ jobs:
             npm ci
             npm run test:unit
 
-  lint-bakery:
-    docker:
-      - image: circleci/node:12-buster
-
-    steps:
-      - checkout
-      - run:
-          name: Install and lint
-          command: |
-            cd ./bakery
-            npm install
-            npm run lint
-
 workflows:
   version: 2
   run-tests:
     jobs:
       - integration-test
       - bakery-scripts-test
-      - lint-bakery
       - frontend-unit
       - shellcheck/check:
           path: ./
