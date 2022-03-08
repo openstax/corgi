@@ -4,7 +4,7 @@ orbs:
 jobs:
   integration-test:
     machine:
-      image: ubuntu-1604:202004-01
+      image: ubuntu-2004:202201-02
       docker_layer_caching: true
 
     environment:
