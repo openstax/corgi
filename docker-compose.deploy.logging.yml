@@ -12,7 +12,3 @@ services:
     logging:
       options:
         awslogs-stream: "${STACK_NAME}_backend"
-  db:
-    logging:
-      options:
-        awslogs-stream: "${STACK_NAME}_db"
