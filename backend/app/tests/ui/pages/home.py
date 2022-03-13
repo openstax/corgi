@@ -6,6 +6,24 @@ from selenium.webdriver.common.by import By
 from time import sleep
 
 
+# Page objects for playwright UI tests
+class HomeCorgi:
+    def __init__(self, page):
+        self.page = page
+
+    @property
+    def create_new_job_button_is_visible(self):
+        return self.page.wait_for_selector("text=create a new job")
+
+    def click_create_new_job_button(self):
+        self.create_new_job_button_is_visible.click()
+
+    @property
+    def create_button_visible(self):
+        return self.page.wait_for_selector("button.create-button-start-job")
+
+
+# Page objects for selenium UI tests
 class Home(Page):
     _create_new_job_button_locator = (By.CLASS_NAME, "create-job-button")
     _pdf_job_form_modal_locator = (By.CLASS_NAME, "job-modal")

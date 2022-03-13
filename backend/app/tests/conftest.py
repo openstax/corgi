@@ -1,7 +1,7 @@
 import os
 
 # Import fixtures
-pytest_plugins = ("fixtures.corgi_playwright",)
+pytest_plugins = ("fixtures.corgi",)
 
 
 def pytest_addoption(parser):
@@ -34,6 +34,7 @@ def get_custom_markers():
     return (
         "integration: mark tests that are integration tests",
         "smoke: mark tests used for smoke testing",
+        "testrail: mark tests used for testrail runs",
         "ui: mark tests used for ui tests",
     )
 
