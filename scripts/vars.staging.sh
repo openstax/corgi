@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export DOMAIN="corgi-staging.openstax.org"
+export DOMAIN="corgi-staging.ce.openstax.org"
 export STACK_NAME="corgi_stag"
 export TRAEFIK_TAG="traefik-staging"
 
