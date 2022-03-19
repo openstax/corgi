@@ -3,20 +3,12 @@ services:
   proxy:
     logging:
       options:
-        max-size: "200m"
-        max-file: "5"
+        awslogs-stream: "${STACK_NAME}_proxy"
   frontend:
     logging:
       options:
-        max-size: "200m"
-        max-file: "5"
+        awslogs-stream: "${STACK_NAME}_frontend"
   backend:
     logging:
       options:
-        max-size: "200m"
-        max-file: "5"
-  db:
-    logging:
-      options:
-        max-size: "200m"
-        max-file: "5"
+        awslogs-stream: "${STACK_NAME}_backend"

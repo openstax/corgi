@@ -9,4 +9,6 @@ services:
       - db
     env_file:
       - env-pgadmin.env
+  db:
+    image: postgres:12
 

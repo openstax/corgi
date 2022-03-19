@@ -16,7 +16,6 @@ REVISION=$(git --git-dir=./.git rev-parse --short HEAD) \
 DEPLOYED_AT=$(date '+%Y%m%d.%H%M%S') \
 docker-compose \
 -f docker-compose.shared.admin.yml \
--f docker-compose.shared.base-images.yml \
 -f docker-compose.shared.depends.yml \
 -f docker-compose.shared.env.yml \
 -f docker-compose.deploy.command.yml \

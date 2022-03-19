@@ -4,7 +4,7 @@ orbs:
 jobs:
   integration-test:
     machine:
-      image: ubuntu-1604:202004-01
+      image: ubuntu-2004:202201-02
       docker_layer_caching: true
 
     environment:
@@ -79,26 +79,12 @@ jobs:
             npm ci
             npm run test:unit
 
-  lint-bakery:
-    docker:
-      - image: circleci/node:12-buster
-
-    steps:
-      - checkout
-      - run:
-          name: Install and lint
-          command: |
-            cd ./bakery
-            npm install
-            npm run lint
-
 workflows:
   version: 2
   run-tests:
     jobs:
       - integration-test
       - bakery-scripts-test
-      - lint-bakery
       - frontend-unit
       - shellcheck/check:
           path: ./

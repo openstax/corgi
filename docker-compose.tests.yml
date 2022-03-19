@@ -18,8 +18,11 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=
       - POSTGRES_DB=tests
+      - POSTGRES_HOST_AUTH_METHOD=trust
       - TAG=dev
       - REVISION=dev
       - STACK_NAME=dev
   backend:
+    environment: *testenv
+  db:
     environment: *testenv
