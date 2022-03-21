@@ -1,26 +1,17 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*$py.class
 
-docker-stack.yml
+# C extensions
+*.so
 
-# Vagrant
-.vagrant/
+# JupyterLab
+.ipynb_checkpoints/
+*.ipynb
 
-# Ansible
-*.retry
+# Pytest report files
+junit.xml
 
-# test report
-report.html
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Unit test / coverage reports
-.pytest_cache
+# testrail files
+testrail.cfg
