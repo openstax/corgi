@@ -1,6 +1,6 @@
 # output-producer-js
 
-> COPS UI
+> Corgi UI
 
 ## What you need to build
 
