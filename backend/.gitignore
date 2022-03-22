@@ -11,6 +11,9 @@ __pycache__/
 *.ipynb
 
 # Pytest report files
+report.html
+
+# Pytest report files
 junit.xml
 
 # testrail files
