@@ -4,10 +4,10 @@ from pytest_testrail.plugin import pytestrail
 from pages.home import HomeCorgi
 
 
-@pytestrail.case("C614652")
+@pytestrail.case("C618754")
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_e2e_web_preview_jobs(chrome_page, corgi_base_url):
+def test_e2e_pdf_git_jobs(chrome_page, corgi_base_url):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -17,14 +17,13 @@ def test_e2e_web_preview_jobs(chrome_page, corgi_base_url):
     # THEN: The create a new job button is clicked
     home.click_create_new_job_button()
 
-    # AND: Clicks the Web Preview button
-    home.click_web_preview_radio_button()
+    # AND: Clicks the PDF(git) button
+    home.click_pdf_git_radio_button()
 
     # AND: Correct data are typed into the input fields
-    home.fill_collection_id_field("col11992")
-    home.fill_style_field("astronomy")
-    home.click_content_server()
-    home.click_content_server_dropdown("staging")
+    home.fill_collection_id_field("osbooks-contemporary-math/contemporary-math")
+    home.fill_version_field("latest")
+    home.fill_style_field("contemporary-math")
 
     # AND: Create button is clicked
     home.click_create_button()
