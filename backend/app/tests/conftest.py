@@ -1,7 +1,7 @@
 import os
 
 # Import fixtures
-pytest_plugins = ("tests.fixtures.corgi",)
+pytest_plugins = "tests.ui.fixtures.ui"
 
 
 def pytest_addoption(parser):
