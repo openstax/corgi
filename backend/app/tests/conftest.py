@@ -4,6 +4,7 @@ import os
 pytest_plugins = "tests.ui.fixtures.ui"
 
 
+# These 3 adoptions can be removed once all tests are in playwright
 def pytest_addoption(parser):
     group = parser.getgroup("selenium", "selenium")
     group.addoption(
