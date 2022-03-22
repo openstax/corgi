@@ -1,5 +1,8 @@
 import os
 
+# Import fixtures
+pytest_plugins = "tests.ui.fixtures.ui"
+
 
 def pytest_addoption(parser):
     group = parser.getgroup("selenium", "selenium")
@@ -31,6 +34,7 @@ def get_custom_markers():
     return (
         "integration: mark tests that are integration tests",
         "smoke: mark tests used for smoke testing",
+        "testrail: mark tests used for testrail runs",
         "ui: mark tests used for ui tests",
     )
 
