@@ -12,6 +12,7 @@ def get_custom_markers():
         "smoke: mark tests used for smoke testing",
         "testrail: mark tests used for testrail runs",
         "ui: mark tests used for ui tests",
+        "unit: mark tests as a unit test"
     )
 
 
