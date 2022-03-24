@@ -3,7 +3,7 @@ from starlette.testclient import TestClient
 
 from app.main import server
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def testclient():
     client = TestClient(server)
     yield client
