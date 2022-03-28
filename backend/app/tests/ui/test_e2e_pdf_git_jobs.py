@@ -7,7 +7,11 @@ from pages.home import HomeCorgi
 @pytestrail.case("C618754")
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_e2e_pdf_git_jobs(chrome_page, corgi_base_url):
+@pytest.mark.parametrize(
+    "colid, version, style",
+    [("osbooks-contemporary-math/contemporary-math", "latest", "contemporary-math")],
+)
+def test_e2e_pdf_git_jobs(chrome_page, corgi_base_url, colid, version, style):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -21,9 +25,9 @@ def test_e2e_pdf_git_jobs(chrome_page, corgi_base_url):
     home.click_pdf_git_radio_button()
 
     # AND: Correct data are typed into the input fields
-    home.fill_collection_id_field("osbooks-contemporary-math/contemporary-math")
-    home.fill_version_field("latest")
-    home.fill_style_field("contemporary-math")
+    home.fill_collection_id_field(colid)
+    home.fill_version_field(version)
+    home.fill_style_field(style)
 
     # AND: Create button is clicked
     home.click_create_button()
