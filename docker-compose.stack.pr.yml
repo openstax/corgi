@@ -31,8 +31,7 @@ services:
     image: openstax/corgi-backend:${TAG}
     logging:
       options:
-        max-file: '5'
-        max-size: 200m
+        awslogs-stream: corgi_${PR_NUMBER}_backend
     networks:
       default: {}
       traefik-public: {}
@@ -52,8 +51,7 @@ services:
     image: postgres:12
     logging:
       options:
-        max-file: '5'
-        max-size: 200m
+        awslogs-stream: corgi_${PR_NUMBER}_db
     volumes:
     - app-db-data:/var/lib/postgresql/data/pgdata:rw
   frontend:
@@ -72,8 +70,7 @@ services:
     image: openstax/corgi-frontend:${TAG}
     logging:
       options:
-        max-file: '5'
-        max-size: 200m
+        awslogs-stream: corgi_${PR_NUMBER}_frontend
     networks:
       default: {}
       traefik-public: {}
@@ -95,8 +92,7 @@ services:
     image: traefik:v1.7
     logging:
       options:
-        max-file: '5'
-        max-size: 200m
+        awslogs-stream: corgi_${PR_NUMBER}_proxy
     networks:
       default: {}
       traefik-public: {}
