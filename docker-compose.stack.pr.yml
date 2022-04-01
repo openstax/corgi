@@ -61,7 +61,6 @@ services:
     deploy:
       labels:
         traefik.enable: "true"
-        traefik.frontend.auth.basic.usersFile: /run/secrets/basic-auth-users
         traefik.frontend.rule: PathPrefix:/
         traefik.port: '80'
         traefik.tags: traefik-staging
@@ -102,8 +101,6 @@ services:
     networks:
       default: {}
       traefik-public: {}
-    secrets:
-    - source: basic-auth-users
     volumes:
     - /var/run/docker.sock:/var/run/docker.sock:rw
 version: '3.7'
