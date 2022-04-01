@@ -6,7 +6,7 @@ ENDPOINT = "version"
 
 @pytest.mark.integration
 @pytest.mark.nondestructive
-def test_version_get_request(api_url):
+def test_version_get_request(api_url, stack_name, revision, tag, deployed_at):
     # GIVEN: An api url to the version endpoint
     url = f"{api_url}/{ENDPOINT}"
 
@@ -14,8 +14,8 @@ def test_version_get_request(api_url):
     response = requests.get(url)
 
     # THEN: A proper response is returned
-    assert response.json() == {"stack_name": "dev",
-                               "revision": "dev",
-                               "tag": "dev",
-                               "deployed_at": "20210101.111111"
+    assert response.json() == {"stack_name": stack_name,
+                               "revision": revision,
+                               "tag": tag,
+                               "deployed_at": deployed_at
                                }
