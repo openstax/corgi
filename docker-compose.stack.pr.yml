@@ -9,8 +9,8 @@ services:
         traefik.enable: "true"
         traefik.frontend.rule: PathPrefix:/api,/docs,/redoc,/openapi.json
         traefik.port: '80'
-        traefik.tags: traefik-staging
-      replicas: 2
+        traefik.tags: traefik-pr-${PR_NUMBER}
+      replicas: 1
       restart_policy:
         condition: on-failure
       update_config:
@@ -60,8 +60,8 @@ services:
         traefik.enable: "true"
         traefik.frontend.rule: PathPrefix:/
         traefik.port: '80'
-        traefik.tags: traefik-staging
-      replicas: 2
+        traefik.tags: traefik-pr-${PR_NUMBER}
+      replicas: 1
       restart_policy:
         condition: on-failure
       update_config:
@@ -76,7 +76,7 @@ services:
       traefik-public: {}
   proxy:
     command: --docker \ --docker.swarmmode \ --docker.watch \ --docker.exposedbydefault=false
-      \ --constraints=tag==traefik-staging \ --logLevel=INFO \ --accessLog \ --web
+      \ --constraints=tag==traefik-pr-${PR_NUMBER} \ --logLevel=INFO \ --accessLog \ --web
     deploy:
       labels:
         traefik.docker.network: traefik-public
