@@ -25,8 +25,7 @@ services:
       POSTGRES_SERVER: db
       POSTGRES_USER: postgres
       REVISION: ${REVISION}
-      SERVER_HOST: https://corgi-${PR_NUMBER}.openstax.org
-      SERVER_NAME: corgi-${PR_NUMBER}.openstax.org
+      SERVER_NAME: corgi-${PR_NUMBER}.ce.openstax.org
       STACK_NAME: ${STACK_NAME}
       TAG: ${TAG}
     image: openstax/corgi-backend:${TAG}
@@ -85,7 +84,7 @@ services:
       labels:
         traefik.docker.network: traefik-public
         traefik.enable: "true"
-        traefik.frontend.rule: Host:corgi-${PR_NUMBER}.openstax.org
+        traefik.frontend.rule: Host:corgi-${PR_NUMBER}.ce.openstax.org
         traefik.port: '80'
         traefik.servicehttp.frontend.entryPoints: http
         traefik.tags: traefik-public
