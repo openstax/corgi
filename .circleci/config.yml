@@ -29,43 +29,6 @@ jobs:
       - store_test_results:
           path: /tmp/test-results
 
-  bakery-scripts-test:
-    docker:
-      - image: circleci/python:3.7
-
-    steps:
-      - checkout
-
-      - run:
-          name: Setup test environment
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y imagemagick icc-profiles-free ghostscript
-            mkdir -p /tmp/test-reports
-            pip install bakery/src/scripts/.[test]
-
-      - run:
-          name: Lint bakery Python scripts
-          command: |
-            flake8 bakery/src/**/**.py --max-line-length=100
-
-      - run:
-          name: Run bakery scripts tests
-          command: |
-            pytest --cov=bakery_scripts --cov-report=html --cov-report=term bakery -vvv --junitxml=/tmp/test-reports/junit.xml
-
-      - run:
-          name: Upload code coverage results
-          command: |
-            bash <(curl -s https://codecov.io/bash)
-
-      - store_artifacts:
-          path: /tmp/test-reports/junit.xml
-          destination: test-reports
-
-      - store_test_results:
-          path: /tmp/test-reports
-
   frontend-unit:
     docker:
       - image: circleci/node:12-buster
@@ -84,7 +47,6 @@ workflows:
   run-tests:
     jobs:
       - integration-test
-      - bakery-scripts-test
       - frontend-unit
       - shellcheck/check:
           path: ./
