@@ -1,4 +1,4 @@
-FROM openstax/selenium-chrome-debug:20220302.210634 as base
+FROM python:3.8.12-bullseye as base
 
 FROM openstax/python3-poetry:latest as builder
 
@@ -33,8 +33,6 @@ RUN mkdir /ms-playwright && \
 
 FROM base as runner
 
-USER root
-
 RUN curl https://raw.githubusercontent.com/vishnubob/wait-for-it/54d1f0bfeb6557adf8a3204455389d0901652242/wait-for-it.sh \
   -o /usr/local/bin/wait-for-it && chmod a+x /usr/local/bin/wait-for-it
 
@@ -50,5 +48,3 @@ ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONPATH="/app:$PYTHONPATH"
 
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
-
-USER seluser
