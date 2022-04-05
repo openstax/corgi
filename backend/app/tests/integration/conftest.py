@@ -3,7 +3,6 @@ import os
 import pytest
 
 
-
 # Get values we need to setup the environment from the command line or through env vars
 def pytest_addoption(parser):
     group = parser.getgroup("corgi", "corgi")
