@@ -38,7 +38,7 @@ RUN curl https://raw.githubusercontent.com/vishnubob/wait-for-it/54d1f0bfeb6557a
 
 COPY --from=builder /opt/venv /opt/venv
 COPY --from=builder /ms-playwright /ms-playwright
-COPY --chown=seluser ./app /app
+COPY ./app /app
 WORKDIR /app/
 
 # make sure we use the virtualenv
