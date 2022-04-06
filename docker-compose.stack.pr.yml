@@ -19,7 +19,7 @@ services:
     environment:
       BACKEND_CORS_ORIGINS: http://localhost, http://localhost:3000
       DEPLOYED_AT: ${TAG}
-      POSTGRES_DB: corgi-${PR_NUMBER}
+      POSTGRES_DB: corgi_${PR_NUMBER}
       POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_PASSWORD: ''
       POSTGRES_SERVER: db
@@ -43,7 +43,7 @@ services:
         - node.role == manager
     environment:
       PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_DB: corgi-${PR_NUMBER}
+      POSTGRES_DB: corgi_${PR_NUMBER}
       POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_PASSWORD: ''
       POSTGRES_SERVER: db
