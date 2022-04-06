@@ -39,7 +39,7 @@ def test_jobs_post_request_successful(api_url):
     # AND: Correct attributes of the request exist in the response
     assert response.status_code == 200
 
-    response = response.json()[0]
+    response = response.json()
 
     assert response["collection_id"] == "abc123"
     assert response["content_server"]["hostname"] == "content01.cnx.org"
