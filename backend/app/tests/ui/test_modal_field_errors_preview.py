@@ -7,7 +7,8 @@ from pages.home import HomeCorgi
 @pytestrail.case("C624696")
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_invalid_colid_error_preview(chrome_page, corgi_base_url):
+@pytest.mark.parametrize("colid", ["1col11992"])
+def test_invalid_colid_error_preview(chrome_page, corgi_base_url, colid):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -21,7 +22,7 @@ def test_invalid_colid_error_preview(chrome_page, corgi_base_url):
     home.click_web_preview_radio_button()
 
     # AND: Incorrect collection id is typed into the collection id field
-    home.fill_collection_id_field("1col11229")
+    home.fill_collection_id_field(colid)
 
     # AND: Create button is clicked
     home.click_create_button()
@@ -43,7 +44,10 @@ def test_invalid_colid_error_preview(chrome_page, corgi_base_url):
 @pytestrail.case("C646766")
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_invalid_colid_error_git_preview(chrome_page, corgi_base_url):
+@pytest.mark.parametrize(
+    "colid", ["osbooks_fizyka_bundle1/fizyka=dla-szkół-wyższych-tom-1"]
+)
+def test_invalid_colid_error_git_preview(chrome_page, corgi_base_url, colid):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -70,9 +74,7 @@ def test_invalid_colid_error_git_preview(chrome_page, corgi_base_url):
     )
 
     # AND: Collection ID field has incorrect colid
-    home.fill_collection_id_field(
-        "osbooks_fizyka_bundle1/fizyka=dla-szkół-wyższych-tom-1"
-    )
+    home.fill_collection_id_field(colid)
 
     # THEN: Correct error message appears in collection id and style field
     assert (

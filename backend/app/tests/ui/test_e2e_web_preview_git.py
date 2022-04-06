@@ -7,7 +7,11 @@ from pages.home import HomeCorgi
 @pytestrail.case("C620213")
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_e2e_web_preview_git(chrome_page, corgi_base_url):
+@pytest.mark.parametrize(
+    "colid, version, style",
+    [("osbooks-introduction-philosophy/introduction-philosophy", "", "philosophy")],
+)
+def test_e2e_web_preview_git(chrome_page, corgi_base_url, colid, version, style):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -21,11 +25,9 @@ def test_e2e_web_preview_git(chrome_page, corgi_base_url):
     home.click_web_preview_git_radio_button()
 
     # AND: Correct data are typed into the input fields
-    home.fill_collection_id_field(
-        "osbooks-introduction-philosophy/introduction-philosophy"
-    )
-    home.fill_version_field("")
-    home.fill_style_field("philosophy")
+    home.fill_collection_id_field(colid)
+    home.fill_version_field(version)
+    home.fill_style_field(style)
 
     # AND: Create button is clicked
     home.click_create_button()
