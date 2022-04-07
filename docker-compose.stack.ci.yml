@@ -1,12 +1,12 @@
 services:
   backend:
     build:
-      context: /Users/jma12/Projects/00_ce/corgi/backend
+      context: ./backend
       dockerfile: backend.dockerfile
       target: prod-runner
     environment:
       BACKEND_CORS_ORIGINS: http://localhost, http://localhost:3000
-      DEPLOYED_AT: '20210101.111111'
+      DEPLOYED_AT: ''
       POSTGRES_DB: tests
       POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_PASSWORD: ''
@@ -19,7 +19,7 @@ services:
       TAG: dev
   backend-tests:
     build:
-      context: /Users/jma12/Projects/00_ce/corgi/backend
+      context: ./backend
       dockerfile: tests.dockerfile
     command: bash -c "while true; do sleep 1; done"
     environment:
@@ -36,11 +36,7 @@ services:
     ports:
     - target: 5900
     volumes:
-    - /Users/jma12/Projects/00_ce/corgi/backend/app:/app:rw
     - /tmp/test-results:/tmp/test-results:rw
-  concourse:
-    image: concourse/concourse:6.3
-    privileged: true
   db:
     environment:
       POSTGRES_DB: tests
@@ -55,15 +51,6 @@ services:
     image: postgres:12
   frontend:
     build:
-      context: /Users/jma12/Projects/00_ce/corgi/frontend
-  pgadmin:
-    depends_on:
-      db:
-        condition: service_started
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@cops.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-      PGADMIN_LISTEN_PORT: '5050'
-    image: dpage/pgadmin4
+      context: ./frontend
 version: '3.7'
 
