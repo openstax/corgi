@@ -18,9 +18,14 @@ jobs:
       - run: mkdir -p -m=0777 $TEST_RESULTS_DIR
 
       - run:
-          name: Run integration and ui tests
+          name: Run integration tests
           command: |
-            ./scripts/tests.ci.sh
+            ./scripts/tests.integration.sh
+      
+      - run:
+          name: Run ui tests
+          command: |
+            ./scripts/tests.ui.sh
 
       - store_artifacts:
           path: /tmp/test-results/junit.xml
