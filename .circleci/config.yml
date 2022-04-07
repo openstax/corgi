@@ -22,11 +22,6 @@ jobs:
           command: |
             ./scripts/tests.integration.sh
       
-      - run:
-          name: Run ui tests
-          command: |
-            ./scripts/tests.ui.sh
-
       - store_artifacts:
           path: /tmp/test-results/junit.xml
           destination: test-reports
