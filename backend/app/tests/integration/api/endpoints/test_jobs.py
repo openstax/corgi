@@ -11,7 +11,7 @@ ENDPOINT = "jobs"
 @pytest.mark.nondestructive
 def test_jobs_get_request(api_url):
     # GIVEN: An api url to the jobs endpoint
-    url = f"{api_url}/{ENDPOINT}"
+    url = f"{api_url}/{ENDPOINT}/"
 
     # WHEN: A GET request is made to the url
     response = requests.get(url)
@@ -24,7 +24,7 @@ def test_jobs_get_request(api_url):
 def test_jobs_post_request_successful(api_url):
     # GIVEN: An api url to the jobs endpoint
     # AND: Data for job is ready to be submitted.
-    url = f"{api_url}/{ENDPOINT}"
+    url = f"{api_url}/{ENDPOINT}/"
     data = {
         "collection_id": "abc123",
         "status_id": "1",
