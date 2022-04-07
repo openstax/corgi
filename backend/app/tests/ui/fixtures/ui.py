@@ -16,7 +16,6 @@ def chrome_page():
 
 
 @pytest.fixture
-def corgi_base_url():
+def corgi_base_url(base_url):
     """Return local corgi url"""
-    corgi_base_url = "http://frontend"
-    return corgi_base_url
+    return base_url
