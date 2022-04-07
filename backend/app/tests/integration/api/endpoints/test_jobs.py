@@ -34,7 +34,7 @@ def test_jobs_post_request_successful(api_url):
     
     # AND: We can retrieve that job from the backend.
     job_id = response["id"]
-    job_url = f"{url}/{job_id}"
+    job_url = f"{url}{job_id}"
     job_response = requests.get(job_url)
 
     assert job_response.status_code == 200
