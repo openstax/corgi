@@ -51,8 +51,6 @@ services:
     logging:
       options:
         awslogs-stream: corgi_${PR_NUMBER}_db
-    volumes:
-    - app-db-data:/var/lib/postgresql/data/pgdata:rw
   frontend:
     deploy:
       labels:
@@ -98,6 +96,3 @@ services:
     volumes:
     - /var/run/docker.sock:/var/run/docker.sock:rw
 version: '3.7'
-volumes:
-  app-db-data: {}
-
