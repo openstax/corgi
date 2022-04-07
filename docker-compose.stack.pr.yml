@@ -25,7 +25,6 @@ services:
       POSTGRES_SERVER: db
       POSTGRES_USER: postgres
       REVISION: ${REVISION}
-      SERVER_NAME: corgi-${PR_NUMBER}.ce.openstax.org
       STACK_NAME: ${STACK_NAME}
       TAG: ${TAG}
     image: openstax/corgi-backend:${TAG}

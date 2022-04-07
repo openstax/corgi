@@ -12,11 +12,9 @@ services:
       POSTGRES_PASSWORD: ''
       POSTGRES_SERVER: db
       POSTGRES_USER: postgres
-      REVISION: dev
-      SERVER_HOST: https://backend
-      SERVER_NAME: backend
-      STACK_NAME: dev
-      TAG: dev
+      REVISION: ${REVISION}
+      STACK_NAME: ${STACK_NAME}
+      TAG: ${TAG}
   backend-tests:
     build:
       context: ./backend
@@ -29,13 +27,14 @@ services:
       POSTGRES_PASSWORD: ''
       POSTGRES_SERVER: db
       POSTGRES_USER: postgres
-      REVISION: dev
-      SERVER_NAME: backend
-      STACK_NAME: dev
-      TAG: dev
+      REVISION: ${REVISION}
+      PYTEST_BASE_URL: ${PYTEST_BASE_URL}
+      STACK_NAME: ${STACK_NAME}
+      TAG: ${TAG}
     ports:
     - target: 5900
     volumes:
+    - ./backend/app:/app
     - /tmp/test-results:/tmp/test-results:rw
   db:
     environment:
@@ -44,10 +43,9 @@ services:
       POSTGRES_PASSWORD: ''
       POSTGRES_SERVER: db
       POSTGRES_USER: postgres
-      REVISION: dev
-      SERVER_NAME: backend
-      STACK_NAME: dev
-      TAG: dev
+      REVISION: ${REVISION}
+      STACK_NAME: ${STACK_NAME}
+      TAG: ${TAG}
     image: postgres:12
   frontend:
     build:

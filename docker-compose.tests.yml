@@ -13,7 +13,6 @@ services:
     env_file:
       - env-backend.env
     environment: &testenv
-      - SERVER_NAME=backend
       - POSTGRES_SERVER=db
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=
