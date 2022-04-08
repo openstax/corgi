@@ -13,12 +13,7 @@ TAG=dev \
 STACK_NAME=dev \
 DEPLOYED_AT=20210101.111111 \
 docker-compose \
-    -f docker-compose.shared.base-images.yml \
-    -f docker-compose.shared.depends.yml \
-    -f docker-compose.shared.env.yml \
-    -f docker-compose.dev.images.yml \
-    -f docker-compose.deploy.build.yml \
-    -f docker-compose.tests.yml \
+    -f docker-compose.stack.ci.yml \
     config > docker-stack.yml
 
 docker-compose -f docker-stack.yml build

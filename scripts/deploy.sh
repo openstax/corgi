@@ -15,17 +15,7 @@ TAG=${TAG} \
 REVISION=$(git --git-dir=./.git rev-parse --short HEAD) \
 DEPLOYED_AT=$(date '+%Y%m%d.%H%M%S') \
 docker-compose \
--f docker-compose.shared.admin.yml \
--f docker-compose.shared.depends.yml \
--f docker-compose.shared.env.yml \
--f docker-compose.deploy.command.yml \
--f docker-compose.deploy.images.yml \
--f docker-compose.deploy.labels.yml \
--f docker-compose.deploy.networks.yml \
--f docker-compose.deploy.volumes-placement.yml \
--f docker-compose.deploy.settings.yml \
--f docker-compose.deploy.logging.yml \
--f docker-compose.deploy.secrets.yml \
+-f docker-compose.stack.release.yml \
 config > docker-stack.yml
 
 docker -H ssh://corgi stack deploy -c docker-stack.yml --with-registry-auth "${STACK_NAME}"
