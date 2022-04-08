@@ -1,0 +1,98 @@
+networks:
+  traefik-public:
+    external: true
+    name: traefik-public
+services:
+  backend:
+    deploy:
+      labels:
+        traefik.enable: "true"
+        traefik.frontend.rule: PathPrefix:/api,/docs,/redoc,/openapi.json
+        traefik.port: '80'
+        traefik.tags: traefik-pr-${PR_NUMBER}
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      update_config:
+        delay: 10s
+        parallelism: 1
+    environment:
+      BACKEND_CORS_ORIGINS: http://localhost, http://localhost:3000
+      DEPLOYED_AT: ${TAG}
+      POSTGRES_DB: corgi_${PR_NUMBER}
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_PASSWORD: ''
+      POSTGRES_SERVER: db
+      POSTGRES_USER: postgres
+      REVISION: ${REVISION}
+      STACK_NAME: ${STACK_NAME}
+      TAG: ${TAG}
+    image: openstax/corgi-backend:${TAG}
+    logging:
+      options:
+        awslogs-stream: corgi_${PR_NUMBER}_backend
+    networks:
+      default: {}
+      traefik-public: {}
+  db:
+    deploy:
+      placement:
+        constraints:
+        - node.labels.app-db-data == true
+        - node.role == manager
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_DB: corgi_${PR_NUMBER}
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_PASSWORD: ''
+      POSTGRES_SERVER: db
+      POSTGRES_USER: postgres
+    image: postgres:12
+    logging:
+      options:
+        awslogs-stream: corgi_${PR_NUMBER}_db
+  frontend:
+    deploy:
+      labels:
+        traefik.enable: "true"
+        traefik.frontend.rule: PathPrefix:/
+        traefik.port: '80'
+        traefik.tags: traefik-pr-${PR_NUMBER}
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      update_config:
+        delay: 10s
+        parallelism: 1
+    image: openstax/corgi-frontend:${TAG}
+    logging:
+      options:
+        awslogs-stream: corgi_${PR_NUMBER}_frontend
+    networks:
+      default: {}
+      traefik-public: {}
+  proxy:
+    command: --docker \ --docker.swarmmode \ --docker.watch \ --docker.exposedbydefault=false
+      \ --constraints=tag==traefik-pr-${PR_NUMBER} \ --logLevel=INFO \ --accessLog \ --web
+    deploy:
+      labels:
+        traefik.docker.network: traefik-public
+        traefik.enable: "true"
+        traefik.frontend.rule: Host:corgi-${PR_NUMBER}.ce.openstax.org
+        traefik.port: '80'
+        traefik.servicehttp.frontend.entryPoints: http
+        traefik.tags: traefik-public
+      placement:
+        constraints:
+        - node.labels.proxy == true
+        - node.role == manager
+    image: traefik:v1.7
+    logging:
+      options:
+        awslogs-stream: corgi_${PR_NUMBER}_proxy
+    networks:
+      default: {}
+      traefik-public: {}
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock:rw
+version: '3.7'
