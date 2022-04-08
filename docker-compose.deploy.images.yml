@@ -1,6 +1,0 @@
-version: '3.7'
-services:
-  backend:
-    image: 'openstax/corgi-${DOCKER_IMAGE_BACKEND}:${TAG-latest}'
-  frontend:
-    image: 'openstax/corgi-${DOCKER_IMAGE_FRONTEND}:${TAG-latest}'
