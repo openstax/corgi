@@ -14,22 +14,10 @@ RUN python -m venv /opt/venv && \
   pip install --no-cache-dir -U 'pip' && \
   poetry install --no-root --no-interaction
 
-# copy files
-COPY ./app /build/
-
-# change working directory
-WORKDIR /build
-
-# Create Virtualenv
-RUN python -m venv /opt/venv && \
-  . /opt/venv/bin/activate && \
-  pip install --no-cache-dir -U 'pip' && \
-  poetry install --no-root --no-interaction
-
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 RUN mkdir /ms-playwright && \
-    playwright install --with-deps
+    playwright install chromium --with-deps
 
 FROM base as runner
 
