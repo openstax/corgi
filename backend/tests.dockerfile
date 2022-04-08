@@ -1,4 +1,5 @@
-FROM openstax/selenium-chrome-debug:20220302.210634 as base
+FROM openstax/python3-chrome-base:latest as base
+
 
 FROM openstax/python3-poetry:latest as builder
 
@@ -21,14 +22,12 @@ RUN mkdir /ms-playwright && \
 
 FROM base as runner
 
-USER root
-
 RUN curl https://raw.githubusercontent.com/vishnubob/wait-for-it/54d1f0bfeb6557adf8a3204455389d0901652242/wait-for-it.sh \
   -o /usr/local/bin/wait-for-it && chmod a+x /usr/local/bin/wait-for-it
 
 COPY --from=builder /opt/venv /opt/venv
 COPY --from=builder /ms-playwright /ms-playwright
-COPY --chown=seluser ./app /app
+COPY ./app /app
 WORKDIR /app/
 
 # make sure we use the virtualenv
@@ -38,5 +37,3 @@ ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONPATH="/app:$PYTHONPATH"
 
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
-
-USER seluser
