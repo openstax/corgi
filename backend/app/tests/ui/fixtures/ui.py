@@ -12,6 +12,7 @@ def chrome_page():
     page = chrome_browser.new_page()
     yield page
 
+    chrome_browser.close()
     playwright_sync.stop()
 
 
