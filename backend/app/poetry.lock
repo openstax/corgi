@@ -89,14 +89,6 @@ python-versions = ">=3.5.0"
 unicode_backport = ["unicodedata2"]
 
 [[package]]
-name = "chromedriver-binary"
-version = "88.0.4324.96.0"
-description = "Installer for chromedriver."
-category = "dev"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "click"
 version = "8.0.4"
 description = "Composable command line interface toolkit"
@@ -372,58 +364,15 @@ testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "requests", "xm
 
 [[package]]
 name = "pytest-base-url"
-version = "1.4.2"
+version = "2.0.0"
 description = "pytest plugin for URL based testing"
 category = "dev"
 optional = false
-python-versions = "*"
+python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
-pytest = ">=2.7.3"
+pytest = ">=3.0.0,<8.0.0"
 requests = ">=2.9"
-
-[[package]]
-name = "pytest-html"
-version = "3.1.1"
-description = "pytest plugin for generating HTML reports"
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-
-[package.dependencies]
-pytest = ">=5.0,<6.0.0 || >6.0.0"
-pytest-metadata = "*"
-
-[[package]]
-name = "pytest-metadata"
-version = "1.11.0"
-description = "pytest plugin for test session metadata"
-category = "dev"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
-
-[package.dependencies]
-pytest = ">=2.9.0"
-
-[[package]]
-name = "pytest-selenium"
-version = "2.0.1"
-description = "pytest plugin for Selenium"
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-
-[package.dependencies]
-pytest = ">=5.0.0"
-pytest-base-url = "*"
-pytest-html = ">=1.14.0"
-pytest-variables = ">=1.5.0"
-requests = "*"
-selenium = ">=3.0.0"
-tenacity = ">=6,<7"
-
-[package.extras]
-appium = ["appium-python-client (>=0.44)"]
 
 [[package]]
 name = "pytest-testrail"
@@ -436,22 +385,6 @@ python-versions = "*"
 [package.dependencies]
 pytest = ">=3.6"
 requests = ">=2.20.0"
-
-[[package]]
-name = "pytest-variables"
-version = "1.9.0"
-description = "pytest plugin for providing variables to tests/fixtures"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-pytest = ">=2.4.2"
-
-[package.extras]
-hjson = ["hjson"]
-toml = ["toml"]
-yaml = ["pyyaml"]
 
 [[package]]
 name = "requests"
@@ -688,7 +621,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "f2191cd2711bc40c0bd34c87d46fa6638c95fa51ef57dcad24691d005f572aa2"
+content-hash = "9b5cb3b47a42866c7e029fa7f96f2b3097b0ccd25e38d52a5d85bb4000cca89f"
 
 [metadata.files]
 alembic = [
@@ -718,9 +651,6 @@ certifi = [
 charset-normalizer = [
     {file = "charset-normalizer-2.0.12.tar.gz", hash = "sha256:2857e29ff0d34db842cd7ca3230549d1a697f96ee6d3fb071cfa6c7393832597"},
     {file = "charset_normalizer-2.0.12-py3-none-any.whl", hash = "sha256:6881edbebdb17b39b4eaaa821b438bf6eddffb4468cf344f09f89def34a8b1df"},
-]
-chromedriver-binary = [
-    {file = "chromedriver-binary-88.0.4324.96.0.tar.gz", hash = "sha256:68231341418e523e747da0344895261884bc9ad7ba445bc1283d26aa8f8718d0"},
 ]
 click = [
     {file = "click-8.0.4-py3-none-any.whl", hash = "sha256:6a7a62563bbfabfda3a38f3023a1db4a35978c0abd76f6c9605ecd6554d6d9b1"},
@@ -989,28 +919,12 @@ pytest = [
     {file = "pytest-6.2.5.tar.gz", hash = "sha256:131b36680866a76e6781d13f101efb86cf674ebb9762eb70d3082b6f29889e89"},
 ]
 pytest-base-url = [
-    {file = "pytest-base-url-1.4.2.tar.gz", hash = "sha256:7f1f32e08c2ee751e59e7f5880235b46e83496adc5cba5a01ca218c6fe81333d"},
-    {file = "pytest_base_url-1.4.2-py2.py3-none-any.whl", hash = "sha256:8b6523a1a3af73c317bdae97b722dfb55a7336733d1ad411eb4a4931347ba77a"},
-]
-pytest-html = [
-    {file = "pytest-html-3.1.1.tar.gz", hash = "sha256:3ee1cf319c913d19fe53aeb0bc400e7b0bc2dbeb477553733db1dad12eb75ee3"},
-    {file = "pytest_html-3.1.1-py3-none-any.whl", hash = "sha256:b7f82f123936a3f4d2950bc993c2c1ca09ce262c9ae12f9ac763a2401380b455"},
-]
-pytest-metadata = [
-    {file = "pytest-metadata-1.11.0.tar.gz", hash = "sha256:71b506d49d34e539cc3cfdb7ce2c5f072bea5c953320002c95968e0238f8ecf1"},
-    {file = "pytest_metadata-1.11.0-py2.py3-none-any.whl", hash = "sha256:576055b8336dd4a9006dd2a47615f76f2f8c30ab12b1b1c039d99e834583523f"},
-]
-pytest-selenium = [
-    {file = "pytest-selenium-2.0.1.tar.gz", hash = "sha256:a0008e6dce7c68501369c1c543420f5906ffada493d4ff0c5d9d5ccdf4022203"},
-    {file = "pytest_selenium-2.0.1-py3-none-any.whl", hash = "sha256:fd632e0b657be6360f6319445eb0f475872d488b67634f791561851d55e390b1"},
+    {file = "pytest-base-url-2.0.0.tar.gz", hash = "sha256:e1e88a4fd221941572ccdcf3bf6c051392d2f8b6cef3e0bc7da95abec4b5346e"},
+    {file = "pytest_base_url-2.0.0-py3-none-any.whl", hash = "sha256:ed36fd632c32af9f1c08f2c2835dcf42ca8fcd097d6ed44a09f253d365ad8297"},
 ]
 pytest-testrail = [
     {file = "pytest-testrail-2.9.0.tar.gz", hash = "sha256:258f7793a9bf502deb48724981dba9cb39ecc1639f4d26fc8bab5799a58cfe33"},
     {file = "pytest_testrail-2.9.0-py3-none-any.whl", hash = "sha256:adb09cee6739697b4e60d471aabecc11e827748cd3f0dae0cbf325ee36ba0104"},
-]
-pytest-variables = [
-    {file = "pytest-variables-1.9.0.tar.gz", hash = "sha256:f79851e4c92a94c93d3f1d02377b5ac97cc8800392e87d108d2cbfda774ecc2a"},
-    {file = "pytest_variables-1.9.0-py2.py3-none-any.whl", hash = "sha256:ccf4afcd70de1f5f18b4463758a19f24647a9def1805f675e80db851c9e00ac0"},
 ]
 requests = [
     {file = "requests-2.27.1-py2.py3-none-any.whl", hash = "sha256:f22fa1e554c9ddfd16e6e41ac79759e17be9e492b3587efa038054674760e72d"},
