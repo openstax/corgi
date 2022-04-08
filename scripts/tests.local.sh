@@ -8,12 +8,13 @@ if [ "$(uname -s)" = "Linux" ]; then
     sudo find . -type d -name __pycache__ -exec rm -r {} \+
 fi
 
+DOMAIN=localhost \
 STACK_NAME=dev \
 REVISION=dev \
 TAG=dev \
 DEPLOYED_AT=20210101.111111 \
 docker-compose \
-    -f docker-compose.stack.local.yml \
+    -f docker-compose.stack.ci.yml \
     config > docker-stack.yml
 
 docker-compose -f docker-stack.yml build
