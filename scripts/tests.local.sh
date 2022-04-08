@@ -13,19 +13,7 @@ REVISION=dev \
 TAG=dev \
 DEPLOYED_AT=20210101.111111 \
 docker-compose \
-    -f docker-compose.tests.yml \
-    -f docker-compose.shared.admin.yml \
-    -f docker-compose.shared.base-images.yml \
-    -f docker-compose.shared.depends.yml \
-    -f docker-compose.shared.env.yml \
-    -f docker-compose.dev.build.yml \
-    -f docker-compose.dev.command.yml \
-    -f docker-compose.dev.images.yml \
-    -f docker-compose.dev.env.yml \
-    -f docker-compose.dev.labels.yml \
-    -f docker-compose.dev.networks.yml \
-    -f docker-compose.dev.ports.yml \
-    -f docker-compose.dev.volumes.yml \
+    -f docker-compose.stack.local.yml \
     config > docker-stack.yml
 
 docker-compose -f docker-stack.yml build
