@@ -160,23 +160,15 @@ Do the migration:
 
     docker-compose exec alembic upgrade head
 
-## What's up with all the docker-compose files?
+## What's up with the docker-compose.stack.*.yml files?
 
-This takes a little getting used to initially but does make the management of the files much easier
-when needing to reuse the same values in other environments. Eventually, it becomes quick to make edits
-to the appropriate parts of the stack without muddling in other details.
+This takes a little getting used to initially but does make the management of the files and environments much easier.
 
-This becomes more apparent in the [build and push](./scripts/build-push.sh) and the [deploy.sh](./scripts/deploy.sh) script.
+This becomes more apparent in the [deploy.sh](./scripts/deploy.sh) script or [tests.ci.sh][./scripts/tests.ci.sh].
 
-Within these files we're able to pass in several docker-compose files and compile them into one file that is used for various things.
+Within these files we're able to pass in docker-compose stack files and compile them into one file that uses the environment variables we've set up in the script.
 
 The only thing needed to alter some key values is the passing in of the appropriate environment variables.
-
-## Pushing images to docker hub
-
-Run the script [./scripts/build-push.sh](./scripts/build-push.sh) with the appropriate environment variables:
-
-    TAG=latest FRONTEND_ENV=production ./scripts/build-push.sh
 
 ## Deployment
 
