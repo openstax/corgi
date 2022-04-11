@@ -77,18 +77,18 @@ services:
         - traefik.port=80
         - traefik.tags=${TRAEFIK_TAG}
         - traefik.frontend.auth.basic.usersFile=/run/secrets/basic-auth-users
-      logging:
-        options:
-          awslogs-stream: "${STACK_NAME}_frontend"
-      networks:
-        - ${TRAEFIK_PUBLIC_NETWORK}
-        - default
       replicas: 2
       update_config:
         parallelism: 1
         delay: 10s
       restart_policy:
         condition: on-failure
+    logging:
+      options:
+        awslogs-stream: "${STACK_NAME}_frontend"
+    networks:
+      - ${TRAEFIK_PUBLIC_NETWORK}
+      - default
       
 networks:
   traefik-public:
