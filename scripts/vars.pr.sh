@@ -5,6 +5,7 @@
 export DOMAIN="corgi-$PR_NUMBER.ce.openstax.org"
 export STACK_NAME="corgi_$PR_NUMBER"
 export TRAEFIK_TAG="traefik-$PR_NUMBER"
+export BASE_URL="https://$DOMAIN"
 
 NEWLINE=$'\n'
 echo "${NEWLINE}The following environment variables were set:${NEWLINE}"
