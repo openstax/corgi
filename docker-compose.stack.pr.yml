@@ -18,7 +18,6 @@ services:
         parallelism: 1
     environment:
       BACKEND_CORS_ORIGINS: http://localhost, http://localhost:3000
-      DEPLOYED_AT: ${TAG}
       POSTGRES_DB: corgi_${PR_NUMBER}
       POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_PASSWORD: ''
@@ -27,6 +26,7 @@ services:
       REVISION: ${REVISION}
       STACK_NAME: ${STACK_NAME}
       TAG: ${TAG}
+      DEPLOYED_AT: ${DEPLOYED_AT}
     image: openstax/corgi-backend:${TAG}
     logging:
       options:
@@ -47,6 +47,10 @@ services:
       POSTGRES_PASSWORD: ''
       POSTGRES_SERVER: db
       POSTGRES_USER: postgres
+      REVISION: ${REVISION}
+      STACK_NAME: ${STACK_NAME}
+      TAG: ${TAG}
+      DEPLOYED_AT: ${DEPLOYED_AT}
     image: postgres:12
     logging:
       options:
