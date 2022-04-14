@@ -7,10 +7,10 @@ TEST_RESULTS=${TEST_RESULTS-./junit.xml}
 
 echo "Test results will be saved in: ${TEST_RESULTS}"
 
-export DEPLOYED_AT=$(date '+%Y%m%d.%H%M%S')
-export REVISION=$(git --git-dir=./.git rev-parse --short HEAD)
-export DOMAIN=${DOMAIN-backend}
-export BASE_URL=${FQDN-http://backend}
+DOMAIN=${DOMAIN-backend}
+BASE_URL=${FQDN-http://backend}
+DEPLOYED_AT=$(date '+%Y%m%d.%H%M%S')
+REVISION=$(git --git-dir=./.git rev-parse --short HEAD)
 
 DOMAIN=${DOMAIN} \
 REVISION=${REVISION} \
