@@ -29,6 +29,6 @@ docker-compose -f docker-stack.yml exec db psql -h db -d postgres -U postgres -c
 docker-compose -f docker-stack.yml exec db psql -h db -d postgres -U postgres -c "CREATE DATABASE tests ENCODING 'UTF8'"
 docker-compose -f docker-stack.yml restart backend
 docker-compose -f docker-stack.yml exec backend-tests wait-for-it -t 10 backend:80
-docker-compose -f docker-stack.yml exec -T backend-tests pytest ./tests/integration -vvv --junitxml="${TEST_RESULTS}" --base-url="${BASE_URL}"
+docker-compose -f docker-stack.yml exec -T backend-tests pytest "ui or integration" -vvv --junitxml="${TEST_RESULTS}" --base-url="${BASE_URL}"
 # Comment this line out to leave the stack running. Useful for test development.
 docker-compose -f docker-stack.yml down -v --remove-orphans
