@@ -40,16 +40,16 @@ services:
     env_file:
       - env-backend.env
     environment: &testenv
-      - REVISION=${REVISION}
-      - TAG=${TAG}
-      - STACK_NAME=${STACK_NAME}
-      - DEPLOYED_AT=${DEPLOYED_AT-}
       - PGDATA=/var/lib/postgresql/data/pgdata
       - POSTGRES_SERVER=${POSTGRES_SERVER:-db}
       - POSTGRES_DB=${POSTGRES_DB:-corgi_dev}
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-}
       - POSTGRES_HOST_AUTH_METHOD=${POSTGRES_HOST_AUTH_METHOD:-trust}
+      - REVISION=${REVISION}
+      - TAG=${TAG}
+      - STACK_NAME=${STACK_NAME}
+      - DEPLOYED_AT=${DEPLOYED_AT}
   backend:
     build:
       context: ./backend
@@ -75,4 +75,3 @@ services:
     image: postgres:12
     environment: *testenv
     
-
