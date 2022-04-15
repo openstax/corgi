@@ -155,3 +155,57 @@ class HomeCorgi:
         return self.page.locator(
             "div:nth-child(3) > div > div > table > tbody > tr:nth-child(1) > td:nth-child(9)"
         )
+
+    @property
+    def job_state_locator(self):
+        return self.page.locator("tr:nth-child(1) > td:nth-child(9)")
+
+    @property
+    def job_state_completed(self):
+        return self.job_state_locator.locator("text=completed")
+
+    @property
+    def git_preview_link_locator(self):
+        return self.page.locator(
+            "div:nth-child(3) > div > div > table > tbody > tr:nth-child(1) > td:nth-child(8) > ul > li:nth-child(2)"
+        )
+
+    @property
+    def git_preview_link(self):
+        return self.git_preview_link_locator.locator("text=View - Rex Web Prod")
+
+    @property
+    def git_view_locator(self):
+        return self.page.locator(
+            "div:nth-child(3) > div > div > table > tbody > tr:nth-child(1) > td:nth-child(8)"
+        )
+
+    @property
+    def git_view_link(self):
+        return self.git_view_locator.locator("text=View")
+
+    @property
+    def pdf_view_locator(self):
+        return self.page.locator(
+            "div:nth-child(3) > div > div > table > tbody > tr:nth-child(1) > td:nth-child(8)"
+        )
+
+    @property
+    def pdf_view_link(self):
+        return self.pdf_view_locator.locator("text=View")
+
+    @property
+    def start_date_time_locator(self):
+        return self.page.locator(
+            "div:nth-child(3) > div > div > table > tbody > tr:nth-child(1) > td:nth-child(7)"
+        )
+
+    @property
+    def start_date_time(self):
+        return self.start_date_time_locator.locator("text=a few seconds ago")
+
+    @property
+    def job_id_locator(self):
+        return self.page.locator(
+            "div:nth-child(3) > div > div > table > tbody > tr:nth-child(1) > td:nth-child(7) > time"
+        )
