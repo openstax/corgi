@@ -38,7 +38,6 @@ CORGI at a Glance
    operations/setting_up_the_swarm
    operations/updating_the_stack
    operations/cleaning_up_the_swarm
-   operations/updating_bakery_scripts
    operations/generate_pipeline_config
    operations/cli
    operations/find_git_ref

@@ -21,7 +21,7 @@ After installing Docker, navigate to the Docker Desktop GUI preferences and incr
 The CORGI system consists of 2 parts:
 
 1. CORGI Job Dashboard 
-2. Bakery pipeline
+2. [enki](https://github.com/openstax/enki) Pipeline
 
 ### CORGI Job Dashboard
 
@@ -30,10 +30,6 @@ The CORGI Job Dashboard or "CORGI dashboard" consists of a front-end microservic
 1. Backend - written using Python and the [FastAPI ASGI Framework](https://fastapi.tiangolo.com/). The backend API is used by the front-end and bakery to create, retrieve, or update job information. 
 
 2. Frontend - written using [nuxt.js](https://nuxtjs.org/) and acts as the main dashboard interface of the CORGI system. You can see the list of jobs, create jobs, or abort a job that's in progress. Shows information pertaining to errors and status.
-
-### CORGI Pipeline Scripts (used by richb-press)
-
-The [./bakery/scripts](./bakery/scripts/) are used by richb-press and our pipelines to produce our CORGI book artifacts/links. 
 
 ## Backend local development
 
