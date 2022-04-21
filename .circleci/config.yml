@@ -9,7 +9,9 @@ jobs:
 
     environment:
       TEST_RESULTS_DIR: /tmp/test-results
-      TEST_RESULTS: /tmp/test-results/junit.xml
+      TEST_RESULTS_INTEGRATION: /tmp/test-results/junit-integration.xml
+      TEST_RESULTS_UNIT: /tmp/test-results/junit-unit.xml
+      TEST_RESULTS_UI: /tmp/test-results/junit-ui.xml
 
     steps:
       - checkout
@@ -23,7 +25,11 @@ jobs:
             ./scripts/tests.ci.sh
 
       - store_artifacts:
-          path: /tmp/test-results/junit.xml
+          path: /tmp/test-results/junit-integration.xml
+          destination: test-reports
+      
+      - store_artifacts:
+          path: /tmp/test-results/junit-ui.xml
           destination: test-reports
 
       - store_test_results:
