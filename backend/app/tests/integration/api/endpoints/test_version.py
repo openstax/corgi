@@ -8,7 +8,7 @@ ENDPOINT = "version"
 
 
 @pytest.mark.integration
-def test_version_get_request(api_url, tag, stack_name, revision, deployed_at):
+def test_version_get_request(api_url, tag, stack_name, revision):
     # GIVEN: An api url to the version endpoint
     url = f"{api_url}/{ENDPOINT}"
 

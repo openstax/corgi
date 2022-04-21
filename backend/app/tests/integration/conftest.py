@@ -64,14 +64,3 @@ def revision(request):
         return revision
     else:
         return "dev"
-
-
-@pytest.fixture(scope="session")
-def deployed_at(request):
-    """Return the deployed_at timestamp"""
-    config = request.config
-    deployed_at = config.getoption("deployed_at")
-    if deployed_at is not None:
-        return deployed_at
-    else:
-        return "dev"
