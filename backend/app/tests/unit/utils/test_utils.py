@@ -1,9 +1,10 @@
+import pytest
+
 from tests.utils import validate_datetime
 
-
-def test_validate_datetime_string_is_correct():
+@pytest.mark.parametrize("date_str", [("20220411.192702")])
+def test_validate_datetime_string_is_correct(date_str):
     # GIVEN: A correct datetime string
-    date_str = "20220411.192702"
     
     # WHEN: The string is validated
     is_date = validate_datetime(date_str)
@@ -11,10 +12,9 @@ def test_validate_datetime_string_is_correct():
     # THEN: The string can be converted to python datetime obj
     assert is_date
 
-
-def test_validate_datetime_string_is_incorrect():
-    # GIVEN: A correct datetime string
-    date_str = "a"
+@pytest.mark.parametrize("date_str", [("a")])
+def test_validate_datetime_string_is_incorrect(date_str):
+    # GIVEN: An incorrect datetime string
     
     # WHEN: The string is validated
     is_date = validate_datetime(date_str)
