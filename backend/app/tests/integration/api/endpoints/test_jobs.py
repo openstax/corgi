@@ -7,15 +7,19 @@ ENDPOINT = "jobs"
 
 
 @pytest.mark.integration
-def test_jobs_post_and_get_request_successful(api_url):
+@pytest.mark.parametrize(
+    "colid, status_id, content_server_id, job_type_id",
+    [("osbooks-contemporary-math/contemporary-math", "1", "1", "1")],
+)
+def test_jobs_post_and_get_request_successful(api_url, colid, status_id, content_server_id, job_type_id):
     # GIVEN: An api url to the jobs endpoint
     # AND: Data for job is ready to be submitted.
     url = f"{api_url}/{ENDPOINT}/"
     data = {
-        "collection_id": "abc123",
-        "status_id": "1",
-        "content_server_id": "1",
-        "job_type_id": "1"
+        "collection_id": colid,
+        "status_id": status_id,
+        "content_server_id": content_server_id,
+        "job_type_id": job_type_id
     }
 
     # WHEN: A POST request is made to the url with data
@@ -27,10 +31,10 @@ def test_jobs_post_and_get_request_successful(api_url):
 
     response = response.json()
 
-    assert response["collection_id"] == "abc123"
-    assert response["content_server"]["hostname"] == "content01.cnx.org"
-    assert response["status"]["name"] == "queued"
-    assert response["job_type"]["name"] == "pdf"
+    assert response["collection_id"] == colid
+    assert response["content_server"]["id"] == content_server_id
+    assert response["status"]["id"] == status_id
+    assert response["job_type"]["id"] == job_type_id
     
     # AND: We can retrieve that job from the backend.
     job_id = response["id"]
@@ -42,6 +46,6 @@ def test_jobs_post_and_get_request_successful(api_url):
     job_data = job_response.json()
 
     assert job_data["id"] == job_id
-    assert job_data["content_server"]["hostname"] == "content01.cnx.org"
-    assert job_data["status"]["name"] == "queued"
-    assert job_data["job_type"]["name"] == "pdf"
+    assert job_data["content_server"]["id"] == content_server_id
+    assert job_data["status"]["id"] == status_id
+    assert job_data["job_type"]["id"] == job_type_id
