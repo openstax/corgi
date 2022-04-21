@@ -5,7 +5,6 @@ set -e
 
 TEST_RESULTS_DIR=${TEST_RESULTS_DIR-./reports}
 TEST_RESULTS_INTEGRATION=${TEST_RESULTS_INTEGRATION-./junit-integration.xml}
-TEST_RESULTS_UNIT=${TEST_RESULTS_UNIT-./junit-unit.xml}
 TEST_RESULTS_UI=${TEST_RESULTS_UI-./junit-ui.xml}
 
 echo "Test results will be saved in: ${TEST_RESULTS_DIR}"
