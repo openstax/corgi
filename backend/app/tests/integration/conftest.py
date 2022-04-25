@@ -24,10 +24,6 @@ def pytest_addoption(parser):
         default=os.getenv("REVISION", "dev")
     )
 
-    parser.addoption(
-        "--deployed_at",
-        default=os.getenv("DEPLOYED_AT", "dev")
-    )
 
 @pytest.fixture(scope="session")
 def api_url(base_url):
@@ -54,6 +50,7 @@ def stack_name(request):
         return stack_name
     else:
         return "dev"
+
 
 @pytest.fixture(scope="session")
 def revision(request):
