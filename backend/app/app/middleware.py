@@ -15,7 +15,7 @@ class DBSessionMiddleware(BaseHTTPMiddleware):
             request.state.db = Session()
             response = await call_next(request)
         # We log the exception because it could be one of many.
-        except Exception(e):
+        except Exception as e:
             logging.exception(e)
         # Always close the db session, even after an exception
         finally:
