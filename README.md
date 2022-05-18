@@ -89,9 +89,11 @@ to work while renaming the `/api/events` endpoint to `/api/jobs`
 
 To run the tests execute:
 
-    ./scripts/tests.local.sh
+    ./scripts/tests.ci.sh
 
 ## How to develop UI tests
+
+> :yield_sign: WARNING :yield_sign: This functionality does not currently work because of the replacement of Selenium with Playwright. We do plan to return the functionality to the backend-tests image 
 
 It's useful to run the stack locally when developing UI tests. The same script above in `Run integration tests` section can be edited in order to support interactive testing.
 
