@@ -8,6 +8,8 @@ POSTGRES_DB = os.getenv("POSTGRES_DB")
 SQLALCHEMY_DATABASE_URI = (
     f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}/{POSTGRES_DB}"
 )
+SQLALCHEMY_POOL_SIZE = os.getenv("SQLALCHEMY_POOL_SIZE", 10)
+SQLALCHEMY_MAX_OVERFLOW = os.getenv("SQLALCHEMY_MAX_OVERFLOW", 5)
 
 # CORS SETTINGS
 # a string of origins separated by commas, e.g: "http://localhost, http://localhost:4200"
