@@ -4,34 +4,52 @@
 
 _FKA: "COPS", Content Output Production Service_
 
-## Requirements
+---
+- **What does CORGI do? 🤔**
+  [Check out the high level docs](https://openstax.atlassian.net/wiki/spaces/CE/pages/2017918977/CORGI+Service)
 
-Follow the instructions to install [Docker](https://docs.docker.com/install/).
+- **I'd like to read the detailed docs 🤓**
+  [Read The Docs](https://corgi.readthedocs.org/)
 
-Follow the instructions to install [Docker Compose](https://docs.docker.com/compose/install/).
+- **I'm ready to install and run CORGI 🚀**
+  [Installation](#development-internals)
 
-**A note for Mac and PC users**
 
-After installing Docker, navigate to the Docker Desktop GUI preferences and increase the `Memory` value to at least `8GiB`.
- 
-[Here's where you can find the Docker Desktop GUI settings](https://docs.docker.com/docker-for-windows/#resources)
-
-## Architecture
+## Summary
 
 The CORGI system consists of 2 parts:
 
 1. CORGI Job Dashboard 
-2. [enki](https://github.com/openstax/enki) Pipeline
+2. [Enki](https://github.com/openstax/enki) Pipeline
 
 ### CORGI Job Dashboard
 
-The CORGI Job Dashboard or "CORGI dashboard" consists of a front-end microservice and a backend microservice. The CORGI Dashboard acts mainly as a "queue" of jobs to be processed by the CORGI pipeline.
+The CORGI Job Dashboard or "CORGI dashboard" consists of a front-end microservice and a backend microservice. The CORGI Dashboard acts mainly as a "queue" of jobs to be processed by the Enki Concourse pipeline.
 
 1. Backend - written using Python and the [FastAPI ASGI Framework](https://fastapi.tiangolo.com/). The backend API is used by the front-end and bakery to create, retrieve, or update job information. 
 
 2. Frontend - written using [nuxt.js](https://nuxtjs.org/) and acts as the main dashboard interface of the CORGI system. You can see the list of jobs, create jobs, or abort a job that's in progress. Shows information pertaining to errors and status.
 
-## Backend local development
+### Enki
+
+Enki produces the Concourse pipeline configuration files that are used to build book artifacts. Book artifacts can be pdf files, web preview links, docx, etc. Concourse uses "workers" that watch for new jobs created using the CORGI job dashboard. The Concourse pipeline reads the jobs from the CORGI backend and updates the job status and upon completion updates the job with links to the respective book artifact that was produced.
+
+The full explanation of Enki it is out of scope for this documentation. To learn more please reference the Enki README.md within the project.
+
+## Development Internals
+
+### Installing Docker 
+
+* Install [Docker](https://docs.docker.com/install/).
+
+* Install [Docker Compose](https://docs.docker.com/compose/install/).
+
+> **A note for Mac and PC users**
+> After installing Docker, navigate to the Docker Desktop GUI preferences and increase the `Memory` value to at least `8GiB`.
+> [Here's where you can find the Docker Desktop GUI settings](https://docs.docker.com/docker-for-windows/#resources)
+
+
+### Backend local development
 
 Start the stack with Docker Compose:
 
@@ -46,7 +64,7 @@ To check the logs run:
 
     docker-compose logs
 
-## View the Docs
+### View the Docs
 
 For our documentation we use [Sphinx-docs](https://www.sphinx-doc.org/en/master/)
 and lives in the [./docs](./docs) directory.
@@ -63,7 +81,7 @@ can do so by running:
 
     docker-compose up docs
 
-## Editing The Docs
+### Editing The Docs
 
 Edits are done in restructured text (rst). 
 
@@ -75,23 +93,20 @@ $ make html
 
 If edits have been made to the Navigation and are not reflected, re-build the docker image:
 ```
-$ cd output-producer-service
+$ cd $CORGI_ROOT_PATH
 $ docker-compose down
 $ docker-compose up
 ```
 
 Note: Can be done in container or outside the container, with installed requirements.
 
-## Run integration tests 
-
-The integration tests were written to ensure the backend continued 
-to work while renaming the `/api/events` endpoint to `/api/jobs`
+### Run integration and UI tests 
 
 To run the tests execute:
 
     ./scripts/tests.ci.sh
 
-## How to develop UI tests
+### How to develop UI tests
 
 > :yield_sign: WARNING :yield_sign: This functionality does not currently work because of the replacement of Selenium with Playwright. We do plan to return the functionality to the backend-tests image 
 
@@ -110,34 +125,13 @@ A table will be displayed with column names. Find the one labeled PORTS for the 
 
 Use a VNC application to connect to `0.0.0.0:32778`. The port number `32778` may be different.
 The password for the VNC session is `secret`.
-## Clear the database
+### Clear the database
 
 Start the stack as described above
 
 Run the reset-db command that is contained in the `manage.py` file.
 
     docker-compose exec backend python manage.py reset-db
-
-## Live Development with Jupyter Notebooks
-
-Enter the backend Docker container:
-
-    docker-compose exec backend bash
-
-Run the environment variable `$JUPYTER` which is configured to be accessible via a public port http://localhost:8888
-
-    $JUPYTER
-
-A message like this should pop up:
-
-```bash
-    Copy/paste this URL into your browser when you connect for the first time,
-    to login with a token:
-        http://(73e0ec1f1ae6 or 127.0.0.1):8888/?token=f20939a41524d021fbfc62b31be8ea4dd9232913476f4397
-```
-
-You will have full Jupyter access inside your container that can be used to access your database.
-
 ### Migrations
 
 Automatic migration files can be generated for the database. After a change is made you'll want to create a new revision.
@@ -158,33 +152,18 @@ Do the migration:
 
     docker-compose exec alembic upgrade head
 
-## What's up with the docker-compose.stack.*.yml files?
-
-This takes a little getting used to initially but does make the management of the files and environments much easier.
-
-This becomes more apparent in the [deploy.sh](./scripts/deploy.sh) script or [tests.ci.sh][./scripts/tests.ci.sh].
-
-Within these files we're able to pass in docker-compose stack files and compile them into one file that uses the environment variables we've set up in the script.
-
-The only thing needed to alter some key values is the passing in of the appropriate environment variables.
-
-## Deployment
-
-### Updating the Stack
-
-Refer to the [Updating the stack](http://127.0.0.1:8000/operations/updating_the_stack.html) section of the docs.
-
-### Deploying Web Hosting Pipeline
-
-The web-hosting pipeline infrastructure is hosted in AWS. Instructions on [How to Deploy Web Hosting Pipeline](https://openstax.atlassian.net/wiki/spaces/CE/pages/573538307/Deploying+the+web-hosting+pipeline). Deploying the Web Hosting Pipeline
-is a joint effort between DevOps, CE, and Unified.
-
-## Load testing for the backend
+### Load testing for the backend
 
 Load testing with Locust.io is in the directory `./backend/app/tests/performance/`
 
 Please look at the [README](./backend/app/tests/performance/README.md) in this directory on how to run load tests locally and for production systems.
+## Releasing
 
+The documentation is located in the [Releasing CORGI article]((https://openstax.atlassian.net/wiki/spaces/CE/pages/1256521739/Releasing+CORGI)) in our Confluence documentation.
+
+## Deploying Web Hosting Pipeline
+
+The documentation is located in the [How to Deploy Web Hosting Pipeline article](https://openstax.atlassian.net/wiki/spaces/CE/pages/573538307/Deploying+the+web-hosting+pipeline) in our Confluence Documentation.
 ## Attribution
 
 A lot of the structure and ideas for this service come from Tiangolo's [full-stack-fastapi-postgres](https://github.com/tiangolo/full-stack-fastapi-postgresql) project. Thanks Tiangolo!
