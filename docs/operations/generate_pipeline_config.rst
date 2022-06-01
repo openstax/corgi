@@ -9,6 +9,6 @@ pipelines and `Enki <https://github.com/openstax/enki>`_.
 
 It's not typical for a developer to edit the Concourse pipeline configurations directly. 
 The pipeline configuration generation responsibilities have been moved to the 
-`Enki <https://github.com/openstax/enki>`_ project.
+`Enki <https://github.com/openstax/enki/tree/main/build-concourse>`_ project.
 
 
