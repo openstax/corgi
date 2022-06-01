@@ -22,6 +22,12 @@ The `Releasing CORGI <https://openstax.atlassian.net/wiki/spaces/CE/pages/125652
 
 The CORGI `CD pipeline configuration <https://github.com/openstax/ce-pipelines/blob/main/pipelines/auto-deploy-corgi.yml>`_ for deploying to CORGI is in the `ce-pipelines <https://github.com/openstax/ce-pipelines>`_ repository.
 
+*******************************
+Deploying CORGI PR environments
+*******************************
+
+Developers have the capability of deploying PR environments of the entire CORGI stack. The `instructions <https://github.com/openstax/ce-pipelines#corgi-pr>`_ involve setting up a Concourse pipeline with the ``pr-number`` and ``branch-name``.
+
 *************************
 Managing CORGI Basic Auth
 *************************
