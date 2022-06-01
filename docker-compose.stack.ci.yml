@@ -79,4 +79,6 @@ services:
       context: ./docs
     ports:
       - '8000:8000'
+    volumes:
+      - ./docs:/docs
     
