@@ -29,11 +29,11 @@ The CORGI Job Dashboard or "CORGI dashboard" consists of a front-end microservic
 
 2. Frontend - written using [nuxt.js](https://nuxtjs.org/) and acts as the main dashboard interface of the CORGI system. You can see the list of jobs, create jobs, or abort a job that's in progress. Shows information pertaining to errors and status.
 
-### Enki
+### [Enki](https://github.com/openstax/enki)
 
 Enki produces the Concourse pipeline configuration files that are used to build book artifacts. Book artifacts can be pdf files, web preview links, docx, etc. Concourse uses "workers" that watch for new jobs created using the CORGI job dashboard. The Concourse pipeline reads the jobs from the CORGI backend and updates the job status and upon completion updates the job with links to the respective book artifact that was produced.
 
-The full explanation of Enki it is out of scope for this documentation. To learn more please reference the Enki README.md within the project.
+The full explanation of Enki it is out of scope for this documentation. To learn more please reference the [Enki README.md](https://github.com/openstax/enki/blob/main/README.md) within the project.
 
 ---
 ## Development Internals
