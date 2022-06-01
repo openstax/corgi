@@ -14,7 +14,6 @@ _FKA: "COPS", Content Output Production Service_
 - **I'm ready to install and run CORGI 🚀**
   [Installation](#development-internals)
 
-
 ## Summary
 
 The CORGI system consists of 2 parts:
@@ -36,6 +35,7 @@ Enki produces the Concourse pipeline configuration files that are used to build 
 
 The full explanation of Enki it is out of scope for this documentation. To learn more please reference the Enki README.md within the project.
 
+---
 ## Development Internals
 
 ### Installing Docker 
@@ -47,7 +47,6 @@ The full explanation of Enki it is out of scope for this documentation. To learn
 > **A note for Mac and PC users**
 > After installing Docker, navigate to the Docker Desktop GUI preferences and increase the `Memory` value to at least `8GiB`.
 > [Here's where you can find the Docker Desktop GUI settings](https://docs.docker.com/docker-for-windows/#resources)
-
 
 ### Backend local development
 
