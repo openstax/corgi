@@ -1,18 +1,19 @@
 .. _operations-backup-up-and-restore-db:
 
 ###############################
-Backup and Restore the Database
+Backup and Restore the Database 
 ###############################
+
+.. warning::
+     We initially started with database containers and would periodically need to 
+     backup/restore the database. Production CORGI environments use RDS instead of 
+     containers so this documentation is no longer used.
 
 .. note::
      These instructions will assume the commands will be executed on a staging
      environment. Replace all references to ``staging`` with ``prod`` to indicate
      the production environment.
 
-.. warning::
-     We are currently working towards using AWS RDS to replace the way we are using
-     a postgres container. These instructions may become out of date so ensure before
-     you start that these are accurate.
 
 *************
 Prerequisites
