@@ -201,6 +201,15 @@
                       >
                         Abort
                       </v-btn>
+                      <v-btn
+                        class="job-add-to-abl-button ma-2"
+                        color="blue darken-1"
+                        outlined
+                        :disabled="5 !== parseInt(item.status_id)"
+                        @click="newABLentry(item)"
+                      >
+                        Copy new ABL entry
+                      </v-btn>
                     </v-col>
                   </v-row>
                   <v-row>
@@ -379,7 +388,8 @@ export default {
       { text: 'Status', value: 'status_name' },
       { text: 'Content Server', value: 'content_server_name' },
       { text: 'Worker Version', value: 'worker_version' },
-      { text: 'Updated at', value: 'updated_at' }
+      { text: 'Updated at', value: 'updated_at' },
+      { text: 'ABL Status', value: 'approved' }
     ]
     // This value corresponds to the seeded id in the backend
     this.jobTypes = { PDF: 1, WEB_PREVIEW: 2, GIT_PDF: 3, GIT_WEB_PREVIEW: 4 }
@@ -473,6 +483,34 @@ export default {
       }
       await this.$axios.$put(`/api/jobs/${jobId}`, data)
       setTimeout(() => { this.getJobsImmediate() }, 1000)
+    },
+    async newABLentry (job) {
+      const [repoName, slug] = job.collection_id.split('/').slice(-2)
+      const ablData = await this.$axios.$get(`/api/abl/${repoName}/${slug}/${job.version || 'main'}`)
+
+      const ablEntry = {
+        repository_name: repoName,
+        platforms: ['REX'],
+        versions: [
+          {
+            min_code_version: `${job.min_code_version}`,
+            edition: null,
+            commit_sha: ablData.commit_sha,
+            commit_metadata: {
+              committed_at: ablData.committed_at,
+              books: [
+                {
+                  style: ablData.style,
+                  uuid: ablData.uuid,
+                  slug
+                }
+              ]
+            }
+          }
+        ]
+      }
+      navigator.clipboard.writeText(JSON.stringify(ablEntry), null, 2)
+      window.open(`https://github.com/openstax/content-manager-approved-books/edit/main/approved-book-list.json#L${ablData.line_number}`, '_blank')
     },
     async submitCollection (collectionId, contentServerId, version, astyle, jobType) {
       // This fails to queue the job silently so the rate limit duration shouldn't

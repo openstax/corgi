@@ -22,3 +22,6 @@ REVISION = os.getenv("REVISION")
 TAG = os.getenv("TAG")
 STACK_NAME = os.getenv("STACK_NAME")
 DEPLOYED_AT = os.getenv("DEPLOYED_AT")
+
+# GITHUB SETTINGS
+GITHUB_API_TOKEN = os.getenv("GITHUB_API_TOKEN")
