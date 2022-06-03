@@ -509,7 +509,7 @@ export default {
           }
         ]
       }
-      navigator.clipboard.writeText(JSON.stringify(ablEntry), null, 2)
+      await navigator.clipboard.writeText(JSON.stringify(ablEntry), null, 2)
       window.open(`https://github.com/openstax/content-manager-approved-books/edit/main/approved-book-list.json#L${ablData.line_number}`, '_blank')
     },
     async submitCollection (collectionId, contentServerId, version, astyle, jobType) {
