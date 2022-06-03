@@ -388,8 +388,7 @@ export default {
       { text: 'Status', value: 'status_name' },
       { text: 'Content Server', value: 'content_server_name' },
       { text: 'Worker Version', value: 'worker_version' },
-      { text: 'Updated at', value: 'updated_at' },
-      { text: 'ABL Status', value: 'approved' }
+      { text: 'Updated at', value: 'updated_at' }
     ]
     // This value corresponds to the seeded id in the backend
     this.jobTypes = { PDF: 1, WEB_PREVIEW: 2, GIT_PDF: 3, GIT_WEB_PREVIEW: 4 }
