@@ -7,7 +7,7 @@ from base64 import b64decode
 
 from app.core import config
 
-headers = {"authorization" : config.GITHUB_API_TOKEN}
+headers = {"authorization" : f"token {config.GITHUB_API_TOKEN}"}
 
 async def get_abl_info(repo_name, slug, version="main"):
     loop = asyncio.get_running_loop()
@@ -32,7 +32,7 @@ def get_book_metadata(repo_name, slug, version="main"):
     commit = requests.get(f"https://api.github.com/repos/openstax/{repo_name}/commits/{commit_sha}", headers)
     commit_obj = json.loads(commit.content)
     commit_timestamp = commit_obj["commit"]["committer"]["date"]
-    fixed_timetamp = f"{commit_timestamp[-1:]}+00:00"
+    fixed_timetamp = f"{commit_timestamp[:-1]}+00:00"
     
     # style
     meta_inf = get_public_git_file("openstax", repo_name, "META-INF/books.xml", version)
@@ -46,7 +46,7 @@ def get_book_metadata(repo_name, slug, version="main"):
 
     metadata = {
         "commit_sha": commit_sha,
-        "commit_timestamp": fixed_timetamp,
+        "committed_at": fixed_timetamp,
         "uuid": uuid,
         "style": style
     }
