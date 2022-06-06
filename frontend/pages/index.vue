@@ -485,7 +485,8 @@ export default {
     },
     async newABLentry (job) {
       const [repoName, slug] = job.collection_id.split('/').slice(-2)
-      const ablData = await this.$axios.$get(`/api/abl/${repoName}/${slug}/${job.version || 'main'}`)
+      const version = [null, 'latest'].includes(job.version) ? 'main' : job.version
+      const ablData = await this.$axios.$get(`/api/abl/${repoName}/${slug}/${version}`)
 
       const ablEntry = {
         repository_name: repoName,

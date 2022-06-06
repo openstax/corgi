@@ -53,7 +53,7 @@ def get_book_metadata(repo_name, slug, version="main"):
 
     return metadata
 
-def get_public_git_file(owner, repo_name, path, version):
+def get_git_file(owner, repo_name, path, version):
     git_metadata = requests.get(f"https://api.github.com/repos/{owner}/{repo_name}/contents/{path}?ref={version}", headers)
     base64_content = json.loads(git_metadata.content)["content"]
     content = b64decode(base64_content)
