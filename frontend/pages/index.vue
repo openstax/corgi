@@ -205,6 +205,7 @@
                         class="job-add-to-abl-button ma-2"
                         color="blue darken-1"
                         outlined
+                        v-if="item.job_type_id == jobTypes.WEB_PREVIEW"
                         :disabled="5 !== parseInt(item.status_id)"
                         @click="newABLentry(item)"
                       >
@@ -467,12 +468,17 @@ export default {
         this.closeDialog()
       }
     },
-    ref (item) {
-      return !item.version ? 'main' : item.version.trim(' ')
-    },
-    collectionURL (item) {
+    collectionParts (item) {
       const split = item.collection_id.split('/')
       const repo = split.length > 2 ? split.slice(0, 2).join('/') : `openstax/${split[0]}`
+      const slug = split.slice(-1)
+      return { repo, slug }
+    },
+    ref (item) {
+      return (!item.version || item.version === 'latest') ? 'main' : item.version.trim(' ')
+    },
+    collectionURL (item) {
+      const { repo } = this.collectionParts(item)
       return `https://github.com/${repo}/tree/${this.ref(item)}`
     },
     async abortJob (jobId) {
@@ -483,9 +489,15 @@ export default {
       await this.$axios.$put(`/api/jobs/${jobId}`, data)
       setTimeout(() => { this.getJobsImmediate() }, 1000)
     },
-    async newABLentry (job) {
-      const [repoName, slug] = job.collection_id.split('/').slice(-2)
-      const version = [null, 'latest'].includes(job.version) ? 'main' : job.version
+    async newABLentry (item) {
+      const { repo, slug } = this.collectionParts(item)
+      const [owner, repoName] = repo.split('/')
+      if (owner !== 'openstax') {
+        const errMsg = 'Only Openstax repositories can be added to the ABL at this time'
+        alert(errMsg)
+        throw new Error(errMsg)
+      }
+      const version = this.ref(item)
       const ablData = await this.$axios.$get(`/api/abl/${repoName}/${slug}/${version}`)
 
       const ablEntry = {
@@ -493,8 +505,8 @@ export default {
         platforms: ['REX'],
         versions: [
           {
-            min_code_version: `${job.min_code_version}`,
-            edition: null,
+            min_code_version: null,  // To be filled in manually
+            edition: null,  // To be filled in manually
             commit_sha: ablData.commit_sha,
             commit_metadata: {
               committed_at: ablData.committed_at,
