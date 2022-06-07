@@ -27,8 +27,8 @@ app = Starlette(
     middleware=[Middleware(DBSessionMiddleware)],
 )
 
-
 @pytest.mark.unit
+@pytest.mark.nondestructive
 def test_db_session_middleware(caplog):
     # GIVEN: A test client and capture log set to DEBUG
     caplog.set_level(logging.DEBUG)

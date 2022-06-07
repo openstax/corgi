@@ -22,6 +22,9 @@ def get_custom_markers():
     )
 
 
+# Due to no longer using pytest-selenium because it is unmaintained (and we moved to playwright)
+# we migrated the nondestructive and sensitive url config options.
+# https://github.com/pytest-dev/pytest-selenium/blob/c0c1e54c68e02727a3d0b2755cc90cd162af99af/mozwebqa/mozwebqa.py
 def pytest_addoption(parser):
     group = parser.getgroup("safety", "safety")
     group.addoption(
@@ -31,12 +34,12 @@ def pytest_addoption(parser):
         default=False,
         help="include destructive tests (tests not explicitly marked as \'nondestructive\'). (disabled by default).",
     )
-    group._addoption('--sensitiveurl',
-                    action='store',
-                    dest='sensitive_url',
-                    default='corgi\.ce\.openstax\.org',
-                    metavar='str',
-                    help='regular expression for identifying sensitive urls.')
+    group.addoption("--sensitiveurl",
+                    action="store",
+                    dest="sensitive_url",
+                    default=r"corgi\.ce\.openstax\.org",
+                    metavar="str",
+                    help="regular expression for identifying sensitive urls.")
 
 
 def pytest_configure(config):
@@ -46,16 +49,14 @@ def pytest_configure(config):
     if not config.option.run_destructive:
         if config.option.markexpr:
             config.option.markexpr = f"nondestructive and {config.option.markexpr}"
-        else:
-            config.option.markexpr = "nondestructive"
 
 
 def pytest_runtest_setup(item):
     sensitive = re.search(item.config.option.sensitive_url, item.config.option.base_url)
     destructive = 'nondestructive' not in item.keywords
 
-    if (sensitive and destructive):
+    if sensitive and destructive:
         # Skip the test with an appropriate message
-        pytest.skip("This test is destructive and the target URL is" \
-                    "considered a sensitive environment. If this test" \
+        pytest.skip("This test is destructive and the target URL is"
+                    "considered a sensitive environment. If this test"
                     "is not destructive add the 'nondestructive' marker.")
