@@ -196,7 +196,7 @@
                         class="job-abort-button ma-2"
                         color="red darken-1"
                         outlined
-                        :disabled="[4, 5, 6].includes(parseInt(item.status_id))"
+                        :disabled="[jobStatusTypes.Failed, jobStatusTypes.Completed, jobStatusTypes.Aborted].includes(parseInt(item.status_id))"
                         @click="abortJob(item.id)"
                       >
                         Abort
@@ -206,7 +206,7 @@
                         color="blue darken-1"
                         outlined
                         v-if="item.job_type_id == jobTypes.WEB_PREVIEW"
-                        :disabled="5 !== parseInt(item.status_id)"
+                        :disabled="jobStatusTypes.Completed !== parseInt(item.status_id)"
                         @click="newABLentry(item)"
                       >
                         Copy new ABL entry
@@ -393,6 +393,14 @@ export default {
     ]
     // This value corresponds to the seeded id in the backend
     this.jobTypes = { PDF: 1, WEB_PREVIEW: 2, GIT_PDF: 3, GIT_WEB_PREVIEW: 4 }
+    this.jobStatusTypes = { 
+      Queued: 1,
+      Assigned: 2,
+      Processing: 3,
+      Failed: 4,
+      Completed: 5,
+      Aborted: 6
+    }
     this.getUrlEntries = (input) => {
       if (input == null) {
         return []
@@ -483,7 +491,7 @@ export default {
     },
     async abortJob (jobId) {
       const data = {
-        status_id: 6,
+        status_id: jobStatusTypes.Aborted,
         error_message: 'Job was aborted.'
       }
       await this.$axios.$put(`/api/jobs/${jobId}`, data)
@@ -534,7 +542,7 @@ export default {
       try {
         const data = {
           collection_id: collectionId,
-          status_id: 1,
+          status_id: jobStatusTypes.Queued,
           pdf_url: null,
           version: version || null,
           style: astyle,
