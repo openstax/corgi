@@ -491,7 +491,7 @@ export default {
     },
     async abortJob (jobId) {
       const data = {
-        status_id: jobStatusTypes.Aborted,
+        status_id: this.jobStatusTypes.Aborted,
         error_message: 'Job was aborted.'
       }
       await this.$axios.$put(`/api/jobs/${jobId}`, data)
@@ -542,7 +542,7 @@ export default {
       try {
         const data = {
           collection_id: collectionId,
-          status_id: jobStatusTypes.Queued,
+          status_id: this.jobStatusTypes.Queued,
           pdf_url: null,
           version: version || null,
           style: astyle,
