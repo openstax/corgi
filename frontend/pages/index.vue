@@ -205,7 +205,7 @@
                         class="job-add-to-abl-button ma-2"
                         color="blue darken-1"
                         outlined
-                        v-if="item.job_type_id == jobTypes.WEB_PREVIEW"
+                        v-if="item.job_type_id == jobTypes.GIT_WEB_PREVIEW"
                         :disabled="jobStatusTypes.Completed !== parseInt(item.status_id)"
                         @click="newABLentry(item)"
                       >
