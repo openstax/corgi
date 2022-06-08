@@ -479,7 +479,7 @@ export default {
     collectionParts (item) {
       const split = item.collection_id.split('/')
       const repo = split.length > 2 ? split.slice(0, 2).join('/') : `openstax/${split[0]}`
-      const slug = split.slice(-1)
+      const slug = split[split.length - 1]
       return { repo, slug }
     },
     ref (item) {
