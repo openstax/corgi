@@ -6,8 +6,8 @@ from tests.utils import validate_datetime
 
 ENDPOINT = "version"
 
-
 @pytest.mark.integration
+@pytest.mark.nondestructive
 def test_version_get_request(api_url, tag, stack_name, revision):
     # GIVEN: An api url to the version endpoint
     url = f"{api_url}/{ENDPOINT}"
