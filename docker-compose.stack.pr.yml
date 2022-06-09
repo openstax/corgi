@@ -27,6 +27,7 @@ services:
       STACK_NAME: ${STACK_NAME}
       TAG: ${TAG}
       DEPLOYED_AT: ${DEPLOYED_AT}
+      GITHUB_API_TOKEN: ${GITHUB_API_TOKEN}
     image: openstax/corgi-backend:${TAG}
     logging:
       options:

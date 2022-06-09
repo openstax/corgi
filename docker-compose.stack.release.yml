@@ -51,6 +51,7 @@ services:
       - POSTGRES_HOST_AUTH_METHOD=${POSTGRES_HOST_AUTH_METHOD:-trust}
       - SQLALCHEMY_POOL_SIZE=20
       - SQLALCHEMY_MAX_OVERFLOW=10
+      - GITHUB_API_TOKEN=${GITHUB_API_TOKEN}
     deploy:
       labels:
         - traefik.frontend.rule=PathPrefix:/api,/docs,/redoc,/openapi.json

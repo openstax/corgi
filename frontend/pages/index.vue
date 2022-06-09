@@ -196,10 +196,20 @@
                         class="job-abort-button ma-2"
                         color="red darken-1"
                         outlined
-                        :disabled="[4, 5, 6].includes(parseInt(item.status_id))"
+                        :disabled="[jobStatusTypes.Failed, jobStatusTypes.Completed, jobStatusTypes.Aborted].includes(parseInt(item.status_id))"
                         @click="abortJob(item.id)"
                       >
                         Abort
+                      </v-btn>
+                      <v-btn
+                        class="job-add-to-abl-button ma-2"
+                        color="blue darken-1"
+                        outlined
+                        v-if="item.job_type_id == jobTypes.GIT_WEB_PREVIEW"
+                        :disabled="jobStatusTypes.Completed !== parseInt(item.status_id)"
+                        @click="newABLentry(item)"
+                      >
+                        Copy new ABL entry
                       </v-btn>
                     </v-col>
                   </v-row>
@@ -383,6 +393,14 @@ export default {
     ]
     // This value corresponds to the seeded id in the backend
     this.jobTypes = { PDF: 1, WEB_PREVIEW: 2, GIT_PDF: 3, GIT_WEB_PREVIEW: 4 }
+    this.jobStatusTypes = { 
+      Queued: 1,
+      Assigned: 2,
+      Processing: 3,
+      Failed: 4,
+      Completed: 5,
+      Aborted: 6
+    }
     this.getUrlEntries = (input) => {
       if (input == null) {
         return []
@@ -458,21 +476,61 @@ export default {
         this.closeDialog()
       }
     },
-    ref (item) {
-      return !item.version ? 'main' : item.version.trim(' ')
-    },
-    collectionURL (item) {
+    collectionParts (item) {
       const split = item.collection_id.split('/')
       const repo = split.length > 2 ? split.slice(0, 2).join('/') : `openstax/${split[0]}`
+      const slug = split[split.length - 1]
+      return { repo, slug }
+    },
+    ref (item) {
+      return (!item.version || item.version === 'latest') ? 'main' : item.version.trim(' ')
+    },
+    collectionURL (item) {
+      const { repo } = this.collectionParts(item)
       return `https://github.com/${repo}/tree/${this.ref(item)}`
     },
     async abortJob (jobId) {
       const data = {
-        status_id: 6,
+        status_id: this.jobStatusTypes.Aborted,
         error_message: 'Job was aborted.'
       }
       await this.$axios.$put(`/api/jobs/${jobId}`, data)
       setTimeout(() => { this.getJobsImmediate() }, 1000)
+    },
+    async newABLentry (item) {
+      const { repo, slug } = this.collectionParts(item)
+      const [owner, repoName] = repo.split('/')
+      if (owner !== 'openstax') {
+        const errMsg = 'Only Openstax repositories can be added to the ABL at this time'
+        alert(errMsg)
+        throw new Error(errMsg)
+      }
+      const version = this.ref(item)
+      const ablData = await this.$axios.$get(`/api/abl/${repoName}/${slug}/${version}`)
+
+      const ablEntry = {
+        repository_name: repoName,
+        platforms: ['REX'],
+        versions: [
+          {
+            min_code_version: null,  // To be filled in manually
+            edition: null,  // To be filled in manually
+            commit_sha: ablData.commit_sha,
+            commit_metadata: {
+              committed_at: ablData.committed_at,
+              books: [
+                {
+                  style: ablData.style,
+                  uuid: ablData.uuid,
+                  slug
+                }
+              ]
+            }
+          }
+        ]
+      }
+      await navigator.clipboard.writeText(JSON.stringify(ablEntry, null, 2))
+      window.open(`https://github.com/openstax/content-manager-approved-books/edit/main/approved-book-list.json#L${ablData.line_number}`, '_blank')
     },
     async submitCollection (collectionId, contentServerId, version, astyle, jobType) {
       // This fails to queue the job silently so the rate limit duration shouldn't
@@ -484,7 +542,7 @@ export default {
       try {
         const data = {
           collection_id: collectionId,
-          status_id: 1,
+          status_id: this.jobStatusTypes.Queued,
           pdf_url: null,
           version: version || null,
           style: astyle,
