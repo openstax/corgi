@@ -8,10 +8,10 @@ from lxml import etree
 headers = {"authorization": f"token {config.GITHUB_API_TOKEN}"}
 
 
-async def get_abl_info(repo_name, slug, version="main"):
+async def get_abl_info(repo_name, version="main"):
     loop = asyncio.get_running_loop()
     metadata = await loop.run_in_executor(None, get_book_metadata,
-                                          repo_name, slug, version)
+                                          repo_name, version)
     metadata["line_number"] = await loop.run_in_executor(
         None, get_abl_line_number, repo_name)
 
@@ -28,7 +28,7 @@ def get_abl_line_number(repo_name):
     return 1
 
 
-def get_book_metadata(repo_name, slug, version="main"):
+def get_book_metadata(repo_name, version="main"):
     owner = "openstax"
     repos_url = f"https://api.github.com/repos/{owner}"
 
