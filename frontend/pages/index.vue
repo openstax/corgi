@@ -498,7 +498,7 @@ export default {
       setTimeout(() => { this.getJobsImmediate() }, 1000)
     },
     async newABLentry (item) {
-      const { repo, slug } = this.collectionParts(item)
+      const { repo } = this.collectionParts(item)
       const [owner, repoName] = repo.split('/')
       if (owner !== 'openstax') {
         const errMsg = 'Only Openstax repositories can be added to the ABL at this time'
@@ -506,7 +506,7 @@ export default {
         throw new Error(errMsg)
       }
       const version = this.ref(item)
-      const ablData = await this.$axios.$get(`/api/abl/${repoName}/${slug}/${version}`)
+      const ablData = await this.$axios.$get(`/api/abl/${repoName}/${version}`)
 
       // What goes inside the versions array
       const versionEntry = {
