@@ -1,5 +1,4 @@
 import asyncio
-from base64 import b64decode
 
 import requests
 from app.core import config
@@ -33,16 +32,11 @@ def get_book_metadata(repo_name, slug, version="main"):
     owner = "openstax"
     repos_url = f"https://api.github.com/repos/{owner}"
 
-    # commit_sha
-    refs = requests.get(
-        f"{repos_url}/{repo_name}/git/refs/heads/{version}", headers=headers)
-    refs_obj = refs.json()
-    commit_sha = refs_obj["object"]["sha"]
-
-    # committed_at
+    # commit_sha and committed_at
     commit = requests.get(
-        f"{repos_url}/{repo_name}/commits/{commit_sha}", headers=headers)
+        f"{repos_url}/{repo_name}/commits/{version}", headers=headers)
     commit_obj = commit.json()
+    commit_sha = commit_obj["sha"]
     commit_timestamp = commit_obj["commit"]["committer"]["date"]
     fixed_timestamp = f"{commit_timestamp[:-1]}+00:00"
 
@@ -71,7 +65,6 @@ def get_book_metadata(repo_name, slug, version="main"):
 def get_git_file(owner, repo_name, path, version):
     contents_url = (f"https://api.github.com/repos/{owner}/"
                     f"{repo_name}/contents/{path}?ref={version}")
-    git_metadata = requests.get(contents_url, headers=headers)
-    base64_content = git_metadata.json()["content"]
-    content = b64decode(base64_content)
-    return content
+    git_metadata = requests.get(contents_url, headers=dict(
+        **headers, accept="application/vnd.github.v3.raw"))
+    return git_metadata.text
