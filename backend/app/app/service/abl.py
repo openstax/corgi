@@ -10,7 +10,7 @@ headers = {"authorization": f"token {config.GITHUB_API_TOKEN}"}
 
 async def get_abl_info(repo_name, slug, version="main"):
     loop = asyncio.get_running_loop()
-    metadata = await loop.run_in_executor(None, get_book_metadata, 
+    metadata = await loop.run_in_executor(None, get_book_metadata,
                                           repo_name, slug, version)
     metadata["line_number"] = await loop.run_in_executor(
         None, get_abl_line_number, repo_name)
@@ -40,23 +40,28 @@ def get_book_metadata(repo_name, slug, version="main"):
     commit_timestamp = commit_obj["commit"]["committer"]["date"]
     fixed_timestamp = f"{commit_timestamp[:-1]}+00:00"
 
-    # style
+    # books
     meta_inf = get_git_file(owner, repo_name, "META-INF/books.xml", version)
     meta = etree.fromstring(meta_inf)
-    style = meta.xpath(
-        f"//*[local-name()='book'][@slug='{slug}']")[0].attrib["style"]
+    books = []
+    for el in meta.xpath(f"//*[local-name()='book']"):
+        book = {
+            k: el.attrib[k] for k in ("slug", "style")
+        }
+        slug = book["slug"]
 
-    # uuid
-    collection_xml = get_git_file(
-        owner, repo_name, f"/collections/{slug}.collection.xml", version)
-    collection = etree.fromstring(collection_xml)
-    uuid = collection.xpath("//*[local-name()='uuid']")[0].text
+        collection_xml = get_git_file(
+            owner, repo_name, f"/collections/{slug}.collection.xml", version)
+        collection = etree.fromstring(collection_xml)
+        uuid = collection.xpath("//*[local-name()='uuid']")[0].text
+        book["uuid"] = uuid
+
+        books.append(book)
 
     metadata = {
         "commit_sha": commit_sha,
         "committed_at": fixed_timestamp,
-        "uuid": uuid,
-        "style": style
+        "books": books
     }
 
     return metadata
