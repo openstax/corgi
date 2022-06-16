@@ -21,7 +21,7 @@ requests = "2.27.1"
 pytest = "^6.2.5"
 pytest-testrail = "^2.9.0"
 importlib-metadata = "^4.8.2"
-playwright = "1.19.0"
+playwright = "1.22"
 pytest-base-url = "^2.0.0"
 pytest-mock = "^3.7.0"
 
