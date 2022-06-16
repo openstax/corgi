@@ -1,4 +1,4 @@
-FROM openstax/python3-base:20211117.170559 as base
+FROM openstax/python3-base:20220614.214431 as base
 
 RUN apt-get update -qq \
  && apt-get install -y --no-install-recommends \
@@ -6,7 +6,7 @@ RUN apt-get update -qq \
     libpq-dev \
  && apt-get autoremove -y
 
-FROM openstax/python3-poetry:20211117.174217 as dev-builder
+FROM openstax/python3-poetry:20220614.214642 as dev-builder
 
 # copy files
 COPY ./app /build/
@@ -20,7 +20,7 @@ RUN python -m venv /opt/venv && \
   pip install --no-cache-dir -U 'pip' && \
   poetry install --no-root --no-interaction
 
-FROM openstax/python3-poetry:20211117.174217 as prod-builder
+FROM openstax/python3-poetry:20220614.214642 as prod-builder
 
 # copy files
 COPY ./app /build/
