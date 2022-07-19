@@ -32,7 +32,7 @@ Developers have the capability of deploying PR environments of the entire CORGI 
 Troubleshooting CORGI in Production
 ***********************************
 
-The CORGI system is managed by our container orchestration, Docker Swarm. We utilize automation to talk directly with Docker Swarm for operations. The deployment to staging sets the tag for the images that should be used and the production step simply takes the same tag and places it in rolls it over automatically. This is very similar to a Blue/Green deployment. Our `release pipeline <https://github.com/openstax/corgi/blob/main/scripts/deploy.sh#L24>`_ utilizes a method similar to how a user would manually manage a swarm. Follow the `instructions in Confluence <https://openstax.atlassian.net/wiki/spaces/CE/pages/2020737025/CE+Infrastructure#ssh-connect>`_ if you need to manage the swarm directly.
+The CORGI system is managed by our container orchestration, Docker Swarm. We utilize automation to talk directly with Docker Swarm for operations. The deployment to staging sets the tag for the images that should be used and the production step simply takes the same tag and rolls it over automatically. This is very similar to a Blue/Green deployment. Our `release pipeline <https://github.com/openstax/corgi/blob/main/scripts/deploy.sh#L24>`_ utilizes a method similar to how a user would manually manage a swarm. Follow the `instructions in Confluence <https://openstax.atlassian.net/wiki/spaces/CE/pages/2020737025/CE+Infrastructure#ssh-connect>`_ if you need to manage the swarm directly.
 
 *************************
 Managing CORGI Basic Auth
