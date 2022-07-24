@@ -14,9 +14,12 @@ produce OpenStax book artifacts for Content Managers (CMs),
 QA, and developers. CORGI is used to create, monitor, and 
 display the status of content production tasks. 
 
+*****************
+Table of Contents
+*****************
+
 .. toctree::
-   :maxdepth: 2
-   :hidden:
+   :maxdepth: 3
 
    operations/setting_up_the_swarm
    operations/generate_pipeline_config
@@ -25,7 +28,6 @@ display the status of content production tasks.
 .. toctree::
    :maxdepth: 2
    :caption: Extras
-   :hidden:
 
    glossary
 
