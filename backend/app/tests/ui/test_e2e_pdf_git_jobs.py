@@ -30,6 +30,7 @@ def test_e2e_pdf_git_jobs(chrome_page, corgi_base_url, colid, version, style):
     home.fill_style_field(style)
 
     # AND: Create button is clicked
+    home.remove_focus()
     home.click_create_button()
 
     # THEN: The home closes and job is queued
