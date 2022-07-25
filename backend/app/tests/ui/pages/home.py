@@ -155,3 +155,6 @@ class HomeCorgi:
         return self.page.locator(
             "div:nth-child(3) > div > div > table > tbody > tr:nth-child(1) > td:nth-child(9)"
         )
+
+    def remove_focus(self):
+        return self.page.keyboard.press("Tab")
