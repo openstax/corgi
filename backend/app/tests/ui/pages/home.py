@@ -97,10 +97,6 @@ class HomeCorgi:
             "div:nth-child(3) > div > div > table > tbody > tr:nth-child(1) > td:nth-child(4)"
         )
 
-    @property
-    def start_time_seconds_value_is_visible(self):
-        return self.page.wait_for_selector("div:nth-child(3) > div > div > table > tbody > tr:nth-child(1) > td:nth-child(7) :text('a few seconds ago')")
-
     def fill_collection_id_field(self, value):
         self.collection_id_field.fill(value)
 
@@ -168,3 +164,8 @@ class HomeCorgi:
 
     def remove_focus(self):
         return self.page.keyboard.press("Tab")
+
+    @property
+    def start_time_seconds_value_is_visible(self):
+        return self.page.wait_for_selector(
+            "div:nth-child(3) > div > div > table > tbody > tr:nth-child(1) > td:nth-child(7) :text('a few seconds ago')")

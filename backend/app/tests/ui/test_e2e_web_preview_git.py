@@ -9,7 +9,7 @@ from pages.home import HomeCorgi
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
     "colid, version, style",
-    [("osbooks-introduction-philosophy/introduction-philosophy", "", "philosophy")],
+    [("osbooks-introduction-philosophy/introduction-philosophy", "main", "philosophy")],
 )
 def test_e2e_web_preview_git(chrome_page, corgi_base_url, colid, version, style):
     # GIVEN: Playwright, chromium and the corgi_base_url
