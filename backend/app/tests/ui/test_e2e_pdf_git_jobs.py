@@ -33,6 +33,11 @@ def test_e2e_pdf_git_jobs(chrome_page, corgi_base_url, colid, version, style):
     home.remove_focus()
     home.click_create_button()
 
-    # THEN: The home closes and job is queued
-    assert home.create_new_job_button_is_visible
-    assert "queued" in home.status_message.text_content()
+    if home.start_time_seconds_value_is_visible and home.colid_value.text_content() == "osbooks-contemporary-math/contemporary-math":
+
+        # THEN: The home closes and job is queued
+        assert home.create_new_job_button_is_visible
+        assert "queued" in home.status_message.text_content()
+
+    else:
+        pytest.fail("Job was not created? Check corgi")

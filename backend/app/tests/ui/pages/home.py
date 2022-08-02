@@ -4,7 +4,7 @@ class HomeCorgi:
 
     @property
     def create_new_job_button_is_visible(self):
-        return self.page.wait_for_selector("text=create a new job")
+        return self.page.wait_for_selector("button.create-job-button")
 
     def click_create_new_job_button(self):
         self.create_new_job_button_is_visible.click()
@@ -90,6 +90,16 @@ class HomeCorgi:
         return self.page.locator(
             "div:nth-child(2) > div:nth-child(1) > div > div > div.v-input__slot > div > label"
         )
+
+    @property
+    def colid_value(self):
+        return self.page.locator(
+            "div:nth-child(3) > div > div > table > tbody > tr:nth-child(1) > td:nth-child(4)"
+        )
+
+    @property
+    def start_time_seconds_value_is_visible(self):
+        return self.page.wait_for_selector("div:nth-child(3) > div > div > table > tbody > tr:nth-child(1) > td:nth-child(7) :text('a few seconds ago')")
 
     def fill_collection_id_field(self, value):
         self.collection_id_field.fill(value)
