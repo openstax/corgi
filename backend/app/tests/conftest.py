@@ -60,3 +60,8 @@ def pytest_runtest_setup(item):
         pytest.skip("This test is destructive and the target URL is"
                     "considered a sensitive environment. If this test"
                     "is not destructive add the 'nondestructive' marker.")
+
+
+@pytest.fixture(scope="session")
+def api_jobs_url(base_url):
+    return f"{base_url}api"
