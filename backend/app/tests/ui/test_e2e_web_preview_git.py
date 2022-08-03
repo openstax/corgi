@@ -13,9 +13,9 @@ import requests
     "colid, version, style",
     [("osbooks-introduction-philosophy/introduction-philosophy", "", "philosophy")],
 )
-def test_e2e_web_preview_git(api_jobs_url, chrome_page, corgi_base_url, colid, version, style):
+def test_e2e_web_preview_git(api_url, chrome_page, corgi_base_url, colid, version, style):
     # GIVEN: Playwright, chromium and the corgi_base_url
-    url = f"{api_jobs_url}/jobs/"
+    url = f"{api_url}/jobs/"
 
     # WHEN: The Home page is fully loaded
     chrome_page.goto(corgi_base_url)

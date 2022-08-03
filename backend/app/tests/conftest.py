@@ -63,5 +63,8 @@ def pytest_runtest_setup(item):
 
 
 @pytest.fixture(scope="session")
-def api_jobs_url(base_url):
-    return f"{base_url}/api"
+def api_url(base_url):
+    if "frontend" in base_url:
+        return "http://backend/api"
+    else:
+        return f"{base_url}/api"
