@@ -5,8 +5,6 @@ from pages.home import HomeCorgi
 
 import requests
 
-from time import sleep
-
 
 @pytestrail.case("C620213")
 @pytest.mark.ui
@@ -37,8 +35,6 @@ def test_e2e_web_preview_git(api_url, chrome_page, corgi_base_url, colid, versio
     # AND: Create button is clicked
     home.remove_focus()
     home.click_create_button()
-
-    sleep(3)
 
     # AND: Data from latest job are collected
     response_json = requests.get(url).json()
