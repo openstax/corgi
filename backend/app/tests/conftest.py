@@ -64,4 +64,4 @@ def pytest_runtest_setup(item):
 
 @pytest.fixture(scope="session")
 def api_jobs_url(base_url):
-    return f"{base_url}api"
+    return f"{base_url}/api"
