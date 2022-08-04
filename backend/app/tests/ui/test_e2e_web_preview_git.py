@@ -37,18 +37,24 @@ def test_e2e_web_preview_git(api_url, chrome_page, corgi_base_url, colid, versio
     home.click_create_button()
 
     # AND: Data from latest job are collected
-    response_json = requests.get(url).json()
+    r = requests.get(url)
+
+    if r.status_code != 200:
+        pytest.fail(f"Response to {url} did not return 200 code as expected!")
+
+    response_json = r.json()
+
     latest_job = max(response_json, key=lambda ev: ev['id'])
 
     colid_latest = latest_job["collection_id"]
-    status_latest = latest_job["status"]["name"]
+    # status_latest = latest_job["status"]["name"]
     job_id_latest = latest_job["id"]
 
     if job_id_latest and colid_latest == colid:
 
         # THEN: The home closes and job is queued
         assert home.create_new_job_button_is_visible
-        assert status_latest == home.status_message.inner_text()
+        # assert status_latest == home.status_message.inner_text()
 
     else:
         pytest.fail("Something failed here...")
