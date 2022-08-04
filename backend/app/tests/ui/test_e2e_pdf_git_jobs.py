@@ -32,6 +32,29 @@ def test_e2e_pdf_git_jobs(api_url, chrome_page, corgi_base_url, colid, version, 
     home.fill_version_field(version)
     home.fill_style_field(style)
 
+    # AND: Create button is clicked
+    home.remove_focus()
     home.click_create_button()
 
-    assert not home.create_button_is_visible
+    # AND: Data from latest job are collected
+    r = requests.get(url)
+
+    if r.status_code != 200:
+        pytest.fail(f"Response to {url} did not return 200 code as expected!")
+
+    response_json = r.json()
+
+    latest_job = max(response_json, key=lambda ev: ev['id'])
+
+    colid_latest = latest_job["collection_id"]
+    status_latest = latest_job["status"]["name"]
+    job_id_latest = latest_job["id"]
+
+    if job_id_latest and colid_latest == colid:
+
+        # THEN: The home closes and job is queued
+        assert home.create_new_job_button_is_visible
+        assert status_latest == home.status_message.inner_text()
+
+    else:
+        pytest.fail("Something failed here...")

@@ -15,7 +15,7 @@ class HomeCorgi:
 
     @property
     def create_button_is_visible(self):
-        return self.page.wait_for_selector("button.create-button-start-job")
+        return self.page.locator("button.create-button-start-job")
 
     def click_create_button(self):
         self.create_button_is_visible.click()
