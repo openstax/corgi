@@ -4,7 +4,7 @@ class HomeCorgi:
 
     @property
     def create_new_job_button_is_visible(self):
-        return self.page.wait_for_selector("button.create-job-button")
+        return self.page.wait_for_selector("button.create-job-button :text('Create a new job')")
 
     def click_create_new_job_button(self):
         self.create_new_job_button_is_visible.click()
@@ -15,7 +15,7 @@ class HomeCorgi:
 
     @property
     def create_button_is_visible(self):
-        return self.page.locator("button.create-button-start-job")
+        return self.page.wait_for_selector("button.create-button-start-job :text('Create')")
 
     def click_create_button(self):
         self.create_button_is_visible.click()
