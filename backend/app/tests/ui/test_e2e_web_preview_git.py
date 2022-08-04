@@ -47,14 +47,14 @@ def test_e2e_web_preview_git(api_url, chrome_page, corgi_base_url, colid, versio
     latest_job = max(response_json, key=lambda ev: ev['id'])
 
     colid_latest = latest_job["collection_id"]
-    # status_latest = latest_job["status"]["name"]
+    status_latest = latest_job["status"]["name"]
     job_id_latest = latest_job["id"]
 
     if job_id_latest and colid_latest == colid:
 
         # THEN: The home closes and job is queued
         assert home.create_new_job_button_is_visible
-        # assert status_latest == home.status_message.inner_text()
+        assert status_latest == home.status_message.inner_text()
 
     else:
         pytest.fail("Something failed here...")
