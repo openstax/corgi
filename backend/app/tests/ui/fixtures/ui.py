@@ -7,7 +7,7 @@ def chrome_page():
     """Return playwright chromium browser page"""
     playwright_sync = sync_playwright().start()
     chrome_browser = playwright_sync.chromium.launch(
-        headless=False, slow_mo=1000, timeout=99999
+        headless=True, slow_mo=1000, timeout=99999
     )
     page = chrome_browser.new_page()
     yield page
