@@ -32,4 +32,6 @@ def test_e2e_pdf_git_jobs(api_url, chrome_page, corgi_base_url, colid, version, 
     home.fill_version_field(version)
     home.fill_style_field(style)
 
-    assert home.create_button_is_visible
+    home.click_create_button()
+
+    assert not home.create_button_is_visible
