@@ -5,6 +5,8 @@ from pages.home import HomeCorgi
 
 import requests
 
+from time import sleep
+
 
 @pytestrail.case("C618754")
 @pytest.mark.ui
@@ -26,19 +28,21 @@ def test_e2e_pdf_git_jobs(api_url, chrome_page, corgi_base_url, colid, version, 
 
     # AND: Clicks the PDF(git) button
     home.click_pdf_git_radio_button()
+    sleep(2)
 
     # AND: Correct data are typed into the input fields
     home.fill_collection_id_field(colid)
+    sleep(2)
     home.fill_version_field(version)
+    sleep(2)
     home.fill_style_field(style)
-
-    chrome_page.keyboard.down("Tab")
-    chrome_page.keyboard.down("Tab")
-    chrome_page.keyboard.down("Enter")
+    sleep(2)
 
     # AND: Create button is clicked
-    # home.remove_focus()
-    # home.click_create_button()
+    home.remove_focus()
+    sleep(2)
+    home.click_create_button()
+    sleep(2)
 
     # AND: Data from latest job are collected
     r = requests.get(url)
