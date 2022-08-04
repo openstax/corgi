@@ -107,11 +107,11 @@ To run the tests execute:
 
 ### How to develop UI tests
 
-> :warning: WARNING :warning: This functionality does not currently work because of the replacement of Selenium with Playwright. We do plan to return the functionality to the backend-tests image 
+It's useful to run the stack locally when developing UI tests. The same script above in `Run integration tests` section can be used in order to support interactive testing.
 
-It's useful to run the stack locally when developing UI tests. The same script above in `Run integration tests` section can be edited in order to support interactive testing.
+We currently don't have a config to pass to the testing framework. The browser is hidden by default. In order to see the browser you'll need to update the `headless=False` value in the fixture to `headless=True` in the [playwright fixture](./backend/app/tests/ui/fixtures/ui.py) file.
 
-In the [./scripts/tests.ci.local](./scripts/tests.ci.local) file comment out the last line. This will keep all the containers alive after running the tests. Then you can continue to develop your tests and not need to re-create the environment everytime. 
+After you've updated the fixture to allow the browser to display you can run the tests and view them using a VNC client.
 
 In order to view the browser first list all the containers for the docker-stack.yml file:
 
