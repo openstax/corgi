@@ -36,7 +36,6 @@ services:
       - ./backend/app:/app
     ports:
       - '5900'
-    command: bash -c "while true; do sleep 1; done"
     env_file:
       - env-backend.env
     environment: &testenv
