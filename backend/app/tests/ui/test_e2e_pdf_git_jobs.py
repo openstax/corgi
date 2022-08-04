@@ -32,8 +32,10 @@ def test_e2e_pdf_git_jobs(api_url, chrome_page, corgi_base_url, colid, version, 
     home.fill_version_field(version)
     home.fill_style_field(style)
 
+    chrome_page.keyboard.down("Tab")
+
     # AND: Create button is clicked
-    home.remove_focus()
+    # home.remove_focus()
     home.click_create_button()
 
     # AND: Data from latest job are collected
