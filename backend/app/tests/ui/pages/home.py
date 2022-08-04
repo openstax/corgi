@@ -163,4 +163,4 @@ class HomeCorgi:
         )
 
     def remove_focus(self):
-        return self.page.keyboard.press("Tab")
+        return self.page.keyboard.down("Tab")
