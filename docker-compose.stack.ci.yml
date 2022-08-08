@@ -21,6 +21,9 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+        API_URL: 'http://backend'
+        API_URL_BROWSER: 'http://backend'
     labels:
       - traefik.frontend.rule=PathPrefix:/
       - traefik.enable=true
