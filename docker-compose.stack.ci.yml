@@ -17,16 +17,18 @@ services:
       - traefik.port=80
     ports:
       - '80:80'
-  
   frontend:
     build:
       context: ./frontend
+      args:
+        API_URL: 'http://backend'
+        API_URL_BROWSER: 'http://backend'
+        
     labels:
       - traefik.frontend.rule=PathPrefix:/
       - traefik.enable=true
       - traefik.port=80
       - traefik.tags=${TRAEFIK_TAG}
-
   backend-tests:
     build:
       context: ./backend
@@ -35,7 +37,7 @@ services:
       - /tmp/test-results:/tmp/test-results
       - ./backend/app:/app
     ports:
-      - '5900'
+      - '5900:5900'
     env_file:
       - env-backend.env
     environment: &testenv
@@ -49,6 +51,7 @@ services:
       - TAG=${TAG}
       - STACK_NAME=${STACK_NAME}
       - DEPLOYED_AT=${DEPLOYED_AT}
+    command: bash -c "while true; do sleep 1; done"
   backend:
     build:
       context: ./backend
