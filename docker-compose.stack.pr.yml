@@ -17,7 +17,7 @@ services:
         delay: 10s
         parallelism: 1
     environment:
-      BACKEND_CORS_ORIGINS: http://localhost, http://localhost:3000
+      BACKEND_CORS_ORIGINS: http://localhost, http://localhost:3000. http://localhost:7777
       POSTGRES_DB: corgi_${PR_NUMBER}
       POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_PASSWORD: ''
@@ -82,7 +82,7 @@ services:
     deploy:
       labels:
         traefik.enable: "true"
-        traefik.frontend.rule: PathPrefix:/
+        traefik.frontend.rule: PathPrefix:/svelte
         traefik.port: '7777'
         traefik.tags: traefik-pr-${PR_NUMBER}
       replicas: 1
