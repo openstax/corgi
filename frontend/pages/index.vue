@@ -203,10 +203,10 @@
                         Abort
                       </v-btn>
                       <v-btn
+                        v-if="item.job_type_id == jobTypes.GIT_WEB_PREVIEW"
                         class="job-add-to-abl-button ma-2"
                         color="blue darken-1"
                         outlined
-                        v-if="item.job_type_id == jobTypes.GIT_WEB_PREVIEW"
                         :disabled="jobStatusTypes.Completed !== parseInt(item.status_id)"
                         @click="newABLentry(item)"
                       >
@@ -394,7 +394,7 @@ export default {
     ]
     // This value corresponds to the seeded id in the backend
     this.jobTypes = { PDF: 1, WEB_PREVIEW: 2, GIT_PDF: 3, GIT_WEB_PREVIEW: 4, GIT_DOCX: 5 }
-    this.jobStatusTypes = { 
+    this.jobStatusTypes = {
       Queued: 1,
       Assigned: 2,
       Processing: 3,
@@ -511,8 +511,8 @@ export default {
 
       // What goes inside the versions array
       const versionEntry = {
-        min_code_version: null,  // To be filled in manually
-        edition: null,  // To be filled in manually
+        min_code_version: null, // To be filled in manually
+        edition: null, // To be filled in manually
         commit_sha: ablData.commit_sha,
         commit_metadata: {
           committed_at: ablData.committed_at,
@@ -528,9 +528,9 @@ export default {
             versions: [
               versionEntry
             ]
-          } 
+          }
         : versionEntry
-      
+
       await navigator.clipboard.writeText(JSON.stringify(ablEntry, null, 2))
       window.open(`https://github.com/openstax/content-manager-approved-books/edit/main/approved-book-list.json#L${ablData.line_number}`, '_blank')
     },
