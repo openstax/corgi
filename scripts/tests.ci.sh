@@ -9,8 +9,6 @@ TEST_RESULTS_UI=${TEST_RESULTS_UI-./junit-ui.xml}
 
 echo "Test results will be saved in: ${TEST_RESULTS_DIR}"
 
-BACKEND_URL="http://backend"
-FRONTEND_URL="http://frontend"
 DEPLOYED_AT=$(date '+%Y%m%d.%H%M%S')
 REVISION=$(git --git-dir=./.git rev-parse --short HEAD)
 
@@ -30,8 +28,3 @@ docker-compose -f docker-stack.yml exec backend-tests wait-for-it -t 10 db:5432
 docker-compose -f docker-stack.yml exec db psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS tests"
 docker-compose -f docker-stack.yml exec db psql -h db -d postgres -U postgres -c "CREATE DATABASE tests ENCODING 'UTF8'"
 docker-compose -f docker-stack.yml restart backend
-docker-compose -f docker-stack.yml exec backend-tests wait-for-it -t 10 backend:80
-docker-compose -f docker-stack.yml exec -T backend-tests pytest -vvv --junitxml="${TEST_RESULTS_INTEGRATION}" --base-url="${BACKEND_URL}" ./tests/integration
-docker-compose -f docker-stack.yml exec -T backend-tests pytest -vvv --junitxml="${TEST_RESULTS_UI}" --base-url="${FRONTEND_URL}" ./tests/ui
-# Comment this line out to leave the stack running. Useful for test development.
-docker-compose -f docker-stack.yml down -v --remove-orphans
