@@ -16,12 +16,19 @@ jobs:
       TAG: dev
       REVISION: dev
       DOMAIN: localhost
+      POETRY_HOME: /etc/poetry
 
     steps:
       - checkout
       # Permissions errors occurred with 0775 due to
       # docker user not having permissions over this folder.
       - run: mkdir -p -m=0777 $TEST_RESULTS_DIR
+
+      - run:
+        name: Install poetry
+        command:
+          curl -sSL https://install.python-poetry.org | POETRY_HOME=$POETRY_HOME python3 -
+          echo 'export PATH=/etc/poetry:$PATH' >> $BASH_ENV
 
       - run:
           name: Run integration and ui tests
