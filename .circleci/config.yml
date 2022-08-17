@@ -15,6 +15,7 @@ jobs:
       STACK_NAME: dev
       TAG: dev
       REVISION: dev
+      DOMAIN: localhost
 
     steps:
       - checkout
@@ -28,8 +29,8 @@ jobs:
             ./scripts/tests.ci.sh
             cd ./backend/app
             poetry install --no-interaction --no-root
-            poetry run pytest -vvv --junitxml="${TEST_RESULTS_UI}" --base-url="http://localhost" ./tests/ui
-            poetry run pytest -vvv --junitxml="${TEST_RESULTS_INTEGRATION}" --base-url="http://localhost" ./tests/integration
+            poetry run pytest -vvv --junitxml="${TEST_RESULTS_UI}" --base-url="${DOMAIN}" ./tests/ui
+            poetry run pytest -vvv --junitxml="${TEST_RESULTS_INTEGRATION}" --base-url="${DOMAIN}" ./tests/integration
 
       - store_artifacts:
           path: /tmp/test-results/junit-integration.xml
