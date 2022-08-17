@@ -16,7 +16,6 @@ jobs:
       TAG: dev
       REVISION: dev
       DOMAIN: localhost
-      POETRY_HOME: /etc/poetry
 
     steps:
       - checkout
@@ -27,8 +26,8 @@ jobs:
       - run:
           name: Install poetry
           command: |
-            curl -sSL https://install.python-poetry.org | POETRY_HOME=$POETRY_HOME python3 -
-            echo 'export PATH=/etc/poetry:$PATH' >> $BASH_ENV
+            curl -sSL https://install.python-poetry.org | python3 -
+            echo 'export PATH=$HOME/.local/bin:$PATH' >> $BASH_ENV
 
       - run:
           name: Run integration and ui tests
