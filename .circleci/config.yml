@@ -22,15 +22,13 @@ jobs:
       # Permissions errors occurred with 0775 due to
       # docker user not having permissions over this folder.
       - run: mkdir -p -m=0777 $TEST_RESULTS_DIR
-      - python/install-packages:
-          pkg-manager: poetry
-          app-dir: ./backend/app
+
       - run:
           name: Run integration and ui tests
           command: |
             ./scripts/tests.ci.sh
             cd ./backend/app
-            poetry install --no-interaction --no-root
+            poetry install
             poetry run pytest -vvv --junitxml="${TEST_RESULTS_UI}" --base-url="${DOMAIN}" ./tests/ui
             poetry run pytest -vvv --junitxml="${TEST_RESULTS_INTEGRATION}" --base-url="${DOMAIN}" ./tests/integration
 
