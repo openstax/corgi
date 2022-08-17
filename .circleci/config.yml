@@ -25,13 +25,12 @@ jobs:
       - python/install-packages:
           pkg-manager: poetry
           app-dir: ./backend/app
-
       - run:
           name: Run integration and ui tests
           command: |
             ./scripts/tests.ci.sh
             cd ./backend/app
-            poetry install
+            poetry install --no-interaction --no-root
             poetry run pytest -vvv --junitxml="${TEST_RESULTS_UI}" --base-url="${DOMAIN}" ./tests/ui
             poetry run pytest -vvv --junitxml="${TEST_RESULTS_INTEGRATION}" --base-url="${DOMAIN}" ./tests/integration
 
