@@ -6,12 +6,6 @@ from pages.home import HomeCorgi
 import requests
 
 
-"""
-Verifies that a corgi pdf-git job has been created and queued.
-Latest update on August 18th, 2022
-"""
-
-
 @pytestrail.case("C618754")
 @pytest.mark.ui
 @pytest.mark.nondestructive
@@ -63,4 +57,4 @@ def test_e2e_pdf_git_jobs(api_url, chrome_page, corgi_base_url, colid, version, 
         assert status_latest == home.status_message.inner_text()
 
     else:
-        pytest.fail("Something failed here...")
+        pytest.fail(f"Failed! Check if {colid_latest} equals {colid} or {job_id_latest} is not empty")
