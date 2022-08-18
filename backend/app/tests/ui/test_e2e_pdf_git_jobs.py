@@ -6,6 +6,12 @@ from pages.home import HomeCorgi
 import requests
 
 
+"""
+Verifies that a corgi pdf-git job has been created and queued.
+Latest update on August 18th, 2022
+"""
+
+
 @pytestrail.case("C618754")
 @pytest.mark.ui
 @pytest.mark.nondestructive
@@ -14,7 +20,7 @@ import requests
     [("osbooks-astronomy/astronomy-2e", "latest", "astronomy")],
 )
 def test_e2e_pdf_git_jobs(api_url, chrome_page, corgi_base_url, colid, version, style):
-    # GIVEN: Playwright, chromium and the corgi_base_url
+    # GIVEN: Playwright, chromium, corgi_base_url and jobs url
     url = f"{api_url}/jobs/"
 
     # WHEN: The Home page is fully loaded
