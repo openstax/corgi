@@ -4,7 +4,7 @@ class HomeCorgi:
 
     @property
     def create_new_job_button_is_visible(self):
-        return self.page.wait_for_selector("text=create a new job")
+        return self.page.wait_for_selector("button.create-job-button :text('Create a new job')")
 
     def click_create_new_job_button(self):
         self.create_new_job_button_is_visible.click()
@@ -15,7 +15,7 @@ class HomeCorgi:
 
     @property
     def create_button_is_visible(self):
-        return self.page.wait_for_selector("button.create-button-start-job")
+        return self.page.wait_for_selector("button.create-button-start-job :text('Create')")
 
     def click_create_button(self):
         self.create_button_is_visible.click()
@@ -91,6 +91,12 @@ class HomeCorgi:
             "div:nth-child(2) > div:nth-child(1) > div > div > div.v-input__slot > div > label"
         )
 
+    @property
+    def colid_value(self):
+        return self.page.locator(
+            "div:nth-child(3) > div > div > table > tbody > tr:nth-child(1) > td:nth-child(4)"
+        )
+
     def fill_collection_id_field(self, value):
         self.collection_id_field.fill(value)
 
@@ -157,4 +163,4 @@ class HomeCorgi:
         )
 
     def remove_focus(self):
-        return self.page.keyboard.press("Tab")
+        return self.page.keyboard.down("Tab")

@@ -3,6 +3,8 @@ from pytest_testrail.plugin import pytestrail
 
 from pages.home import HomeCorgi
 
+import requests
+
 
 @pytestrail.case("C620213")
 @pytest.mark.ui
@@ -11,8 +13,9 @@ from pages.home import HomeCorgi
     "colid, version, style",
     [("osbooks-introduction-philosophy/introduction-philosophy", "", "philosophy")],
 )
-def test_e2e_web_preview_git(chrome_page, corgi_base_url, colid, version, style):
-    # GIVEN: Playwright, chromium and the corgi_base_url
+def test_e2e_web_preview_git(api_url, chrome_page, corgi_base_url, colid, version, style):
+    # GIVEN: Playwright, chromium, corgi_base_url and jobs url
+    url = f"{api_url}/jobs/"
 
     # WHEN: The Home page is fully loaded
     chrome_page.goto(corgi_base_url)
@@ -33,6 +36,26 @@ def test_e2e_web_preview_git(chrome_page, corgi_base_url, colid, version, style)
     home.remove_focus()
     home.click_create_button()
 
-    # THEN: The home closes and job is queued
-    assert home.create_new_job_button_is_visible
-    assert "queued" in home.status_message.text_content()
+    # AND: Data from latest job are collected
+    r = requests.get(url)
+
+    if r.status_code != 200:
+        pytest.fail(f"Response to {url} did not return 200 code as expected!")
+
+    response_json = r.json()
+
+    latest_job = max(response_json, key=lambda ev: ev['id'])
+
+    colid_latest = latest_job["collection_id"]
+    status_latest = latest_job["status"]["name"]
+    job_id_latest = latest_job["id"]
+
+    if job_id_latest and colid_latest == colid:
+
+        # THEN: The home closes and job is queued
+        assert home.create_new_job_button_is_visible
+        assert status_latest == home.status_message.inner_text()
+
+    else:
+        pytest.fail(f"Failed! Check if {colid_latest} equals {colid} or {job_id_latest} is not empty")
+
