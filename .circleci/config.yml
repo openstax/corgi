@@ -14,7 +14,6 @@ jobs:
       TEST_RESULTS_UI: /tmp/test-results/junit-ui.xml
       STACK_NAME: dev
       TAG: dev
-      REVISION: dev
       DOMAIN: http://localhost
 
     steps:
@@ -37,9 +36,10 @@ jobs:
           name: Run integration and ui tests
           command: |
             ./scripts/tests.ci.sh
+            REVISION=$(git --git-dir=./.git rev-parse --short HEAD)
             cd ./backend/app
-            poetry run pytest -vvv --junitxml="${TEST_RESULTS_UI}" --base-url="${DOMAIN}" ./tests/ui
-            poetry run pytest -vvv --junitxml="${TEST_RESULTS_INTEGRATION}" --base-url="${DOMAIN}" ./tests/integration
+            REVISION=$REVISION poetry run pytest -vvv --junitxml="${TEST_RESULTS_UI}" --base-url="${DOMAIN}" ./tests/ui
+            REVISION=$REVISION poetry run pytest -vvv --junitxml="${TEST_RESULTS_INTEGRATION}" --base-url="${DOMAIN}" ./tests/integration
 
       - store_artifacts:
           path: /tmp/test-results/junit-integration.xml
