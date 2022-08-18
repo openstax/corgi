@@ -10,8 +10,8 @@ jobs:
 
     environment:
       TEST_RESULTS_DIR: /tmp/test-results
-      TEST_RESULTS_INTEGRATION: /tmp/test-reports/junit-integration.xml
-      TEST_RESULTS_UI: /tmp/test-reports/junit-ui.xml
+      TEST_RESULTS_INTEGRATION: /tmp/test-results/junit-integration.xml
+      TEST_RESULTS_UI: /tmp/test-results/junit-ui.xml
       STACK_NAME: dev
       TAG: dev
       REVISION: dev
