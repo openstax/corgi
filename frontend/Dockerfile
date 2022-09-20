@@ -6,10 +6,11 @@ RUN apt-get install -y nodejs
 
 WORKDIR /app
 
-COPY package*.json /app/
+# COPY ./package*.json /app/
+# COPY ./rollup.config.js /app/
 
-RUN npm install --global pm2
-RUN npm ci
+# RUN npm install --global pm2
+# RUN npm ci
 
 COPY ./ /app/
 
@@ -18,9 +19,10 @@ ARG API_URL_BROWSER=/
 ENV API_URL=${API_URL}
 ENV API_URL_BROWSER=${API_URL_BROWSER}
 
-RUN npm run build
+# RUN npm install --global pm2 \
+RUN npm ci && npm run build
 
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 COPY ./nginx-backend-not-found.conf /etc/nginx/extra-conf.d/backend-not-found.conf
 
-CMD /etc/init.d/nginx restart ; pm2-runtime start npm --name "frontend" -- start
+CMD ["nginx", "-g", "daemon off;"]
