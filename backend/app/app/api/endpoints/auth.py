@@ -1,26 +1,44 @@
-import os
 from datetime import datetime, timedelta, timezone
 
 from urllib.parse import parse_qs
 from httpx import AsyncClient
-from fastapi import Depends, Request, APIRouter
+from fastapi import Depends, Request, APIRouter, HTTPException, status
 from fastapi.responses import RedirectResponse
-from jose import jwt
-from app.auth.utils import UnauthorizedException, UserSession, active_user
-from app.auth.config import (SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM,
-                             GITHUB_LOGIN_URL, CLIENT_ID, CLIENT_SECRET,
-                             ADMIN_TEAMS)
+from app.auth.utils import (RequiresRole, UserSession, active_user,
+                            get_user_role, get_user_teams)
+from app.core.config import (ACCESS_TOKEN_EXPIRE_MINUTES, CLIENT_ID,
+                             CLIENT_SECRET)
+from authlib.integrations.starlette_client import OAuth
 
 
 router = APIRouter()
 
+oauth = OAuth()
+oauth.register(
+    "github",
+    authorize_url="https://github.com/login/oauth/authorize",
+    access_token_url="https://github.com/login/oauth/access_token",
+    scope="read:user",
+    client_id=CLIENT_ID,
+    client_secret=CLIENT_SECRET
+)
+
+
+if oauth.github is None:
+    raise Exception("BUG: GitHub oauth could not be registered")
+
+
+github_oauth = oauth.github
+
+
 @router.get("/login")
-async def login():
-    return RedirectResponse(url=GITHUB_LOGIN_URL)
+async def login(request: Request):
+    redirect_uri = request.url_for("callback")
+    return await github_oauth.authorize_redirect(request, redirect_uri)
 
 
 @router.get("/callback")
-async def callback(code: str = ""):
+async def callback(request: Request, code: str = ""):
     async with AsyncClient() as client:
         response = await client.post(
             "https://github.com/login/oauth/access_token?"
@@ -28,65 +46,46 @@ async def callback(code: str = ""):
         )
         response.raise_for_status()
         values = parse_qs(response.text)
-        if ("access_token" not in values): raise UnauthorizedException()
+        if ("access_token" not in values):
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail='Could not authenticate'
+            )
         token = values["access_token"][0]
 
-        headers = {
+        client.headers = {
             "Accept":"application/vnd.github+json",
             "Authorization": f"Bearer {token}"
         }
 
-        response = await client.get(f"https://api.github.com/user",
-                                    headers=headers)
+        response = await client.get(f"https://api.github.com/user")
         response.raise_for_status()
         json = response.json()
         user = json["login"]
         avatar = json["avatar_url"]
         id_ = json["id"]
-        body = '''query {
-                    organization(login: "openstax") {
-                        teams(first: 100, userLogins: ["''' + user + '''"]) {
-                        totalCount
-                        edges {
-                            node {
-                                name
-                                description
-                                }
-                            }
-                        }
-                    }
-                }'''
-        
-        response = await client.post(f"https://api.github.com/graphql",
-                                     headers=headers, json={"query": body})
-        response.raise_for_status()
-
-    user_teams = [
-        node["node"]["name"]
-        for node in response.json()["data"]["organization"]["teams"]["edges"]
-    ]
-
-    if len(user_teams) == 0:
-        raise UnauthorizedException()
-
-    role = "basic"
-    if any(team in user_teams for team in ADMIN_TEAMS):
-        role = "admin"
+    
+        # user_teams = await get_user_teams(client, user)
+        # TODO: Remove hardcoded user_teams
+        user_teams = ['ce-tech']
+    role = get_user_role(user_teams)
+    if role is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='Forbidden'
+        )
 
     expiration = datetime.now(timezone.utc) + \
                  timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     data = {
         "token": token,
-        "exp": expiration,
+        "exp": expiration.timestamp(),
         "role": role,
         "github_id": id_
     }
-    jwt_encrypted = jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
+    request.session["user"] = data
 
-    response = RedirectResponse(url=f"/success")
-    response.set_cookie(key="authorization", value=jwt_encrypted, secure=True,
-                        httponly=True, samesite="lax",
-                        expires=ACCESS_TOKEN_EXPIRE_MINUTES*60)
+    response = RedirectResponse(url=f"/api/auth/success")
     return response
 
 @router.get("/success")
@@ -104,8 +103,6 @@ async def failure():
     return ":`<"
 
 
-@router.get("/logout")
-async def logout():
-    response = RedirectResponse("/")
-    response.delete_cookie(key="authorization")
-    return response
+@router.get("/admin-example", dependencies=[Depends(RequiresRole("admin"))])
+async def get_admin_info():
+    return "Congrats! You're an admin."
