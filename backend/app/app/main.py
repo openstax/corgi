@@ -1,9 +1,12 @@
-from fastapi import FastAPI
+import imp
+from fastapi import FastAPI, Request
+from fastapi.responses import Response
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api import api_router
 from app.core import config
 from app.middleware import DBSessionMiddleware
+from app.auth.utils import UnauthorizedException
 
 server = FastAPI(title="COPS - Content Output Producer Service")
 
@@ -27,5 +30,8 @@ if config.BACKEND_CORS_ORIGINS:
         allow_headers=["*"],
     ),
 
-
 server.add_middleware(DBSessionMiddleware)
+
+@server.exception_handler(UnauthorizedException)
+async def unauthorized_exception_handler(request: Request, exc: UnauthorizedException):
+    return Response(status_code=401)
