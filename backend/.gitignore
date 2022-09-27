@@ -19,3 +19,7 @@ junit*
 
 # testrail files
 testrail.cfg
+
+.env
+.coverage
+htmlcov
