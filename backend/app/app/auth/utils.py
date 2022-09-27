@@ -1,8 +1,16 @@
 from datetime import datetime, timezone
 from typing import List, Optional
+from enum import Enum
 
 from fastapi import Request, HTTPException, status, Depends
 from app.core.config import ADMIN_TEAMS
+from httpx import AsyncClient
+
+
+class Role(Enum):
+    USER = "user"
+    ADMIN = "admin"
+    DEFAULT = USER
 
 
 class UserSession:
@@ -13,7 +21,6 @@ class UserSession:
 
 
 def active_user(request: Request) -> UserSession:
-    should_fail = False
     session = request.session
     user = None
     if session is not None:
@@ -32,18 +39,20 @@ def active_user(request: Request) -> UserSession:
 
 
 class RequiresRole:
-    def __init__(self, role_id: str) -> None:
-        self.role_id = role_id
+    def __init__(self, role: Role) -> None:
+        self.role: str = role.value
 
     def __call__(self, user_session: UserSession = Depends(active_user)):
-        if user_session.role != self.role_id:
+        if user_session.role != self.role:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Forbidden"
             )
 
 
-async def get_user_teams(client, user):
+async def get_user_teams(client: AsyncClient, user: str):
+    # TODO: Remove hardcoded teams
+    return ['ce-tech']
     body = '''query {
                 organization(login: "openstax") {
                     teams(first: 100, userLogins: ["''' + user + '''"]) {
@@ -70,11 +79,11 @@ async def get_user_teams(client, user):
     return user_teams
 
 
-def get_user_role(user_teams: List[str]) -> Optional[str]:
+def get_user_role(user_teams: List[str]) -> Optional[Role]:
     if len(user_teams) == 0:
         role = None
     else:
-        role = "basic" # default role for members of any OS teams
+        role = Role.DEFAULT
         if any(team in user_teams for team in ADMIN_TEAMS):
-            role = "admin"
+            role = Role.ADMIN
     return role

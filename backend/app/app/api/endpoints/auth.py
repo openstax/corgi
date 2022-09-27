@@ -4,7 +4,7 @@ from urllib.parse import parse_qs
 from httpx import AsyncClient
 from fastapi import Depends, Request, APIRouter, HTTPException, status
 from fastapi.responses import RedirectResponse
-from app.auth.utils import (RequiresRole, UserSession, active_user,
+from app.auth.utils import (RequiresRole, Role, UserSession, active_user,
                             get_user_role, get_user_teams)
 from app.core.config import (ACCESS_TOKEN_EXPIRE_MINUTES, CLIENT_ID,
                              CLIENT_SECRET)
@@ -65,9 +65,7 @@ async def callback(request: Request, code: str = ""):
         avatar = json["avatar_url"]
         id_ = json["id"]
     
-        # user_teams = await get_user_teams(client, user)
-        # TODO: Remove hardcoded user_teams
-        user_teams = ['ce-tech']
+        user_teams = await get_user_teams(client, user)
     role = get_user_role(user_teams)
     if role is None:
         raise HTTPException(
@@ -80,12 +78,12 @@ async def callback(request: Request, code: str = ""):
     data = {
         "token": token,
         "exp": expiration.timestamp(),
-        "role": role,
+        "role": role.value,
         "github_id": id_
     }
     request.session["user"] = data
 
-    response = RedirectResponse(url=f"/api/auth/success")
+    response = RedirectResponse(url=f"/")
     return response
 
 @router.get("/success")
@@ -103,6 +101,6 @@ async def failure():
     return ":`<"
 
 
-@router.get("/admin-example", dependencies=[Depends(RequiresRole("admin"))])
+@router.get("/admin-example", dependencies=[Depends(RequiresRole(Role.ADMIN))])
 async def get_admin_info():
     return "Congrats! You're an admin."
