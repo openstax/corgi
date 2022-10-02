@@ -1,8 +1,9 @@
-from typing import Optional, Any
+from typing import List, Optional, Any
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy.orm import Session as BaseSession
+import sqlalchemy as sa
 
 from app.db.base_class import Base as BaseSchema
 
@@ -23,6 +24,10 @@ class ServiceBase(object):
 
     def get_items_by(self, db_session: BaseSession, *, skip=0, limit=100, **kwargs):
         return db_session.query(self.schema_model).offset(skip).limit(limit).filter_by(
+            **kwargs).all()
+
+    def get_fields_by(self, db_session: BaseSession, fields: List[sa.Column], *, skip=0, limit=100, **kwargs):
+        return db_session.query(*fields).offset(skip).limit(limit).filter_by(
             **kwargs).all()
 
     def get_items_order_by(self, db_session: BaseSession, *, skip=0, limit=100, order_by=[]):
