@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from pydantic import BaseModel
-from typing import Optional
+from typing import List, Optional
 
 
 class StatusBase(BaseModel):
@@ -15,17 +15,17 @@ class Status(StatusBase):
         orm_mode = True
 
 
-class ContentServerBase(BaseModel):
-    hostname: str
-    host_url: str
-    name: str
+# class ContentServerBase(BaseModel):
+#     hostname: str
+#     host_url: str
+#     name: str
 
 
-class ContentServer(ContentServerBase):
-    id: str
+# class ContentServer(ContentServerBase):
+#     id: str
 
-    class Config:
-        orm_mode = True
+#     class Config:
+#         orm_mode = True
 
 
 class JobTypeBase(BaseModel):
@@ -47,15 +47,15 @@ class JobType(JobTypeBase):
 
 
 class JobBase(BaseModel):
-    collection_id: str  # Git: '{repo}/{slug}'
+    repository: str
     status_id: str
-    pdf_url: Optional[str] = None
+    job_type_id: str
+    user: Optional[str] = None
+    version: Optional[str] = None  # Git: ref
+    artifact_urls: List[str] = []
     worker_version: Optional[str] = None
     error_message: Optional[str] = None
-    content_server_id: Optional[str] = None
-    version: Optional[str] = None  # Git: ref
     style: Optional[str] = None
-    job_type_id: str
 
 
 class JobCreate(JobBase):
@@ -64,7 +64,7 @@ class JobCreate(JobBase):
 
 class JobUpdate(BaseModel):
     status_id: str
-    pdf_url: str = None
+    pdf_url: Optional[str] = None
     worker_version: Optional[str] = None
     error_message: Optional[str] = None
 
@@ -74,8 +74,27 @@ class Job(JobBase):
     created_at: datetime
     updated_at: datetime
     status: Status
-    content_server: Optional[ContentServer]
+    # content_server: Optional[ContentServer]
     job_type: JobType
 
     class Config:
         orm_mode = True
+
+
+class GitHubRepo(BaseModel):
+    name: str
+    database_id: str
+    viewer_permission: str
+
+    @classmethod
+    def from_node(cls, node: dict):
+        def to_snake_case(s: str):
+            ret = []
+            for c in s:
+                if c.isupper():
+                    ret.append("_")
+                    ret.append(c.lower())
+                else:
+                    ret.append(c)
+            return ''.join(ret)
+        return cls(**{to_snake_case(k): v for k, v in node.items()})

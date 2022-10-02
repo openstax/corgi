@@ -1,4 +1,5 @@
 from typing import List
+from app.auth.utils import UserSession, active_user
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -53,10 +54,11 @@ def get_job(
 def create_job(
         *,
         db: Session = Depends(get_db),
+        user: UserSession = Depends(active_user),
         job_in: JobCreate
 ):
     """Create new job"""
-    job = jobs_service.create(db, job_in)
+    job = jobs_service.create(db, job_in, user)
     return job
 
 

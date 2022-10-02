@@ -55,6 +55,8 @@ services:
       context: ./backend
       dockerfile: backend.dockerfile
       target: dev-runner
+    volumes:
+      - ./backend/app:/app
     env_file:
       - env-backend.env
     environment: *testenv

@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
 from urllib.parse import parse_qs
+from app.db.schema import Repository
 from httpx import AsyncClient
 from fastapi import Depends, Request, APIRouter, HTTPException, status
 from fastapi.responses import RedirectResponse
@@ -9,6 +10,9 @@ from app.auth.utils import (RequiresRole, Role, UserSession, active_user,
 from app.core.config import (ACCESS_TOKEN_EXPIRE_MINUTES, CLIENT_ID,
                              CLIENT_SECRET)
 from authlib.integrations.starlette_client import OAuth
+from sqlalchemy.orm import Session
+from app.db.utils import get_db
+from app.service.github import repository_service, user_service
 
 
 router = APIRouter()
@@ -38,7 +42,7 @@ async def login(request: Request):
 
 
 @router.get("/callback")
-async def callback(request: Request, code: str = ""):
+async def callback(request: Request, code: str = "", db: Session = Depends(get_db) ):
     async with AsyncClient() as client:
         response = await client.post(
             "https://github.com/login/oauth/access_token?"
@@ -61,39 +65,47 @@ async def callback(request: Request, code: str = ""):
         response = await client.get(f"https://api.github.com/user")
         response.raise_for_status()
         json = response.json()
-        user = json["login"]
-        avatar = json["avatar_url"]
+        name = json["login"]
+        avatar_url = json["avatar_url"]
         id_ = json["id"]
-    
-        user_teams = await get_user_teams(client, user)
-    role = get_user_role(user_teams)
-    if role is None:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail='Forbidden'
-        )
+        user_teams = await get_user_teams(client, name)
+        role = get_user_role(user_teams)
+        if role is None:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Forbidden'
+            )
+        user_repos = await repository_service.get_user_repositories(client)
+    user = UserSession(
+        id=id_,
+        token=token,
+        role=role,
+        avatar_url=avatar_url,
+        name=name
+    )
+    user_service.upsert_user(db, user)
+    repository_service.upsert_repositories(db, [
+        Repository(id=repo.database_id, name=repo.name, owner="openstax")
+        for repo in user_repos
+    ])
+    repository_service.upsert_user_repositories(db, id_, user_repos)
 
     expiration = datetime.now(timezone.utc) + \
                  timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    data = {
-        "token": token,
+
+    request.session["user"] = {
         "exp": expiration.timestamp(),
-        "role": role.value,
-        "github_id": id_
+        "session": user.json()
     }
-    request.session["user"] = data
 
     response = RedirectResponse(url=f"/")
     return response
 
 @router.get("/success")
 async def success(
-    request: Request,
     active_user: UserSession = Depends(active_user)
 ):
-    print(active_user.id)
-    print(active_user.role)
-    return "it worked!"
+    return active_user.json()
 
 
 @router.get("/failure")
