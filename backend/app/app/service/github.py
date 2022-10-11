@@ -1,12 +1,11 @@
 from typing import List
 from enum import Enum
 
-from app.db.schema import (Repository, User, UserRepository, Commit, Book,
+from app.db.schema import (Repository, User, UserRepository,
                            RepositoryPermission)
 from app.service.base import ServiceBase
 from app.data_models.models import GitHubRepo
-from app.auth.utils import UserSession
-from httpx import AsyncClient
+from app.auth.utils import AuthenticatedClient, UserSession
 from sqlalchemy.orm import Session as BaseSession
 
 
@@ -19,42 +18,56 @@ class RepositoryPermission(int, Enum):
 
 
 class RepositoryService:
-    async def get_user_repositories(self, client: AsyncClient) -> List[GitHubRepo]:
-        query = """
-            query {
-                search(
-                    query: "org:openstax osbooks in:name archived:false",
-                    type: REPOSITORY,
-                    first: 100
-                ) {
+    async def get_user_repositories(
+        self,
+        client: AuthenticatedClient,
+        search_query: str = "org:openstax osbooks in:name archived:false"
+    ) -> List[GitHubRepo]:
+        query_args = {
+            "query": f'"{search_query}"',
+            "first": "100",
+            "type": "REPOSITORY"
+        }
+        query = '''
+            query {{
+                search({query_args}) {{
                     repositoryCount
-                    edges {
-                        node {
-                            ... on Repository {
+                    pageInfo {{
+                        endCursor
+                        hasNextPage
+                    }}
+                    edges {{
+                        node {{
+                            ... on Repository {{
                                 name
                                 databaseId
                                 viewerPermission
-                            }
-                        }
-                    }
-                }
-            }
-        """
+                            }}
+                        }}
+                    }}
+                }}
+            }}
+        '''
         repos = []
-        # NOTE: Right now it is assumed that the `client` has the authorization 
-        #       header set. It might be better to make a subclass of AsyncClient
-        #       that can only be initialized with a token. Using a subclass
-        #       would make it more clear when a function/request needs 
-        #       authorization
-        response = await client.post("https://api.github.com/graphql",
-                                        json={"query": query})
-        response.raise_for_status()
-        payload = response.json()
-        # TODO: while repositoryCount == $first, make another request
-        repos.extend([
-            GitHubRepo.from_node(node["node"])
-            for node in payload["data"]["search"]["edges"]
-        ])
+        has_next = True
+        while has_next:
+            response = await client.post(
+                "https://api.github.com/graphql",
+                json={
+                    "query": query.format(query_args=','.join(':'.join(i) 
+                                          for i in query_args.items()))
+                }
+            )
+            response.raise_for_status()
+            payload = response.json()
+
+            repos.extend([
+                GitHubRepo.from_node(node["node"])
+                for node in payload["data"]["search"]["edges"]
+            ])
+            page_info = payload["data"]["search"]["pageInfo"]
+            has_next = page_info["hasNextPage"]
+            query_args["after"] = f'"{page_info["endCursor"]}"'
         return repos
 
     def upsert_repositories(self, db: BaseSession, 

@@ -1,13 +1,9 @@
-from typing import List
-
-from app.data_models.models import GitHubRepo
-from app.db.schema import Repository, UserRepository
-from app.service.github import RepositoryPermission as DBRepositoryPermission
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from httpx import AsyncClient
 
-from app.auth.utils import Role, UserSession, active_user, github_client
+from app.db.schema import UserRepository
+from app.service.github import RepositoryPermission as DBRepositoryPermission
+from app.auth.utils import Role, UserSession, active_user
 from app.db.utils import get_db
 
 

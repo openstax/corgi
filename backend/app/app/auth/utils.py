@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import List, Optional, cast
 from enum import Enum
 from contextlib import asynccontextmanager
 
@@ -23,14 +23,22 @@ class UserSession(BaseModel):
     name: str
 
 
+class AuthenticatedClient(AsyncClient):
+    pass
+
+
+def authenticate_client(client: AsyncClient, token: str) -> AuthenticatedClient:
+    client.headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json"
+    }
+    return cast(AuthenticatedClient, client)
+
+
 @asynccontextmanager
 async def github_client(user: UserSession):
     async with AsyncClient() as client:
-        client.headers = {
-            "Authorization": f"Bearer {user.token}",
-            "Accept": "application/vnd.github+json"
-        }
-        yield client
+        yield authenticate_client(client, user.token)
 
 
 def active_user(request: Request) -> UserSession:
@@ -63,7 +71,7 @@ class RequiresRole:
             )
 
 
-async def get_user_teams(client: AsyncClient, user: str):
+async def get_user_teams(client: AuthenticatedClient, user: str):
     # TODO: Remove hardcoded teams
     return ['ce-tech']
     body = '''query {

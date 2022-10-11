@@ -5,8 +5,8 @@ from app.db.schema import Repository
 from httpx import AsyncClient
 from fastapi import Depends, Request, APIRouter, HTTPException, status
 from fastapi.responses import RedirectResponse
-from app.auth.utils import (RequiresRole, Role, UserSession, active_user,
-                            get_user_role, get_user_teams)
+from app.auth.utils import (RequiresRole, Role, UserSession, active_user, 
+                            authenticate_client, get_user_role, get_user_teams)
 from app.core.config import (ACCESS_TOKEN_EXPIRE_MINUTES, CLIENT_ID,
                              CLIENT_SECRET)
 from authlib.integrations.starlette_client import OAuth
@@ -42,7 +42,8 @@ async def login(request: Request):
 
 
 @router.get("/callback")
-async def callback(request: Request, code: str = "", db: Session = Depends(get_db) ):
+async def callback(request: Request, code: str = "",
+                   db: Session = Depends(get_db)):
     async with AsyncClient() as client:
         response = await client.post(
             "https://github.com/login/oauth/access_token?"
@@ -57,10 +58,7 @@ async def callback(request: Request, code: str = "", db: Session = Depends(get_d
             )
         token = values["access_token"][0]
 
-        client.headers = {
-            "Accept":"application/vnd.github+json",
-            "Authorization": f"Bearer {token}"
-        }
+        client = authenticate_client(client, token)
 
         response = await client.get(f"https://api.github.com/user")
         response.raise_for_status()
@@ -88,7 +86,7 @@ async def callback(request: Request, code: str = "", db: Session = Depends(get_d
         Repository(id=repo.database_id, name=repo.name, owner="openstax")
         for repo in user_repos
     ])
-    repository_service.upsert_user_repositories(db, id_, user_repos)
+    repository_service.upsert_user_repositories(db, user.id, user_repos)
 
     expiration = datetime.now(timezone.utc) + \
                  timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)

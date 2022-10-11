@@ -79,8 +79,10 @@ class Commit(Base):
 
 
 class Book(Base):
-    uuid = sa.Column(sa.String(36), primary_key=True, index=True)
-    commit_id = sa.Column(sa.Integer, sa.ForeignKey("commit.id"))
+    id = sa.Column(sa.Integer, primary_key=True, index=True)
+    uuid = sa.Column(sa.String(36), unique=True, index=True)
+    commit_id = sa.Column(sa.Integer, sa.ForeignKey("commit.id"), unique=True,
+                          index=True)
     edition = sa.Column(sa.Integer, nullable=False)
     slug = sa.Column(sa.String, nullable=False)
 
@@ -106,7 +108,7 @@ class User(Base):
 
 
 class BookJob(Base):
-    book_uuid = sa.Column(sa.ForeignKey("book.uuid"), primary_key=True,
+    book_id = sa.Column(sa.ForeignKey("book.id"), primary_key=True,
                           index=True)
     job_id = sa.Column(sa.ForeignKey("jobs.id"), primary_key=True, index=True)
     approved = sa.Column(sa.Boolean, nullable=False, default=False)
