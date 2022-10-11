@@ -1,5 +1,5 @@
 from typing import List
-from app.auth.utils import UserSession, active_user
+from app.auth.utils import UserSession, active_user, github_client
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -51,14 +51,15 @@ def get_job(
 
 
 @router.post("/", response_model=Job)
-def create_job(
+async def create_job(
         *,
         db: Session = Depends(get_db),
         user: UserSession = Depends(active_user),
         job_in: JobCreate
 ):
     """Create new job"""
-    job = jobs_service.create(db, job_in, user)
+    async with github_client(user) as client:
+        job = await jobs_service.create(client, db, job_in, user)
     return job
 
 
