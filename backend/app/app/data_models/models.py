@@ -1,7 +1,9 @@
 from datetime import datetime
+from app.db.schema import Repository
 
 from pydantic import BaseModel
-from typing import List, Optional
+from pydantic.utils import GetterDict
+from typing import List, Optional, Any
 
 
 class StatusBase(BaseModel):
@@ -46,20 +48,53 @@ class JobType(JobTypeBase):
         orm_mode = True
 
 
+class RepositoryBase(BaseModel):
+    name: str
+    owner: str
+
+
+class JobGetter(GetterDict):
+    def get(self, key: str, default: Any) -> Any:
+        # How to get information from child tables
+        if key == 'repository':
+            return self._obj.books[0].book.commit.repository
+        else:
+            try:
+                return getattr(self._obj, key)
+            except (AttributeError, KeyError):
+                return default
+
+
+class Repository(RepositoryBase):
+    id: str
+
+    class Config:
+        orm_mode = True
+
+
+class UserBase(BaseModel):
+    name: str
+    avatar_url: str
+
+
+class User(UserBase):
+    id: str
+
+    class Config:
+        orm_mode = True
+
 class JobBase(BaseModel):
-    repository: str
     status_id: str
     job_type_id: str
-    user: Optional[str] = None
     version: Optional[str] = None  # Git: ref
-    artifact_urls: List[str] = []
     worker_version: Optional[str] = None
     error_message: Optional[str] = None
     style: Optional[str] = None
 
 
 class JobCreate(JobBase):
-    pass
+    repository: RepositoryBase
+    book: Optional[str] = None
 
 
 class JobUpdate(BaseModel):
@@ -74,11 +109,15 @@ class Job(JobBase):
     created_at: datetime
     updated_at: datetime
     status: Status
-    # content_server: Optional[ContentServer]
+    repository: Repository
     job_type: JobType
+    user: User
+    artifact_urls: List[str] = []
+
 
     class Config:
         orm_mode = True
+        getter_dict = JobGetter
 
 
 class GitHubRepo(BaseModel):
