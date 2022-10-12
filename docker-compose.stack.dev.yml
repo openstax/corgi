@@ -21,11 +21,16 @@ services:
   frontend:
     build:
       context: ./frontend
+      dockerfile: dev.dockerfile
     labels:
       - traefik.frontend.rule=PathPrefix:/
       - traefik.enable=true
       - traefik.port=80
       - traefik.tags=${TRAEFIK_TAG}
+    volumes:
+      - ./frontend:/app
+    ports:
+      - '35729:35729'
 
   backend-tests:
     build:
@@ -55,6 +60,8 @@ services:
       context: ./backend
       dockerfile: backend.dockerfile
       target: dev-runner
+    volumes:
+      - ./backend/app:/app
     env_file:
       - env-backend.env
     environment: *testenv
