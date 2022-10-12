@@ -48,11 +48,11 @@ The full explanation of Enki it is out of scope for this documentation. To learn
 > After installing Docker, navigate to the Docker Desktop GUI preferences and increase the `Memory` value to at least `8GiB`.
 > [Here's where you can find the Docker Desktop GUI settings](https://docs.docker.com/docker-for-windows/#resources)
 
-### Backend local development
+### Local development
 
-Start the stack with Docker Compose:
+Build/start the stack with Docker Compose:
 
-    docker-compose up -d
+    docker-compose -f docker-compose.stack.dev.yml up -d
 
 View the API Docs here:
 
@@ -61,7 +61,22 @@ View the API Docs here:
 
 To check the logs run:
 
-    docker-compose logs
+    docker-compose logs backend/frontend/etc.
+
+
+Using the development stack, the Svelte frontend is rebuilt inside the container 
+as you make changes: no restarts required. The page should reload automatically
+as well.
+
+NOTE: The dev frontend server can take a while to start up. You might get 502
+responses at first: this is normal. Wait a few seconds and try again.
+
+
+If you make changes to the backend, you will need to run 
+
+    docker-compose -f docker-compose.stack.dev.yml restart
+
+for your changes to take.
 
 ### View the Docs
 
@@ -131,9 +146,12 @@ Start the stack as described above
 Run the reset-db command that is contained in the `manage.py` file.
 
     docker-compose exec backend python manage.py reset-db
+
 ### Migrations
 
 Automatic migration files can be generated for the database. After a change is made you'll want to create a new revision.
+
+Make sure the stack is running in development mode.
 
 Enter the backend Docker container:
 
