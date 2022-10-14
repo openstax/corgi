@@ -1,9 +1,23 @@
 from datetime import datetime
-from app.db.schema import Repository
+from enum import Enum
+from typing import Any, List, Optional
 
 from pydantic import BaseModel
 from pydantic.utils import GetterDict
-from typing import List, Optional, Any
+
+
+class Role(str, Enum):
+    USER = "user"
+    ADMIN = "admin"
+    DEFAULT = USER
+
+
+class UserSession(BaseModel):
+    id: int
+    token: str
+    role: Role
+    avatar_url: str
+    name: str
 
 
 class StatusBase(BaseModel):
@@ -15,19 +29,6 @@ class Status(StatusBase):
 
     class Config:
         orm_mode = True
-
-
-# class ContentServerBase(BaseModel):
-#     hostname: str
-#     host_url: str
-#     name: str
-
-
-# class ContentServer(ContentServerBase):
-#     id: str
-
-#     class Config:
-#         orm_mode = True
 
 
 class JobTypeBase(BaseModel):
@@ -48,9 +49,23 @@ class JobType(JobTypeBase):
         orm_mode = True
 
 
-class RepositoryBase(BaseModel):
-    name: str
-    owner: str
+class ArtifactBase(BaseModel):
+    slug: str
+    url: Optional[str] = None
+
+
+class BookBase(BaseModel):
+    slug: str
+    commit_id: str
+    edition: int
+    style: str
+
+
+class Book(BookBase):
+    uuid: str
+
+    class Config:
+        orm_mode = True
 
 
 class JobGetter(GetterDict):
@@ -58,6 +73,14 @@ class JobGetter(GetterDict):
         # How to get information from child tables
         if key == 'repository':
             return self._obj.books[0].book.commit.repository
+        elif key == 'books':
+            return [book_job.book for book_job in self._obj.books]
+        elif key == 'artifact_urls':
+            return [
+                ArtifactBase(slug=book_job.book.slug,
+                             url=book_job.artifact_url)
+                for book_job in self._obj.books
+            ]
         else:
             try:
                 return getattr(self._obj, key)
@@ -65,11 +88,37 @@ class JobGetter(GetterDict):
                 return default
 
 
+class RepositoryGetter(GetterDict):
+    def get(self, key: str, default: Any) -> Any:
+        repository = self._obj
+        if key == "books":
+            books = set([])
+            for commit in repository.commits:
+                for book in commit.books:
+                    books.add(book.slug)
+            return list(books)
+        else:
+            try:
+                return getattr(self._obj, key)
+            except (AttributeError, KeyError):
+                return default
+
+
+class RepositoryBase(BaseModel):
+    name: str
+    owner: str
+
 class Repository(RepositoryBase):
-    id: str
+    class Config:
+        orm_mode = True
+
+
+class RepositorySummary(RepositoryBase):
+    books: List[str]
 
     class Config:
         orm_mode = True
+        getter_dict = RepositoryGetter
 
 
 class UserBase(BaseModel):
@@ -83,18 +132,19 @@ class User(UserBase):
     class Config:
         orm_mode = True
 
+
 class JobBase(BaseModel):
     status_id: str
     job_type_id: str
     version: Optional[str] = None  # Git: ref
     worker_version: Optional[str] = None
-    error_message: Optional[str] = None
-    style: Optional[str] = None
+    # error_message: Optional[str] = None
 
 
 class JobCreate(JobBase):
     repository: RepositoryBase
     book: Optional[str] = None
+    style: Optional[str] = None
 
 
 class JobUpdate(BaseModel):
@@ -112,28 +162,10 @@ class Job(JobBase):
     repository: Repository
     job_type: JobType
     user: User
-    artifact_urls: List[str] = []
-
+    books: List[Book]
+    artifact_urls: List[ArtifactBase]
 
     class Config:
         orm_mode = True
         getter_dict = JobGetter
 
-
-class GitHubRepo(BaseModel):
-    name: str
-    database_id: str
-    viewer_permission: str
-
-    @classmethod
-    def from_node(cls, node: dict):
-        def to_snake_case(s: str):
-            ret = []
-            for c in s:
-                if c.isupper():
-                    ret.append("_")
-                    ret.append(c.lower())
-                else:
-                    ret.append(c)
-            return ''.join(ret)
-        return cls(**{to_snake_case(k): v for k, v in node.items()})

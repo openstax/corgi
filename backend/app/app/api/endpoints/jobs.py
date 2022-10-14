@@ -1,12 +1,12 @@
 from typing import List
-from app.auth.utils import UserSession, active_user, github_client
 
+from app.core.auth import active_user
+from app.github.client import github_client
+from app.data_models.models import Job, JobCreate, JobUpdate, UserSession
+from app.db.utils import get_db
+from app.service.jobs import jobs_service
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
-from app.service.jobs import jobs_service
-from app.data_models.models import JobCreate, JobUpdate, Job
-from app.db.utils import get_db
 
 router = APIRouter()
 

@@ -2,7 +2,7 @@
 
 ![CORGI](docs/_static/images/corgi.jpg)
 
-_FKA: "COPS", Content Output Production Service_
+_FKA: "CORGI", Content Output Review and Generation Interface_
 
 ---
 - **What does CORGI do? 🤔**
