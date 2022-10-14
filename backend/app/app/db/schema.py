@@ -6,17 +6,6 @@ from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 
 
-# class ContentServers(Base):
-#     id = sa.Column(sa.Integer, primary_key=True, index=True)
-#     hostname = sa.Column(sa.String, nullable=False)
-#     host_url = sa.Column(sa.String, nullable=False)
-#     name = sa.Column(sa.String, nullable=False)
-#     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow, index=True)
-#     updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
-#                            onupdate=datetime.utcnow)
-
-#     jobs = relationship("Jobs", back_populates="content_server")
-
 class JobTypes(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     name = sa.Column(sa.String, nullable=False)
@@ -44,7 +33,6 @@ class Jobs(Base):
 
     status = relationship("Status", back_populates="jobs", lazy="joined")
     job_type = relationship("JobTypes", back_populates="jobs", lazy="joined")
-    artifact_urls = relationship("ArtifactUrl", back_populates="job", lazy="joined")
     user = relationship("User", back_populates="jobs", lazy="joined")
     books = relationship("BookJob", back_populates="job", lazy="joined")
 
@@ -80,22 +68,18 @@ class Commit(Base):
 
 class Book(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
-    uuid = sa.Column(sa.String(36), unique=True, index=True)
-    commit_id = sa.Column(sa.Integer, sa.ForeignKey("commit.id"), unique=True,
-                          index=True)
+    uuid = sa.Column(sa.String(36), index=True, nullable=False)
+    commit_id = sa.Column(sa.Integer, sa.ForeignKey("commit.id"), index=True,
+                          nullable=False)
     edition = sa.Column(sa.Integer, nullable=False)
     slug = sa.Column(sa.String, nullable=False)
+    style = sa.Column(sa.String, nullable=False)
 
     commit = relationship("Commit", back_populates="books")
     jobs = relationship("BookJob", back_populates="book")
+    __table_args__ = (sa.UniqueConstraint('uuid', 'commit_id',
+                      name='_book_to_commit'),)
 
-
-class ArtifactUrl(Base):
-    id = sa.Column(sa.Integer, primary_key=True, index=True)
-    job_id = sa.Column(sa.Integer, sa.ForeignKey("jobs.id"))
-    url = sa.Column(sa.String, nullable=False)
-
-    job = relationship("Jobs", back_populates="artifact_urls")
 
 
 class User(Base):
@@ -108,9 +92,9 @@ class User(Base):
 
 
 class BookJob(Base):
-    book_id = sa.Column(sa.ForeignKey("book.id"), primary_key=True,
-                          index=True)
+    book_id = sa.Column(sa.ForeignKey("book.id"), primary_key=True, index=True)
     job_id = sa.Column(sa.ForeignKey("jobs.id"), primary_key=True, index=True)
+    artifact_url = sa.Column(sa.String, nullable=True)
     approved = sa.Column(sa.Boolean, nullable=False, default=False)
 
     job = relationship("Jobs", back_populates="books")

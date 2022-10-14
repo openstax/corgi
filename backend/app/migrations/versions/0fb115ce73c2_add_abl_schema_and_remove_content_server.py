@@ -1,8 +1,8 @@
-"""Remove content server and add ABL data
+"""Add ABL schema and remove content server
 
-Revision ID: af0cd575ccd3
+Revision ID: 0fb115ce73c2
 Revises: dd5b4a5068a6
-Create Date: 2022-10-11 18:11:58.360986
+Create Date: 2022-10-14 20:52:49.450306
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'af0cd575ccd3'
+revision = '0fb115ce73c2'
 down_revision = 'dd5b4a5068a6'
 branch_labels = None
 depends_on = None
@@ -20,6 +20,7 @@ repository_permission_table = sa.table('repository_permission',
     sa.column('id', sa.Integer),
     sa.column('name', sa.String),
     )
+
 
 
 def upgrade():
@@ -64,29 +65,24 @@ def upgrade():
     )
     op.create_index(op.f('ix_user_repository_permission_id'), 'user_repository', ['permission_id'], unique=False)
     op.create_index(op.f('ix_user_repository_user_id'), 'user_repository', ['user_id'], unique=False)
-    op.create_table('artifact_url',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('job_id', sa.Integer(), nullable=True),
-    sa.Column('url', sa.String(), nullable=False),
-    sa.ForeignKeyConstraint(['job_id'], ['jobs.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_artifact_url_id'), 'artifact_url', ['id'], unique=False)
     op.create_table('book',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('uuid', sa.String(length=36), nullable=True),
-    sa.Column('commit_id', sa.Integer(), nullable=True),
+    sa.Column('uuid', sa.String(length=36), nullable=False),
+    sa.Column('commit_id', sa.Integer(), nullable=False),
     sa.Column('edition', sa.Integer(), nullable=False),
     sa.Column('slug', sa.String(), nullable=False),
+    sa.Column('style', sa.String(), nullable=False),
     sa.ForeignKeyConstraint(['commit_id'], ['commit.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('uuid', 'commit_id', name='_book_to_commit')
     )
-    op.create_index(op.f('ix_book_commit_id'), 'book', ['commit_id'], unique=True)
+    op.create_index(op.f('ix_book_commit_id'), 'book', ['commit_id'], unique=False)
     op.create_index(op.f('ix_book_id'), 'book', ['id'], unique=False)
-    op.create_index(op.f('ix_book_uuid'), 'book', ['uuid'], unique=True)
+    op.create_index(op.f('ix_book_uuid'), 'book', ['uuid'], unique=False)
     op.create_table('book_job',
     sa.Column('book_id', sa.Integer(), nullable=False),
     sa.Column('job_id', sa.Integer(), nullable=False),
+    sa.Column('artifact_url', sa.String(), nullable=True),
     sa.Column('approved', sa.Boolean(), nullable=False),
     sa.ForeignKeyConstraint(['book_id'], ['book.id'], ),
     sa.ForeignKeyConstraint(['job_id'], ['jobs.id'], ),
@@ -104,6 +100,7 @@ def upgrade():
     op.drop_column('jobs', 'pdf_url')
     op.drop_column('jobs', 'collection_id')
     op.drop_column('jobs', 'version')
+    
     op.drop_index('ix_content_servers_created_at', table_name='content_servers')
     op.drop_index('ix_content_servers_id', table_name='content_servers')
     op.drop_table('content_servers')
@@ -149,8 +146,6 @@ def downgrade():
     op.drop_index(op.f('ix_book_id'), table_name='book')
     op.drop_index(op.f('ix_book_commit_id'), table_name='book')
     op.drop_table('book')
-    op.drop_index(op.f('ix_artifact_url_id'), table_name='artifact_url')
-    op.drop_table('artifact_url')
     op.drop_index(op.f('ix_user_repository_user_id'), table_name='user_repository')
     op.drop_index(op.f('ix_user_repository_permission_id'), table_name='user_repository')
     op.drop_table('user_repository')

@@ -2,13 +2,15 @@
 from datetime import datetime
 from typing import Optional, cast
 
-from app.auth.utils import AuthenticatedClient, UserSession
-from app.db.schema import Book, BookJob, Jobs as JobSchema, Commit, Repository
-from app.data_models.models import Job as JobModel, JobCreate, JobType, Status
-from app.service import status
+from app.github.client import AuthenticatedClient
+from app.data_models.models import Job as JobModel
+from app.data_models.models import JobCreate, UserSession
+from app.db.schema import Book, BookJob, Commit
+from app.db.schema import Jobs as JobSchema
+from app.db.schema import Repository
 from app.service.base import ServiceBase
-from sqlalchemy.orm import Session as BaseSession
 from lxml import etree
+from sqlalchemy.orm import Session as BaseSession
 
 
 async def github_graphql(client: AuthenticatedClient, query: str):
@@ -121,12 +123,13 @@ class JobsService(ServiceBase):
                                                         repo_owner, sha)
             for repo_book in repo_books:
                 slug = repo_book["slug"]
+                style = repo_book["style"]
                 collection_xml = collections_by_name[f"{slug}.collection.xml"]
                 collection = etree.fromstring(collection_xml, parser=None)
                 uuid = collection.xpath("//*[local-name()='uuid']")[0].text
                 # TODO: Edition should be either nullable or in a different 
                 # table
-                db_book = Book(uuid=uuid, slug=slug, edition=0)
+                db_book = Book(uuid=uuid, slug=slug, edition=0, style=style)
                 commit.books.append(db_book)
                 db_session.add(db_book)
             db_session.flush()
