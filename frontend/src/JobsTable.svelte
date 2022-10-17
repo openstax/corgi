@@ -9,7 +9,7 @@
   id="repo-input"
   type="email"
   options={repos}
-  bind:text={repo}
+  bind:text={selected_repo}
   updateInvalid
   label="Repo"
   />
@@ -17,14 +17,14 @@
   <Autocomplete
   id="book-input"
   options={books}
-  bind:text={book}
+  bind:text={selected_book}
   label="Book"
   />
 
   <Autocomplete
   id="version-input"
   options={versions}
-  bind:text={version}
+  bind:text={selected_version}
   label="Version"
   />
 </div>
@@ -34,7 +34,7 @@
   <FormField>
     <Checkbox
       id={`${option.name}-job-option`}
-      bind:group={selected}
+      bind:group={selected_job_types}
       value={option.name}
       disabled={option.disabled}
     />
@@ -83,10 +83,6 @@
       <Cell columnId="status" style="width: 100%;" sortable={false}>
         <Label>Status</Label>
       </Cell>
-      <Cell columnId="created_at" style="width: 100%;">
-        <Label>Started</Label>
-        <IconButton class="material-icons">arrow_upward</IconButton>
-      </Cell>
       <Cell columnId="updated-at" style="width: 100%;" sortable={false}>
         <Label>Elapsed</Label>
       </Cell>
@@ -99,31 +95,66 @@
     {#each sortedRows as item (item.id)}
       <DetailRow>
         <Row slot="data">
-        <Cell numeric class="responsiveCell">{item.id}</Cell>
-        <Cell class="responsiveCell">
-          <img
-            alt={item.job_type.display_name}
-            src={mapImage(item.job_type.display_name)}
-            style="max-height: 100px;"
-          />
+        <Cell numeric >{item.id}</Cell>
+        <Cell>
+          <Wrapper>
+            <img
+              alt={item.job_type.display_name}
+              src={mapImage('job_type', item.job_type.display_name)}
+              style="max-height: 100px;"
+            />
+            <Tooltip>{item.job_type.display_name}</Tooltip>
+          </Wrapper>
         </Cell>
-        <Cell class="responsiveCell">{item.book}</Cell>
-        <Cell class="responsiveCell">{item.repo}</Cell>
-        <Cell class="responsiveCell">{item.version === null ? 'main' : item.version }</Cell>
-        <Cell class="responsiveCell">
-          <img
-            alt={item.status.name}
-            src={mapImage(item.status.name)}
-            style="max-height: 100px;"
-          />
+        <Cell>
+          {#if item.books.length === 1}
+            {item.books[0].slug}
+          {:else}
+            all
+            <Tooltip>
+              {#each item.books as book}
+                {book.slug}
+              {/each}
+            </Tooltip>
+          {/if}
         </Cell>
-        <Cell class="responsiveCell">{item.created_at}</Cell>
-        <Cell class="responsiveCell">{item.elapsed}</Cell>
-        <Cell class="responsiveCell">username</Cell>
+        <Cell>
+          {#if item.repository.owner != "openstax"}
+            {item.repository.owner}/
+          {/if}
+          {item.repository.name}
+        </Cell>
+        <Cell>{item.version === null ? 'main' : item.version }</Cell>
+        <Cell>
+          <Wrapper>
+            <img
+              alt={item.status.name}
+              src={mapImage('job_status', item.status.name)}
+              style="max-height: 40px;"
+            />
+            <Tooltip>{item.status.name}</Tooltip>
+          </Wrapper>
+        </Cell>
+        <Cell>
+          <Wrapper>
+            <p>{calculateElapsed(item)}</p>
+            <Tooltip>{item.created_at}</Tooltip>
+          </Wrapper>
+        </Cell>
+        <Cell>
+          <Wrapper>
+            <img
+              alt={item.user.name}
+              src={item.user.avatar_url}
+              style="max-height: 40px;"
+            />
+            <Tooltip>{item.user.name}</Tooltip>
+          </Wrapper>
+        </Cell>
         </Row>
-        <Row slot="detail">
+        <!-- <Row slot="detail">
           <Cell colspan=8>{item.book}</Cell>
-        </Row>
+        </Row> -->
       </DetailRow>
       <!-- where does details Accordion go? -->
     {/each}
@@ -174,21 +205,19 @@
 </div>
 
 <script lang="ts">
+  import Tooltip, { Wrapper } from '@smui/tooltip';
   import DetailRow from './DetailRow.svelte'
-  import { mapImage, readableDateTime } from './ts/utils'
+  import { calculateElapsed, mapImage, readableDateTime } from './ts/utils'
   import { repos, books, fetchRepos, fetchBooks, fetchVersions } from './ts/data'
-  import { submitNewJob, getJobsForPage } from './ts/jobs'
+  import { submitNewJob, getJobs } from './ts/jobs'
   let versions = [];
   
 
   import { onMount } from 'svelte';
-  // import LayoutGrid, { Cell } from '@smui/layout-grid';
   import Checkbox from '@smui/checkbox';
   import FormField from '@smui/form-field';
   import Autocomplete from '@smui-extra/autocomplete';
-  // import Button, { Label } from '@smui/button';
   import Button from '@smui/button';
-  // import {filteredRows} from './stores.js'
   
   let options = [
     { name: 'PDF',     disabled: false },
@@ -197,13 +226,13 @@
     { name: 'Docx',    disabled: false },
   ];
 
-  export let selected = [];
+  export let selected_job_types = [];
   
-  let repo: string | undefined = undefined;
-  let book: string | undefined = undefined;
-  let version: string | undefined = undefined;
+  let selected_repo: string | null = null;
+  let selected_book: string | null = null;
+  let selected_version: string | null = null;
 
-  $: validJob = (selected.length != 0) && (repo !== '');
+  $: validJob = (selected_job_types.length != 0) && (selected_repo !== '');
   
   // Initialization
   import CircularProgress from '@smui/circular-progress';
@@ -217,49 +246,22 @@
   } from '@smui/data-table';
   import Select, { Option } from '@smui/select';
   import IconButton from '@smui/icon-button';
-  import Accordion, { Panel, Header, Content } from '@smui-extra/accordion';
   import { Label } from '@smui/common';
-  import { writable, derived } from 'svelte/store';
 
   import type { Job } from './ts/types';
 
   let jobs: Job[] = [];
+  let slice: Job[] = [];
   let sort: keyof Job = 'id';
   let sortDirection: Lowercase<keyof typeof SortValue> = 'ascending';
 
   onMount(async () => {
-    jobs = await getJobsForPage(currentPage, rowsPerPage);
     await fetchRepos();
     await fetchBooks();
     await fetchVersions();
+    await getJobs();
     pollData();
 	});
-
-  if (typeof fetch !== 'undefined') {
-    // 'https://corgi.ce.openstax.org/api/jobs'
-    fetch(
-      '/home/jobs.json'
-    )
-    .then((response) => response.json())
-    .then((json) => {
-      jobs = json.map((entry) => {
-        // split collection id to repo and book
-        const index = entry.collection_id.lastIndexOf('/');
-        entry.repo = entry.collection_id.slice(0, index);
-        entry.book = entry.collection_id.slice(index + 1);
-
-        // format timestamps
-        entry.created_at = readableDateTime(entry.created_at);
-        let start_time = new Date(entry.created_at);
-        let update_time = new Date(entry.updated_at);
-        let elapsed = update_time.getTime() - start_time.getTime();
-        entry.elapsed = new Date(elapsed * 1000).toISOString().substring(11, 16)
-
-        return entry; 
-      })
-      slice = jobs.slice(start, end);
-    });
-  }
 
   // Job creation
   function clickNewJob() {
@@ -267,45 +269,47 @@
       return
     }
     lastJobStartTime = Date.now()
-    // submitNewJob();
+    selected_job_types.forEach(jobType => {
+      submitNewJob(jobType, selected_repo, selected_book, selected_version);
+    });
   }
   
   const jobStartRateLimitDurationMillis = 1000;
   let lastJobStartTime = Date.now();
 
-  // Job polling
   let polling;
 
+  // Job polling
   function pollData () {
     polling = setInterval(
-      async () => { await getJobsForPage(currentPage, rowsPerPage) }, 
-      30000
+      async () => { jobs = await getJobs() }, 
+      10000
     )
   }
 
-  // Pagination
+  // Paginatio
   let rowsPerPage = 10;
   let currentPage = 0;
-
   $: start = currentPage * rowsPerPage;
   $: end = Math.min(start + rowsPerPage, jobs.length);
-  $: slice = jobs.slice(start, end);
+  $: { slice = jobs.slice(start, end);}
   $: lastPage = Math.max(Math.ceil(jobs.length / rowsPerPage) - 1, 0);
   $: if (currentPage > lastPage) {
     currentPage = lastPage;
   }
 
   // Job filtering
-  $: filteredRows = slice.filter(entry => 
-    (selected.length === 0 || selected.some(item => entry.job_type.display_name.includes(item))) && 
-    (repo == undefined || entry.repo.includes(repo)) &&
-    (book == undefined || entry.repo.includes(book))
-  )
+  
+  $: filteredRows = slice.filter(entry =>
+      (selected_job_types.length === 0 || selected_job_types.some(item => entry.job_type.display_name.includes(item))) && 
+      (!selected_repo || entry.repository.name.includes(selected_repo)) &&
+      (!selected_book || entry.books.find(item => item.slug.includes(selected_book)) != null)
+    )
 
   // Job sorting
   $: sortedRows = filteredRows.sort((a, b) => {
-    console.log(sort)
-    console.log([a[sort], b[sort]])
+    // console.log(sort)
+    // console.log([a[sort], b[sort]])
     let [aVal, bVal] = [a[sort], b[sort]][
       sortDirection === 'ascending' ? 'slice' : 'reverse'
     ]();
