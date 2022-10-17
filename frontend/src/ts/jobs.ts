@@ -1,19 +1,23 @@
 import { readableDateTime, handleFetchError } from "./utils";
 import type { Job, Status, JobType } from "./types";
 
-export async function submitNewJob (collectionId, contentServerId, version, astyle, jobType) {
+export async function submitNewJob (jobTypeId: string, repo, book?: string, version?: string, style?: string) {
     // This fails to queue the job silently so the rate limit duration shouldn't
     // be a noticable time period for reasonable usage, else confusion will ensue
     
+    let owner = "openstax"
+
     try {
       const data = {
-        collection_id: collectionId,
-        status_id: this.jobStatusTypes.Queued,
-        pdf_url: null,
-        version: version || null,
-        style: astyle,
-        job_type_id: jobType,
-        content_server_id: contentServerId
+        status_id: 1,
+        job_type_id: jobTypeId,
+        repository: {
+          name: repo,
+          owner: owner,
+        },
+        book: null || book,
+        version: null || version, //(optional)
+        style: null || style
       }
 
       const options = {
@@ -31,28 +35,43 @@ export async function submitNewJob (collectionId, contentServerId, version, asty
     }
   }
 
-  export async function getJobsForPage(currentPage: number, rowsPerPage: number ): Promise<Job[]> {
+  export async function getJobs(): Promise<Job[]> {
     try {
-      const httpResponse = await fetch(`/api/jobs/pages/${currentPage}?limit=${rowsPerPage}`) // https://corgi-staging.ce.openstax.org
-      let response = await httpResponse.json();
-      let items = response.map((entry) => {
-        // split collection id to repo and book
-        const index = entry.collection_id.lastIndexOf('/');
-        entry.repo = entry.collection_id.slice(0, index);
-        entry.book = entry.collection_id.slice(index + 1);
-
-        // format timestamps
-        entry.created_at = readableDateTime(entry.created_at);
-        let start_time = new Date(entry.created_at);
-        let update_time = new Date(entry.updated_at);
-        let elapsed = update_time.getTime() - start_time.getTime();
-        entry.elapsed = new Date(elapsed * 1000).toISOString().substring(11, 16)
-
-        return entry; 
-      })
-      return items;
-      // slice = items.slice(start, end);
+      // const httpResponse = await fetch(`/api/jobs/pages/${currentPage}?limit=${rowsPerPage}`) // https://corgi-staging.ce.openstax.org
+      const httpResponse = await fetch("/jobs.json");
+      return await httpResponse.json();
     } catch (error) {
       handleFetchError(error);
     }
   }
+
+  // export async function submitNewJob(jobTypeId: string, repo, book?: string, version?: string, style?: string) {
+  //   try {
+  //     //split repo name for owner default to openstax
+  //     let owner = "openstax"
+
+  //     const payload = {
+  //       status_id: 1,
+  //       job_type_id: jobTypeId,
+  //       repository: {
+  //         name: repo,
+  //         owner: owner,
+  //       },
+  //       book: null || book,
+  //       version: null || version, //(optional)
+  //       style: null || style
+  //     }
+
+  //     const httpResponse await fetch("/api/jobs/", { data: payload })
+  //   } catch (error) {
+  //     handleFetchError(error);
+  //   }
+  // }
+
+  // export async function updateJob(params:type) {
+  //   try {
+  //     const httpResponse await fetch("/api/jobs/")
+  //   } catch (error) {
+  //     handleFetchError(error);
+  //   }
+  // }
