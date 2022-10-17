@@ -1,3 +1,5 @@
+import type { Job } from "./types";
+
 export function readableDateTime(datetime: string): string {
     return datetime.replace(
         /(\d{4})-(\d{2})-(\d{2})T(\d{2}:\d{2}:\d{2}).*/,
@@ -7,9 +9,9 @@ export function readableDateTime(datetime: string): string {
     )
 }
 
-export function mapImage(name: string): string {
+export function mapImage(folder: string, name: string): string {
     const index = name.indexOf(' ');
-    return `./icons/${name.slice(0, index).toLowerCase()}.png`;
+    return `./icons/${folder}/${name.toLowerCase()}.png`; // name.slice(0, index)
 }
 
 export function handleFetchError (error) {
@@ -28,3 +30,11 @@ export function handleFetchError (error) {
     }
     throw error
   }
+
+export function calculateElapsed(job: Job): string{
+  // let start_time = new Date(job.created_at);
+  let start_time = new Date();
+  let update_time = new Date(job.updated_at);
+  let elapsed = update_time.getTime() - start_time.getTime();
+  return new Date(elapsed * 1000).toISOString().substring(11, 16)
+}

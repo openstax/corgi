@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store'
-// import { Job } from './JobsTable.svelte'
+// import type Job from 'types'
 
 // export const filteredRows = writable([] as Job[]);
+export const 
