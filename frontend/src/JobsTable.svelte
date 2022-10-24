@@ -8,7 +8,7 @@
   <Autocomplete
   id="repo-input"
   type="email"
-  options={repos}
+  options={repoNames}
   bind:text={selected_repo}
   updateInvalid
   label="Repo"
@@ -16,6 +16,7 @@
 
   <Autocomplete
   id="book-input"
+  search={searchBooks}
   options={books}
   bind:text={selected_book}
   label="Book"
@@ -43,7 +44,7 @@
 {/each}
 </div>
 
-<Button id="submit-job-button" disabled={!validJob} on:click={clickNewJob}>
+<Button id="submit-job-button" variant="raised" color="secondary" disabled={!validJob} on:click={clickNewJob}>
   <Label>Create New Job</Label>
 </Button>
 
@@ -89,74 +90,120 @@
       <Cell columnId="github-user" style="width: 100%;" sortable={false}>
         <Label>User</Label>
       </Cell>
+      <!-- <Cell columnId="approved" style="width: 100%;" sortable={false}>
+        <Label>Approved</Label>
+      </Cell> -->
     </Row>
   </Head>
+  <!-- <LinearProgress
+    indeterminate
+    bind:closed={open}
+    aria-label="Data is being loaded..."
+    slot="progress"
+  /> -->
   <Body>
     {#each sortedRows as item (item.id)}
-      <DetailRow>
-        <Row slot="data">
-        <Cell numeric >{item.id}</Cell>
-        <Cell>
-          <Wrapper>
-            <img
-              alt={item.job_type.display_name}
-              src={mapImage('job_type', item.job_type.display_name)}
-              style="max-height: 100px;"
-            />
-            <Tooltip>{item.job_type.display_name}</Tooltip>
-          </Wrapper>
-        </Cell>
-        <Cell>
-          {#if item.books.length === 1}
-            {item.books[0].slug}
-          {:else}
-            all
-            <Tooltip>
-              {#each item.books as book}
-                {book.slug}
-              {/each}
-            </Tooltip>
-          {/if}
-        </Cell>
-        <Cell>
-          {#if item.repository.owner != "openstax"}
-            {item.repository.owner}/
-          {/if}
-          {item.repository.name}
-        </Cell>
-        <Cell>{item.version === null ? 'main' : item.version }</Cell>
-        <Cell>
-          <Wrapper>
-            <img
-              alt={item.status.name}
-              src={mapImage('job_status', item.status.name)}
-              style="max-height: 40px;"
-            />
-            <Tooltip>{item.status.name}</Tooltip>
-          </Wrapper>
-        </Cell>
-        <Cell>
-          <Wrapper>
-            <p>{calculateElapsed(item)}</p>
-            <Tooltip>{item.created_at}</Tooltip>
-          </Wrapper>
-        </Cell>
-        <Cell>
-          <Wrapper>
-            <img
-              alt={item.user.name}
-              src={item.user.avatar_url}
-              style="max-height: 40px;"
-            />
-            <Tooltip>{item.user.name}</Tooltip>
-          </Wrapper>
-        </Cell>
+      <!-- <DetailRow> -->
+        <Row slot="data" on:click={() => {open=true}}>
+          <Cell numeric >{item.id}</Cell>
+          <Cell>
+            <Wrapper>
+              <img
+                alt={item.job_type.display_name}
+                src={mapImage('job_type', item.job_type.display_name, 'png')}
+                style="max-height: 100px;"
+              />
+              <Tooltip>{item.job_type.display_name}</Tooltip>
+            </Wrapper>
+          </Cell>
+          <Cell>
+            {#if item.books.length === 1}
+              {item.books[0].slug}
+            {:else}
+              <Wrapper>
+                <span>all</span>
+                <Tooltip>
+                  {#each item.books as book}
+                    {book.slug}<br>
+                  {/each}
+                </Tooltip>
+              </Wrapper>
+            {/if}
+          </Cell>
+          <Cell>
+            {#if item.repository.owner != "openstax"}
+              {item.repository.owner}/
+            {/if}
+            {item.repository.name}
+          </Cell>
+          <Cell>{item.version === null ? 'main' : item.version }</Cell>
+          <Cell>
+            <Wrapper>
+              <img
+                alt={item.status.name}
+                src={mapImage('job_status', item.status.name, 'svg')}
+                class="filter-green"
+              />
+                <!-- style="max-height: 30px; color: greenyellow" -->
+              <Tooltip>{item.status.name}</Tooltip>
+            </Wrapper>
+          </Cell>
+          <Cell>
+            <Wrapper>
+              <span>{calculateElapsed(item)}</span>
+              <Tooltip>{item.created_at}</Tooltip>
+            </Wrapper>
+          </Cell>
+          <Cell>
+            <Wrapper>
+              <img
+                alt={item.user.name}
+                src={item.user.avatar_url}
+                style="max-height: 40px;"
+              />
+              <Tooltip>{item.user.name}</Tooltip>
+            </Wrapper>
+          </Cell>
+          <!-- <Cell>
+            {#if true}
+              <img
+                alt={"approved"}
+                src={"/icons/job_status/approved.svg"}
+                style="max-height: 30px;"
+              />
+            {/if}
+            <Wrapper>
+              <Tooltip>{item.user.name}</Tooltip>
+            </Wrapper>
+          </Cell> -->
         </Row>
-        <!-- <Row slot="detail">
-          <Cell colspan=8>{item.book}</Cell>
-        </Row> -->
-      </DetailRow>
-      <!-- where does details Accordion go? -->
+        <Dialog
+          bind:open
+        >
+
+          {#if item.status.name == "completed"}
+            <Title>Job Actions</Title>
+            <Actions>
+              <Button variant="raised" on:click={() => {repeatJob(item)}}>
+                <Label>Repeat</Label>
+                </Button>
+              <Button color="secondary" variant="raised" on:click={clickNewJob}>
+                <Label>Approve</Label>
+              </Button>
+            </Actions>
+          {:else if item.status.name == "queued"}
+            <Title>Job Actions</Title>
+            <Actions>
+              <Button variant="raised" on:click={clickNewJob}>
+                <Label>Abort</Label>
+              </Button>
+            </Actions>
+          {:else if item.status.name == "failed"}
+            <Title>Errors</Title>
+            <Content>
+            </Content>
+          {/if}
+        </Dialog>
     {/each}
   </Body>
   <Pagination slot="paginate">
@@ -205,37 +252,43 @@
 </div>
 
 <script lang="ts">
-  import Tooltip, { Wrapper } from '@smui/tooltip';
-  import DetailRow from './DetailRow.svelte'
-  import { calculateElapsed, mapImage, readableDateTime } from './ts/utils'
-  import { repos, books, fetchRepos, fetchBooks, fetchVersions } from './ts/data'
-  import { submitNewJob, getJobs } from './ts/jobs'
-  let versions = [];
-  
+  import Tooltip, { Wrapper } from '@smui/tooltip'
+  import { fetchRepos as fetchRepos, calculateElapsed, mapImage, filterBooks } from './ts/utils'
+  import { submitNewJob, getJobs, repeatJob } from './ts/jobs'
+  import Dialog, { Header, Title, Content, Actions } from '@smui/dialog'
+  import LinearProgress from '@smui/linear-progress'
+  import type { Repository, RepositorySummary } from './ts/types'
 
-  import { onMount } from 'svelte';
-  import Checkbox from '@smui/checkbox';
-  import FormField from '@smui/form-field';
-  import Autocomplete from '@smui-extra/autocomplete';
-  import Button from '@smui/button';
+
+
+  import { onMount } from 'svelte'
+  import Checkbox from '@smui/checkbox'
+  import FormField from '@smui/form-field'
+  import Autocomplete from '@smui-extra/autocomplete'
+  import Button from '@smui/button'
   
   let options = [
     { name: 'PDF',     disabled: false },
     { name: 'WebView', disabled: false },
     { name: 'EPUB',    disabled: false },
     { name: 'Docx',    disabled: false },
-  ];
+  ]
 
-  export let selected_job_types = [];
+  let repos: RepositorySummary[] = []
+  let versions: string[] = []
   
-  let selected_repo: string | null = null;
-  let selected_book: string | null = null;
-  let selected_version: string | null = null;
+  let open = false
 
-  $: validJob = (selected_job_types.length != 0) && (selected_repo !== '');
+  export let selected_job_types = []
+  
+  let selected_repo: string
+  let selected_book: string
+  let selected_version: string
+
+  $: validJob = (selected_job_types.length != 0) && (selected_repo !== '')
   
   // Initialization
-  import CircularProgress from '@smui/circular-progress';
+  import CircularProgress from '@smui/circular-progress'
   import DataTable, {
     Head,
     Body,
@@ -243,41 +296,47 @@
     Cell,
     SortValue,
     Pagination
-  } from '@smui/data-table';
-  import Select, { Option } from '@smui/select';
-  import IconButton from '@smui/icon-button';
-  import { Label } from '@smui/common';
+  } from '@smui/data-table'
+  import Select, { Option } from '@smui/select'
+  import IconButton from '@smui/icon-button'
+  import { Label } from '@smui/common'
 
-  import type { Job } from './ts/types';
+  import type { Job, JobType } from './ts/types'
 
-  let jobs: Job[] = [];
-  let slice: Job[] = [];
-  let sort: keyof Job = 'id';
-  let sortDirection: Lowercase<keyof typeof SortValue> = 'ascending';
+  let jobs: Job[] = []
+  let slice: Job[] = []
+  let sort: keyof Job = 'id'
+  let sortDirection: Lowercase<keyof typeof SortValue> = 'ascending'
 
   onMount(async () => {
-    await fetchRepos();
-    await fetchBooks();
-    await fetchVersions();
-    await getJobs();
-    pollData();
-	});
+    repos = await fetchRepos()
+    jobs = await getJobs()
+    pollData()
+	})
+
+  enum JobTypeId {
+    PDF = 3,
+    WebView = 4,
+    Docx = 5,
+    EPUB = 6
+  }
 
   // Job creation
-  function clickNewJob() {
+  async function clickNewJob() {
     if (lastJobStartTime + jobStartRateLimitDurationMillis > Date.now()) {
       return
     }
     lastJobStartTime = Date.now()
     selected_job_types.forEach(jobType => {
-      submitNewJob(jobType, selected_repo, selected_book, selected_version);
-    });
+      submitNewJob(JobTypeId[(jobType as number)], selected_repo, selected_book, selected_version)
+    })
+    jobs = await getJobs()
   }
   
-  const jobStartRateLimitDurationMillis = 1000;
-  let lastJobStartTime = Date.now();
+  const jobStartRateLimitDurationMillis = 1000
+  let lastJobStartTime = Date.now()
 
-  let polling;
+  let polling; 
 
   // Job polling
   function pollData () {
@@ -287,19 +346,48 @@
     )
   }
 
-  // Paginatio
-  let rowsPerPage = 10;
-  let currentPage = 0;
-  $: start = currentPage * rowsPerPage;
-  $: end = Math.min(start + rowsPerPage, jobs.length);
+  // Pagination
+  let rowsPerPage = 10
+  let currentPage = 0
+  $: start = currentPage * rowsPerPage
+  $: end = Math.min(start + rowsPerPage, jobs.length)
   $: { slice = jobs.slice(start, end);}
-  $: lastPage = Math.max(Math.ceil(jobs.length / rowsPerPage) - 1, 0);
+  $: lastPage = Math.max(Math.ceil(jobs.length / rowsPerPage) - 1, 0)
   $: if (currentPage > lastPage) {
-    currentPage = lastPage;
+    currentPage = lastPage
   }
 
   // Job filtering
+
+  async function searchBooks(input: string) { 
+    // Pretend to have some sort of canceling mechanism.
+    // const myCounter = ++counter
+ 
+    // // Pretend to be loading something...
+    // await new Promise((resolve) => setTimeout(resolve, 1000))
+ 
+    // // This means the function was called again, so we should cancel.
+    // if (myCounter !== counter) {
+    //   // `return false` (or, more accurately, resolving the Promise object to
+    //   // `false`) is how you tell Autocomplete to cancel this search. It won't
+    //   // replace the results of any subsequent search that has already finished.
+    //   return false
+    // }
+ 
+    // // Return a list of matches.
+    // return fruits.filter((item) =>
+    //   item.toLowerCase().includes(input.toLowerCase())
+    // )
+
+    return filterBooks(repos, selected_repo)
+  }
+
   
+  $: repoNames = repos.length > 0 ? repos.map(m => m.name) : []
+  // $: books = repos.length > 0 ? filterBooks(repos, selected_repo) : []
+  $: books = repos.length > 0 ? repos.map(r => r.books).reduce((ax=[], x) => ax.concat(x)) : []
+
+  $: selected_repo = repos.find(r => r.books.find(b => b === selected_book))?.name || selected_repo
   $: filteredRows = slice.filter(entry =>
       (selected_job_types.length === 0 || selected_job_types.some(item => entry.job_type.display_name.includes(item))) && 
       (!selected_repo || entry.repository.name.includes(selected_repo)) &&
@@ -308,27 +396,24 @@
 
   // Job sorting
   $: sortedRows = filteredRows.sort((a, b) => {
-    // console.log(sort)
-    // console.log([a[sort], b[sort]])
     let [aVal, bVal] = [a[sort], b[sort]][
       sortDirection === 'ascending' ? 'slice' : 'reverse'
-    ]();
+    ]()
     if (sort === 'job_type') {
       aVal = (aVal as any).display_name
       bVal = (bVal as any).display_name
     }
     if (typeof aVal === 'string' && typeof bVal === 'string') {
-      return aVal.localeCompare(bVal);
+      return aVal.localeCompare(bVal)
     }
-    return Number(aVal) - Number(bVal);
+    return Number(aVal) - Number(bVal)
   })
 </script>
 
 <style>
-  /* Not fully implemented yet
-  .responsiveCell {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  } */
+  .filter-green {
+    filter: invert(48%) sepia(79%) saturate(200%) hue-rotate(77deg) brightness(118%) contrast(119%);
+  }
 </style>
+  
+  

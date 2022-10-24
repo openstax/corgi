@@ -1,4 +1,26 @@
-import type { Job } from "./types";
+import type { Job, RepositorySummary } from "./types"
+
+export async function fetchRepos(): Promise<RepositorySummary[]> {
+  try {
+    let httpResponse = await fetch('/api/github/repository-summary')
+    return await httpResponse.json()
+  } catch (error) {
+    console.log("OOF")
+    handleFetchError(error)
+  }
+}
+
+export function filterBooks(repositories: RepositorySummary[], selectedRepo: string): string[] {
+  let books: string[] = []
+  repositories
+  .filter(s => selectedRepo == '' || s.name.includes(selectedRepo))
+  .map(s => s.books)
+  .forEach(bookNames => {
+    bookNames.forEach(b => books.push((b as any)))
+  })
+  console.log(books)
+  return books
+}
 
 export function readableDateTime(datetime: string): string {
     return datetime.replace(
@@ -9,9 +31,10 @@ export function readableDateTime(datetime: string): string {
     )
 }
 
-export function mapImage(folder: string, name: string): string {
-    const index = name.indexOf(' ');
-    return `./icons/${folder}/${name.toLowerCase()}.png`; // name.slice(0, index)
+export function mapImage(folder: string, name: string, type: string): string {
+    const index = name.indexOf(' ')
+    console.log(name)
+    return `./icons/${folder}/${name.toLowerCase()}.${type}` // name.slice(0, index)
 }
 
 export function handleFetchError (error) {
@@ -32,9 +55,9 @@ export function handleFetchError (error) {
   }
 
 export function calculateElapsed(job: Job): string{
-  // let start_time = new Date(job.created_at);
-  let start_time = new Date();
-  let update_time = new Date(job.updated_at);
-  let elapsed = update_time.getTime() - start_time.getTime();
+  // let start_time = new Date(job.created_at)
+  let start_time = new Date()
+  let update_time = new Date(job.updated_at)
+  let elapsed = update_time.getTime() - start_time.getTime()
   return new Date(elapsed * 1000).toISOString().substring(11, 16)
 }
