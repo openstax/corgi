@@ -81,6 +81,8 @@ class JobGetter(GetterDict):
                              url=book_job.artifact_url)
                 for book_job in self._obj.books
             ]
+        elif key == 'version':
+            return self._obj.books[0].book.commit.sha
         else:
             try:
                 return getattr(self._obj, key)
@@ -149,7 +151,7 @@ class JobCreate(JobBase):
 
 class JobUpdate(BaseModel):
     status_id: str
-    pdf_url: Optional[str] = None
+    artifact_urls: Optional[List[ArtifactBase]] = None
     worker_version: Optional[str] = None
     error_message: Optional[str] = None
 
@@ -162,8 +164,8 @@ class Job(JobBase):
     repository: Repository
     job_type: JobType
     user: User
-    books: List[Book]
-    artifact_urls: List[ArtifactBase]
+    books: List[Book] = []
+    artifact_urls: List[ArtifactBase] = []
 
     class Config:
         orm_mode = True

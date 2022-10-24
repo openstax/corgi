@@ -2,89 +2,16 @@
 from datetime import datetime
 from typing import Optional, cast
 
-from app.github.client import AuthenticatedClient
 from app.data_models.models import Job as JobModel
-from app.data_models.models import JobCreate, UserSession
+from app.data_models.models import JobCreate, JobUpdate, UserSession
 from app.db.schema import Book, BookJob, Commit
 from app.db.schema import Jobs as JobSchema
 from app.db.schema import Repository
+from app.github.api import get_book_commit_metadata, get_collections
+from app.github.client import AuthenticatedClient
 from app.service.base import ServiceBase
 from lxml import etree
 from sqlalchemy.orm import Session as BaseSession
-
-
-async def github_graphql(client: AuthenticatedClient, query: str):
-    response = await client.post(
-        "https://api.github.com/graphql", json={"query": query})
-    response.raise_for_status()
-    return response.json()
-
-
-async def get_book_commit_metadata(client: AuthenticatedClient, repo_name: str,
-                                   repo_owner: str, version: str):
-    query = f"""
-        query {{
-            repository(name: "{repo_name}", owner: "{repo_owner}") {{
-                object(expression: "{version}") {{
-                    oid
-                    ... on Commit {{
-                        committedDate
-                        file (path: "META-INF/books.xml") {{
-                            object {{
-                                ... on Blob {{
-                                    text
-                                }}
-                            }}
-                        }}
-                    }}
-                }}
-            }}
-        }}
-    """
-    payload = await github_graphql(client, query)
-    commit = payload["data"]["repository"]["object"]
-    commit_sha = commit["oid"]
-    commit_timestamp = commit["committedDate"]
-    fixed_timestamp = f"{commit_timestamp[:-1]}+00:00"
-    books_xml = commit["file"]["object"]["text"]
-    meta = etree.fromstring(books_xml, parser=None)
-
-    books = [{ k: el.attrib[k] for k in ("slug", "style") } 
-             for el in meta.xpath("//*[local-name()='book']")]
-    return (commit_sha, datetime.fromisoformat(fixed_timestamp), books)
-
-
-async def get_collections(client: AuthenticatedClient, repo_name: str,
-                          repo_owner: str, commit_sha: str):
-    query = f"""
-        query {{
-            repository(name: "{repo_name}", owner: "{repo_owner}") {{
-                object(expression: "{commit_sha}") {{
-                    ... on Commit {{
-                        file (path: "collections") {{
-                            object {{
-                                ... on Tree {{
-                                    entries {{
-                                        name
-                                        object {{
-                                            ... on Blob {{
-                                                text
-                                            }}
-                                        }}
-                                    }}
-                                }}
-                            }}
-                        }}
-                    }}
-                }}
-            }}
-        }}
-    """
-    payload = await github_graphql(client, query)
-    files_entries = (payload["data"]["repository"]["object"]["file"]["object"]
-                    ["entries"])
-    return { entry["name"]: entry["object"]["text"]
-            for entry in files_entries }
 
 
 class JobsService(ServiceBase):
@@ -95,16 +22,16 @@ class JobsService(ServiceBase):
         repo_name =  job_in.repository.name
         repo_owner = job_in.repository.owner
         version = job_in.version is not None and job_in.version or "main"
-        repo_book = job_in.book
+        repo_book_in = job_in.book
         style = job_in.style is not None and job_in.style or "default"
         
         sha, timestamp, repo_books = await get_book_commit_metadata(
             client, repo_name, repo_owner, version)
 
         # If the user supplied an invalid argument for book
-        if repo_book is not None:
-            if not any(b["slug"] == repo_book for b in repo_books):
-                raise Exception(f"Book not in repository {repo_book}")
+        if repo_book_in is not None:
+            if not any(b["slug"] == repo_book_in for b in repo_books):
+                raise Exception(f"Book not in repository {repo_book_in}")
         
         commit = cast(Optional[Commit], db_session.query(Commit).filter(
             Commit.sha == sha).first())
@@ -141,7 +68,10 @@ class JobsService(ServiceBase):
                            worker_version=job_in.worker_version)
         db_session.add(db_job)
         
-        for db_book in commit.books:
+        books_for_job = commit.books
+        if repo_book_in is not None:
+            books_for_job = (b for b in books_for_job if b.slug == repo_book_in)
+        for db_book in books_for_job:
             book_job = BookJob(book_id=db_book.id)
             db_job.books.append(book_job)
             db_session.add(book_job)
@@ -149,6 +79,14 @@ class JobsService(ServiceBase):
         db_session.commit()
 
         return db_job
+
+    def update(self, db_session: BaseSession, job: JobSchema, job_in: JobUpdate):
+        book_job_by_book_slug = {b.book.slug: b for b in job.books}
+        if job_in.artifact_urls is not None:
+            for artifact_url in job_in.artifact_urls:
+                book_job_by_book_slug[artifact_url.slug].artifact_url = \
+                    artifact_url.url
+        return super().update(db_session, job, job_in, JobUpdate)
 
 
 jobs_service = JobsService(JobSchema, JobModel)

@@ -81,6 +81,7 @@ def update_job(
         # Only allow updating to completed states to prevent this
         # Don't raise HTTPException since other fields are likely valid
         incoming_status = int(job_in.status_id)
-        job_in.status_id = incoming_status if incoming_status in [4,5,6] else job.status_id
+        job_in.status_id = str(incoming_status if incoming_status in [4,5,6]
+                                else job.status_id)
     job = jobs_service.update(db, job, job_in)
     return job

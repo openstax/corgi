@@ -13,6 +13,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
+
 router = APIRouter()
 
 oauth = OAuth()
@@ -71,11 +72,6 @@ async def success(
     active_user: UserSession = Depends(active_user)
 ):
     return active_user.json()
-
-
-@router.get("/failure")
-async def failure():
-    return ":`<"
 
 
 @router.get("/admin-example", dependencies=[Depends(RequiresRole(Role.ADMIN))])
