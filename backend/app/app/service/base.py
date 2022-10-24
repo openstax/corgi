@@ -1,4 +1,4 @@
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Type
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
@@ -41,9 +41,13 @@ class ServiceBase(object):
         db_session.commit()
         return obj
 
-    def update(self, db_session: BaseSession, obj: BaseSchema, obj_in: BaseModel):
+    def update(self, db_session: BaseSession, obj: BaseSchema,
+               obj_in: BaseModel, data_model: Any = None):
 
-        obj_data = obj.to_data_model(self.data_model).dict(skip_defaults=True)
+        if data_model is None:
+            data_model = self.data_model
+        
+        obj_data = obj.to_data_model(data_model).dict(skip_defaults=True)
         update_data = obj_in.dict(skip_defaults=True)
 
         formatted_data = {
