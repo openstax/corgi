@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 from pydantic import BaseModel
 from pydantic.utils import GetterDict
@@ -151,7 +151,7 @@ class JobCreate(JobBase):
 
 class JobUpdate(BaseModel):
     status_id: str
-    artifact_urls: Optional[List[ArtifactBase]] = None
+    artifact_urls: Optional[Union[List[ArtifactBase], str]] = None
     worker_version: Optional[str] = None
     error_message: Optional[str] = None
 

@@ -21,7 +21,7 @@ oauth.register(
     "github",
     authorize_url="https://github.com/login/oauth/authorize",
     access_token_url="https://github.com/login/oauth/access_token",
-    scope="read:user",
+    scope="read:user repo",
     client_id=CLIENT_ID,
     client_secret=CLIENT_SECRET
 )
