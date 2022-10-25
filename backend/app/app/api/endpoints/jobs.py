@@ -85,3 +85,15 @@ def update_job(
                                 else job.status_id)
     job = jobs_service.update(db, job, job_in)
     return job
+
+
+@router.get("/error/{id}")
+def get_error(
+    *,
+    db: Session = Depends(get_db),
+    id: int
+):
+    job = jobs_service.get(db_session=db, obj_id=id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return job.error_message
