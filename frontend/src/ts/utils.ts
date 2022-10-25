@@ -1,11 +1,10 @@
 import type { Job, RepositorySummary } from "./types"
+import { RequireAuth } from "./fetch-utils"
 
 export async function fetchRepos(): Promise<RepositorySummary[]> {
   try {
-    let httpResponse = await fetch('/api/github/repository-summary')
-    return await httpResponse.json()
+    return await RequireAuth.fetchJson('/api/github/repository-summary')
   } catch (error) {
-    console.log("OOF")
     handleFetchError(error)
   }
 }
@@ -13,11 +12,11 @@ export async function fetchRepos(): Promise<RepositorySummary[]> {
 export function filterBooks(repositories: RepositorySummary[], selectedRepo: string): string[] {
   let books: string[] = []
   repositories
-  .filter(s => selectedRepo == '' || s.name.includes(selectedRepo))
-  .map(s => s.books)
-  .forEach(bookNames => {
-    bookNames.forEach(b => books.push((b as any)))
-  })
+    .filter(s => selectedRepo == '' || s.name.includes(selectedRepo))
+    .map(s => s.books)
+    .forEach(bookNames => {
+      bookNames.forEach(b => books.push((b as any)))
+    })
   console.log(books)
   return books
 }
@@ -33,7 +32,7 @@ export function readableDateTime(datetime: string): string {
 
 export function mapImage(folder: string, name: string, type: string): string {
     const index = name.indexOf(' ')
-    console.log(name)
+    // console.log(name)
     return `./icons/${folder}/${name.toLowerCase()}.${type}` // name.slice(0, index)
 }
 
@@ -56,8 +55,8 @@ export function handleFetchError (error) {
 
 export function calculateElapsed(job: Job): string{
   // let start_time = new Date(job.created_at)
-  let start_time = new Date()
-  let update_time = new Date(job.updated_at)
-  let elapsed = update_time.getTime() - start_time.getTime()
-  return new Date(elapsed * 1000).toISOString().substring(11, 16)
+  let update_time = job.status.name == "completed" ? Date.parse(job.updated_at) : Date.now()
+  let start_time = Date.parse(job.created_at)
+  let elapsed = update_time - start_time
+  return `${(Math.floor(elapsed/(60 * 60 * 1000)) % 60).toString().padStart(2, '0')}:${(Math.floor(elapsed/60000) % 60).toString().padStart(2, '0')}:${(elapsed % 60).toString().padStart(2, '0')}`
 }

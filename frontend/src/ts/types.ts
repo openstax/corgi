@@ -4,8 +4,8 @@ export interface Job {
     job_type_id: string
     version: string
     worker_version: string
-    created_at: number
-    updated_at: number
+    created_at: string
+    updated_at: string
     status: Status
     repository: Repository
     job_type: JobType
