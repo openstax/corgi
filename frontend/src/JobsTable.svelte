@@ -8,8 +8,8 @@
   <Autocomplete
   id="repo-input"
   type="email"
-  options={repoNames}
-  bind:text={selected_repo}
+  search={searchRepos}
+  bind:text={selectedRepo}
   updateInvalid
   label="Repo"
   />
@@ -18,14 +18,14 @@
   id="book-input"
   search={searchBooks}
   options={books}
-  bind:text={selected_book}
+  bind:text={selectedBook}
   label="Book"
   />
 
   <Autocomplete
   id="version-input"
   options={versions}
-  bind:text={selected_version}
+  bind:text={selectedVersion}
   label="Version"
   />
 </div>
@@ -35,7 +35,7 @@
   <FormField>
     <Checkbox
       id={`${option.name}-job-option`}
-      bind:group={selected_job_types}
+      bind:group={selectedJobTypes}
       value={option.name}
       disabled={option.disabled}
     />
@@ -104,7 +104,7 @@
   <Body>
     {#each sortedRows as item (item.id)}
       <!-- <DetailRow> -->
-        <Row slot="data" on:click={() => {open=true}}>
+        <Row slot="data" on:click={() => {selectedJob=item; open=true}}>
           <Cell numeric >{item.id}</Cell>
           <Cell>
             <Wrapper>
@@ -136,13 +136,13 @@
             {/if}
             {item.repository.name}
           </Cell>
-          <Cell>{item.version === null ? 'main' : item.version }</Cell>
+          <Cell>{item.version === null ? 'main' : item.version.slice(0, 7) }</Cell>
           <Cell>
             <Wrapper>
               <img
                 alt={item.status.name}
                 src={mapImage('job_status', item.status.name, 'svg')}
-                class="filter-green"
+                class={statusColors[item.status.name]}
               />
                 <!-- style="max-height: 30px; color: greenyellow" -->
               <Tooltip>{item.status.name}</Tooltip>
@@ -177,33 +177,6 @@
             </Wrapper>
           </Cell> -->
         </Row>
-        <Dialog
-          bind:open
-        >
-
-          {#if item.status.name == "completed"}
-            <Title>Job Actions</Title>
-            <Actions>
-              <Button variant="raised" on:click={() => {repeatJob(item)}}>
-                <Label>Repeat</Label>
-                </Button>
-              <Button color="secondary" variant="raised" on:click={clickNewJob}>
-                <Label>Approve</Label>
-              </Button>
-            </Actions>
-          {:else if item.status.name == "queued"}
-            <Title>Job Actions</Title>
-            <Actions>
-              <Button variant="raised" on:click={clickNewJob}>
-                <Label>Abort</Label>
-              </Button>
-            </Actions>
-          {:else if item.status.name == "failed"}
-            <Title>Errors</Title>
-            <Content>
-            </Content>
-          {/if}
-        </Dialog>
     {/each}
   </Body>
   <Pagination slot="paginate">
@@ -249,45 +222,22 @@
     >
   </Pagination>
 </DataTable>
+
+<DetailsDialog bind:open={open} selectedJob={selectedJob}></DetailsDialog>
 </div>
 
 <script lang="ts">
   import Tooltip, { Wrapper } from '@smui/tooltip'
   import { fetchRepos as fetchRepos, calculateElapsed, mapImage, filterBooks } from './ts/utils'
   import { submitNewJob, getJobs, repeatJob } from './ts/jobs'
-  import Dialog, { Header, Title, Content, Actions } from '@smui/dialog'
+  import Dialog, { Header, Title, Content, Actions, InitialFocus } from '@smui/dialog'
   import LinearProgress from '@smui/linear-progress'
   import type { Repository, RepositorySummary } from './ts/types'
-
-
-
   import { onMount } from 'svelte'
   import Checkbox from '@smui/checkbox'
   import FormField from '@smui/form-field'
   import Autocomplete from '@smui-extra/autocomplete'
   import Button from '@smui/button'
-  
-  let options = [
-    { name: 'PDF',     disabled: false },
-    { name: 'WebView', disabled: false },
-    { name: 'EPUB',    disabled: false },
-    { name: 'Docx',    disabled: false },
-  ]
-
-  let repos: RepositorySummary[] = []
-  let versions: string[] = []
-  
-  let open = false
-
-  export let selected_job_types = []
-  
-  let selected_repo: string
-  let selected_book: string
-  let selected_version: string
-
-  $: validJob = (selected_job_types.length != 0) && (selected_repo !== '')
-  
-  // Initialization
   import CircularProgress from '@smui/circular-progress'
   import DataTable, {
     Head,
@@ -302,17 +252,43 @@
   import { Label } from '@smui/common'
 
   import type { Job, JobType } from './ts/types'
+  import DetailsDialog from './DetailsDialog.svelte';
 
+  let options = [
+    { name: 'PDF',     disabled: false },
+    { name: 'WebView', disabled: false },
+    { name: 'EPUB',    disabled: false },
+    { name: 'Docx',    disabled: false },
+  ]
+
+  let statusColors = {
+    queued: "filter-yellow",
+    assigned: "filter-yellow",
+    processing: "filter-yellow spin",
+    failed: "filter-red",
+    completed: "filter-green",
+    aborted: "filter-red"
+  }
+
+  let repos: RepositorySummary[] = []
+  let versions: string[] = []
+
+  export let selectedJobTypes = []
+
+  let open = false
+  let selectedJob: Job
+  
+  let selectedRepo: string
+  let selectedBook: string
+  let selectedVersion: string
+
+  $: validJob = (selectedJobTypes.length != 0) && (selectedRepo !== '')
+  
+  // Initialization
   let jobs: Job[] = []
   let slice: Job[] = []
   let sort: keyof Job = 'id'
   let sortDirection: Lowercase<keyof typeof SortValue> = 'ascending'
-
-  onMount(async () => {
-    repos = await fetchRepos()
-    jobs = await getJobs()
-    pollData()
-	})
 
   enum JobTypeId {
     PDF = 3,
@@ -327,8 +303,8 @@
       return
     }
     lastJobStartTime = Date.now()
-    selected_job_types.forEach(jobType => {
-      submitNewJob(JobTypeId[(jobType as number)], selected_repo, selected_book, selected_version)
+    selectedJobTypes.forEach(jobType => {
+      submitNewJob(JobTypeId[(jobType as number)], selectedRepo, selectedBook, selectedVersion)
     })
     jobs = await getJobs()
   }
@@ -358,40 +334,51 @@
   }
 
   // Job filtering
+  
+  let repoSummaries: RepositorySummary[] | null = null
+  
+  async function getRepoSummaries() {
+    if (repoSummaries === null) {
+      repoSummaries = await fetchRepos()
+    }
+    return repoSummaries
+  }
+  
+  async function searchRepos(input: string) {
+    const fullOptions = await getRepoSummaries()
+    const lowerInput = input.toLocaleLowerCase()
+    
+    const repos = fullOptions.map(r => r.name).filter(name =>
+      name.toLocaleLowerCase().includes(input)
+    )
 
-  async function searchBooks(input: string) { 
-    // Pretend to have some sort of canceling mechanism.
-    // const myCounter = ++counter
- 
-    // // Pretend to be loading something...
-    // await new Promise((resolve) => setTimeout(resolve, 1000))
- 
-    // // This means the function was called again, so we should cancel.
-    // if (myCounter !== counter) {
-    //   // `return false` (or, more accurately, resolving the Promise object to
-    //   // `false`) is how you tell Autocomplete to cancel this search. It won't
-    //   // replace the results of any subsequent search that has already finished.
-    //   return false
-    // }
- 
-    // // Return a list of matches.
-    // return fruits.filter((item) =>
-    //   item.toLowerCase().includes(input.toLowerCase())
-    // )
-
-    return filterBooks(repos, selected_repo)
+    return repos
   }
 
+  async function searchBooks(input: string) {
+    // Does not filter by repo until you type at least one character
+    // Does not reset until you type at least one char
+    // Locks value of repo once book is selected to repo that book belongs to
+    return filterBooks(await getRepoSummaries(), selectedRepo).filter(b => b.toLocaleLowerCase().includes(input.toLocaleLowerCase()))
+  }
   
-  $: repoNames = repos.length > 0 ? repos.map(m => m.name) : []
-  // $: books = repos.length > 0 ? filterBooks(repos, selected_repo) : []
-  $: books = repos.length > 0 ? repos.map(r => r.books).reduce((ax=[], x) => ax.concat(x)) : []
+/*
+  
+*/
 
-  $: selected_repo = repos.find(r => r.books.find(b => b === selected_book))?.name || selected_repo
+  $: repoNames = repos.map(m => m.name)
+  // $: books = repos.length > 0 ? filterBooks(repos, selected_repo) : []
+  $: books = repos.length > 0 ? filterBooks(repos, selectedRepo) : []
+
+  function setSelectedRepo(selectedBook) {
+    return repos.find(r => r.books.find(b => b === selectedBook))?.name || selectedRepo
+  }
+
+  $: selectedRepo = setSelectedRepo(selectedBook)
   $: filteredRows = slice.filter(entry =>
-      (selected_job_types.length === 0 || selected_job_types.some(item => entry.job_type.display_name.includes(item))) && 
-      (!selected_repo || entry.repository.name.includes(selected_repo)) &&
-      (!selected_book || entry.books.find(item => item.slug.includes(selected_book)) != null)
+      (selectedJobTypes.length === 0 || selectedJobTypes.some(item => entry.job_type.display_name.includes(item))) && 
+      (!selectedRepo || entry.repository.name.includes(selectedRepo)) &&
+      (!selectedBook || entry.books.find(item => item.slug.includes(selectedBook)) != null)
     )
 
   // Job sorting
@@ -408,11 +395,33 @@
     }
     return Number(aVal) - Number(bVal)
   })
+
+  onMount(async () => {
+    repos = await fetchRepos()
+    jobs = await getJobs()
+    pollData()
+	})
 </script>
 
 <style>
   .filter-green {
     filter: invert(48%) sepia(79%) saturate(200%) hue-rotate(77deg) brightness(118%) contrast(119%);
+  }
+  .filter-yellow {
+    filter: invert(48%) sepia(79%) saturate(240%) hue-rotate(5deg) brightness(145%) contrast(119%);
+  }
+  .filter-red {
+    filter: invert(48%) sepia(79%) saturate(500%) hue-rotate(-50deg) brightness(118%) contrast(119%);
+  }
+  @keyframes spin-frames {
+    0% { transform:rotate(0deg) }
+    100% { transform:rotate(360deg) }
+  }
+  .spin {
+    animation-name: spin-frames;
+    animation-duration: 1.5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
   }
 </style>
   
