@@ -81,11 +81,13 @@ class JobsService(ServiceBase):
         return db_job
 
     def update(self, db_session: BaseSession, job: JobSchema, job_in: JobUpdate):
-        book_job_by_book_slug = {b.book.slug: b for b in job.books}
-        if job_in.artifact_urls is not None:
+        if isinstance(job_in.artifact_urls, list):
+            book_job_by_book_slug = {b.book.slug: b for b in job.books}
             for artifact_url in job_in.artifact_urls:
                 book_job_by_book_slug[artifact_url.slug].artifact_url = \
                     artifact_url.url
+        elif job_in.artifact_urls is not None:
+            job.books[0].artifact_url = job_in.artifact_urls
         return super().update(db_session, job, job_in, JobUpdate)
 
 
