@@ -60,3 +60,38 @@ export function calculateElapsed(job: Job): string{
   let elapsed = update_time - start_time
   return `${(Math.floor(elapsed/(60 * 60 * 1000)) % 60).toString().padStart(2, '0')}:${(Math.floor(elapsed/60000) % 60).toString().padStart(2, '0')}:${(elapsed % 60).toString().padStart(2, '0')}`
 }
+
+export async function newABLentry (job: Job) {
+  const repo = job.repository
+  if (repo.owner !== 'openstax') {
+    const errMsg = 'Only Openstax repositories can be added to the ABL at this time'
+    alert(errMsg)
+    throw new Error(errMsg)
+  }
+  const ablData = await (await fetch(`/api/abl/${repo.name}/${job.version}`)).json()
+
+  // What goes inside the versions array
+  const versionEntry = {
+    min_code_version: null, // To be filled in manually
+    edition: null, // To be filled in manually
+    commit_sha: ablData.commit_sha,
+    commit_metadata: {
+      committed_at: ablData.committed_at,
+      books: ablData.books
+    }
+  }
+
+  // Line number is 1 for new ABL entries
+  const ablEntry = ablData.line_number === 1
+    ? {
+        repository_name: repo.name,
+        platforms: ['REX'],
+        versions: [
+          versionEntry
+        ]
+      }
+    : versionEntry
+
+  await navigator.clipboard.writeText(JSON.stringify(ablEntry, null, 2))
+  window.open(`https://github.com/openstax/content-manager-approved-books/edit/main/approved-book-list.json#L${ablData.line_number}`, '_blank')
+}

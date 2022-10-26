@@ -3,50 +3,37 @@
     sheet
 >
     {#if selectedJob}
-        {#if selectedJob.status.name == "failed"}
-            <Header>
-                <Title>Job #{selectedJob.id} Errors</Title>
-            </Header>
-            <Content>
+        <Header>
+            <Title>Job #{selectedJob.id}</Title>
+        </Header>
+        <Content>
+            {#if selectedJob.status.name == "completed"}
+                {#each selectedJob.artifact_urls as artifact}
+                    <a href={artifact.url}>{artifact.slug}</a>
+                {/each}
+            {:else if selectedJob.status.name == "failed"}
                 {selectedJob.error_message}
-            </Content>
-            <Actions>
+            {/if}
+        </Content>
+        <Actions>
+            {#if ["queued", "assigned", "processing"].includes(selectedJob.status.name)}
+                <Button variant="raised" on:click={() => {abortJob(selectedJob.id)}}>
+                    <Label>Abort</Label>
+                </Button>
+            {:else if ["completed", "failed", "aborted"].includes(selectedJob.status.name)}
                 <Button variant="raised" on:click={() => {repeatJob(selectedJob)}}>
                     <Label>Repeat</Label>
                 </Button>
-                <Button variant="raised" on:click={() => {}}>
-                    <Label>Close</Label>
-                </Button>
-            </Actions>
-        {:else}
-            <Header>
-                <Title>Job #{selectedJob.id} Actions</Title>
-            </Header>
-            {#if ["completed", "aborted"].includes(selectedJob.status.name)}
-                <Actions>
-                    <Button variant="raised" on:click={() => {repeatJob(selectedJob)}}>
-                        <Label>Repeat</Label>
+                {#if selectedJob.status.name == "completed"}
+                    <Button color="secondary" variant="raised" on:click={() => {newABLentry(selectedJob)}}>
+                        <Label>Approve</Label>
                     </Button>
-                    {#if selectedJob.status.name == "completed"}
-                        <Button color="secondary" variant="raised" on:click={() => {}}>
-                            <Label>Approve</Label>
-                        </Button>
-                    {/if}
-                    <Button variant="raised" on:click={() => {}}>
-                        <Label>Close</Label>
-                    </Button>
-                </Actions>
-            {:else if ["queued", "assigned", "processing"].includes(selectedJob.status.name)}
-                <Actions>
-                    <Button variant="raised" on:click={() => {abortJob(selectedJob.id)}}>
-                        <Label>Abort</Label>
-                    </Button>
-                    <Button variant="raised" on:click={() => {}}>
-                        <Label>Close</Label>
-                    </Button>
-                </Actions>
+                {/if}
             {/if}
-        {/if}
+            <Button variant="raised" on:click={() => {}}>
+                <Label>Close</Label>
+            </Button>
+        </Actions>
     {/if}
 </Dialog>
 
@@ -56,7 +43,7 @@
     import { Label } from '@smui/common'
     import { abortJob, repeatJob } from './ts/jobs'
     import type { Job } from './ts/types'
-    import IconButton from '@smui/icon-button';
+    import { newABLentry } from './ts/utils'
 
     export let selectedJob: Job
     export let open
