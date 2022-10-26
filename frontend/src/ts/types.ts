@@ -11,7 +11,7 @@ export interface Job {
     job_type: JobType
     user: User
     books: Book[]
-    pdf_url: string
+    artifact_urls: ArtifactUrl[]
     error_message: string
 }
 
