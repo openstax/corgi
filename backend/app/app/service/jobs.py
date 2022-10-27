@@ -7,8 +7,8 @@ from app.data_models.models import JobCreate, JobUpdate, UserSession
 from app.db.schema import Book, BookJob, Commit
 from app.db.schema import Jobs as JobSchema
 from app.db.schema import Repository
-from app.github.api import get_book_commit_metadata, get_collections
-from app.github.client import AuthenticatedClient
+from app.github import (AuthenticatedClient, get_book_commit_metadata,
+                        get_collections)
 from app.service.base import ServiceBase
 from lxml import etree
 from sqlalchemy.orm import Session as BaseSession

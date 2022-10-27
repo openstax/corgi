@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -30,21 +31,15 @@ DEPLOYED_AT = os.getenv("DEPLOYED_AT")
 GITHUB_API_TOKEN = os.getenv("GITHUB_API_TOKEN")
 
 # GITHUB OAUTH
-CLIENT_ID = os.getenv("CLIENT_ID")
-CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+CLIENT_ID = os.getenv("GITHUB_OAUTH_ID")
+CLIENT_SECRET = os.getenv("GITHUB_OAUTH_SECRET")
 ADMIN_TEAMS = ("ce-tech", "ce-admins", "content-managers")
-GITHUB_LOGIN_URL = (
-    "https://github.com/login/oauth/authorize?"
-    f"client_id={CLIENT_ID}&scope=read:user%20read:org"
-)
 
-# JWT
-# tr -dc 'a-zA-Z0-9[:punct:]' < /dev/urandom | dd bs=1000 count=1 2>/dev/null
-SESSION_SECRET = (
-    "cMzeqhQ2HsM2LFPRJBy43kNdqv9RNEMMxtmk3RmLNN5M1bfhKR4ofgXe8DpzIjUl"
-    "DGjPJU0L6webMfMIAz9pWlEPc2CkroTaOuOesASoihqb1J586YxCDjdI7jJ9ZVpB"
-    "fvyPPHyVKrnIYFnQDoof2Z9GTR8TIKqt6J2qtQj3QlUWvMj9PyMAh4CJq7lEjCAR"
-    "jJqkWY6nG4HAQl5f6WeOYUmNiDEqRvSuwSQhcNjVgoz4vxKQorqni2C5JBvXY0Te"
-)
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+# To encrypt session cookie
+SESSION_SECRET = os.getenv("SESSION_SECRET")
+if not SESSION_SECRET:
+    from os import urandom
+    from base64 import b64encode
+    SESSION_SECRET = b64encode(urandom(1024)).decode("utf-8")
+
+ACCESS_TOKEN_EXPIRE_MINUTES = 120

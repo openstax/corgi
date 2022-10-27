@@ -1,7 +1,7 @@
 from typing import List
 
 from app.core.auth import active_user
-from app.github.client import github_client
+from app.github import github_client
 from app.data_models.models import Job, JobCreate, JobUpdate, UserSession
 from app.db.utils import get_db
 from app.service.jobs import jobs_service
