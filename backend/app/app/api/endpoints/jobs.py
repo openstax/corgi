@@ -1,9 +1,10 @@
+from datetime import datetime, timedelta, timezone
 from typing import List
 
 from app.core.auth import active_user
-from app.github import github_client
 from app.data_models.models import Job, JobCreate, JobUpdate, UserSession
 from app.db.utils import get_db
+from app.github import github_client
 from app.service.jobs import jobs_service
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -14,11 +15,11 @@ router = APIRouter()
 @router.get("/", response_model=List[Job])
 def list_jobs(
         db: Session = Depends(get_db),
-        skip: int = 0,
-        limit: int = 50,
 ):
-    """List jobs - page 0"""
-    return list_job_page(db, 0, limit)
+    """List all jobs for this year by default"""
+    end = datetime.now(timezone.utc)
+    start = end - timedelta(days=365)
+    return jobs_service.get_jobs_in_date_range(db, start, end)
 
 
 @router.get("/pages/{page}", response_model=List[Job])

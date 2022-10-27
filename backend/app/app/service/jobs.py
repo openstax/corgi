@@ -1,6 +1,6 @@
 
 from datetime import datetime
-from typing import Optional, cast
+from typing import List, Optional, cast
 
 from app.data_models.models import Job as JobModel
 from app.data_models.models import JobCreate, JobUpdate, UserSession
@@ -89,6 +89,14 @@ class JobsService(ServiceBase):
         elif job_in.artifact_urls is not None:
             job.books[0].artifact_url = job_in.artifact_urls
         return super().update(db_session, job, job_in, JobUpdate)
+
+    def get_jobs_in_date_range(self, db_session: BaseSession, start: datetime,
+                               end: datetime, order_by: Optional[List] = None):
+        if order_by is None:
+            order_by = [JobSchema.created_at.desc()]
+        return db_session.query(JobSchema).filter(
+            JobSchema.created_at >= start, JobSchema.created_at <= end
+        ).order_by(*order_by).all()
 
 
 jobs_service = JobsService(JobSchema, JobModel)
