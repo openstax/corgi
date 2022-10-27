@@ -12,7 +12,7 @@ oauth.register(
 )
 
 
-if oauth.github is None:
+if oauth.github is None:  # pragma: no cover
     raise Exception("BUG: GitHub oauth could not be registered")
 
 

@@ -18,6 +18,6 @@ def authenticate_client(client: AsyncClient, token: str) -> AuthenticatedClient:
 
 
 @asynccontextmanager
-async def github_client(user: UserSession):
+async def github_client(user: UserSession):  # pragma: no cover
     async with AsyncClient() as client:
         yield authenticate_client(client, user.token)
