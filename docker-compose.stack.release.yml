@@ -52,6 +52,9 @@ services:
       - SQLALCHEMY_POOL_SIZE=20
       - SQLALCHEMY_MAX_OVERFLOW=10
       - GITHUB_API_TOKEN=${GITHUB_API_TOKEN}
+      - GITHUB_OAUTH_ID=${GITHUB_OAUTH_ID}
+      - GITHUB_OAUTH_SECRET=${GITHUB_OAUTH_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
     deploy:
       labels:
         - traefik.frontend.rule=PathPrefix:/api,/docs,/redoc,/openapi.json

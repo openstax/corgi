@@ -4,6 +4,10 @@ networks:
     name: traefik-public
 services:
   backend:
+    build:
+      context: ./backend
+      dockerfile: backend.dockerfile
+      target: prod-runner
     deploy:
       labels:
         traefik.enable: "true"
@@ -28,6 +32,9 @@ services:
       TAG: ${TAG}
       DEPLOYED_AT: ${DEPLOYED_AT}
       GITHUB_API_TOKEN: ${GITHUB_API_TOKEN}
+      GITHUB_OAUTH_ID: ${GITHUB_OAUTH_ID}
+      GITHUB_OAUTH_SECRET: ${GITHUB_OAUTH_SECRET}
+      SESSION_SECRET: ${SESSION_SECRET}
     image: openstax/corgi-backend:${TAG}
     logging:
       options:

@@ -2,11 +2,11 @@ from enum import Enum
 from typing import List
 
 from app.core.auth import Role
-from app.github.models import GitHubRepo
 from app.data_models.models import Repository as RepositoryModel
 from app.data_models.models import UserSession
 from app.db.schema import Repository as RepositorySchema
 from app.db.schema import UserRepository
+from app.github import GitHubRepo
 from app.service.base import ServiceBase
 from sqlalchemy.orm import Session
 
