@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta, timezone
 
-from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES
+from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES, IS_DEV_ENV
 from app.db.utils import get_db
 from app.github import (AccessDeniedException, AuthenticationException,
                         authenticate_user, sync_user_data, github_oauth)
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
-
+from starlette.datastructures import URL
 
 router = APIRouter()
 
@@ -15,6 +15,8 @@ router = APIRouter()
 @router.get("/login")
 async def login(request: Request):
     redirect_uri = request.url_for("callback")
+    if not IS_DEV_ENV:
+        redirect_uri = str(URL(redirect_uri).replace(scheme="https"))
     return await github_oauth.authorize_redirect(request, redirect_uri)
 
 
