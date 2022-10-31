@@ -1,11 +1,20 @@
 import type { Job, RepositorySummary } from "./types"
 import { RequireAuth } from "./fetch-utils"
+import { error } from './stores'
+
+type Errors = Error
+
+export function handleError(e: Errors) {
+  error.update(_ => e.toString())
+  console.error(e)
+}
 
 export async function fetchRepos(): Promise<RepositorySummary[]> {
   try {
     return await RequireAuth.fetchJson('/api/github/repository-summary')
   } catch (error) {
-    handleFetchError(error)
+    handleError(error)
+    throw error
   }
 }
 
@@ -53,12 +62,25 @@ export function handleFetchError (error) {
     throw error
   }
 
+export function isJobComplete(job: Job): boolean {
+  return parseInt(job.status.id) >= 4
+}
+
+function parseDateAddTZ(time: string, tzOffset: string = '00:00') {
+  return Date.parse(`${time}+${tzOffset}`)
+}
+
 export function calculateElapsed(job: Job): string{
   // let start_time = new Date(job.created_at)
-  let update_time = job.status.name == "completed" ? Date.parse(job.updated_at) : Date.now()
-  let start_time = Date.parse(job.created_at)
-  let elapsed = update_time - start_time
-  return `${(Math.floor(elapsed/(60 * 60 * 1000)) % 60).toString().padStart(2, '0')}:${(Math.floor(elapsed/60000) % 60).toString().padStart(2, '0')}:${(elapsed % 60).toString().padStart(2, '0')}`
+  let update_time = isJobComplete(job)
+    ? parseDateAddTZ(job.updated_at)
+    : Date.now()
+  let start_time = parseDateAddTZ(job.created_at)
+  let elapsed = (update_time - start_time) / 1000
+  const hours = Math.floor(elapsed / 3600).toString().padStart(2, '0')
+  const minutes = (Math.floor(elapsed / 60) % 60).toString().padStart(2, '0')
+  const seconds = (Math.floor(elapsed) % 60).toString().padStart(2, '0')
+  return `${hours}:${minutes}:${seconds}`
 }
 
 export async function newABLentry (job: Job) {

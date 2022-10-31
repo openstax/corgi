@@ -8,7 +8,8 @@ from app.db.schema import Book, BookJob, Commit
 from app.db.schema import Jobs as JobSchema
 from app.db.schema import Repository
 from app.github import (AuthenticatedClient, get_book_commit_metadata,
-                        get_collections)
+                        get_collections, get_repository)
+from app.service.repository import repository_service
 from app.service.base import ServiceBase
 from lxml import etree
 from sqlalchemy.orm import Session as BaseSession
@@ -42,7 +43,12 @@ class JobsService(ServiceBase):
                 Repository.name == repo_name, 
                 Repository.owner == repo_owner).first()
             if repository is None:
-                raise NotImplementedError("Should not happen atm")
+                repo = await get_repository(client, repo_name, repo_owner)
+                repository = Repository(id=repo.database_id, name=repo_name,
+                                        owner=repo_owner)
+                repository_service.upsert_repositories(db_session, [repository])
+                repository_service.upsert_user_repositories(db_session, user.id, 
+                                                            [repo])
             commit = Commit(repository_id=repository.id, sha=sha,
                             timestamp=timestamp, books=[])
             db_session.add(commit)

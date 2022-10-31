@@ -9,10 +9,19 @@
         <Content>
             {#if selectedJob.status.name == "completed"}
                 {#each selectedJob.artifact_urls as artifact}
-                    <a href={artifact.url}>{artifact.slug}</a>
+                    <a href={artifact.url} target="_blank">{artifact.slug}</a>
                 {/each}
-            {:else if selectedJob.status.name == "failed"}
-                {selectedJob.error_message}
+            {:else if selectedJob.status.name === "failed"}
+                {#await getErrorMessage(selectedJob.id)}
+                    <h3>Fetching error</h3>
+                    <CircularProgress style="height: 32px; width: 32px;" indeterminate />
+                {:then error_message}
+                    <h3>Error:</h3>
+                    <pre>{error_message}</pre>
+                {:catch requestError}
+                    <h3>Something went wrong:</h3>
+                    {requestError.message}
+                {/await}
             {/if}
         </Content>
         <Actions>
@@ -39,9 +48,10 @@
 
 <script lang="ts">
     import Dialog, { Header, Title, Content, Actions, InitialFocus } from '@smui/dialog'
+    import CircularProgress from '@smui/circular-progress';
     import Button from '@smui/button'
     import { Label } from '@smui/common'
-    import { abortJob, repeatJob } from './ts/jobs'
+    import { abortJob, repeatJob, getErrorMessage } from './ts/jobs'
     import type { Job } from './ts/types'
     import { newABLentry } from './ts/utils'
 
