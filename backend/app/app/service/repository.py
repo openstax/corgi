@@ -26,7 +26,8 @@ class RepositoryService(ServiceBase):
         user: UserSession
     ) -> List[RepositoryModel]:
         query = db.query(UserRepository)
-        if user.role != Role.ADMIN:
+        #Ideally, this role check would be in a more auth-centric location
+        if not user.is_admin():
             query = query.filter(
                 UserRepository.user_id == user.id,
                 UserRepository.permission_id.in_([

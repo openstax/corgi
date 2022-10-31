@@ -19,6 +19,9 @@ class UserSession(BaseModel):
     avatar_url: str
     name: str
 
+    def is_admin(self) -> bool:
+        return self.role == Role.ADMIN
+
 
 class StatusBase(BaseModel):
     name: str

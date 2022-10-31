@@ -53,4 +53,9 @@ async def test_sync_user_data(mock_get_user_repositories, mock_user_service,
     # cast here to get the type checker to ignore
     fake_client = cast(Any, None)
     fake_db = cast(Any, None)
-    await sync_user_data(fake_client, fake_db, FAKE_USER)
+    exception = None
+    try:
+        await sync_user_data(fake_client, fake_db, FAKE_USER)
+    except Exception as e:
+        exception = e
+    assert exception is None

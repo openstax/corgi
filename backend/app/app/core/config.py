@@ -38,9 +38,8 @@ ADMIN_TEAMS = ("ce-tech", "ce-admins", "content-managers")
 
 # To encrypt session cookie
 SESSION_SECRET = os.getenv("SESSION_SECRET")
-if not SESSION_SECRET:
-    from os import urandom
-    from base64 import b64encode
-    SESSION_SECRET = b64encode(urandom(1024)).decode("utf-8")
+if SESSION_SECRET is None:
+    import sys
+    sys.exit("Environment variable SESSION_SECRET must be set")
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 120
