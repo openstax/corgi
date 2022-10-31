@@ -1,7 +1,7 @@
 <img
   alt="Content Output Review and Generation Interface"
   src="./title-image.png"
-  style="max-height: 100px;"
+  style="max-height: 100px; padding-top: 8px;"
 />
 
 <div class="inputContainer">
@@ -24,6 +24,7 @@
 
   <Autocomplete
   id="version-input"
+  search={searchVersions}
   options={versions}
   bind:text={selectedVersion}
   label="Version"
@@ -69,11 +70,11 @@
         <Label>Type</Label>
         <IconButton class="material-icons">arrow_upward</IconButton>
       </Cell>
-      <Cell columnId="collection_id" style="width: 100%;">
+      <Cell columnId="books" style="width: 100%;">
         <Label>Book</Label>
         <IconButton class="material-icons">arrow_upward</IconButton>
       </Cell>
-      <Cell columnId="collection-id" style="width: 100%;">
+      <Cell columnId="repository" style="width: 100%;">
         <Label>Repo</Label>
         <IconButton class="material-icons">arrow_upward</IconButton>
       </Cell>
@@ -131,10 +132,9 @@
             {/if}
           </Cell>
           <Cell>
-            {#if item.repository.owner != "openstax"}
-              {item.repository.owner}/
-            {/if}
-            {item.repository.name}
+            {item.repository.owner !== "openstax"
+              ? `${item.repository.owner}/${item.repository.name}`
+              : item.repository.name}
           </Cell>
           <Cell>{item.version === null ? 'main' : item.version.slice(0, 7) }</Cell>
           <Cell>
@@ -228,17 +228,14 @@
 
 <script lang="ts">
   import Tooltip, { Wrapper } from '@smui/tooltip'
-  import { fetchRepos as fetchRepos, calculateElapsed, mapImage, filterBooks } from './ts/utils'
-  import { submitNewJob, getJobs, repeatJob } from './ts/jobs'
-  import Dialog, { Header, Title, Content, Actions, InitialFocus } from '@smui/dialog'
-  import LinearProgress from '@smui/linear-progress'
-  import type { Repository, RepositorySummary } from './ts/types'
+  import { fetchRepos, calculateElapsed, mapImage, filterBooks, handleError } from './ts/utils'
+  import { submitNewJob, getJobs } from './ts/jobs'
+  import type { Book, Repository, RepositorySummary, Status } from './ts/types'
   import { onMount } from 'svelte'
   import Checkbox from '@smui/checkbox'
   import FormField from '@smui/form-field'
   import Autocomplete from '@smui-extra/autocomplete'
   import Button from '@smui/button'
-  import CircularProgress from '@smui/circular-progress'
   import DataTable, {
     Head,
     Body,
@@ -288,7 +285,7 @@
   let jobs: Job[] = []
   let slice: Job[] = []
   let sort: keyof Job = 'id'
-  let sortDirection: Lowercase<keyof typeof SortValue> = 'ascending'
+  let sortDirection: Lowercase<keyof typeof SortValue> = 'descending'
 
   enum JobTypeId {
     PDF = 3,
@@ -303,10 +300,10 @@
       return
     }
     lastJobStartTime = Date.now()
-    selectedJobTypes.forEach(jobType => {
+    await Promise.all(selectedJobTypes.map(jobType => {
       submitNewJob(JobTypeId[(jobType as number)], selectedRepo, selectedBook, selectedVersion)
-    })
-    jobs = await getJobs()
+    }))
+    setTimeout(async () => { jobs = await getJobs() }, 1000)
   }
   
   const jobStartRateLimitDurationMillis = 1000
@@ -343,31 +340,43 @@
     }
     return repoSummaries
   }
-  
-  async function searchRepos(input: string) {
-    const fullOptions = await getRepoSummaries()
-    const lowerInput = input.toLocaleLowerCase()
-    
-    const repos = fullOptions.map(r => r.name).filter(name =>
-      name.toLocaleLowerCase().includes(input)
+
+  function createSearchFunction(
+    getOptions: (repoSummaries: RepositorySummary[], lowerInput: string) => string[]
+  ) {
+    return async function(input: string) {
+      try {
+        const repoSummaries = await getRepoSummaries()
+        const lowerInput = input.toLocaleLowerCase().trim()
+        const options = getOptions(repoSummaries, lowerInput)
+        if (lowerInput) {
+          options.push(input.trim())
+        }
+        return options
+      } catch(e) {
+        handleError(e)
+      }
+    }
+  }
+
+  const searchRepos = createSearchFunction((repoSummaries, lowerInput) => 
+    repoSummaries.map(r => r.name).filter(repoName =>
+      repoName.toLocaleLowerCase().includes(lowerInput)
     )
+  )
 
-    return repos
-  }
+  const searchBooks = createSearchFunction((repoSummaries, lowerInput) => 
+    filterBooks(repoSummaries, selectedRepo).filter(bookSlug =>
+      bookSlug.toLocaleLowerCase().includes(lowerInput)
+    )
+  )
 
-  async function searchBooks(input: string) {
-    // Does not filter by repo until you type at least one character
-    // Does not reset until you type at least one char
-    // Locks value of repo once book is selected to repo that book belongs to
-    return filterBooks(await getRepoSummaries(), selectedRepo).filter(b => b.toLocaleLowerCase().includes(input.toLocaleLowerCase()))
-  }
+  const searchVersions = createSearchFunction((_repoSummaries, _lowerInput) => [])
   
 /*
   
 */
 
-  $: repoNames = repos.map(m => m.name)
-  // $: books = repos.length > 0 ? filterBooks(repos, selected_repo) : []
   $: books = repos.length > 0 ? filterBooks(repos, selectedRepo) : []
 
   function setSelectedRepo(selectedBook) {
@@ -386,12 +395,39 @@
     let [aVal, bVal] = [a[sort], b[sort]][
       sortDirection === 'ascending' ? 'slice' : 'reverse'
     ]()
-    if (sort === 'job_type') {
-      aVal = (aVal as any).display_name
-      bVal = (bVal as any).display_name
+    if (sort === 'id') {
+      aVal = parseInt(aVal as string)
+      bVal = parseInt(bVal as string)
+    } else if (sort === 'repository') {
+      aVal = (aVal as Repository).name
+      bVal = (bVal as Repository).name
+    } else if (sort === 'job_type') {
+      aVal = (aVal as JobType).display_name
+      bVal = (bVal as JobType).display_name
     }
     if (typeof aVal === 'string' && typeof bVal === 'string') {
       return aVal.localeCompare(bVal)
+    } else if (aVal instanceof Array && bVal instanceof Array) {
+      // lexicographic string sort for books
+      let a: string[]
+      let b: string[]
+      if (sort === 'books') {
+        a = aVal.map(b => b.slug)
+        b = bVal.map(b => b.slug)
+      } else {
+        handleError(new Error(`Cannot handle list sort of ${sort}`))
+        return
+      }
+      if (a.length !== b.length) {
+        return a.length - b.length
+      }
+      for(let i = 0; i < a.length; i++) {
+        const cmp = a[i].localeCompare(b[i])
+        if (cmp !== 0) {
+          return cmp
+        }
+      }
+      return 0
     }
     return Number(aVal) - Number(bVal)
   })

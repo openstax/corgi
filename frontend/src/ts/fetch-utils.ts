@@ -1,10 +1,19 @@
 export namespace RequireAuth {
-    const ERROR_CODEs = [401, 403]
+    // https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+    const hadAuthError = (response: Response) => {
+      return (response.status === 401 || response.status === 403)
+    }
+
+    const hadUnexpectedError = (response: Response) => {
+      // Anything in the range [200, 400) is OK for now
+      return !(response.status >= 200 && response.status < 400)
+    }
   
-    export const handleAuthError = (response: Response) => {
-      if (ERROR_CODEs.indexOf(response.status) !== -1) {
+    export const handleFetchError = (response: Response) => {
+      if (hadAuthError(response)) {
         document.location.href = "/api/auth/login"
-        throw new Error(response.statusText)
+      } else if (hadUnexpectedError(response)) {
+        throw new Error(`${response.status}: "${response.statusText}"`)
       }
       return response
     }
@@ -12,7 +21,7 @@ export namespace RequireAuth {
     export const fetch = async (
       input: URL | RequestInfo,
       init?: RequestInit | undefined
-    ) => handleAuthError(await window.fetch(input, init))
+    ) => handleFetchError(await window.fetch(input, init))
   
     export const fetchJson = async (
       input: URL | RequestInfo,

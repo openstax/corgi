@@ -3,7 +3,7 @@ from typing import Awaitable, Callable, List
 from urllib.parse import parse_qs
 
 from app.core.auth import get_user_role
-from app.core.config import CLIENT_ID, CLIENT_SECRET
+from app.core.config import CLIENT_ID, CLIENT_SECRET, IS_DEV_ENV
 from app.data_models.models import UserSession
 from app.github.models import GitHubRepo
 from app.github.client import AuthenticatedClient, authenticate_client
@@ -20,11 +20,20 @@ class AuthenticationException(BaseException):
     pass
 
 
+
+class GraphQLException(BaseException):
+    pass
+
+
 async def graphql(client: AuthenticatedClient, query: str):
     response = await client.post(
         "https://api.github.com/graphql", json={"query": query})
     response.raise_for_status()
-    return response.json()
+    payload = response.json()
+    if "errors" in payload:
+        raise GraphQLException("\n".join(f'{i + 1}. {e["message"]}'
+                               for i, e in enumerate(payload["errors"])))
+    return payload
 
 
 async def get_book_commit_metadata(client: AuthenticatedClient, repo_name: str,
@@ -168,32 +177,31 @@ async def authenticate_user(db: Session, code: str, on_success: Callable[
 
 
 async def get_user_teams(client: AuthenticatedClient, user: str):
-    # TODO: Remove hardcoded teams
-    return ['ce-tech']
-    body = '''query {
-                organization(login: "openstax") {
-                    teams(first: 100, userLogins: ["''' + user + '''"]) {
-                    totalCount
-                    edges {
-                        node {
-                            name
-                            description
-                            }
-                        }
-                    }
-                }
-            }'''
+    if IS_DEV_ENV:
+        return ['ce-tech']
+    else:
+        query = f"""
+            query {{
+                organization(login: "openstax") {{
+                    teams(first: 100, userLogins: ["{user}"]) {{
+                        totalCount
+                        edges {{
+                            node {{
+                                name
+                                description
+                            }}
+                        }}
+                    }}
+                }}
+            }}
+        """
 
-    response = await client.post(f"https://api.github.com/graphql",
-                                 json={"query": body})
-    response.raise_for_status()
+        payload = await graphql(client, query)
 
-    user_teams = [
-        node["node"]["name"]
-        for node in response.json()["data"]["organization"]["teams"]["edges"]
-    ]
-
-    return user_teams
+        return [
+            node["node"]["name"]
+            for node in payload["data"]["organization"]["teams"]["edges"]
+        ]
 
 
 async def get_user(client: AuthenticatedClient, token: str):
@@ -214,3 +222,19 @@ async def get_user(client: AuthenticatedClient, token: str):
         avatar_url=avatar_url,
         name=name
     )
+
+
+async def get_repository(client: AuthenticatedClient, repo_name: str,
+                         repo_owner: str) -> GitHubRepo:
+    query = f"""
+        query {{
+            repository(name: "{repo_name}", owner: "{repo_owner}") {{
+                name
+                databaseId
+                viewerPermission
+            }}
+        }}
+    """
+    payload = await graphql(client, query)
+    return GitHubRepo.from_node(payload["data"]["repository"])
+
