@@ -26,15 +26,15 @@
         </Content>
         <Actions>
             {#if ["queued", "assigned", "processing"].includes(selectedJob.status.name)}
-                <Button variant="raised" on:click={() => {abortJob(selectedJob.id)}}>
+                <Button id="abort-button" variant="raised" on:click={() => {abortJob(selectedJob.id)}}>
                     <Label>Abort</Label>
                 </Button>
             {:else if ["completed", "failed", "aborted"].includes(selectedJob.status.name)}
-                <Button variant="raised" on:click={() => {repeatJob(selectedJob)}}>
+                <Button id="repeat-button" variant="raised" on:click={() => {repeatJob(selectedJob)}}>
                     <Label>Repeat</Label>
                 </Button>
                 {#if selectedJob.status.name == "completed"}
-                    <Button color="secondary" variant="raised" on:click={() => {newABLentry(selectedJob)}}>
+                    <Button id="approve-button" color="secondary" variant="raised" on:click={() => {newABLentry(selectedJob)}}>
                         <Label>Approve</Label>
                     </Button>
                 {/if}
