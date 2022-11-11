@@ -112,7 +112,7 @@
               <img
                 alt={item.job_type.display_name}
                 src={mapImage('job_type', item.job_type.display_name, 'svg')}
-                style="max-height: 100px;"
+                style="max-height: 40px;"
               />
               <Tooltip>{item.job_type.display_name}</Tooltip>
             </Wrapper>
@@ -132,9 +132,7 @@
             {/if}
           </Cell>
           <Cell>
-            {item.repository.owner !== "openstax"
-              ? `${item.repository.owner}/${item.repository.name}`
-              : item.repository.name}
+            {repoToString(item.repository)}
           </Cell>
           <Cell>{item.version === null ? 'main' : item.version.slice(0, 7) }</Cell>
           <Cell>
@@ -228,7 +226,7 @@
 
 <script lang="ts">
   import Tooltip, { Wrapper } from '@smui/tooltip'
-  import { fetchRepos, calculateElapsed, mapImage, filterBooks, handleError } from './ts/utils'
+  import { fetchRepoSummaries, calculateElapsed, mapImage, filterBooks, handleError, repoToString } from './ts/utils'
   import { submitNewJob, getJobs } from './ts/jobs'
   import type { Book, Repository, RepositorySummary, Status } from './ts/types'
   import { onMount } from 'svelte'
@@ -264,7 +262,7 @@
     processing: "filter-yellow spin",
     failed: "filter-red",
     completed: "filter-green",
-    aborted: "filter-red"
+    aborted: "filter-brown"
   }
 
   let repos: RepositorySummary[] = []
@@ -332,13 +330,13 @@
 
   // Job filtering
   
-  let repoSummaries: RepositorySummary[] | null = null
+  // let repoSummaries: RepositorySummary[] = []
   
   async function getRepoSummaries() {
-    if (repoSummaries === null) {
-      repoSummaries = await fetchRepos()
+    if (repos.length === 0) {
+      repos = await fetchRepoSummaries()
     }
-    return repoSummaries
+    return repos
   }
 
   function createSearchFunction(
@@ -348,27 +346,35 @@
       try {
         const repoSummaries = await getRepoSummaries()
         const lowerInput = input.toLocaleLowerCase().trim()
-        const options = getOptions(repoSummaries, lowerInput)
+        const options = getOptions(repoSummaries, lowerInput).sort()
         if (lowerInput) {
-          options.push(input.trim())
+          const trimmedInput = input.trim()
+          if (options.length > 1 || options.indexOf(trimmedInput) === -1) {
+            options.unshift(trimmedInput)
+          }
         }
-        return options
+        return [...new Set(options)]
       } catch(e) {
         handleError(e)
       }
     }
   }
 
-  const searchRepos = createSearchFunction((repoSummaries, lowerInput) => 
-    repoSummaries.map(r => r.name).filter(repoName =>
-      repoName.toLocaleLowerCase().includes(lowerInput)
-    )
+  const searchRepos = createSearchFunction((repoSummaries, lowerInput) => {
+    if (!!selectedBook) {
+      repoSummaries = repoSummaries.filter(repo =>
+        repo.books.includes(selectedBook)
+      )
+    }
+    return repoSummaries
+      .map(repo => repoToString(repo))
+      .filter(repoPath => repoPath.toLocaleLowerCase().includes(lowerInput))
+    }
   )
 
   const searchBooks = createSearchFunction((repoSummaries, lowerInput) => 
-    filterBooks(repoSummaries, selectedRepo).filter(bookSlug =>
-      bookSlug.toLocaleLowerCase().includes(lowerInput)
-    )
+    filterBooks(repoSummaries, selectedRepo)
+      .filter(bookSlug => bookSlug.toLocaleLowerCase().includes(lowerInput))
   )
 
   const searchVersions = createSearchFunction((_repoSummaries, _lowerInput) => [])
@@ -380,13 +386,14 @@
   $: books = repos.length > 0 ? filterBooks(repos, selectedRepo) : []
 
   function setSelectedRepo(selectedBook) {
-    return repos.find(r => r.books.find(b => b === selectedBook))?.name || selectedRepo
+    const repo = repos.find(r => r.books.find(b => b === selectedBook))
+    return !!repo ? repoToString(repo) : selectedRepo
   }
 
   $: selectedRepo = setSelectedRepo(selectedBook)
   $: filteredRows = slice.filter(entry =>
       (selectedJobTypes.length === 0 || selectedJobTypes.some(item => entry.job_type.display_name.includes(item))) && 
-      (!selectedRepo || entry.repository.name.includes(selectedRepo)) &&
+      (!selectedRepo || repoToString(entry.repository).includes(selectedRepo)) &&
       (!selectedBook || entry.books.find(item => item.slug.includes(selectedBook)) != null)
     )
 
@@ -399,8 +406,8 @@
       aVal = parseInt(aVal as string)
       bVal = parseInt(bVal as string)
     } else if (sort === 'repository') {
-      aVal = (aVal as Repository).name
-      bVal = (bVal as Repository).name
+      aVal = repoToString((aVal as Repository))
+      bVal = repoToString((bVal as Repository))
     } else if (sort === 'job_type') {
       aVal = (aVal as JobType).display_name
       bVal = (bVal as JobType).display_name
@@ -433,22 +440,14 @@
   })
 
   onMount(async () => {
-    repos = await fetchRepos()
+    repos = await fetchRepoSummaries()
     jobs = await getJobs()
     pollData()
 	})
 </script>
 
 <style>
-  .filter-green {
-    filter: invert(48%) sepia(79%) saturate(200%) hue-rotate(77deg) brightness(118%) contrast(119%);
-  }
-  .filter-yellow {
-    filter: invert(48%) sepia(79%) saturate(240%) hue-rotate(5deg) brightness(145%) contrast(119%);
-  }
-  .filter-red {
-    filter: invert(48%) sepia(79%) saturate(500%) hue-rotate(-50deg) brightness(118%) contrast(119%);
-  }
+
   @keyframes spin-frames {
     0% { transform:rotate(0deg) }
     100% { transform:rotate(360deg) }
