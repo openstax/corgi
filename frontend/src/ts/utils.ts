@@ -1,4 +1,4 @@
-import type { Job, RepositorySummary } from "./types"
+import type { Job, Repository, RepositorySummary } from "./types"
 import { RequireAuth } from "./fetch-utils"
 import { error } from './stores'
 
@@ -9,19 +9,27 @@ export function handleError(e: Errors) {
   console.error(e)
 }
 
-export async function fetchRepos(): Promise<RepositorySummary[]> {
+export async function fetchRepoSummaries(): Promise<RepositorySummary[]> {
+  let repoSummaries: RepositorySummary[]
   try {
-    return await RequireAuth.fetchJson('/api/github/repository-summary')
+    repoSummaries = await RequireAuth.fetchJson('/api/github/repository-summary')
   } catch (error) {
     handleError(error)
-    throw error
+    repoSummaries = []
   }
+  return repoSummaries
+}
+
+export function repoToString(repo: Repository) {
+  return repo.owner === 'openstax'
+    ? repo.name
+    : `${repo.owner}/${repo.name}`
 }
 
 export function filterBooks(repositories: RepositorySummary[], selectedRepo: string): string[] {
   let books: string[] = []
   repositories
-    .filter(s => selectedRepo == '' || s.name.includes(selectedRepo))
+    .filter(s => selectedRepo == '' || repoToString(s).includes(selectedRepo))
     .map(s => s.books)
     .forEach(bookNames => {
       bookNames.forEach(b => books.push((b as any)))
@@ -41,33 +49,19 @@ export function readableDateTime(datetime: string): string {
 
 export function mapImage(folder: string, name: string, type: string): string {
     const index = name.indexOf(' ')
+    if (index !== -1) {
+      name = name.slice(0, index)
+    }
     // console.log(name)
     return `./icons/${folder}/${name.toLowerCase()}.${type}` // name.slice(0, index)
 }
-
-export function handleFetchError (error) {
-    // this is optional and mostly for debugging on dev mode
-    if (error.response) {
-      // Request made and server responded
-      console.log(error.response.data)
-      console.log(error.response.status)
-      console.log(error.response.headers)
-    } else if (error.request) {
-      // The request was made but no response was received
-      console.log(error.request)
-    } else {
-      // Something happened in setting up the request that triggered an Error
-      console.log('Error', error.message)
-    }
-    throw error
-  }
 
 export function isJobComplete(job: Job): boolean {
   return parseInt(job.status.id) >= 4
 }
 
-function parseDateAddTZ(time: string, tzOffset: string = '00:00') {
-  return Date.parse(`${time}+${tzOffset}`)
+function parseDateAddTZ(time: string, tzOffset: string = '+00:00') {
+  return Date.parse(time + tzOffset)
 }
 
 export function calculateElapsed(job: Job): string{

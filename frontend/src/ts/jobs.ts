@@ -1,4 +1,4 @@
-import { readableDateTime, handleFetchError, handleError } from "./utils"
+import { readableDateTime, handleError } from "./utils"
 import type { Job, Status, JobType } from "./types"
 import { RequireAuth } from "./fetch-utils"
 

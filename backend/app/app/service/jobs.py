@@ -38,7 +38,8 @@ class JobsService(ServiceBase):
         commit = cast(Optional[Commit], db_session.query(Commit).filter(
             Commit.sha == sha).first())
         # If the commit has been record and has books, reuse the existing data
-        if commit is not None and len(commit.books) != 0:
+        if (commit is not None and len(commit.books) != 0 and
+                commit.repository.owner == repo_owner):
             repository = commit.repository
             # Check to see if the user has been associated with this repo
             if not any(ur.user.id == user.id for ur in repository.users):
