@@ -111,7 +111,7 @@
             <Wrapper>
               <img
                 alt={item.job_type.display_name}
-                src={mapImage('job_type', item.job_type.display_name, 'png')}
+                src={mapImage('job_type', item.job_type.display_name, 'svg')}
                 style="max-height: 100px;"
               />
               <Tooltip>{item.job_type.display_name}</Tooltip>
