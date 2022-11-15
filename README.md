@@ -50,6 +50,13 @@ The full explanation of Enki it is out of scope for this documentation. To learn
 
 ### Local development
 
+**Prerequisites**
+* You will need access to a GitHub OAuth app. You can [create your own](https://docs.github.com/en/developers/apps/building-oauth-apps/creating-an-oauth-app) if you do not have one already.
+* Create an env file, `backend/app/app/core/.env`, with three entries:
+    1. `GITHUB_OAUTH_ID` (your oauth app client id)
+    2. `GITHUB_OAUTH_SECRET` (your oauth app client secret)
+    3. `SESSION_SECRET` (secret used to encrypt session cookies)
+
 Build/start the stack with Docker Compose:
 
     docker-compose -f docker-compose.stack.dev.yml up -d
@@ -71,12 +78,6 @@ as well.
 NOTE: The dev frontend server can take a while to start up. You might get 502
 responses at first: this is normal. Wait a few seconds and try again.
 
-
-If you make changes to the backend, you will need to run 
-
-    docker-compose -f docker-compose.stack.dev.yml restart
-
-for your changes to take.
 
 ### View the Docs
 
