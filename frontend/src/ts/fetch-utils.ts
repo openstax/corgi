@@ -9,11 +9,17 @@ export namespace RequireAuth {
       return !(response.status >= 200 && response.status < 400)
     }
   
-    export const handleFetchError = (response: Response) => {
+    export const handleFetchError = async (response: Response) => {
       if (hadAuthError(response)) {
         document.location.href = "/api/auth/login"
       } else if (hadUnexpectedError(response)) {
-        throw new Error(`${response.status}: "${response.statusText}"`)
+        console.log()
+        if (response.headers.get("content-type") === "application/json") {
+          const payload = await response.json()
+          throw new Error(payload["detail"])
+        } else {
+          throw new Error(`${response.status}: "${response.statusText}"`)
+        }
       }
       return response
     }
@@ -21,7 +27,7 @@ export namespace RequireAuth {
     export const fetch = async (
       input: URL | RequestInfo,
       init?: RequestInit | undefined
-    ) => handleFetchError(await window.fetch(input, init))
+    ) => await handleFetchError(await window.fetch(input, init))
   
     export const fetchJson = async (
       input: URL | RequestInfo,
