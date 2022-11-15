@@ -1,27 +1,26 @@
 from datetime import datetime
-from typing import Awaitable, Callable, List
+from typing import Any, Awaitable, Callable, Dict, List, Tuple
 from urllib.parse import parse_qs
 
 from app.core.auth import get_user_role
 from app.core.config import CLIENT_ID, CLIENT_SECRET, IS_DEV_ENV
 from app.data_models.models import UserSession
-from app.github.models import GitHubRepo
 from app.github.client import AuthenticatedClient, authenticate_client
+from app.github.models import GitHubRepo
 from httpx import AsyncClient
 from lxml import etree
 from sqlalchemy.orm import Session
 
 
-class AccessDeniedException(BaseException):
+class AccessDeniedException(Exception):
     pass
 
 
-class AuthenticationException(BaseException):
+class AuthenticationException(Exception):
     pass
 
 
-
-class GraphQLException(BaseException):
+class GraphQLException(Exception):
     pass
 
 
@@ -31,16 +30,21 @@ async def graphql(client: AuthenticatedClient, query: str):
     response.raise_for_status()
     payload = response.json()
     if "errors" in payload:
-        raise GraphQLException("\n".join(f'{i + 1}. {e["message"]}'
-                               for i, e in enumerate(payload["errors"])))
+        raise GraphQLException(", ".join(e["message"]
+                               for e in payload["errors"]))
     return payload
 
 
-async def get_book_commit_metadata(client: AuthenticatedClient, repo_name: str,
-                                   repo_owner: str, version: str):
+async def get_book_repository(
+        client: AuthenticatedClient,
+        repo_name: str,
+        repo_owner: str,
+        version: str) -> Tuple[GitHubRepo, str, datetime, List[Dict[str, Any]]]:
     query = f"""
         query {{
             repository(name: "{repo_name}", owner: "{repo_owner}") {{
+                databaseId
+                viewerPermission
                 object(expression: "{version}") {{
                     oid
                     ... on Commit {{
@@ -58,20 +62,27 @@ async def get_book_commit_metadata(client: AuthenticatedClient, repo_name: str,
         }}
     """
     payload = await graphql(client, query)
-    commit = payload["data"]["repository"]["object"]
+    repository = payload["data"]["repository"]
+    repo = GitHubRepo(name=repo_name,
+                      database_id=repository["databaseId"],
+                      viewer_permission=repository["view"])
+    commit = repository["object"]
     commit_sha = commit["oid"]
     commit_timestamp = commit["committedDate"]
     fixed_timestamp = f"{commit_timestamp[:-1]}+00:00"
     books_xml = commit["file"]["object"]["text"]
     meta = etree.fromstring(books_xml, parser=None)
 
-    books = [{ k: el.attrib[k] for k in ("slug", "style") } 
+    books = [{k: el.attrib[k] for k in ("slug", "style")}
              for el in meta.xpath("//*[local-name()='book']")]
-    return (commit_sha, datetime.fromisoformat(fixed_timestamp), books)
+    return (repo, commit_sha, datetime.fromisoformat(fixed_timestamp), books)
 
 
-async def get_collections(client: AuthenticatedClient, repo_name: str,
-                          repo_owner: str, commit_sha: str):
+async def get_collections(
+        client: AuthenticatedClient,
+        repo_name: str,
+        repo_owner: str,
+        commit_sha: str) -> Dict[str, str]:
     query = f"""
         query {{
             repository(name: "{repo_name}", owner: "{repo_owner}") {{
@@ -98,21 +109,20 @@ async def get_collections(client: AuthenticatedClient, repo_name: str,
     """
     payload = await graphql(client, query)
     files_entries = (payload["data"]["repository"]["object"]["file"]["object"]
-                    ["entries"])
-    return { entry["name"]: entry["object"]["text"]
-            for entry in files_entries }
+                     ["entries"])
+    return {entry["name"]: entry["object"]["text"]
+            for entry in files_entries}
 
 
 async def get_user_repositories(
-    client: AuthenticatedClient,
-    search_query: str
-) -> List[GitHubRepo]:
+        client: AuthenticatedClient,
+        search_query: str) -> List[GitHubRepo]:
     query_args = {
         "query": f'"{search_query}"',
         "first": "100",
         "type": "REPOSITORY"
     }
-    query = '''
+    query = """
         query {{
             search({query_args}) {{
                 repositoryCount
@@ -131,7 +141,7 @@ async def get_user_repositories(
                 }}
             }}
         }}
-    '''
+    """
     repos = []
     has_next = True
     while has_next:
@@ -139,8 +149,8 @@ async def get_user_repositories(
         response = await client.post(
             "https://api.github.com/graphql",
             json={
-                "query": query.format(query_args=','.join(':'.join(i) 
-                                        for i in query_args.items()))
+                "query": query.format(query_args=','.join(':'.join(i)
+                                                          for i in query_args.items()))
             }
         )
         response.raise_for_status()
@@ -156,9 +166,12 @@ async def get_user_repositories(
     return repos
 
 
-async def authenticate_user(db: Session, code: str, on_success: Callable[
-    [AuthenticatedClient, Session, UserSession], Awaitable[None]]
-) -> UserSession:
+async def authenticate_user(
+        db: Session,
+        code: str,
+        on_success: Callable[
+            [AuthenticatedClient, Session, UserSession],
+            Awaitable[None]]) -> UserSession:
     async with AsyncClient() as client:
         response = await client.post(
             "https://github.com/login/oauth/access_token?"
@@ -168,7 +181,7 @@ async def authenticate_user(db: Session, code: str, on_success: Callable[
         values = parse_qs(response.text)
         if ("access_token" not in values):
             raise AuthenticationException("Could not authenticate")
-        
+
         token = values["access_token"][0]
         client = authenticate_client(client, token)
         user = await get_user(client, token)
@@ -176,7 +189,7 @@ async def authenticate_user(db: Session, code: str, on_success: Callable[
     return user
 
 
-async def get_user_teams(client: AuthenticatedClient, user: str):
+async def get_user_teams(client: AuthenticatedClient, user: str) -> List[str]:
     if IS_DEV_ENV:
         return ['ce-tech']
     else:
@@ -204,7 +217,7 @@ async def get_user_teams(client: AuthenticatedClient, user: str):
         ]
 
 
-async def get_user(client: AuthenticatedClient, token: str):
+async def get_user(client: AuthenticatedClient, token: str) -> UserSession:
     response = await client.get(f"https://api.github.com/user")
     response.raise_for_status()
     json = response.json()
@@ -224,8 +237,10 @@ async def get_user(client: AuthenticatedClient, token: str):
     )
 
 
-async def get_repository(client: AuthenticatedClient, repo_name: str,
-                         repo_owner: str) -> GitHubRepo:
+async def get_repository(
+        client: AuthenticatedClient,
+        repo_name: str,
+        repo_owner: str) -> GitHubRepo:
     query = f"""
         query {{
             repository(name: "{repo_name}", owner: "{repo_owner}") {{
@@ -237,4 +252,3 @@ async def get_repository(client: AuthenticatedClient, repo_name: str,
     """
     payload = await graphql(client, query)
     return GitHubRepo.from_node(payload["data"]["repository"])
-
