@@ -6,9 +6,10 @@ from pydantic import BaseModel
 from pydantic.utils import GetterDict
 
 
-class Role(str, Enum):
-    USER = "user"
-    ADMIN = "admin"
+class Role(int, Enum):
+    USER = 1
+    ADMIN = 9999
+    SUPER_ADMIN = 99999
     DEFAULT = USER
 
 
@@ -149,7 +150,6 @@ class JobBase(BaseModel):
 class JobCreate(JobBase):
     repository: RepositoryBase
     book: Optional[str] = None
-    style: Optional[str] = None
 
 
 class JobUpdate(BaseModel):
