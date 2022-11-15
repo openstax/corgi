@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta, timezone
+from app.core.auth import active_user
 
 from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES, IS_DEV_ENV
+from app.data_models.models import UserSession
 from app.db.utils import get_db
 from app.github import (AccessDeniedException, AuthenticationException,
                         authenticate_user, sync_user_data, github_oauth)

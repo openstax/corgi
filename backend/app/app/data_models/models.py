@@ -9,7 +9,6 @@ from pydantic.utils import GetterDict
 class Role(int, Enum):
     USER = 1
     ADMIN = 9999
-    SUPER_ADMIN = 99999
     DEFAULT = USER
 
 
