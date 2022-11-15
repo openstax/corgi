@@ -6,8 +6,7 @@ export async function submitNewJob (
   jobTypeId: string,
   repo: string,
   book?: string,
-  version?: string,
-  style?: string
+  version?: string
 ) {
     // This fails to queue the job silently so the rate limit duration shouldn't
     // be a noticable time period for reasonable usage, else confusion will ensue
@@ -30,8 +29,7 @@ export async function submitNewJob (
           owner: owner,
         },
         book: book ? book.trim() : null,
-        version: null || version, //(optional)
-        style: null || style
+        version: null || version //(optional)
       }
 
       const options = {

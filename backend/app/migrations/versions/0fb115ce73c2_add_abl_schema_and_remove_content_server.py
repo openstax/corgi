@@ -100,6 +100,7 @@ def upgrade():
     op.drop_column('jobs', 'pdf_url')
     op.drop_column('jobs', 'collection_id')
     op.drop_column('jobs', 'version')
+    op.drop_column('jobs', 'style')
     
     op.drop_index('ix_content_servers_created_at', table_name='content_servers')
     op.drop_index('ix_content_servers_id', table_name='content_servers')
