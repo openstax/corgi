@@ -1,7 +1,7 @@
 <Banner
   bind:open
-  centered
   mobileStacked 
+  content$style="max-width: max-content;"
   class="error"
   on:SMUIBanner:closed={handleBannerClosed}
 >
