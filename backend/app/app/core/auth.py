@@ -36,10 +36,10 @@ def active_user(request: Request) -> UserSession:
 
 class RequiresRole:
     def __init__(self, role: Role) -> None:
-        self.role: str = role.value
+        self.role: int = role.value
 
     def __call__(self, user_session: UserSession = Depends(active_user)):
-        if user_session.role != self.role:
+        if user_session.role < self.role:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Forbidden"
