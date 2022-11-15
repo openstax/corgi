@@ -12,7 +12,8 @@ async def sync_user_data(client: AuthenticatedClient,
     """A utility function to fetch and store user data"""
 
     user_repos = await get_user_repositories(
-        client, "org:openstax osbooks in:name archived:false")
+        client, "org:openstax osbooks in:name")
+    user_repos = [ur for ur in user_repos if ur.name.startswith("osbooks-")]
     user_service.upsert_user(db, user)
     repository_service.upsert_repositories(db, [
         Repository(id=repo.database_id, name=repo.name, owner="openstax")
