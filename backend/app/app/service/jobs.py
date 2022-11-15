@@ -4,67 +4,69 @@ from typing import List, Optional, cast
 
 from app.data_models.models import Job as JobModel
 from app.data_models.models import JobCreate, JobUpdate, UserSession
-from app.db.schema import Book, BookJob, Commit, User, UserRepository
+from app.db.schema import Book, BookJob, Commit
 from app.db.schema import Jobs as JobSchema
 from app.db.schema import Repository
-from app.github import (AuthenticatedClient, get_book_commit_metadata,
-                        get_collections, get_repository)
-from app.github.models import GitHubRepo
-from app.service.repository import repository_service
+from app.github import (AuthenticatedClient, get_book_repository,
+                        get_collections)
 from app.service.base import ServiceBase
+from app.service.repository import repository_service
 from lxml import etree
-from sqlalchemy.orm import Session as BaseSession
+from sqlalchemy.orm import Session
 
 
 class JobsService(ServiceBase):
     """If specific methods need to be overridden they can be done here.
     """
-    async def create(self, client: AuthenticatedClient, db_session: BaseSession,
-                     job_in: JobCreate, user: UserSession) -> JobModel:
-        repo_name =  job_in.repository.name
+    async def create(
+            self,
+            client: AuthenticatedClient,
+            db: Session,
+            job_in: JobCreate,
+            user: UserSession) -> JobModel:
+        repo_name = job_in.repository.name
         repo_owner = job_in.repository.owner
         version = job_in.version is not None and job_in.version or "main"
         repo_book_in = job_in.book
-        style = job_in.style is not None and job_in.style or "default"
-        
-        sha, timestamp, repo_books = await get_book_commit_metadata(
+
+        repo, sha, timestamp, repo_books = await get_book_repository(
             client, repo_name, repo_owner, version)
 
         # If the user supplied an invalid argument for book
         if repo_book_in is not None:
             if not any(b["slug"] == repo_book_in for b in repo_books):
                 raise Exception(f"Book not in repository {repo_book_in}")
-        
-        commit = cast(Optional[Commit], db_session.query(Commit).filter(
+
+        commit = cast(Optional[Commit], db.query(Commit).filter(
             Commit.sha == sha).first())
         # If the commit has been record and has books, reuse the existing data
-        if (commit is not None and len(commit.books) != 0 and
-                commit.repository.owner == repo_owner):
+        if (commit is not None and len(commit.books) != 0
+                and commit.repository.owner == repo_owner):
             repository = commit.repository
             # Check to see if the user has been associated with this repo
             if not any(ur.user.id == user.id for ur in repository.users):
                 # If not, get the information we need and add the association
-                # Use `get_repository` to get the viewer_permission 
-                repo = await get_repository(client, repo_name, repo_owner)
-                repository_service.upsert_user_repositories(db_session, user.id, 
+                # Use `get_repository` to get the viewer_permission
+                # repo = await get_repository(client, repo_name, repo_owner)
+                repository_service.upsert_user_repositories(db, user.id,
                                                             [repo])
         else:
             # If the commit does not exist, check if the repository exists
-            repository = db_session.query(Repository).filter(
-                Repository.name == repo_name, 
+            repository = db.query(Repository).filter(
+                Repository.name == repo_name,
                 Repository.owner == repo_owner).first()
             # If not, fetch it, record it, and associate it with the user
             if repository is None:
-                repo = await get_repository(client, repo_name, repo_owner)
+                # repo = await get_repository(client, repo_name, repo_owner)
                 repository = Repository(id=repo.database_id, name=repo_name,
                                         owner=repo_owner)
-                repository_service.upsert_repositories(db_session, [repository])
-                repository_service.upsert_user_repositories(db_session, user.id, 
+                repository_service.upsert_repositories(db, [repository])
+                repository_service.upsert_user_repositories(db, user.id,
                                                             [repo])
             # Now we can record the commit
             commit = Commit(repository_id=repository.id, sha=sha,
                             timestamp=timestamp, books=[])
-            db_session.add(commit)
+            db.add(commit)
             # And record all the book metadata
             collections_by_name = await get_collections(client, repo_name,
                                                         repo_owner, sha)
@@ -74,20 +76,19 @@ class JobsService(ServiceBase):
                 collection_xml = collections_by_name[f"{slug}.collection.xml"]
                 collection = etree.fromstring(collection_xml, parser=None)
                 uuid = collection.xpath("//*[local-name()='uuid']")[0].text
-                # TODO: Edition should be either nullable or in a different 
+                # TODO: Edition should be either nullable or in a different
                 # table
                 db_book = Book(uuid=uuid, slug=slug, edition=0, style=style)
                 commit.books.append(db_book)
-                db_session.add(db_book)
+                db.add(db_book)
             # Flush the db to populate autogenerated ids
-            db_session.flush()
+            db.flush()
         db_job = JobSchema(user_id=user.id,
                            status_id=job_in.status_id,
                            job_type_id=job_in.job_type_id,
-                           style=style,
                            worker_version=job_in.worker_version)
-        db_session.add(db_job)
-        
+        db.add(db_job)
+
         # And, finally, associate each book with the job
         books_for_job = commit.books
         if repo_book_in is not None:
@@ -95,13 +96,13 @@ class JobsService(ServiceBase):
         for db_book in books_for_job:
             book_job = BookJob(book_id=db_book.id)
             db_job.books.append(book_job)
-            db_session.add(book_job)
-        
-        db_session.commit()
+            db.add(book_job)
+
+        db.commit()
 
         return db_job
 
-    def update(self, db_session: BaseSession, job: JobSchema, job_in: JobUpdate):
+    def update(self, db_session: Session, job: JobSchema, job_in: JobUpdate):
         if isinstance(job_in.artifact_urls, list):
             book_job_by_book_slug = {b.book.slug: b for b in job.books}
             for artifact_url in job_in.artifact_urls:
@@ -111,11 +112,15 @@ class JobsService(ServiceBase):
             job.books[0].artifact_url = job_in.artifact_urls
         return super().update(db_session, job, job_in, JobUpdate)
 
-    def get_jobs_in_date_range(self, db_session: BaseSession, start: datetime,
-                               end: datetime, order_by: Optional[List] = None):
+    def get_jobs_in_date_range(
+            self,
+            db: Session,
+            start: datetime,
+            end: datetime,
+            order_by: Optional[List] = None):
         if order_by is None:
             order_by = [JobSchema.created_at.desc()]
-        return db_session.query(JobSchema).filter(
+        return db.query(JobSchema).filter(
             JobSchema.created_at >= start, JobSchema.created_at <= end
         ).order_by(*order_by).all()
 
