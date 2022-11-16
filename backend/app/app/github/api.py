@@ -149,17 +149,16 @@ async def get_user_repositories(
         response = await client.post(
             "https://api.github.com/graphql",
             json={
-                "query": query.format(query_args=','.join(':'.join(i)
-                                                          for i in query_args.items()))
-            }
+                "query": query.format(
+                    query_args=','.join(
+                        ':'.join(i) for i in query_args.items()))}
         )
         response.raise_for_status()
         payload = response.json()
 
-        repos.extend([
-            GitHubRepo.from_node(node["node"])
-            for node in payload["data"]["search"]["edges"]
-        ])
+        for node in payload["data"]["search"]["edges"]:
+            repos.append(GitHubRepo.from_node(node["node"]))
+
         page_info = payload["data"]["search"]["pageInfo"]
         has_next = page_info["hasNextPage"]
         query_args["after"] = f'"{page_info["endCursor"]}"'
@@ -191,7 +190,7 @@ async def authenticate_user(
 
 async def get_user_teams(client: AuthenticatedClient, user: str) -> List[str]:
     if IS_DEV_ENV:
-        return ['ce-tech']
+        return ["ce-tech"]
     else:
         query = f"""
             query {{

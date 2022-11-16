@@ -5,6 +5,6 @@ from app.github.api import (AccessDeniedException, AuthenticationException,
                             get_user_teams)
 from app.github.client import (AuthenticatedClient, authenticate_client,
                                github_client)
-from app.github.models import GitHubRepo
+from app.github.models import GitHubRepo, RepositoryPermission
 from app.github.oauth import github_oauth
 from app.github.utils import sync_user_data

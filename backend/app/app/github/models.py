@@ -1,4 +1,14 @@
+from enum import Enum
+
 from pydantic import BaseModel
+
+
+class RepositoryPermission(int, Enum):
+    ADMIN = 1
+    MAINTAIN = 2
+    READ = 3
+    TRIAGE = 4
+    WRITE = 5
 
 
 class GitHubRepo(BaseModel):
