@@ -117,7 +117,7 @@ class JobsService(ServiceBase):
             db: Session,
             start: datetime,
             end: datetime,
-            order_by: Optional[List] = None):
+            order_by: Optional[List] = None) -> List[JobSchema]:
         if order_by is None:
             order_by = [JobSchema.created_at.desc()]
         return db.query(JobSchema).filter(

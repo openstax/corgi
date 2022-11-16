@@ -1,9 +1,11 @@
 from datetime import datetime, timedelta, timezone
-from typing import List
+from typing import List, Optional, cast
 
 from app.core.auth import RequiresRole, active_user
-from app.data_models.models import Job, JobCreate, JobUpdate, Role, UserSession
+from app.data_models.models import (Job, JobCreate, JobMin, JobUpdate, Role,
+                                    UserSession)
 from app.db.utils import get_db
+from app.db.schema import Jobs as JobSchema
 from app.github import github_client
 from app.github.api import GraphQLException
 from app.service.jobs import jobs_service
@@ -38,6 +40,19 @@ def list_job_page(
                                            limit=limit,
                                            order_by=[order_by])
     return jobs
+
+
+@router.get("/check", response_model=List[JobMin])
+def check(
+        job_type_id: Optional[int] = None,
+        status_id: Optional[int] = None,
+        db: Session = Depends(get_db)):
+    jobs = cast(List[JobSchema], list_job_page(db, limit=20))
+    if job_type_id is not None:
+        jobs = (job for job in jobs if job.job_type_id == job_type_id)
+    if status_id is not None:
+        jobs = (job for job in jobs if job.status_id == status_id)
+    return list(jobs)
 
 
 @router.get("/{id}", response_model=Job)
