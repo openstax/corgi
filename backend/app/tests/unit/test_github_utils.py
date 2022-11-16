@@ -5,7 +5,7 @@ from app.data_models.models import Role, UserSession
 from app.github import GitHubRepo, sync_user_data
 
 
-FAKE_USER = UserSession(id=1, token="fake", role=Role.DEFAULT, avatar_url="",
+FAKE_USER = UserSession(id=1, token="fake", role=Role.ADMIN, avatar_url="",
                         name="TestUser")
 FAKE_REPO = GitHubRepo(name="osbooks-fake-book", database_id="1234",
                        viewer_permission="WRITE")
@@ -25,6 +25,11 @@ def mock_user_service(monkeypatch):
         def upsert_user(self, _db, user: UserSession):
             assert user == FAKE_USER
 
+        def upsert_user_repositories(self, _db, user, user_repos):
+            assert len(user_repos) == 1
+            assert user_repos[0] == FAKE_REPO
+            assert user.id == FAKE_USER.id
+
     monkeypatch.setattr("app.github.utils.user_service",
                         MockUserService())
 
@@ -37,11 +42,6 @@ def mock_repository_service(monkeypatch):
             assert repos[0].id == FAKE_REPO.database_id
             assert repos[0].name == FAKE_REPO.name
             assert repos[0].owner == "openstax"  # default
-        
-        def upsert_user_repositories(self, _db, user_id, user_repos):
-            assert len(user_repos) == 1
-            assert user_repos[0] == FAKE_REPO
-            assert user_id == FAKE_USER.id
 
     monkeypatch.setattr("app.github.utils.repository_service",
                         MockRepositoryService())

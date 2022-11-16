@@ -39,12 +39,14 @@ class JobTypeBase(BaseModel):
     display_name: str
 
 # Types:
-### Archive
+# Archive
 # 1: pdf
 # 2: distribution-preview
-### Git
+# Git
 # 3: git-pdf
 # 4: git-distribution-preview
+
+
 class JobType(JobTypeBase):
     id: str
 
@@ -89,7 +91,7 @@ class JobGetter(GetterDict):
         else:
             try:
                 return getattr(self._obj, key)
-            except (AttributeError, KeyError):
+            except (AttributeError, KeyError):  # pragma: no cover
                 return default
 
 
@@ -105,13 +107,14 @@ class RepositoryGetter(GetterDict):
         else:
             try:
                 return getattr(self._obj, key)
-            except (AttributeError, KeyError):
+            except (AttributeError, KeyError):  # pragma: no cover
                 return default
 
 
 class RepositoryBase(BaseModel):
     name: str
     owner: str
+
 
 class Repository(RepositoryBase):
     class Config:
@@ -167,6 +170,7 @@ class JobMin(BaseModel):
         orm_mode = True
         getter_dict = JobGetter
 
+
 class Job(JobBase):
     id: str
     created_at: datetime
@@ -181,4 +185,3 @@ class Job(JobBase):
     class Config:
         orm_mode = True
         getter_dict = JobGetter
-
