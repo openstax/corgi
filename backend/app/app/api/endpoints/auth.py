@@ -1,8 +1,6 @@
 from datetime import datetime, timedelta, timezone
-from app.core.auth import active_user
 
 from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES, IS_DEV_ENV
-from app.data_models.models import UserSession
 from app.db.utils import get_db
 from app.github import (AccessDeniedException, AuthenticationException,
                         authenticate_user, sync_user_data, github_oauth)
@@ -17,7 +15,7 @@ router = APIRouter()
 @router.get("/login")
 async def login(request: Request):
     redirect_uri = request.url_for("callback")
-    if not IS_DEV_ENV:
+    if not IS_DEV_ENV:  # pragma: no cover
         redirect_uri = str(URL(redirect_uri).replace(scheme="https"))
     return await github_oauth.authorize_redirect(request, redirect_uri)
 
@@ -28,7 +26,7 @@ async def callback(request: Request, code: str = "",
     try:
         user = await authenticate_user(db, code, sync_user_data)
         expiration = datetime.now(timezone.utc) + \
-                     timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
         request.session["user"] = {
             "exp": expiration.timestamp(),

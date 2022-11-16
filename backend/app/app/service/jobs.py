@@ -11,6 +11,7 @@ from app.github import (AuthenticatedClient, get_book_repository,
                         get_collections)
 from app.service.base import ServiceBase
 from app.service.repository import repository_service
+from app.service.user import user_service
 from lxml import etree
 from sqlalchemy.orm import Session
 
@@ -29,7 +30,7 @@ class JobsService(ServiceBase):
         version = job_in.version is not None and job_in.version or "main"
         repo_book_in = job_in.book
 
-        repo, sha, timestamp, repo_books = await get_book_repository(
+        github_repo, sha, timestamp, repo_books = await get_book_repository(
             client, repo_name, repo_owner, version)
 
         # If the user supplied an invalid argument for book
@@ -42,30 +43,31 @@ class JobsService(ServiceBase):
         # If the commit has been record and has books, reuse the existing data
         if (commit is not None and len(commit.books) != 0
                 and commit.repository.owner == repo_owner):
-            repository = commit.repository
+            db_repo = commit.repository
             # Check to see if the user has been associated with this repo
-            if not any(ur.user.id == user.id for ur in repository.users):
+            if not any(ur.user.id == user.id for ur in db_repo.users):
                 # If not, get the information we need and add the association
                 # Use `get_repository` to get the viewer_permission
-                # repo = await get_repository(client, repo_name, repo_owner)
-                repository_service.upsert_user_repositories(db, user.id,
-                                                            [repo])
+                user_service.upsert_user_repositories(db, user, [github_repo])
         else:
             # If the commit does not exist, check if the repository exists
-            repository = db.query(Repository).filter(
+            db_repo = db.query(Repository).filter(
                 Repository.name == repo_name,
                 Repository.owner == repo_owner).first()
             # If not, fetch it, record it, and associate it with the user
-            if repository is None:
-                # repo = await get_repository(client, repo_name, repo_owner)
-                repository = Repository(id=repo.database_id, name=repo_name,
-                                        owner=repo_owner)
-                repository_service.upsert_repositories(db, [repository])
-                repository_service.upsert_user_repositories(db, user.id,
-                                                            [repo])
+            if db_repo is None:
+                db_repo = Repository(
+                    id=github_repo.database_id,
+                    name=repo_name,
+                    owner=repo_owner)
+                repository_service.upsert_repositories(db, [db_repo])
+                user_service.upsert_user_repositories(db, user, [github_repo])
             # Now we can record the commit
-            commit = Commit(repository_id=repository.id, sha=sha,
-                            timestamp=timestamp, books=[])
+            commit = Commit(
+                repository_id=db_repo.id,
+                sha=sha,
+                timestamp=timestamp,
+                books=[])
             db.add(commit)
             # And record all the book metadata
             collections_by_name = await get_collections(client, repo_name,
