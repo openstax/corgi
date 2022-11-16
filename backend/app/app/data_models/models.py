@@ -158,6 +158,15 @@ class JobUpdate(BaseModel):
     error_message: Optional[str] = None
 
 
+class JobMin(BaseModel):
+    id: str
+    status_id: str
+    job_type_id: str
+
+    class Config:
+        orm_mode = True
+        getter_dict = JobGetter
+
 class Job(JobBase):
     id: str
     created_at: datetime
