@@ -19,8 +19,8 @@ class MockRequest:
             name="Test"
         )
         self.mock_user_cookie = {
-            "exp": (datetime.now(timezone.utc) + 
-                    timedelta(minutes=5)).timestamp(),
+            "exp": (datetime.now(timezone.utc)
+                    + timedelta(minutes=5)).timestamp(),
             "session": user.json()
         }
         if error_type == "expired":
@@ -86,34 +86,12 @@ def test_active_user_dependency_succeeds():
     assert http_exc is None
 
 
-# @pytest.mark.unit
-# @pytest.mark.nondestructive
-# @pytest.mark.asyncio
-# async def test_get_user_teams(monkeypatch):
-#     async def mock_post(*args, **kwargs):
-#         class MockTeamsResponse(MockResponse):
-#             def json(self):
-#                 return {
-#                     "data": {
-#                         "organization": {
-#                             "teams": {
-#                                 "edges": []
-#                             }
-#                         }
-#                     }
-#                 }
-#         return MockTeamsResponse()
-#     async with AsyncClient() as client:
-#         monkeypatch.setattr(client, "post", mock_post)
-#         teams = await get_user_teams(cast(Any, client), 'github')
-#         assert len(teams) == 0
-
-
 @pytest.mark.unit
 @pytest.mark.nondestructive
 @pytest.mark.asyncio
 async def test_auth_callback_fails_correctly(monkeypatch):
     request = MockRequest("")
+
     async def mock_post(*args, **kwargs):
         class MockAccessResponse(MockResponse):
             @property
@@ -131,12 +109,14 @@ async def test_auth_callback_fails_correctly(monkeypatch):
 @pytest.mark.asyncio
 async def test_auth_callback_fails_when_not_on_team(monkeypatch):
     request = MockRequest("")
+
     async def mock_post(*args, **kwargs):
         class MockAccessResponse(MockResponse):
             @property
             def text(self):
                 return "access_token=1234"
         return MockAccessResponse()
+
     async def mock_get(self, url, **kwargs):
         if url == "https://api.github.com/user":
             class MockUserResponse(MockResponse):
@@ -148,6 +128,7 @@ async def test_auth_callback_fails_when_not_on_team(monkeypatch):
                     }
             return MockUserResponse()
         return MockResponse()
+
     async def get_empty_teams(*args):
         return []
     monkeypatch.setattr(app.github.client.AsyncClient, "post", mock_post)
@@ -156,7 +137,6 @@ async def test_auth_callback_fails_when_not_on_team(monkeypatch):
     with pytest.raises(HTTPException) as http_exc:
         await callback(cast(Any, request))
         assert http_exc.value.status_code == 403
-    
 
 
 @pytest.mark.unit
@@ -164,12 +144,14 @@ async def test_auth_callback_fails_when_not_on_team(monkeypatch):
 @pytest.mark.asyncio
 async def test_auth_callback(monkeypatch):
     request = MockRequest("")
+
     async def mock_post(*args, **kwargs):
         class MockAccessResponse(MockResponse):
             @property
             def text(self):
                 return "access_token=1234"
         return MockAccessResponse()
+
     async def mock_get(self, url, **kwargs):
         if url == "https://api.github.com/user":
             class MockUserResponse(MockResponse):
@@ -181,8 +163,10 @@ async def test_auth_callback(monkeypatch):
                     }
             return MockUserResponse()
         return MockResponse()
+
     async def get_fake_teams(*args):
         return ["FAKE-TEAM"]
+
     async def nop(*args):
         pass
     monkeypatch.setattr(app.github.client.AsyncClient, "post", mock_post)
@@ -190,5 +174,5 @@ async def test_auth_callback(monkeypatch):
     monkeypatch.setattr(app.api.endpoints.auth, "sync_user_data", nop)
     monkeypatch.setattr(app.github.api, "get_user_teams", get_fake_teams)
     await callback(cast(Any, request))
-    assert UserSession.parse_raw(request.session["user"]["session"]).token == "1234"
-
+    assert UserSession.parse_raw(
+        request.session["user"]["session"]).token == "1234"
