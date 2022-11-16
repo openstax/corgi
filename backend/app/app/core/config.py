@@ -35,10 +35,10 @@ if IS_DEV_ENV:
 GITHUB_API_TOKEN = os.getenv("GITHUB_API_TOKEN")
 
 # GITHUB OAUTH
-CLIENT_ID = os.environ["GITHUB_OAUTH_ID"]
-CLIENT_SECRET = os.environ["GITHUB_OAUTH_SECRET"]
+CLIENT_ID = os.getenv("GITHUB_OAUTH_ID")
+CLIENT_SECRET = os.getenv("GITHUB_OAUTH_SECRET")
 ADMIN_TEAMS = ("ce-tech", "ce-admins", "content-managers")
 
 # To encrypt session cookie
-SESSION_SECRET = os.environ["SESSION_SECRET"]
+SESSION_SECRET = os.getenv("SESSION_SECRET")
 ACCESS_TOKEN_EXPIRE_MINUTES = 120

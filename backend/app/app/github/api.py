@@ -65,7 +65,7 @@ async def get_book_repository(
     repository = payload["data"]["repository"]
     repo = GitHubRepo(name=repo_name,
                       database_id=repository["databaseId"],
-                      viewer_permission=repository["view"])
+                      viewer_permission=repository["viewerPermission"])
     commit = repository["object"]
     commit_sha = commit["oid"]
     commit_timestamp = commit["committedDate"]
