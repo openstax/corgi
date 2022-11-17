@@ -25,14 +25,13 @@ if config.BACKEND_CORS_ORIGINS:
         allow_origins=origins,
         allow_credentials=True,
         allow_methods=["*"],
-        allow_headers=["*"],
-    )
+        allow_headers=["*"])
 
 # OAUTH
 server.add_middleware(
     SessionMiddleware,
     secret_key=config.SESSION_SECRET,
-    max_age=config.ACCESS_TOKEN_EXPIRE_MINUTES * 60
-)
+    max_age=config.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+    https_only=not config.IS_DEV_ENV)
 
 server.add_middleware(DBSessionMiddleware)

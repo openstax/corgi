@@ -3,6 +3,9 @@ export DOMAIN="corgi-staging.ce.openstax.org"
 export STACK_NAME="corgi_stag"
 export TRAEFIK_TAG="traefik-staging"
 export SUBNET="172.28.1.0/24"
+set +x
+export SESSION_SECRET="$(dd if=/dev/urandom bs=1024 count=1 | base64)"
+set -x
 
 NEWLINE=$'\n'
 echo "${NEWLINE}The following environment variables were set:${NEWLINE}"
