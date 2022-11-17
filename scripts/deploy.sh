@@ -18,6 +18,7 @@ TAG=${TAG} \
 REVISION=${REVISION} \
 DEPLOYED_AT=${DEPLOYED_AT} \
 SUBNET=${SUBNET} \
+SESSION_SECRET=${SESSION_SECRET} \
 docker-compose \
 -f docker-compose.stack.release.yml \
 config > docker-stack.yml
