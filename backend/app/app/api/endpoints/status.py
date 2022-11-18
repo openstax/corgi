@@ -14,7 +14,6 @@ router = APIRouter()
 def list_status(
         db: Session = Depends(get_db),
         skip: int = 0,
-        limit: int = 100,
-):
+        limit: int = 100):  # pragma: no cover
     statuses = status_service.get_items(db, skip=skip, limit=limit)
     return statuses

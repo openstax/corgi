@@ -16,10 +16,6 @@ class AccessDeniedException(Exception):
     pass
 
 
-class AuthenticationException(Exception):
-    pass
-
-
 class GraphQLException(Exception):
     pass
 
@@ -165,29 +161,6 @@ async def get_user_repositories(
     return repos
 
 
-async def authenticate_user(
-        db: Session,
-        code: str,
-        on_success: Callable[
-            [AuthenticatedClient, Session, UserSession],
-            Awaitable[None]]) -> UserSession:
-    async with AsyncClient() as client:
-        response = await client.post(
-            "https://github.com/login/oauth/access_token?"
-            f"client_id={CLIENT_ID}&client_secret={CLIENT_SECRET}&code={code}"
-        )
-        response.raise_for_status()
-        values = parse_qs(response.text)
-        if ("access_token" not in values):
-            raise AuthenticationException("Could not authenticate")
-
-        token = values["access_token"][0]
-        client = authenticate_client(client, token)
-        user = await get_user(client, token)
-        await on_success(client, db, user)
-    return user
-
-
 async def get_user_teams(client: AuthenticatedClient, user: str) -> List[str]:
     if IS_DEV_ENV:
         return ["ce-tech"]
@@ -217,7 +190,7 @@ async def get_user_teams(client: AuthenticatedClient, user: str) -> List[str]:
 
 
 async def get_user(client: AuthenticatedClient, token: str) -> UserSession:
-    response = await client.get(f"https://api.github.com/user")
+    response = await client.get("https://api.github.com/user")
     response.raise_for_status()
     json = response.json()
     name = json["login"]
