@@ -21,12 +21,7 @@ def active_user(request: Request) -> UserSession:
     user = None
     if session is not None:
         user = session.get("user", None)
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not logged in"
-        )
-    if user["exp"] <= datetime.now(timezone.utc).timestamp():
+    if user is None or user["exp"] <= datetime.now(timezone.utc).timestamp():
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not logged in"

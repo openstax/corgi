@@ -15,11 +15,8 @@ from sqlalchemy.orm import Session
 router = APIRouter()
 
 
-@router.get(
-    "/",
-    response_model=List[Job],
-    dependencies=[Depends(RequiresRole(Role.USER))]
-)
+@router.get("/", response_model=List[Job],
+            dependencies=[Depends(RequiresRole(Role.USER))])
 def list_jobs(db: Session = Depends(get_db)):
     """List all jobs for this year by default"""
     end = datetime.now(timezone.utc)
@@ -27,7 +24,8 @@ def list_jobs(db: Session = Depends(get_db)):
     return jobs_service.get_jobs_in_date_range(db, start, end)
 
 
-@router.get("/pages/{page}", response_model=List[Job])
+@router.get("/pages/{page}", response_model=List[Job],
+            dependencies=[Depends(RequiresRole(Role.USER))])
 def list_job_page(
         db: Session = Depends(get_db),
         page: int = 0,
@@ -55,7 +53,8 @@ def check(
     return list(jobs)
 
 
-@router.get("/{id}", response_model=Job)
+@router.get("/{id}", response_model=Job,
+            dependencies=[Depends(RequiresRole(Role.USER))])
 def get_job(
         *,
         db: Session = Depends(get_db),
@@ -67,7 +66,8 @@ def get_job(
     return job
 
 
-@router.post("/", response_model=Job)
+@router.post("/", response_model=Job,
+             dependencies=[Depends(RequiresRole(Role.USER))])
 async def create_job(
         *,
         db: Session = Depends(get_db),
@@ -78,11 +78,12 @@ async def create_job(
         try:
             job = await jobs_service.create(client, db, job_in, user)
             return job
-        except GraphQLException as gqle:
+        except GraphQLException as gqle:  # pragma: no cover
             raise HTTPException(status_code=500, detail=str(gqle))
 
 
-@router.put("/{id}", response_model=Job)
+@router.put("/{id}", response_model=Job,
+            dependencies=[Depends(RequiresRole(Role.USER))])
 def update_job(
         *,
         db: Session = Depends(get_db),
@@ -105,7 +106,7 @@ def update_job(
     return job
 
 
-@router.get("/error/{id}")
+@router.get("/error/{id}", dependencies=[Depends(RequiresRole(Role.USER))])
 def get_error(
         *,
         db: Session = Depends(get_db),

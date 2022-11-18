@@ -1,6 +1,6 @@
 import pytest
 from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES
-from app.github.api import AccessDeniedException, AuthenticationException
+from app.github.api import AccessDeniedException
 
 
 @pytest.mark.unit
@@ -29,7 +29,7 @@ def get_mock_authenticate(exc):
 @pytest.mark.parametrize(
     "mock_authenticate,status_code,text",
     [(get_mock_authenticate(AccessDeniedException), 403, "Forbidden"),
-     (get_mock_authenticate(AuthenticationException), 500,
+     (get_mock_authenticate(Exception("test")), 500,
       "Could not authenticate")]
 )
 def test_login_exception(testclient, monkeypatch, mock_authenticate,
@@ -40,3 +40,20 @@ def test_login_exception(testclient, monkeypatch, mock_authenticate,
     response = testclient.get("/api/auth/callback", allow_redirects=False)
     assert response.status_code == status_code
     assert response.json()["detail"] == text
+
+
+def test_login_no_team(monkeypatch, testclient, mock_login_success):
+    async def return_no_teams(*_args, **_kwargs):
+        return []
+    monkeypatch.setattr("app.github.api.get_user_teams", return_no_teams)
+
+    response = testclient.get("/api/auth/callback", allow_redirects=False)
+    assert response.status_code == 403
+
+
+@pytest.mark.parametrize("endpoint", [
+    "/api/jobs/"
+])
+def test_require_auth(testclient, endpoint):
+    response = testclient.get(endpoint, allow_redirects=False)
+    assert response.status_code == 401
