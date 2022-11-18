@@ -4,6 +4,20 @@ from fastapi.responses import RedirectResponse
 from starlette.testclient import TestClient
 
 
+def create_mock_response(json={}, text=""):
+    class MockResponse:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return json
+
+        @property
+        def text(self):
+            return text
+    return MockResponse()
+
+
 @pytest.fixture
 def fake_data():
     from datetime import datetime, timezone
@@ -16,6 +30,42 @@ def fake_data():
     now = datetime.now(timezone.utc)
 
     class FakeData:
+        FAKE_GITHUB_TEAMS_RESPONSE = {
+            "data": {
+                "organization": {
+                    "teams": {
+                        "totalCount": 4,
+                        "edges": [
+                            {
+                                "node": {
+                                    "name": "all",
+                                    "description": "Openstax folks"
+                                }
+                            },
+                            {
+                                "node": {
+                                    "name": "ce-tech",
+                                    "description": "The CE Tech team"
+                                }
+                            },
+                            {
+                                "node": {
+                                    "name": "ce-all",
+                                    "description": ("Discussion board for the "
+                                                    "Content Engineering Team")
+                                }
+                            },
+                            {
+                                "node": {
+                                    "name": "ce-be",
+                                    "description": "CE Backend developers"
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        }
         AUDIT_DATA = {"created_at": now, "updated_at": now}
         FAKE_REPO = Repository(name="osbooks-fake-book", owner="openstax", id=1)
         FAKE_COMMIT = Commit(
@@ -63,6 +113,43 @@ def fake_data():
 
 
 @pytest.fixture
+def mock_github_client(fake_data):
+    class MockGitHubClient:
+        async def post(self, url, *args, **kwargs):
+            def is_graphql(url):
+                return url == "https://api.github.com/graphql"
+
+            def is_teams_query(query):
+                return "organization" in query and "teams(" in query
+
+            if is_graphql(url):
+                query = kwargs["json"]["query"]
+                if is_teams_query(query):
+                    return create_mock_response(
+                        json=fake_data.FAKE_GITHUB_TEAMS_RESPONSE)
+
+        async def get(self, url, *args, **kwargs):
+
+            def is_user_request(url):
+                return url == "https://api.github.com/user"
+
+            if is_user_request(url):
+                expected_session = fake_data.FAKE_SESSION
+                return create_mock_response(json={
+                    "login": expected_session.name,
+                    "avatar_url": expected_session.avatar_url,
+                    "id": expected_session.id
+                })
+
+        async def __aenter__(self, *_):
+            return self
+
+        async def __aexit__(self, *_):
+            pass
+    return MockGitHubClient
+
+
+@pytest.fixture
 def mock_user_service(fake_data):
 
     class MockUserService:
@@ -80,6 +167,7 @@ def mock_user_service(fake_data):
 @pytest.fixture
 def mock_jobs_service(fake_data):
     from app.db.schema import Jobs
+
     class MockJobsService:
         schema_model = Jobs
 
@@ -87,7 +175,15 @@ def mock_jobs_service(fake_data):
             return fake_data.FAKE_JOB
 
         def update(self, db, job, job_in):
-            return fake_data.FAKE_JOB
+            from app.data_models.models import Job
+            job_model = Job.from_orm(job).dict(exclude_unset=True)
+            job_in_dict = job_in.dict(exclude_unset=True)
+            for k in job_in_dict.keys():
+                if job_in_dict[k] is None:
+                    del job_in_dict[k]
+            job_model.update(job_in_dict)
+
+            return job_model
 
         def get_jobs_in_date_range(self, db, start, end, order_by=None):
             return [fake_data.FAKE_JOB]
@@ -95,27 +191,36 @@ def mock_jobs_service(fake_data):
         def get_items_order_by(self, *_args, **_kwargs):
             return [fake_data.FAKE_JOB]
 
-        def get(self, db, id):
+        def get(self, *_args, **_kwargs):
             return fake_data.FAKE_JOB
     return MockJobsService()
 
 
 @pytest.fixture
-def mock_oauth_redirect(monkeypatch):
+def mock_oauth_redirect(monkeypatch, fake_data):
     class MockOAuth:
         async def authorize_redirect(self, request, redirect_uri):
             return RedirectResponse(redirect_uri)
+
+        async def authorize_access_token(self, *_):
+            return {"access_token": fake_data.FAKE_SESSION.token}
 
     monkeypatch.setattr("app.api.endpoints.auth.github_oauth", MockOAuth())
 
 
 @pytest.fixture
-def mock_login_success(monkeypatch, mock_oauth_redirect, fake_data):
-    async def mock_authenticate(*_):
-        return fake_data.FAKE_SESSION
+def mock_login_success(monkeypatch, mock_oauth_redirect, mock_github_client):
 
-    monkeypatch.setattr("app.api.endpoints.auth.authenticate_user",
-                        mock_authenticate)
+    async def nop(*_args, **_kwargs):
+        pass
+
+    monkeypatch.setattr(
+        "app.api.endpoints.auth.AsyncClient",
+        mock_github_client)
+    monkeypatch.setattr(
+        "app.api.endpoints.auth.sync_user_data", nop)
+    # Make the api request teams from github to test parsing of response
+    monkeypatch.setattr("app.github.api.IS_DEV_ENV", False)
 
 
 @pytest.fixture
@@ -126,7 +231,7 @@ def session_cookie(testclient, mock_login_success):
     return response.headers.get("set-cookie")
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def testclient():
     client = TestClient(server)
     yield client

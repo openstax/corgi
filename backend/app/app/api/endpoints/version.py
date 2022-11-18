@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.get("/")
-async def version():
+async def version(): # pragma: no cover
     return {"stack_name": STACK_NAME,
             "tag": TAG,
             "revision": REVISION,
