@@ -53,8 +53,7 @@ def check(
     return list(jobs)
 
 
-@router.get("/{id}", response_model=Job,
-            dependencies=[Depends(RequiresRole(Role.USER))])
+@router.get("/{id}", response_model=Job)
 def get_job(
         *,
         db: Session = Depends(get_db),
@@ -82,8 +81,7 @@ async def create_job(
             raise HTTPException(status_code=500, detail=str(gqle))
 
 
-@router.put("/{id}", response_model=Job,
-            dependencies=[Depends(RequiresRole(Role.USER))])
+@router.put("/{id}", response_model=Job)
 def update_job(
         *,
         db: Session = Depends(get_db),

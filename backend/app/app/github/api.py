@@ -25,7 +25,7 @@ async def graphql(client: AuthenticatedClient, query: str):
         "https://api.github.com/graphql", json={"query": query})
     response.raise_for_status()
     payload = response.json()
-    if "errors" in payload:
+    if "errors" in payload:  # pragma: no cover
         raise GraphQLException(", ".join(e["message"]
                                for e in payload["errors"]))
     return payload
@@ -162,7 +162,7 @@ async def get_user_repositories(
 
 
 async def get_user_teams(client: AuthenticatedClient, user: str) -> List[str]:
-    if IS_DEV_ENV:
+    if IS_DEV_ENV:  # pragma: no cover
         return ["ce-tech"]
     else:
         query = f"""
@@ -207,20 +207,3 @@ async def get_user(client: AuthenticatedClient, token: str) -> UserSession:
         avatar_url=avatar_url,
         name=name
     )
-
-
-async def get_repository(
-        client: AuthenticatedClient,
-        repo_name: str,
-        repo_owner: str) -> GitHubRepo:
-    query = f"""
-        query {{
-            repository(name: "{repo_name}", owner: "{repo_owner}") {{
-                name
-                databaseId
-                viewerPermission
-            }}
-        }}
-    """
-    payload = await graphql(client, query)
-    return GitHubRepo.from_node(payload["data"]["repository"])

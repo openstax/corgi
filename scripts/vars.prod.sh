@@ -3,5 +3,6 @@ export DOMAIN="corgi.ce.openstax.org"
 export STACK_NAME="corgi_prod"
 export TRAEFIK_TAG="traefik-prod"
 set +x
-export SESSION_SECRET="$(dd if=/dev/urandom bs=1024 count=1 | base64)"
+SESSION_SECRET="$(dd if=/dev/urandom bs=1024 count=1 | base64)"
 set -x
+export SESSION_SECRET
