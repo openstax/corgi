@@ -4,18 +4,22 @@ from fastapi.responses import RedirectResponse
 from starlette.testclient import TestClient
 
 
-def create_mock_response(json={}, text=""):
-    class MockResponse:
-        def raise_for_status(self):
-            pass
+@pytest.fixture
+def mock_github_api():
+    from tests.unit.init_test_data import (mock_get_book_repository,
+                                           mock_get_collections,
+                                           mock_get_user,
+                                           mock_get_user_repositories,
+                                           mock_get_user_teams)
 
-        def json(self):
-            return json
+    class MockGitHubAPI:
+        get_user = mock_get_user
+        get_user_teams = mock_get_user_teams
+        get_collections = mock_get_collections
+        get_user_repositories = mock_get_user_repositories
+        get_book_repository = mock_get_book_repository
 
-        @property
-        def text(self):
-            return text
-    return MockResponse()
+    return MockGitHubAPI
 
 
 @pytest.fixture
@@ -23,49 +27,13 @@ def fake_data():
     from datetime import datetime, timezone
     from typing import cast
 
-    from app.data_models.models import UserSession, Role
+    from app.data_models.models import Role, UserSession
     from app.db.schema import (Book, BookJob, Commit, Jobs, JobTypes,
                                Repository, Status, User)
 
     now = datetime.now(timezone.utc)
 
     class FakeData:
-        FAKE_GITHUB_TEAMS_RESPONSE = {
-            "data": {
-                "organization": {
-                    "teams": {
-                        "totalCount": 4,
-                        "edges": [
-                            {
-                                "node": {
-                                    "name": "all",
-                                    "description": "Openstax folks"
-                                }
-                            },
-                            {
-                                "node": {
-                                    "name": "ce-tech",
-                                    "description": "The CE Tech team"
-                                }
-                            },
-                            {
-                                "node": {
-                                    "name": "ce-all",
-                                    "description": ("Discussion board for the "
-                                                    "Content Engineering Team")
-                                }
-                            },
-                            {
-                                "node": {
-                                    "name": "ce-be",
-                                    "description": "CE Backend developers"
-                                }
-                            }
-                        ]
-                    }
-                }
-            }
-        }
         AUDIT_DATA = {"created_at": now, "updated_at": now}
         FAKE_REPO = Repository(name="osbooks-fake-book", owner="openstax", id=1)
         FAKE_COMMIT = Commit(
@@ -110,43 +78,6 @@ def fake_data():
         FAKE_JOB.user = FAKE_USER
         FAKE_JOB.job_type = FAKE_JOB_TYPE
     return FakeData
-
-
-@pytest.fixture
-def mock_github_client(fake_data):
-    class MockGitHubClient:
-        async def post(self, url, *args, **kwargs):
-            def is_graphql(url):
-                return url == "https://api.github.com/graphql"
-
-            def is_teams_query(query):
-                return "organization" in query and "teams(" in query
-
-            if is_graphql(url):
-                query = kwargs["json"]["query"]
-                if is_teams_query(query):
-                    return create_mock_response(
-                        json=fake_data.FAKE_GITHUB_TEAMS_RESPONSE)
-
-        async def get(self, url, *args, **kwargs):
-
-            def is_user_request(url):
-                return url == "https://api.github.com/user"
-
-            if is_user_request(url):
-                expected_session = fake_data.FAKE_SESSION
-                return create_mock_response(json={
-                    "login": expected_session.name,
-                    "avatar_url": expected_session.avatar_url,
-                    "id": expected_session.id
-                })
-
-        async def __aenter__(self, *_):
-            return self
-
-        async def __aexit__(self, *_):
-            pass
-    return MockGitHubClient
 
 
 @pytest.fixture
@@ -209,18 +140,19 @@ def mock_oauth_redirect(monkeypatch, fake_data):
 
 
 @pytest.fixture
-def mock_login_success(monkeypatch, mock_oauth_redirect, mock_github_client):
+def mock_login_success(monkeypatch, mock_oauth_redirect, mock_github_api):
 
     async def nop(*_args, **_kwargs):
         pass
 
     monkeypatch.setattr(
-        "app.api.endpoints.auth.AsyncClient",
-        mock_github_client)
+        "app.api.endpoints.auth.get_user",
+        mock_github_api.get_user)
+    monkeypatch.setattr(
+        "app.github.api.get_user_teams",
+        mock_github_api.get_user_teams)
     monkeypatch.setattr(
         "app.api.endpoints.auth.sync_user_data", nop)
-    # Make the api request teams from github to test parsing of response
-    monkeypatch.setattr("app.github.api.IS_DEV_ENV", False)
 
 
 @pytest.fixture

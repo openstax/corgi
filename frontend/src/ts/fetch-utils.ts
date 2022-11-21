@@ -13,10 +13,18 @@ export namespace RequireAuth {
       if (hadAuthError(response)) {
         document.location.href = "/api/auth/login"
       } else if (hadUnexpectedError(response)) {
-        console.log()
         if (response.headers.get("content-type") === "application/json") {
           const payload = await response.json()
-          throw new Error(payload["detail"])
+          let error
+          if ("detail" in payload) {
+            error = payload["detail"]
+            if (!(typeof error === "string")) {
+              error = JSON.stringify(error)
+            }
+          } else {
+            error = "An unknown error occurred"
+          }
+          throw new Error(error)
         } else {
           throw new Error(`${response.status}: "${response.statusText}"`)
         }

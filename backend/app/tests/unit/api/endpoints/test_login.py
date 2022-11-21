@@ -42,6 +42,8 @@ def test_login_exception(testclient, monkeypatch, mock_authenticate,
     assert response.json()["detail"] == text
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 def test_login_no_team(monkeypatch, testclient, mock_login_success):
     async def return_no_teams(*_args, **_kwargs):
         return []
@@ -51,6 +53,8 @@ def test_login_no_team(monkeypatch, testclient, mock_login_success):
     assert response.status_code == 403
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 @pytest.mark.parametrize("endpoint", [
     "/api/jobs/"
 ])

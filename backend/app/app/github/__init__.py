@@ -1,7 +1,6 @@
 from app.github.api import (AccessDeniedException, get_book_repository,
-                            get_collections, get_repository, get_user,
-                            get_user_repositories, get_user_role,
-                            get_user_teams)
+                            get_collections, get_user, get_user_repositories,
+                            get_user_role, get_user_teams)
 from app.github.client import (AuthenticatedClient, authenticate_client,
                                github_client)
 from app.github.models import GitHubRepo, RepositoryPermission
