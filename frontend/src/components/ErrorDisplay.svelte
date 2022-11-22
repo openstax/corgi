@@ -14,13 +14,13 @@
 <script lang="ts">
   import Banner, { Label } from '@smui/banner'
   import Button from '@smui/button'
-  import { error } from './ts/stores'
+  import { error } from '../ts/stores'
 
   let open = false
 
   function handleBannerClosed(_event) {
     // The banner will not open again until the error changes
-    error.update(_ => '')
+    error.set('')
   }
 
   $: {

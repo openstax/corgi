@@ -5,7 +5,7 @@ import { error } from './stores'
 type Errors = Error
 
 export function handleError(e: Errors) {
-  error.update(_ => e.toString())
+  error.set(e.toString())
   console.error(e)
 }
 
@@ -34,8 +34,7 @@ export function filterBooks(repositories: RepositorySummary[], selectedRepo: str
     .forEach(bookNames => {
       bookNames.forEach(b => books.push((b as any)))
     })
-  console.log(books)
-  return books
+  return [...new Set(books)]
 }
 
 export function readableDateTime(datetime: string): string {
