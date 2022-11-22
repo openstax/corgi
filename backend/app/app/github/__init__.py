@@ -1,4 +1,4 @@
-from app.github.api import (AccessDeniedException, get_book_repository,
+from app.github.api import (AccessDeniedError, get_book_repository,
                             get_collections, get_user, get_user_repositories,
                             get_user_role, get_user_teams)
 from app.github.client import (AuthenticatedClient, authenticate_client,
