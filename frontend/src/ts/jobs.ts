@@ -1,6 +1,7 @@
 import { readableDateTime, handleError } from "./utils"
 import type { Job, Status, JobType } from "./types"
 import { RequireAuth } from "./fetch-utils"
+import { SECONDS } from "./time"
 
 export async function submitNewJob (
   jobTypeId: string,
@@ -65,7 +66,7 @@ export async function submitNewJob (
       }
 
       await RequireAuth.fetch(`/api/jobs/${jobId}`, options)
-      setTimeout(() => { getJobs() }, 1000)
+      setTimeout(() => { getJobs() }, 1 * SECONDS)
     } catch (error) {
       handleError(error)
     }
