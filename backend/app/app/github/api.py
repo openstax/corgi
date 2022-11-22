@@ -1,22 +1,20 @@
 from datetime import datetime
-from typing import Any, Awaitable, Callable, Dict, List, Tuple
-from urllib.parse import parse_qs
+from typing import Any, Dict, List, Tuple
 
 from app.core.auth import get_user_role
-from app.core.config import CLIENT_ID, CLIENT_SECRET, IS_DEV_ENV
+from app.core.config import IS_DEV_ENV
+from app.core.errors import CustomBaseError
 from app.data_models.models import UserSession
-from app.github.client import AuthenticatedClient, authenticate_client
+from app.github.client import AuthenticatedClient
 from app.github.models import GitHubRepo
-from httpx import AsyncClient
 from lxml import etree
-from sqlalchemy.orm import Session
 
 
-class AccessDeniedException(Exception):
+class AccessDeniedError(CustomBaseError):
     pass
 
 
-class GraphQLException(Exception):
+class GraphQLError(CustomBaseError):
     pass
 
 
@@ -26,7 +24,7 @@ async def graphql(client: AuthenticatedClient, query: str):
     response.raise_for_status()
     payload = response.json()
     if "errors" in payload:  # pragma: no cover
-        raise GraphQLException(", ".join(e["message"]
+        raise GraphQLError(", ".join(e["message"]
                                for e in payload["errors"]))
     return payload
 
@@ -199,7 +197,7 @@ async def get_user(client: AuthenticatedClient, token: str) -> UserSession:
     user_teams = await get_user_teams(client, name)
     role = get_user_role(user_teams)
     if role is None:
-        raise AccessDeniedException("Bad role")
+        raise AccessDeniedError("Bad role")
     return UserSession(
         id=id_,
         token=token,

@@ -1,6 +1,6 @@
 import pytest
 from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES
-from app.github.api import AccessDeniedException
+from app.github.api import AccessDeniedError
 
 
 @pytest.mark.unit
@@ -28,7 +28,7 @@ def get_mock_authenticate(exc):
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
     "mock_authenticate,status_code,text",
-    [(get_mock_authenticate(AccessDeniedException), 403, "Forbidden"),
+    [(get_mock_authenticate(AccessDeniedError), 403, "Forbidden"),
      (get_mock_authenticate(Exception("test")), 500,
       "Could not authenticate")]
 )

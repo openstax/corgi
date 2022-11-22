@@ -2,6 +2,7 @@
 from datetime import datetime
 from typing import List, Optional, cast
 
+from app.core.errors import CustomBaseError
 from app.data_models.models import Job as JobModel
 from app.data_models.models import JobCreate, JobUpdate, UserSession
 from app.db.schema import Book, BookJob, Commit
@@ -36,7 +37,7 @@ class JobsService(ServiceBase):
         # If the user supplied an invalid argument for book
         if repo_book_in is not None:
             if not any(b["slug"] == repo_book_in for b in repo_books):
-                raise Exception(f"Book not in repository {repo_book_in}")
+                raise CustomBaseError(f"Book not in repository {repo_book_in}")
 
         commit = cast(Optional[Commit], db.query(Commit).filter(
             Commit.sha == sha).first())
