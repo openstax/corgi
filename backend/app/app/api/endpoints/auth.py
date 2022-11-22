@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES, IS_DEV_ENV
 from app.data_models.models import UserSession
 from app.db.utils import get_db
-from app.github import (AccessDeniedException, authenticate_client, get_user,
+from app.github import (AccessDeniedError, authenticate_client, get_user,
                         github_oauth, sync_user_data)
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
@@ -29,7 +29,7 @@ def set_user_session_cookie(request: Request, user: UserSession):
 async def handle_auth_errors(thunk: Awaitable):
     try:
         return await thunk
-    except AccessDeniedException:
+    except AccessDeniedError:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail='Forbidden'

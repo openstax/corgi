@@ -2,12 +2,12 @@ from datetime import datetime, timedelta, timezone
 from typing import List, Optional, cast
 
 from app.core.auth import RequiresRole, active_user
+from app.core.errors import CustomBaseError
 from app.data_models.models import (Job, JobCreate, JobMin, JobUpdate, Role,
                                     UserSession)
-from app.db.utils import get_db
 from app.db.schema import Jobs as JobSchema
+from app.db.utils import get_db
 from app.github import github_client
-from app.github.api import GraphQLException
 from app.service.jobs import jobs_service
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -77,8 +77,8 @@ async def create_job(
         try:
             job = await jobs_service.create(client, db, job_in, user)
             return job
-        except GraphQLException as gqle:  # pragma: no cover
-            raise HTTPException(status_code=500, detail=str(gqle))
+        except CustomBaseError as cbe:  # pragma: no cover
+            raise HTTPException(status_code=500, detail=str(cbe))
 
 
 @router.put("/{id}", response_model=Job)
