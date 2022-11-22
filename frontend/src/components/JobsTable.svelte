@@ -4,60 +4,12 @@
   style="max-height: 100px; padding-top: 8px;"
 />
 
-<div class="inputContainer">
-  <Autocomplete
-    id="repo-input"
-    type="email"
-    search={searchRepos}
-    bind:text={selectedRepo}
-    updateInvalid
-    label="Repo"
-  />
-
-  <Autocomplete
-    id="book-input"
-    search={searchBooks}
-    options={books}
-    bind:text={selectedBook}
-    label="Book"
-  />
-
-  <Autocomplete
-    id="version-input"
-    search={searchVersions}
-    options={versions}
-    bind:text={selectedVersion}
-    label="Version"
-  />
-</div>
-
-<div class="inputContainer">
-  {#each options as option}
-    <FormField>
-      <Checkbox
-        id={`${option.name}-job-option`}
-        bind:group={selectedJobTypes}
-        value={option.id}
-        disabled={option.disabled}
-      />
-      <span slot="label"
-        >{option.name}{option.disabled ? " (disabled)" : ""}</span
-      >
-    </FormField>
-  {/each}
-</div>
-
-<Button
-  id="submit-job-button"
-  variant="raised"
-  color="secondary"
-  disabled={!validJob}
-  on:click={clickNewJob}
->
-  <Label>Create New Job</Label>
-</Button>
-
-<!--NewJobForm ends here-->
+<NewJobForm 
+  bind:selectedJobTypes
+  bind:selectedRepo
+  bind:selectedBook
+  clickNewJob={clickNewJob} 
+/>
 
 <div>
   <DataTable
@@ -243,20 +195,15 @@
 <script lang="ts">
   import Tooltip, { Wrapper } from "@smui/tooltip";
   import {
-    fetchRepoSummaries,
     calculateElapsed,
     mapImage,
-    filterBooks,
     handleError,
     repoToString,
-  } from "./ts/utils";
-  import { submitNewJob, getJobs } from "./ts/jobs";
-  import type { Book, Repository, RepositorySummary, Status } from "./ts/types";
+  } from "../ts/utils";
+  import NewJobForm from "./NewJobForm.svelte";
+  import { submitNewJob, getJobs } from "../ts/jobs";
+  import type { Repository } from "../ts/types";
   import { onMount } from "svelte";
-  import Checkbox from "@smui/checkbox";
-  import FormField from "@smui/form-field";
-  import Autocomplete from "@smui-extra/autocomplete";
-  import Button from "@smui/button";
   import DataTable, {
     Head,
     Body,
@@ -268,16 +215,11 @@
   import Select, { Option } from "@smui/select";
   import IconButton from "@smui/icon-button";
   import { Label } from "@smui/common";
+  import { repoSummariesStore } from "../ts/stores";
 
-  import type { Job, JobType } from "./ts/types";
+  import type { Job, JobType } from "../ts/types";
   import DetailsDialog from "./DetailsDialog.svelte";
-
-  let options = [
-    { name: "PDF", id: "PDF", disabled: false },
-    { name: "WebView", id: "Web", disabled: false },
-    { name: "EPUB", id: "EPUB", disabled: true },
-    { name: "Docx", id: "Docx", disabled: false },
-  ];
+    import { SECONDS } from "../ts/time";
 
   let statusColors = {
     queued: "filter-yellow",
@@ -288,19 +230,15 @@
     aborted: "filter-red",
   };
 
-  let repos: RepositorySummary[] = [];
-  let versions: string[] = [];
+  // let repoSummaries: RepositorySummary[] = []
 
-  export let selectedJobTypes = [];
+  let selectedJobTypes = [];
 
   let open = false;
   let selectedJob: Job;
 
   let selectedRepo: string;
   let selectedBook: string;
-  let selectedVersion: string;
-
-  $: validJob = selectedJobTypes.length != 0 && selectedRepo !== "" && selectedBook !== "";
 
   // Initialization
   let jobs: Job[] = [];
@@ -308,15 +246,24 @@
   let sort: keyof Job = "id";
   let sortDirection: Lowercase<keyof typeof SortValue> = "descending";
 
+    const jobStartRateLimitDurationMillis = 1000;
+  let lastJobStartTime = Date.now();
+  let polling;
+
   enum JobTypeId {
     PDF = 3,
-    WebView = 4,
+    Web = 4,
     Docx = 5,
     EPUB = 6,
   }
 
   // Job creation
-  async function clickNewJob() {
+  async function clickNewJob(
+    selectedRepo,
+    selectedBook,
+    selectedVersion,
+    selectedJobTypes
+  ) {
     if (lastJobStartTime + jobStartRateLimitDurationMillis > Date.now()) {
       return;
     }
@@ -333,19 +280,15 @@
     );
     setTimeout(async () => {
       jobs = await getJobs();
-    }, 1000);
+      void repoSummariesStore.update()
+    }, 1 * SECONDS);
   }
-
-  const jobStartRateLimitDurationMillis = 1000;
-  let lastJobStartTime = Date.now();
-
-  let polling;
 
   // Job polling
   function pollData() {
     polling = setInterval(async () => {
       jobs = await getJobs();
-    }, 10000);
+    }, 10 * SECONDS);
   }
 
   // Pagination
@@ -362,78 +305,11 @@
   }
 
   // Job filtering
-
-  // let repoSummaries: RepositorySummary[] = []
-
-  async function getRepoSummaries() {
-    if (repos.length === 0) {
-      repos = await fetchRepoSummaries();
-    }
-    return repos;
-  }
-
-  function createSearchFunction(
-    getOptions: (
-      repoSummaries: RepositorySummary[],
-      lowerInput: string
-    ) => string[]
-  ) {
-    return async function (input: string) {
-      try {
-        const repoSummaries = await getRepoSummaries();
-        const lowerInput = input.toLocaleLowerCase().trim();
-        const options = getOptions(repoSummaries, lowerInput);
-        if (lowerInput) {
-          const trimmedInput = input.trim();
-          if (options.length > 1 || options.indexOf(trimmedInput) === -1) {
-            options.push(trimmedInput);
-          }
-        }
-        return options;
-      } catch (e) {
-        handleError(e);
-      }
-    };
-  }
-
-  const searchRepos = createSearchFunction((repoSummaries, lowerInput) => {
-    if (!!selectedBook) {
-      repoSummaries = repoSummaries.filter((repo) =>
-        repo.books.includes(selectedBook)
-      );
-    }
-    return repoSummaries
-      .map((repo) => repoToString(repo))
-      .filter((repoPath) => repoPath.toLocaleLowerCase().includes(lowerInput));
-  });
-
-  const searchBooks = createSearchFunction((repoSummaries, lowerInput) =>
-    filterBooks(repoSummaries, selectedRepo).filter((bookSlug) =>
-      bookSlug.toLocaleLowerCase().includes(lowerInput)
-    )
-  );
-
-  const searchVersions = createSearchFunction(
-    (_repoSummaries, _lowerInput) => []
-  );
-
-  /*
-  
-*/
-
-  $: books = repos.length > 0 ? filterBooks(repos, selectedRepo) : [];
-
-  function setSelectedRepo(selectedBook) {
-    const repo = repos.find((r) => r.books.find((b) => b === selectedBook));
-    return !!repo ? repoToString(repo) : selectedRepo;
-  }
-
-  $: selectedRepo = setSelectedRepo(selectedBook);
   $: filteredRows = slice.filter(
     (entry) =>
       (selectedJobTypes.length === 0 ||
-        selectedJobTypes.some((item) =>
-          entry.job_type.display_name.includes(item)
+        selectedJobTypes.some((id) =>
+          entry.job_type.display_name.includes(id)
         )) &&
       (!selectedRepo ||
         repoToString(entry.repository).includes(selectedRepo)) &&
@@ -484,7 +360,10 @@
   });
 
   onMount(async () => {
-    repos = await fetchRepoSummaries();
+    // repoSummariesStore.subscribe(updateRepoSummaries => {
+    //   repoSummaries = updateRepoSummaries
+    // })
+    void repoSummariesStore.update()
     jobs = await getJobs();
     pollData();
   });

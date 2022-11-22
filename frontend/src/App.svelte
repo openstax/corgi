@@ -6,6 +6,6 @@
 </div>
  
 <script lang="ts">
-  import JobsTable from './JobsTable.svelte'
-  import ErrorDisplay from './ErrorDisplay.svelte'
+  import JobsTable from './components/JobsTable.svelte'
+  import ErrorDisplay from './components/ErrorDisplay.svelte'
 </script>
