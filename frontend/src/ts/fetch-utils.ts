@@ -15,7 +15,7 @@ export namespace RequireAuth {
 
   export const handleFetchError = async (response: Response) => {
     if (hadAuthError(response)) {
-      if (redirectTimeout !== -1) {
+      if (redirectTimeout === -1) {
         redirectTimeout = setTimeout(() => {
           document.location.href = "/api/auth/login"
         }, 1 * SECONDS)

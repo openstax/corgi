@@ -149,6 +149,7 @@
         matches.push(repoPath)
       }
     }
+    matches.sort()
     return matches
   });
 
@@ -156,9 +157,11 @@
     if(lowerInput == null) {
       lowerInput = ''
     }
-    return filterBooks(repoSummaries, selectedRepo).filter((bookSlug) =>
+    const matches = filterBooks(repoSummaries, selectedRepo).filter((bookSlug) =>
       bookSlug.toLocaleLowerCase().includes(lowerInput)
     )
+    matches.sort()
+    return matches
   });
 
   function setSelectedRepo(selectedBook) {
