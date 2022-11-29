@@ -84,6 +84,9 @@
             </Wrapper>
           </Cell>
           <Cell>
+            {repoToString(item.repository)}
+          </Cell>
+          <Cell>
             {#if item.books.length === 1}
               {item.books[0].slug}
             {:else}
@@ -97,9 +100,6 @@
               </Wrapper>
             {/if}
           </Cell>
-          <Cell>
-            {repoToString(item.repository)}
-          </Cell>
           <Cell
             >{item.version === null ? "main" : item.version.slice(0, 7)}</Cell
           >
@@ -108,7 +108,7 @@
               <img
                 alt={item.status.name}
                 src={mapImage("job_status", item.status.name, "svg")}
-                class={statusColors[item.status.name]}
+                class={statusStyles[item.status.name]}
               />
               <!-- style="max-height: 30px; color: greenyellow" -->
               <Tooltip>{item.status.name}</Tooltip>
@@ -221,12 +221,12 @@
   import DetailsDialog from "./DetailsDialog.svelte";
     import { SECONDS } from "../ts/time";
 
-  let statusColors = {
-    queued: "filter-yellow",
-    assigned: "filter-yellow",
-    processing: "filter-yellow spin",
+  let statusStyles = {
+    queued: "filter-yellow rock",
+    assigned: "filter-yellow rock",
+    processing: "filter-yellow rock",
     failed: "filter-red",
-    completed: "filter-green",
+    completed: "filter-green bounce",
     aborted: "filter-red",
   };
 
@@ -379,11 +379,42 @@
       transform: rotate(360deg);
     }
   }
+
+  @keyframes bounce-frames {
+    0%{transform:translateY(5px) rotate(0deg)}
+    25%{transform:translateY(0px) rotate(-5deg)}
+    50%{transform:translateY(5px) rotate(0deg)}
+    75%{transform:translateY(0px) rotate(5deg)}
+    100%{transform:translateY(5px) rotate(0deg)} 
+  }
+
+  @keyframes rock-frames {
+    0%{transform:translateX(0px) rotate(0deg)}
+    25%{transform:translateX(-10px) rotate(-25deg)}
+    50%{transform:translateX(0px) rotate(0deg)}
+    75%{transform:translateX(10px) rotate(25deg)}
+    100%{transform:translateX(0px) rotate(0deg)} 
+  }
+
   .spin {
     animation-name: spin-frames;
     animation-duration: 1.5s;
     animation-iteration-count: infinite;
     animation-timing-function: ease-in-out;
+  }
+
+  .bounce {
+    animation-name: bounce-frames;
+    animation-duration: 1.5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+  }
+
+  .rock {
+    animation-name: rock-frames;
+    animation-duration: 1.5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
   }
 
   :global(#repo-input > div > label, #book-input > div > label) {
