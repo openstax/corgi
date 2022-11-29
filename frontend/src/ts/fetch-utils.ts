@@ -1,6 +1,6 @@
 import { SECONDS } from "./time"
 
-let redirectTimeout = -1
+let redirectTimeout = undefined
 
 export namespace RequireAuth {
   // https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
@@ -15,7 +15,7 @@ export namespace RequireAuth {
 
   export const handleFetchError = async (response: Response) => {
     if (hadAuthError(response)) {
-      if (redirectTimeout === -1) {
+      if (redirectTimeout === undefined) {
         redirectTimeout = setTimeout(() => {
           document.location.href = "/api/auth/login"
         }, 1 * SECONDS)
