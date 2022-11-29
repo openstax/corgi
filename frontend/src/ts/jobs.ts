@@ -1,5 +1,5 @@
-import { readableDateTime, handleError } from "./utils"
-import type { Job, Status, JobType } from "./types"
+import { handleError, repoToString } from "./utils"
+import type { Job } from "./types"
 import { RequireAuth } from "./fetch-utils"
 import { SECONDS } from "./time"
 
@@ -48,7 +48,12 @@ export async function submitNewJob (
   }
 
   export function repeatJob(job: Job) {
-    void submitNewJob(job.job_type_id, job.repository.name, null, job.version)
+    void submitNewJob(
+      job.job_type_id,
+      repoToString(job.repository),
+      job.books[0].slug,
+      job.version
+    )
   }
 
   export async function abortJob(jobId: number) {
