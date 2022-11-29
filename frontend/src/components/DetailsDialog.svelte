@@ -9,7 +9,11 @@
     <Content>
       {#if selectedJob.status.name == "completed"}
         {#each selectedJob.artifact_urls as artifact}
-          <a href={artifact.url} target="_blank">{artifact.slug}</a>
+          <a
+            href={artifact.url}
+            target="_blank"
+            rel="noreferrer"
+          >{artifact.slug}</a>
           <br>
         {/each}
       {:else if selectedJob.status.name === "failed"}
