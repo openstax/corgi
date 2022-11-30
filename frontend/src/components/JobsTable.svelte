@@ -63,16 +63,19 @@
     slot="progress"
   /> -->
     <Body>
-      {#each sortedRows as item (item.id)}
+      {#each slice as item (item.id)}
         <!-- <DetailRow> -->
-        <Row
-          slot="data"
-          on:click={() => {
-            selectedJob = item;
-            open = true;
-          }}
-        >
-          <Cell numeric>{item.id}</Cell>
+        <Row slot="data">
+          <Cell numeric>
+            <Button
+              on:click={() => {
+                selectedJob = item
+                open = true
+              }}
+            >
+              {item.id}
+            </Button>
+          </Cell>
           <Cell>
             <Wrapper>
               <img
@@ -100,9 +103,9 @@
               </Wrapper>
             {/if}
           </Cell>
-          <Cell
-            >{item.version === null ? "main" : item.version.slice(0, 7)}</Cell
-          >
+          <Cell>
+            {item.version === null ? "main" : item.version.slice(0, 7)}
+          </Cell>
           <Cell>
             <Wrapper>
               <img
@@ -117,7 +120,7 @@
           <Cell>
             <Wrapper>
               <span>{calculateElapsed(item)}</span>
-              <Tooltip>{item.created_at}</Tooltip>
+              <Tooltip>{readableDateTime(item.created_at)}</Tooltip>
             </Wrapper>
           </Cell>
           <Cell>
@@ -199,6 +202,7 @@
     mapImage,
     handleError,
     repoToString,
+    readableDateTime
   } from "../ts/utils";
   import NewJobForm from "./NewJobForm.svelte";
   import { submitNewJob, getJobs } from "../ts/jobs";
@@ -215,11 +219,12 @@
   import Select, { Option } from "@smui/select";
   import IconButton from "@smui/icon-button";
   import { Label } from "@smui/common";
+  import Button from "@smui/button";
   import { repoSummariesStore } from "../ts/stores";
 
   import type { Job, JobType } from "../ts/types";
   import DetailsDialog from "./DetailsDialog.svelte";
-    import { SECONDS } from "../ts/time";
+  import { SECONDS } from "../ts/time";
 
   let statusStyles = {
     queued: "filter-yellow rock",
@@ -229,8 +234,6 @@
     completed: "filter-green bounce",
     aborted: "filter-red",
   };
-
-  // let repoSummaries: RepositorySummary[] = []
 
   let selectedJobTypes = [];
 
@@ -296,16 +299,13 @@
   let currentPage = 0;
   $: start = currentPage * rowsPerPage;
   $: end = Math.min(start + rowsPerPage, jobs.length);
-  $: {
-    slice = jobs.slice(start, end);
-  }
   $: lastPage = Math.max(Math.ceil(jobs.length / rowsPerPage) - 1, 0);
   $: if (currentPage > lastPage) {
     currentPage = lastPage;
   }
 
   // Job filtering
-  $: filteredRows = slice.filter(
+  $: filteredRows = jobs.filter(
     (entry) =>
       (selectedJobTypes.length === 0 ||
         selectedJobTypes.some((id) =>
@@ -359,11 +359,9 @@
     return Number(aVal) - Number(bVal);
   });
 
+  $: slice = sortedRows.slice(start, end);
+
   onMount(async () => {
-    // repoSummariesStore.subscribe(updateRepoSummaries => {
-    //   repoSummaries = updateRepoSummaries
-    // })
-    void repoSummariesStore.update()
     jobs = await getJobs();
     pollData();
   });

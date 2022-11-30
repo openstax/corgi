@@ -1,11 +1,11 @@
 import type { Job, Repository, RepositorySummary } from "./types"
 import { RequireAuth } from "./fetch-utils"
-import { error } from './stores'
+import { errorStore } from './stores'
 
 type Errors = Error
 
 export function handleError(e: Errors) {
-  error.set(e.toString())
+  errorStore.add(e.toString())
   console.error(e)
 }
 
@@ -38,12 +38,15 @@ export function filterBooks(repositories: RepositorySummary[], selectedRepo: str
 }
 
 export function readableDateTime(datetime: string): string {
-    return datetime.replace(
-        /(\d{4})-(\d{2})-(\d{2})T(\d{2}:\d{2}:\d{2}).*/,
-        ($0, $1, $2, $3, $4) => {
-          return `${$1}/${$2}/${$3} ${$4}`
-        }
-    )
+  // Problem: does not account for timezone
+  // return datetime.replace(
+  //     /(\d{4})-(\d{2})-(\d{2})T(\d{2}:\d{2}:\d{2}).*/,
+  //     ($0, $1, $2, $3, $4) => {
+  //       return `${$1}/${$2}/${$3} ${$4}`
+  //     }
+  // )
+  // Solution: convert to number using utc timezone, then convert to date
+  return (new Date(parseDateAddTZ(datetime))).toLocaleString()
 }
 
 export function mapImage(folder: string, name: string, type: string): string {
