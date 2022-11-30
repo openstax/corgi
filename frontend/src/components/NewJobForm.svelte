@@ -67,7 +67,7 @@
   <Label>Create New Job</Label>
 </Button>
 <script lang="ts">
-  import { onMount } from "svelte"
+  import { onMount, tick } from "svelte"
   import Checkbox from "@smui/checkbox";
   import FormField from "@smui/form-field";
   import Autocomplete from "@smui-extra/autocomplete";
@@ -164,10 +164,12 @@
     return matches
   });
 
-  function setSelectedRepo(selectedBook) {
+  async function setSelectedRepo(selectedBook) {
     if (selectedRepo) return
     const repo = repoSummaries.find((r) => r.books.find((b) => b === selectedBook));
-    selectedRepo = repo ? repoToString(repo) : selectedRepo;
+    // https://svelte.dev/tutorial/tick
+    await tick()
+    selectedRepo = repo ? repoToString(repo) : selectedRepo
   }
 
   onMount(async () => {
@@ -179,8 +181,9 @@
       }
       repoSummaries = updateRepoSummaries
     })
+    void repoSummariesStore.update()
   })
 
   $: validJob = selectedJobTypes.length !== 0 && !!selectedRepo && !!selectedBook
-  $: setSelectedRepo(selectedBook)
+  $: void setSelectedRepo(selectedBook)
 </script>
