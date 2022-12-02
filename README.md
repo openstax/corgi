@@ -184,4 +184,37 @@ The documentation is located in the [Releasing CORGI article]((https://openstax.
 The documentation is located in the [How to Deploy Web Hosting Pipeline article](https://openstax.atlassian.net/wiki/spaces/CE/pages/573538307/Deploying+the+web-hosting+pipeline) in our Confluence Documentation.
 ## Attribution
 
-A lot of the structure and ideas for this service come from Tiangolo's [full-stack-fastapi-postgres](https://github.com/tiangolo/full-stack-fastapi-postgresql) project. Thanks Tiangolo!
+A lot of the structure and ideas for this service come from Tiangolo's [full-stack-fastapi-postgres](https://github.com/tiangolo/full-stack-fastapi-postgresql) project with additional supporting software and ideas from [authlib](https://docs.authlib.org/en/latest/client/fastapi.html). Thanks Tiangolo and Authlib devs!
+
+## Login with GitHub Personal Access Token (PAT)
+For situations where it is difficult or impossible to login with a username and password, there is an alternative way to login with a GitHub PAT. To utilize this functionality:
+
+**Note:** the same restrictions apply to users regardless of login method (i.e. you do not gain additional permissions by logging in with a token).
+
+1. Create a GitHub PAT with at least the `read:user`, `read:org`, and `repo` scopes.
+2. Make a request to `/api/auth/login` with an additional header: `Authorization: Bearer <your-token>`
+3. Get the session cookie from the `set-cookie` header in the response.
+4. Make additional response with the session cookie.
+
+### Example
+
+```python
+import os
+import requests
+
+# Note: This example assumes you are running CORGI locally
+
+my_token = os.environ["TOKEN"]  # Don't hardcode secrets ;)
+
+response = requests.get(
+    "http://localhost/api/auth/login",
+    headers={"Authorization": f"Bearer {my_token}"})
+
+cookie = response.headers.get("set-cookie")
+assert cookie is not None, "Could not get session cookie"
+
+# Now you can use the cookie to make requests that require
+# a valid user session
+jobs = requests.get("http://localhost/api/jobs",
+                    headers={"Cookie": cookie})
+```
