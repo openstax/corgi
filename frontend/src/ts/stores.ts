@@ -1,16 +1,69 @@
-import { writable } from 'svelte/store'
-import type { RepositorySummary } from './types';
+import { derived, Writable, writable } from 'svelte/store'
+import { getJobs } from './jobs';
+import type { Job, RepositorySummary } from './types';
 import { fetchRepoSummaries } from './utils';
 
-export const errorStore = (() => {
-  const { subscribe, set } = writable([] as string[])
-  const errors: string[] = []
+type GConstructor<T = {}> = new (...args: any[]) => T
+type Updatable = GConstructor<{ update: () => Promise<void> }>
+type ErrorWithDate = { date: Date; error: string; }
+
+class APIStore<T> {
+  private fetching = false
+
+  constructor(
+    protected readonly baseStore: Writable<T>,
+    private readonly fetchValue: () => Promise<T>,
+    public readonly subscribe = baseStore.subscribe) { }
+
+  async update() {
+    if (this.fetching) {
+      return
+    }
+    try {
+      this.fetching = true
+      this.baseStore.set(await this.fetchValue())
+    } catch (e) {
+      errorStore.add(e.toString())
+    } finally {
+      this.fetching = false
+    }
+  }
+}
+
+const Pollable = <T extends Updatable>(Base: T) => (class extends Base {
+  private polling = undefined
+
+  startPolling(interval: number, force: boolean = false) {
+    if (this.polling !== undefined) {
+      if (force) {
+        clearInterval(this.polling)
+      } else {
+        throw new Error('Polling already running')
+      }
+    }
+    this.polling = setInterval(() => void this.update(), interval)
+  }
+
+  stopPolling() {
+    if (this.polling === undefined) {
+      throw new Error('Polling is not running')
+    }
+    clearInterval(this.polling)
+    this.polling = undefined
+  }
+})
+
+const baseErrorStore = (() => {
+  const { subscribe, set } = writable([] as ErrorWithDate[])
+  const errors: ErrorWithDate[] = []
   return {
     subscribe,
     add: (err: string) => {
-      const now = new Date()
-      errors.unshift(`${now.toLocaleTimeString()} - ${err}`)
-      set(errors)
+      // Do not report the same error multiple times in a row
+      if (errors[0]?.error !== err) {
+        errors.unshift({ date: new Date(), error: err })
+        set(errors)
+      }
     },
     clear: () => {
       errors.splice(0)
@@ -19,25 +72,16 @@ export const errorStore = (() => {
   }
 })()
 
-export const repoSummariesStore = (() => {
-  const { subscribe, set } = writable([] as RepositorySummary[])
-  let fetching = false
+export const errorStore = (() => {
+  const { subscribe } = derived(baseErrorStore, errors =>
+    errors.map(e => `${e.date.toLocaleTimeString()} - ${e.error}`)
+  )
+  // NOTE: The order is important here because we want to override `subscribe`
   return {
-    subscribe,
-    update: async () => {
-      if (fetching) {
-        return
-      }
-      try {
-        console.log("Fetching repository summaries")
-        fetching = true
-        set(await fetchRepoSummaries())
-      } catch (e) {
-        errorStore.add(e.toString())
-      } finally {
-        fetching = false
-      }
-    }
+    ...baseErrorStore,
+    subscribe
   }
 })()
 
+export const repoSummariesStore = new APIStore<RepositorySummary[]>(writable([]), fetchRepoSummaries)
+export const jobsStore = new (Pollable(APIStore<Job[]>))(writable([]), getJobs)

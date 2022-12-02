@@ -1,5 +1,6 @@
 <Dialog
   bind:open
+  bind:fullscreen={isErrorDialog}
   sheet
 >
   {#if selectedJob}
@@ -7,7 +8,7 @@
       <Title>Job #{selectedJob.id}</Title>
     </Header>
     <Content>
-      {#if selectedJob.status.name == "completed"}
+      {#if selectedJob.status.name === "completed"}
         {#each selectedJob.artifact_urls as artifact}
           <a
             href={artifact.url}
@@ -16,13 +17,18 @@
           >{artifact.slug}</a>
           <br>
         {/each}
-      {:else if selectedJob.status.name === "failed"}
+      {:else if isErrorDialog}
         {#await getErrorMessage(selectedJob.id)}
           <h3>Fetching error</h3>
           <CircularProgress style="height: 32px; width: 32px;" indeterminate />
         {:then error_message}
           <h3>Error:</h3>
-          <pre>{error_message}</pre>
+          {#each error_message.trim().split('\n') as line, i}
+           <div class="error-line">
+            <span class="number">{(i + 1).toString().padStart(5, ' ')}</span>
+            {line}
+          </div>
+          {/each}
         {:catch requestError}
           <h3>Something went wrong:</h3>
           {requestError.message}
@@ -62,4 +68,23 @@
 
   export let selectedJob: Job
   export let open
+  let isErrorDialog
+  $: isErrorDialog = selectedJob?.status.name === "failed"
 </script>
+
+<style>
+  .error-line {
+    white-space: pre-line;
+    line-height: 1.5;
+    font-size: 0.6em;
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  .error-line > .number {
+    white-space: pre;
+    font-weight: bold;
+    padding: 2px;
+    background-color: #ccc;
+    user-select: none;
+  }
+</style>

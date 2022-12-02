@@ -4,6 +4,9 @@
     type="email"
     search={searchRepos}
     bind:text={selectedRepo}
+    on:focus={e => {
+      e.detail.target.select()
+    }}
     clearOnBlur={false}
     updateInvalid
     label="Repo"
@@ -13,13 +16,15 @@
     id="book-input"
     search={searchBooks}
     bind:text={selectedBook}
-    on:focus={() => {
+    on:focus={e => {
       if (selectedRepo !== previousRepo) {
         // The autocomplete component only runs search again when its value
         // changes. To deal with this problem, toggle between null and ''
         // when we want to force updates
         selectedBook = selectedBook == null ? '' : null
         previousRepo = selectedRepo
+      } else {
+        e.detail.target.select()
       }
     }}
     clearOnBlur={false}
@@ -30,6 +35,9 @@
     id="version-input"
     clearOnBlur={false}
     bind:text={selectedVersion}
+    on:focus={e => {
+      e.detail.target.select()
+    }}
     label="Version"
   />
 </div>
@@ -93,7 +101,10 @@
     selectedJobTypes: string[]
   ) => Promise<void>
 
-      let previousRepo: string
+  let repoAutocomplete
+  let bookAutocomplete
+  let versionAutocomplete
+  let previousRepo: string
   let validJob = false
 
   let repoSummaries: RepositorySummary[] = []
@@ -170,6 +181,7 @@
     // https://svelte.dev/tutorial/tick
     await tick()
     selectedRepo = repo ? repoToString(repo) : selectedRepo
+    previousRepo = selectedRepo
   }
 
   onMount(async () => {

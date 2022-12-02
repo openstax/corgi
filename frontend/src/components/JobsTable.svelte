@@ -220,7 +220,7 @@
   import IconButton from "@smui/icon-button";
   import { Label } from "@smui/common";
   import Button from "@smui/button";
-  import { repoSummariesStore } from "../ts/stores";
+  import { repoSummariesStore, jobsStore } from "../ts/stores";
 
   import type { Job, JobType } from "../ts/types";
   import DetailsDialog from "./DetailsDialog.svelte";
@@ -249,9 +249,8 @@
   let sort: keyof Job = "id";
   let sortDirection: Lowercase<keyof typeof SortValue> = "descending";
 
-    const jobStartRateLimitDurationMillis = 1000;
+  const jobStartRateLimitDurationMillis = 1000;
   let lastJobStartTime = Date.now();
-  let polling;
 
   enum JobTypeId {
     PDF = 3,
@@ -282,16 +281,11 @@
       })
     );
     setTimeout(async () => {
-      jobs = await getJobs();
-      void repoSummariesStore.update()
+      await Promise.all([
+        jobsStore.update(),
+        repoSummariesStore.update()
+      ])
     }, 1 * SECONDS);
-  }
-
-  // Job polling
-  function pollData() {
-    polling = setInterval(async () => {
-      jobs = await getJobs();
-    }, 10 * SECONDS);
   }
 
   // Pagination
@@ -362,8 +356,9 @@
   $: slice = sortedRows.slice(start, end);
 
   onMount(async () => {
-    jobs = await getJobs();
-    pollData();
+    jobsStore.subscribe(updatedJobs => jobs = updatedJobs)
+    await jobsStore.update()
+    jobsStore.startPolling(10 * SECONDS)
   });
 </script>
 
