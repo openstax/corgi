@@ -104,16 +104,21 @@
             {/if}
           </Cell>
           <Cell>
-            {item.version === null ? "main" : item.version.slice(0, 7)}
+            <a
+              href={getVersionLink(item)}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {item.version.slice(0, 7)}
+            </a>
           </Cell>
           <Cell>
             <Wrapper>
               <img
                 alt={item.status.name}
                 src={mapImage("job_status", item.status.name, "svg")}
-                class={statusStyles[item.status.name]}
+                class={getStatusStyle(item)}
               />
-              <!-- style="max-height: 30px; color: greenyellow" -->
               <Tooltip>{item.status.name}</Tooltip>
             </Wrapper>
           </Cell>
@@ -202,7 +207,8 @@
     mapImage,
     handleError,
     repoToString,
-    readableDateTime
+    readableDateTime,
+    parseDateTimeAsUTC
   } from "../ts/utils";
   import NewJobForm from "./NewJobForm.svelte";
   import { submitNewJob, getJobs } from "../ts/jobs";
@@ -227,11 +233,11 @@
   import { SECONDS } from "../ts/time";
 
   let statusStyles = {
-    queued: "filter-yellow rock",
-    assigned: "filter-yellow rock",
+    queued: "filter-yellow",
+    assigned: "filter-yellow pulse",
     processing: "filter-yellow rock",
     failed: "filter-red",
-    completed: "filter-green bounce",
+    completed: "filter-green",
     aborted: "filter-red",
   };
 
@@ -286,6 +292,22 @@
         repoSummariesStore.update()
       ])
     }, 1 * SECONDS);
+  }
+
+  function getStatusStyle(job: Job) {
+    const statusName = job.status.name
+    if (statusName === "completed") {
+      return (
+        (Date.now() - parseDateTimeAsUTC(job.updated_at)) < (30 * SECONDS)
+          ? `${statusStyles[statusName]} bounce`
+          : statusStyles[statusName]
+      )
+    }
+    return statusStyles[statusName]
+  }
+
+  function getVersionLink(job: Job) {
+    return `https://github.com/${repoToString(job.repository, true)}/tree/${job.version}`
   }
 
   // Pagination
@@ -389,6 +411,10 @@
     100%{transform:translateX(0px) rotate(0deg)} 
   }
 
+  @keyframes pulse-frames {
+    50%{transform:scale(0.90)}
+  }
+
   .spin {
     animation-name: spin-frames;
     animation-duration: 1.5s;
@@ -407,6 +433,13 @@
     animation-name: rock-frames;
     animation-duration: 1.5s;
     animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  }
+
+  .pulse {
+    animation-name: pulse-frames;
+    animation-duration: 1.5s;
+    animation-iteration-count: 2;
     animation-timing-function: linear;
   }
 
