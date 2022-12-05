@@ -8,8 +8,8 @@ RUN apt-get update -qq \
 
 FROM openstax/python3-poetry:20220614.214642 as dev-builder
 
-# copy files
-COPY ./app /build/
+# Only include pyproject and poetry.lock in cache invalidation
+COPY ./app/pyproject.toml ./app/poetry.lock /build/
 
 # change working directory
 WORKDIR /build

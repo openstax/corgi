@@ -20,8 +20,8 @@ export async function fetchRepoSummaries(): Promise<RepositorySummary[]> {
   return repoSummaries
 }
 
-export function repoToString(repo: Repository) {
-  return repo.owner === 'openstax'
+export function repoToString(repo: Repository, fullyQualified = false) {
+  return !fullyQualified && repo.owner === 'openstax'
     ? repo.name
     : `${repo.owner}/${repo.name}`
 }
@@ -46,7 +46,7 @@ export function readableDateTime(datetime: string): string {
   //     }
   // )
   // Solution: convert to number using utc timezone, then convert to date
-  return (new Date(parseDateAddTZ(datetime))).toLocaleString()
+  return (new Date(parseDateTimeAsUTC(datetime))).toLocaleString()
 }
 
 export function mapImage(folder: string, name: string, type: string): string {
@@ -62,17 +62,20 @@ export function isJobComplete(job: Job): boolean {
   return parseInt(job.status.id) >= 4
 }
 
-function parseDateAddTZ(time: string, tzOffset: string = '+00:00') {
-  return Date.parse(time + tzOffset)
+export function parseDateTimeAddTZ(dateTime: string, tzOffset: string) {
+  return Date.parse(dateTime + tzOffset)
 }
 
-export function calculateElapsed(job: Job): string{
-  // let start_time = new Date(job.created_at)
-  let update_time = isJobComplete(job)
-    ? parseDateAddTZ(job.updated_at)
+export function parseDateTimeAsUTC(dateTime: string) {
+  return parseDateTimeAddTZ(dateTime, '+00:00')
+}
+
+export function calculateElapsed(job: Job): string {
+  const update_time = isJobComplete(job)
+    ? parseDateTimeAsUTC(job.updated_at)
     : Date.now()
-  let start_time = parseDateAddTZ(job.created_at)
-  let elapsed = (update_time - start_time) / 1000
+  const start_time = parseDateTimeAsUTC(job.created_at)
+  const elapsed = (update_time - start_time) / 1000
   const hours = Math.floor(elapsed / 3600).toString().padStart(2, '0')
   const minutes = (Math.floor(elapsed / 60) % 60).toString().padStart(2, '0')
   const seconds = (Math.floor(elapsed) % 60).toString().padStart(2, '0')

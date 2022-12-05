@@ -115,6 +115,9 @@ class JobsService(ServiceBase):
         if repo_book_in is not None:
             if not any(b["slug"] == repo_book_in for b in repo_books):
                 raise CustomBaseError(f"Book not in repository '{repo_book_in}'")
+        else:
+            # Until we can build multiple books
+            raise CustomBaseError("Book is required")
         repo_lock = self._locks_by_name.get(repo_name, None)
         if repo_lock is None:
             repo_lock = self._locks_by_name[repo_name] = CountedLock()
