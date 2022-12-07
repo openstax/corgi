@@ -1,4 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from httpx import HTTPStatusError
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -35,3 +37,11 @@ server.add_middleware(
     https_only=not config.IS_DEV_ENV)
 
 server.add_middleware(DBSessionMiddleware)
+
+
+@server.exception_handler(HTTPStatusError)
+async def unauthorized_exception_handler(request: Request, exc: HTTPStatusError):
+    status_code = exc.response.status_code
+    if status_code == 401 or status_code == 403:
+        del request.session["user"]
+        return JSONResponse(status_code=status_code)

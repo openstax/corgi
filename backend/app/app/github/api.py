@@ -7,6 +7,8 @@ from app.core.errors import CustomBaseError
 from app.data_models.models import UserSession
 from app.github.client import AuthenticatedClient
 from app.github.models import GitHubRepo
+from app.xml_utils import get_attr, xpath_some, parse_xml_doc
+
 from lxml import etree
 
 
@@ -67,10 +69,10 @@ async def get_book_repository(
     commit_timestamp = commit["committedDate"]
     fixed_timestamp = f"{commit_timestamp[:-1]}+00:00"
     books_xml = commit["file"]["object"]["text"]
-    meta = etree.fromstring(books_xml, parser=None)
+    meta = parse_xml_doc(books_xml)
 
-    books = [{k: el.attrib[k] for k in ("slug", "style")}
-             for el in meta.xpath("//*[local-name()='book']")]
+    books = [{k: get_attr(el, k) for k in ("slug", "style")}
+             for el in xpath_some(meta, "//*[local-name()='book']")]
     return (repo, commit_sha, datetime.fromisoformat(fixed_timestamp), books)
 
 
@@ -78,7 +80,7 @@ async def get_collections(
         client: AuthenticatedClient,
         repo_name: str,
         repo_owner: str,
-        commit_sha: str) -> Dict[str, str]:
+        commit_sha: str) -> Dict[str, etree.ElementBase]:
     query = f"""
         query {{
             repository(name: "{repo_name}", owner: "{repo_owner}") {{
@@ -106,7 +108,7 @@ async def get_collections(
     payload = await graphql(client, query)
     files_entries = (payload["data"]["repository"]["object"]["file"]["object"]
                      ["entries"])
-    return {entry["name"]: entry["object"]["text"]
+    return {entry["name"]: parse_xml_doc(entry["object"]["text"])
             for entry in files_entries}
 
 
