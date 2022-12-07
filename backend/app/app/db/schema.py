@@ -80,7 +80,6 @@ class Book(Base):
                       name='_book_to_commit'),)
 
 
-
 class User(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     name = sa.Column(sa.String, nullable=False)

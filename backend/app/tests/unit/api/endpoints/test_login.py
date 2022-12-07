@@ -18,6 +18,21 @@ def test_login_success(testclient, mock_login_success):
     assert str(ACCESS_TOKEN_EXPIRE_MINUTES * 60) in cookie
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
+def test_login_success_token(testclient, mock_login_success):
+    response = testclient.get(
+        f"/api/auth/token-login",
+        allow_redirects=False,
+        headers={
+            "authorization": "Bearer fake-token"})
+    assert response.status_code == 200
+    cookie = response.headers.get("set-cookie")
+    assert cookie is not None
+    assert "session=" in cookie
+    assert str(ACCESS_TOKEN_EXPIRE_MINUTES * 60) in cookie
+
+
 def get_mock_authenticate(exc):
     async def mock_authenticate(*_):
         raise exc

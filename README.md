@@ -192,7 +192,7 @@ For situations where it is difficult or impossible to login with a username and 
 **Note:** the same restrictions apply to users regardless of login method (i.e. you do not gain additional permissions by logging in with a token).
 
 1. Create a GitHub PAT with at least the `read:user`, `read:org`, and `repo` scopes.
-2. Make a request to `/api/auth/login` with an additional header: `Authorization: Bearer <your-token>`
+2. Make a request to `/api/auth/token-login` with an additional header: `Authorization: Bearer <your-token>`
 3. Get the session cookie from the `set-cookie` header in the response.
 4. Make additional response with the session cookie.
 
@@ -207,7 +207,7 @@ import requests
 my_token = os.environ["TOKEN"]  # Don't hardcode secrets ;)
 
 response = requests.get(
-    "http://localhost/api/auth/login",
+    "http://localhost/api/auth/token-login",
     headers={"Authorization": f"Bearer {my_token}"})
 
 cookie = response.headers.get("set-cookie")
