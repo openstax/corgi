@@ -7,6 +7,7 @@ from app.data_models.models import UserSession
 from app.db.utils import get_db
 from app.github import (AccessDeniedError, authenticate_client, get_user,
                         github_oauth, sync_user_data)
+from app.core.errors import CustomBaseError
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from httpx import AsyncClient
@@ -57,6 +58,16 @@ async def authenticate_user(request: Request, db: Session):
         user = await get_user(client, token)
         await sync_user_data(client, db, user)
     return user
+
+
+@router.get("/token-login")
+async def token_login(request: Request):
+    access_token = request.headers.get("authorization", None)
+    if access_token is not None:
+        token = access_token.split(" ")[1]
+        return await handle_auth_errors(authenticate_token_user(request, token))
+    else:
+        raise CustomBaseError("Missing required token")
 
 
 @router.get("/login")

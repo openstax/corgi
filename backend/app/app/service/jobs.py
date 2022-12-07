@@ -16,6 +16,8 @@ from app.github import (AuthenticatedClient, get_book_repository,
 from app.service.base import ServiceBase
 from app.service.repository import repository_service
 from app.service.user import user_service
+from app.xml_utils import xpath1
+
 from lxml import etree
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -49,7 +51,7 @@ def get_or_create_repository(
     db_repo = cast(Optional[Repository], db.query(Repository).filter(
         Repository.name == repo_name,
         Repository.owner == repo_owner).first())
-    # If not, fetch it, record it, and associate it with the user
+    # If not, record it and associate it with the user
     if db_repo is None:
         db_repo = Repository(
             id=github_repo.database_id,
@@ -65,13 +67,14 @@ def add_books_to_commit(
         db: Session,
         commit: Commit,
         repo_books: List[dict],
-        collections_by_name: Dict[str, str]):
+        collections_by_name: Dict[str, etree.ElementBase]):
     for repo_book in repo_books:
         slug = repo_book["slug"]
         style = repo_book["style"]
-        collection_xml = collections_by_name[f"{slug}.collection.xml"]
-        collection = etree.fromstring(collection_xml, parser=None)
-        uuid = collection.xpath("//*[local-name()='uuid']")[0].text
+        collection = collections_by_name[f"{slug}.collection.xml"]
+        uuid = xpath1(collection, "//*[local-name()='uuid']").text
+        if not uuid:
+            raise CustomBaseError("Could not get uuid from collection xml")
         # TODO: Edition should be either nullable or in a different table
         db_book = Book(uuid=uuid, slug=slug, edition=0, style=style)
         commit.books.append(db_book)

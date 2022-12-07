@@ -47,6 +47,7 @@ async def test_get_book_repository(monkeypatch, mock_github_api):
 
 @pytest.mark.asyncio
 async def test_get_book_collections(monkeypatch, mock_github_api):
+    from lxml import etree
     exc = None
     collections = None
     try:
@@ -58,7 +59,7 @@ async def test_get_book_collections(monkeypatch, mock_github_api):
     assert exc is None
     assert isinstance(collections, dict)
     assert "book-slug1.collection.xml" in collections
-    assert isinstance(collections["book-slug1.collection.xml"], str)
+    assert collections["book-slug1.collection.xml"] is not None
     assert len(collections["book-slug1.collection.xml"]) > 0
 
 

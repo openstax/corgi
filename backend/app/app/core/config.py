@@ -41,4 +41,4 @@ ADMIN_TEAMS = ("ce-tech", "ce-admins", "content-managers")
 
 # To encrypt session cookie
 SESSION_SECRET = os.getenv("SESSION_SECRET")
-ACCESS_TOKEN_EXPIRE_MINUTES = 120
+ACCESS_TOKEN_EXPIRE_MINUTES = 480
