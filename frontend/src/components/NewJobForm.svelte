@@ -196,6 +196,6 @@
     void repoSummariesStore.update()
   })
 
-  $: validJob = selectedJobTypes.length !== 0 && !!selectedRepo && !!selectedBook
+  $: validJob = selectedJobTypes.length !== 0 && !!selectedRepo?.trim() && !!selectedBook?.trim()
   $: void setSelectedRepo(selectedBook)
 </script>

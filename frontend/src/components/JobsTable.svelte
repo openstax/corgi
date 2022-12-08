@@ -163,7 +163,7 @@
         </Select>
       </svelte:fragment>
       <svelte:fragment slot="total">
-        {start + 1}-{end} of {jobs.length}
+        {start + 1}-{end} of {sortedRows.length}
       </svelte:fragment>
 
       <IconButton
@@ -314,8 +314,8 @@
   let rowsPerPage = 10;
   let currentPage = 0;
   $: start = currentPage * rowsPerPage;
-  $: end = Math.min(start + rowsPerPage, jobs.length);
-  $: lastPage = Math.max(Math.ceil(jobs.length / rowsPerPage) - 1, 0);
+  $: end = Math.min(start + rowsPerPage, sortedRows.length);
+  $: lastPage = Math.max(Math.ceil(sortedRows.length / rowsPerPage) - 1, 0);
   $: if (currentPage > lastPage) {
     currentPage = lastPage;
   }
