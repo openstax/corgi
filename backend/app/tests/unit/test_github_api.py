@@ -3,6 +3,8 @@ import pytest
 from httpx import AsyncClient
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 @pytest.mark.asyncio
 async def test_get_user_and_teams(monkeypatch, mock_github_api):
     from app.data_models.models import UserSession
@@ -21,6 +23,8 @@ async def test_get_user_and_teams(monkeypatch, mock_github_api):
     assert len(teams) > 0
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 @pytest.mark.asyncio
 async def test_get_book_repository(monkeypatch, mock_github_api):
     from datetime import datetime
@@ -45,6 +49,8 @@ async def test_get_book_repository(monkeypatch, mock_github_api):
     assert len(books) > 0
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 @pytest.mark.asyncio
 async def test_get_book_collections(monkeypatch, mock_github_api):
     from lxml import etree
@@ -63,6 +69,8 @@ async def test_get_book_collections(monkeypatch, mock_github_api):
     assert len(collections["book-slug1.collection.xml"]) > 0
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 @pytest.mark.asyncio
 async def test_get_user_repositories(monkeypatch, mock_github_api):
     from app.github import GitHubRepo

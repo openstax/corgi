@@ -6,12 +6,14 @@ from starlette.testclient import TestClient
 
 @pytest.fixture
 def mock_github_api():
+    """Uses vcr to fake responses from GitHub API"""
     from tests.unit.init_test_data import (mock_get_book_repository,
                                            mock_get_collections,
                                            mock_get_user,
                                            mock_get_user_repositories,
                                            mock_get_user_teams)
 
+    # Namespace functions in a class purely for ease of use
     class MockGitHubAPI:
         get_user = mock_get_user
         get_user_teams = mock_get_user_teams
@@ -24,6 +26,7 @@ def mock_github_api():
 
 @pytest.fixture
 def fake_data():
+    """Mock database data"""
     from datetime import datetime, timezone
     from typing import cast
 

@@ -1,6 +1,10 @@
+import pytest
+
 from app.data_models.models import RepositorySummary
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 def test_repositories(monkeypatch, testclient_with_session,
                       mock_user_service, fake_data):
     monkeypatch.setattr("app.api.endpoints.github.user_service",
