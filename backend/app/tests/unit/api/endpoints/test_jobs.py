@@ -3,6 +3,8 @@ import pytest
 from app.data_models.models import Job, JobMin
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 def test_get_jobs(
         monkeypatch,
         testclient_with_session,
@@ -20,6 +22,8 @@ def test_get_jobs(
     assert Job(**first) == Job.from_orm(fake_data.FAKE_JOB)
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 def test_check_jobs_no_query(
         monkeypatch,
         testclient_with_session,
@@ -45,6 +49,8 @@ def test_check_jobs_no_query(
     assert JobMin(**first) == JobMin.from_orm(fake_data.FAKE_JOB)
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 def test_check_jobs_with_status_id(
         monkeypatch,
         testclient_with_session,
@@ -67,6 +73,8 @@ def test_check_jobs_with_status_id(
     assert len(payload) == 0
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 def test_check_jobs_with_job_type(
         monkeypatch,
         testclient_with_session,
@@ -89,6 +97,8 @@ def test_check_jobs_with_job_type(
     assert len(payload) == 0
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 def test_get_job(
         monkeypatch,
         testclient_with_session,
@@ -104,6 +114,8 @@ def test_get_job(
     assert Job(**payload) == Job.from_orm(fake_data.FAKE_JOB)
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 def test_get_job_404(
         monkeypatch,
         testclient_with_session,
@@ -121,6 +133,8 @@ def test_get_job_404(
     assert response.status_code == 404
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 def test_create_job(
         monkeypatch,
         testclient_with_session,
@@ -137,6 +151,8 @@ def test_create_job(
     assert Job(**payload) == Job.from_orm(fake_data.FAKE_JOB)
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 def test_update_job(
         monkeypatch,
         testclient_with_session,
@@ -154,6 +170,8 @@ def test_update_job(
     assert Job(**payload) == updated_job
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 @pytest.mark.parametrize("original_status_id", [4, 5, 6])
 def test_update_job_ignore_status_id(
         original_status_id,
@@ -183,6 +201,8 @@ def test_update_job_ignore_status_id(
     assert Job(**payload) == updated_job
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 def test_update_job_404(
         monkeypatch,
         testclient_with_session,
@@ -199,6 +219,8 @@ def test_update_job_404(
     assert response.status_code == 404
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 def test_get_job_error(
         monkeypatch,
         testclient_with_session,
@@ -214,6 +236,8 @@ def test_get_job_error(
     assert payload == ""
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 def test_get_job_error_404(
         monkeypatch,
         testclient_with_session,

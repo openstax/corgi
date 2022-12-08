@@ -47,6 +47,8 @@ def mock_repository_service(monkeypatch):
                         MockRepositoryService())
 
 
+@pytest.mark.unit
+@pytest.mark.nondestructive
 @pytest.mark.asyncio
 async def test_sync_user_data(mock_get_user_repositories, mock_user_service,
                               mock_repository_service):
