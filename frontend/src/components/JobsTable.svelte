@@ -211,7 +211,7 @@
     parseDateTimeAsUTC
   } from "../ts/utils";
   import NewJobForm from "./NewJobForm.svelte";
-  import { submitNewJob, getJobs } from "../ts/jobs";
+  import { submitNewJob } from "../ts/jobs";
   import type { Repository } from "../ts/types";
   import { onMount } from "svelte";
   import DataTable, {
