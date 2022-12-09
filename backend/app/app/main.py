@@ -6,6 +6,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.api import api_router
 from app.core import config
+from app.core.errors import CustomBaseError
 from app.middleware import DBSessionMiddleware
 
 server = FastAPI(title="CORGI - Content Output Review and Generation Interface")
@@ -40,8 +41,15 @@ server.add_middleware(DBSessionMiddleware)
 
 
 @server.exception_handler(HTTPStatusError)
-async def unauthorized_exception_handler(request: Request, exc: HTTPStatusError):
+async def unauthorized_exception_handler(
+        request: Request,
+        exc: HTTPStatusError):
     status_code = exc.response.status_code
     if status_code == 401 or status_code == 403:
         del request.session["user"]
         return JSONResponse(status_code=status_code)
+
+
+@server.exception_handler(CustomBaseError)
+async def custom_base_error_handler(_: Request, cbe: CustomBaseError):
+    return JSONResponse(status_code=500, content={"detail": str(cbe)})

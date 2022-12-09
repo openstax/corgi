@@ -53,7 +53,6 @@ async def test_get_book_repository(monkeypatch, mock_github_api):
 @pytest.mark.nondestructive
 @pytest.mark.asyncio
 async def test_get_book_collections(monkeypatch, mock_github_api):
-    from lxml import etree
     exc = None
     collections = None
     try:

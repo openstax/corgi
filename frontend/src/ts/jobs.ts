@@ -2,6 +2,7 @@ import { handleError, repoToString } from "./utils"
 import type { Job } from "./types"
 import { RequireAuth } from "./fetch-utils"
 import { SECONDS } from "./time"
+import { jobsStore } from "./stores"
 
 export async function submitNewJob (
   jobTypeId: string,
@@ -29,8 +30,8 @@ export async function submitNewJob (
           name: repo,
           owner: owner,
         },
-        book: book ? book.trim() : null,
-        version: null || version //(optional)
+        book: book?.trim() || null,
+        version: version?.trim() || null //(optional)
       }
 
       const options = {
@@ -71,7 +72,7 @@ export async function submitNewJob (
       }
 
       await RequireAuth.fetch(`/api/jobs/${jobId}`, options)
-      setTimeout(() => { getJobs() }, 1 * SECONDS)
+      setTimeout(() => { void jobsStore.update() }, 1 * SECONDS)
     } catch (error) {
       handleError(error)
     }

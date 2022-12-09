@@ -34,7 +34,7 @@ def test_jobs_cru(
     }
 
     # WHEN: A POST request is made to the url with data
-    response = testclient.post(f"{api_url}/{ENDPOINT}", json=data)
+    response = testclient.post(f"{api_url}/{ENDPOINT}/", json=data)
 
     # THEN: A 200 code is returned
     assert response.status_code == 200

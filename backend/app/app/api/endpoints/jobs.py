@@ -74,11 +74,8 @@ async def create_job(
         job_in: JobCreate):
     """Create new job"""
     async with github_client(user) as client:
-        try:
-            job = await jobs_service.create(client, db, job_in, user)
-            return job
-        except CustomBaseError as cbe:  # pragma: no cover
-            raise HTTPException(status_code=500, detail=str(cbe))
+        job = await jobs_service.create(client, db, job_in, user)
+        return job
 
 
 @router.put("/{id}", response_model=Job)
