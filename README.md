@@ -200,21 +200,21 @@ For situations where it is difficult or impossible to login with a username and 
 
 ```python
 import os
+
 import requests
 
 # Note: This example assumes you are running CORGI locally
 
 my_token = os.environ["TOKEN"]  # Don't hardcode secrets ;)
 
-response = requests.get(
-    "http://localhost/api/auth/token-login",
-    headers={"Authorization": f"Bearer {my_token}"})
-
-cookie = response.headers.get("set-cookie")
-assert cookie is not None, "Could not get session cookie"
-
-# Now you can use the cookie to make requests that require
-# a valid user session
-jobs = requests.get("http://localhost/api/jobs",
-                    headers={"Cookie": cookie})
+with requests.session() as session:
+    response = session.get(
+        "http://localhost/api/auth/token-login",
+        headers={"Authorization": f"Bearer {my_token}"})
+    assert response.cookies.get("session", None) is not None, \
+           "Could not get session cookie"
+    # Now your cookie will be used to make requests that require a valid user
+    # session
+    jobs = session.get("http://localhost/api/jobs")
+    print(jobs.json())
 ```

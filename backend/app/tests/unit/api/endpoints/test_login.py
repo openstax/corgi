@@ -1,5 +1,7 @@
 import pytest
+
 from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES
+from app.core.errors import CustomBaseError
 from app.github.api import AccessDeniedError
 
 
@@ -33,24 +35,38 @@ def test_login_success_token(testclient, mock_login_success):
     assert str(ACCESS_TOKEN_EXPIRE_MINUTES * 60) in cookie
 
 
-def get_mock_authenticate(exc):
-    async def mock_authenticate(*_):
-        raise exc
-    return mock_authenticate
+@pytest.mark.unit
+@pytest.mark.nondestructive
+@pytest.mark.parametrize(
+    "headers",
+    [{},
+     {"Authorization": ""},
+     {"Authorization": "bad-format"}]
+)
+def test_login_failure_token(testclient, mock_login_success, headers):
+    response = testclient.get(
+        f"/api/auth/token-login",
+        allow_redirects=False,
+        headers=headers)
+    assert response.status_code == 500
 
 
 @pytest.mark.unit
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
-    "mock_authenticate,status_code,text",
-    [(get_mock_authenticate(AccessDeniedError), 403, "Forbidden"),
-     (get_mock_authenticate(Exception("test")), 500,
-      "Could not authenticate")]
+    "exc,status_code,text",
+    [(AccessDeniedError, 403, "Forbidden"),
+     (CustomBaseError("???"), 500, "???"),
+     (Exception("???"), 500, "Could not authenticate")]
 )
-def test_login_exception(testclient, monkeypatch, mock_authenticate,
+def test_login_exception(testclient, monkeypatch, exc,
                          status_code, text):
+    def get_mock_authenticate(exc):
+        async def mock_authenticate(*_):
+            raise exc
+        return mock_authenticate
     monkeypatch.setattr("app.api.endpoints.auth.authenticate_user",
-                        mock_authenticate)
+                        get_mock_authenticate(exc))
 
     response = testclient.get("/api/auth/callback", allow_redirects=False)
     assert response.status_code == status_code

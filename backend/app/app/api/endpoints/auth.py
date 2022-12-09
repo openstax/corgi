@@ -33,13 +33,15 @@ async def handle_auth_errors(thunk: Awaitable):
     except AccessDeniedError:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail='Forbidden'
+            detail="Forbidden"
         )
+    except CustomBaseError:
+        raise
     except Exception as e:
         logging.error(e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail='Could not authenticate'
+            detail="Could not authenticate"
         )
 
 

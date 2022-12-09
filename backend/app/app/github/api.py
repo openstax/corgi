@@ -63,7 +63,7 @@ async def get_book_repository(
                       database_id=repository["databaseId"],
                       viewer_permission=repository["viewerPermission"])
     commit = repository["object"]
-    if commit is None:
+    if commit is None:  # pragma: no cover
         raise CustomBaseError(f"Could not find commit '{version}'")
     commit_sha = commit["oid"]
     commit_timestamp = commit["committedDate"]

@@ -76,14 +76,14 @@
   .error-line {
     white-space: pre-line;
     line-height: 1.5;
-    font-size: 0.6em;
+    font-size: 12pt;
     font-family: 'Courier New', Courier, monospace;
   }
 
   .error-line > .number {
     white-space: pre;
     font-weight: bold;
-    padding: 2px;
+    padding: 3px 2px;
     background-color: #ccc;
     user-select: none;
   }

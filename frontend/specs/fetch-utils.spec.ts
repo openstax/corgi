@@ -1,4 +1,4 @@
-import { expect, describe, it, beforeEach, jest } from '@jest/globals';
+import { expect, describe, it, jest } from '@jest/globals';
 import { RequireAuth } from '../src/ts/fetch-utils'
 
 describe('fetch', () => {
