@@ -2,7 +2,7 @@ from typing import cast, Any
 
 import pytest
 from app.data_models.models import Role, UserSession
-from app.github import GitHubRepo, sync_user_data
+from app.github import GitHubRepo, sync_user_repositories
 
 
 FAKE_USER = UserSession(id=1, token="fake", role=Role.ADMIN, avatar_url="",
@@ -50,14 +50,16 @@ def mock_repository_service(monkeypatch):
 @pytest.mark.unit
 @pytest.mark.nondestructive
 @pytest.mark.asyncio
-async def test_sync_user_data(mock_get_user_repositories, mock_user_service,
-                              mock_repository_service):
+async def test_sync_user_repositories(
+        mock_get_user_repositories,
+        mock_user_service,
+        mock_repository_service):
     # cast here to get the type checker to ignore
     fake_client = cast(Any, None)
     fake_db = cast(Any, None)
     exception = None
     try:
-        await sync_user_data(fake_client, fake_db, FAKE_USER)
+        await sync_user_repositories(fake_client, fake_db, FAKE_USER)
     except Exception as e:
         exception = e
     assert exception is None

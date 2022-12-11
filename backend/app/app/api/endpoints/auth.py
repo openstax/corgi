@@ -1,13 +1,14 @@
 import logging
-from typing import Awaitable
 from datetime import datetime, timedelta, timezone
+from typing import Awaitable
 
 from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES, IS_DEV_ENV
+from app.core.errors import CustomBaseError
 from app.data_models.models import UserSession
 from app.db.utils import get_db
 from app.github import (AccessDeniedError, authenticate_client, get_user,
-                        github_oauth, sync_user_data)
-from app.core.errors import CustomBaseError
+                        github_oauth, sync_user_repositories)
+from app.service.user import user_service
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from httpx import AsyncClient
@@ -45,10 +46,11 @@ async def handle_auth_errors(thunk: Awaitable):
         )
 
 
-async def authenticate_token_user(request: Request, token: str):
+async def authenticate_token_user(request: Request, token: str, db: Session):
     async with AsyncClient() as client:
         client = authenticate_client(client, token)
         user = await get_user(client, token)
+        user_service.upsert_user(db, user)
         set_user_session_cookie(request, user)
 
 
@@ -58,16 +60,18 @@ async def authenticate_user(request: Request, db: Session):
     async with AsyncClient() as client:
         client = authenticate_client(client, token)
         user = await get_user(client, token)
-        await sync_user_data(client, db, user)
+        user_service.upsert_user(db, user)
+        await sync_user_repositories(client, db, user)
     return user
 
 
 @router.get("/token-login")
-async def token_login(request: Request):
+async def token_login(request: Request, db: Session = Depends(get_db)):
     access_token = request.headers.get("authorization", None)
     if access_token is not None:
-        token = access_token.split(" ")[1]
-        return await handle_auth_errors(authenticate_token_user(request, token))
+        token = access_token.split("Bearer ")[1]
+        return await handle_auth_errors(
+            authenticate_token_user(request, token, db))
     else:
         raise CustomBaseError("Missing required token")
 
