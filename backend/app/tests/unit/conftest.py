@@ -143,7 +143,11 @@ def mock_oauth_redirect(monkeypatch, fake_data):
 
 
 @pytest.fixture
-def mock_login_success(monkeypatch, mock_oauth_redirect, mock_github_api):
+def mock_login_success(
+        monkeypatch,
+        mock_user_service,
+        mock_oauth_redirect,
+        mock_github_api):
 
     async def nop(*_args, **_kwargs):
         pass
@@ -155,7 +159,9 @@ def mock_login_success(monkeypatch, mock_oauth_redirect, mock_github_api):
         "app.github.api.get_user_teams",
         mock_github_api.get_user_teams)
     monkeypatch.setattr(
-        "app.api.endpoints.auth.sync_user_data", nop)
+        "app.api.endpoints.auth.user_service", mock_user_service)
+    monkeypatch.setattr(
+        "app.api.endpoints.auth.sync_user_repositories", nop)
 
 
 @pytest.fixture
