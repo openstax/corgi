@@ -7,7 +7,7 @@ from app.service.user import user_service, RepositoryPermission
 from sqlalchemy.orm import Session
 
 
-async def sync_user_data(client: AuthenticatedClient,
+async def sync_user_repositories(client: AuthenticatedClient,
                          db: Session, user: UserSession):
     """A utility function to fetch and store user data"""
 
@@ -19,7 +19,6 @@ async def sync_user_data(client: AuthenticatedClient,
             r for r in user_repos if r.viewer_permission in (
                 RepositoryPermission.ADMIN.name,
                 RepositoryPermission.WRITE.name)]
-    user_service.upsert_user(db, user)
     repository_service.upsert_repositories(db, [
         Repository(id=repo.database_id, name=repo.name, owner="openstax")
         for repo in user_repos
