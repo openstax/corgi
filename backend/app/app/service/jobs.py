@@ -2,17 +2,16 @@
 from asyncio import AbstractEventLoop
 from asyncio.locks import Lock
 from datetime import datetime
-from typing import List, Optional, Union, cast, Dict, Generator
+from typing import Dict, Generator, List, Optional, Union, cast
 
 from app.core.errors import CustomBaseError
 from app.data_models.models import Job as JobModel
 from app.data_models.models import JobCreate, JobUpdate, UserSession
 from app.db.base_class import Base as BaseSchema
-from app.db.schema import Book, BookJob, Commit
+from app.db.schema import Book, BookJob, Commit, Repository
 from app.db.schema import Jobs as JobSchema
-from app.db.schema import Repository
-from app.github import (AuthenticatedClient, get_book_repository,
-                        get_collections, GitHubRepo)
+from app.github import (AuthenticatedClient, GitHubRepo, get_book_repository,
+                        get_collections)
 from app.service.base import ServiceBase
 from app.service.repository import repository_service
 from app.service.user import user_service

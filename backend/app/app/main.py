@@ -35,6 +35,7 @@ server.add_middleware(
     SessionMiddleware,
     secret_key=config.SESSION_SECRET,
     max_age=config.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+    same_site='strict',
     https_only=not config.IS_DEV_ENV)
 
 server.add_middleware(DBSessionMiddleware)
