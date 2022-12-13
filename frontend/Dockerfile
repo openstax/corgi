@@ -13,7 +13,7 @@ FROM node:16-alpine as builder
 
 WORKDIR /build
 
-COPY rollup.config.js package.json ./
+COPY rollup.config.js package.json tsconfig.json ./
 COPY src src
 COPY public public
 COPY --from=node_modules /deps/node_modules ./node_modules
