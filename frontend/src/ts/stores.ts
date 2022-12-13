@@ -1,5 +1,6 @@
 import { derived, Writable, writable } from 'svelte/store'
 import { getJobs } from './jobs';
+import { SECONDS } from './time';
 import type { Job, RepositorySummary } from './types';
 import { fetchRepoSummaries } from './utils';
 
@@ -29,6 +30,26 @@ class APIStore<T> {
     }
   }
 }
+
+const RateLimited = <T extends Updatable>(
+  Base: T,
+  timeoutSeconds: number
+) => (class extends Base {
+  private readonly timeout = timeoutSeconds * SECONDS
+  private nextUpdate = 0
+
+  public override update = async () => {
+    const now = Date.now()
+    if (now > this.nextUpdate) {
+      await super.update()
+      this.nextUpdate = now + this.timeout
+    }
+  }
+
+  public clearLimit() {
+    this.nextUpdate = 0
+  }
+})
 
 const Pollable = <T extends Updatable>(Base: T) => (class extends Base {
   private polling = undefined
@@ -83,5 +104,9 @@ export const errorStore = (() => {
   }
 })()
 
-export const repoSummariesStore = new APIStore<RepositorySummary[]>(writable([]), fetchRepoSummaries)
-export const jobsStore = new (Pollable(APIStore<Job[]>))(writable([]), getJobs)
+export const repoSummariesStore = new (
+  RateLimited(APIStore<RepositorySummary[]>, 3)
+)(writable([]), fetchRepoSummaries)
+export const jobsStore = new (
+  Pollable(RateLimited(APIStore<Job[]>, 3))
+)(writable([]), getJobs)

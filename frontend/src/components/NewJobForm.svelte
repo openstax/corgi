@@ -115,13 +115,6 @@
     { name: "Docx", id: "Docx", disabled: false },
   ];
 
-  async function getRepoSummaries() {
-    if (repoSummaries.length === 0) {
-      repoSummaries = await fetchRepoSummaries();
-    }
-    return repoSummaries;
-  }
-
   function createSearchFunction(
     getOptions: (
       repoSummaries: RepositorySummary[],
@@ -130,7 +123,6 @@
   ) {
     return async function (input: string) {
       try {
-        const repoSummaries = await getRepoSummaries()
         const lowerInput = input?.toLocaleLowerCase().trim()
         const options = getOptions(repoSummaries, lowerInput)
         return options
@@ -193,7 +185,7 @@
       }
       repoSummaries = updateRepoSummaries
     })
-    void repoSummariesStore.update()
+    await repoSummariesStore.update()
   })
 
   $: validJob = selectedJobTypes.length !== 0 && !!selectedRepo?.trim() && !!selectedBook?.trim()
