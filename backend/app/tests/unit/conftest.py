@@ -125,6 +125,9 @@ def mock_jobs_service(fake_data):
         def get_items_order_by(self, *_args, **_kwargs):
             return [fake_data.FAKE_JOB]
 
+        def get_items_by(self, *_args, **_kwargs):
+            return [fake_data.FAKE_JOB]
+
         def get(self, *_args, **_kwargs):
             return fake_data.FAKE_JOB
     return MockJobsService()
