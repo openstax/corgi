@@ -42,15 +42,15 @@ def list_job_page(
 
 @router.get("/check", response_model=List[JobMin])
 def check(
-        job_type_id: Optional[int] = None,
-        status_id: Optional[int] = None,
+        job_type_id: Optional[str] = None,
+        status_id: Optional[str] = None,
         db: Session = Depends(get_db)):
-    jobs = cast(List[JobSchema], list_job_page(db, limit=20))
+    filter_by = {}
     if job_type_id is not None:
-        jobs = (job for job in jobs if job.job_type_id == job_type_id)
+        filter_by["job_type_id"] = job_type_id
     if status_id is not None:
-        jobs = (job for job in jobs if job.status_id == status_id)
-    return list(jobs)
+        filter_by["status_id"] = status_id
+    return list(jobs_service.get_items_by(db, limit=20, **filter_by))
 
 
 @router.get("/{id}", response_model=Job)
