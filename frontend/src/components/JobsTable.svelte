@@ -78,11 +78,25 @@
           </Cell>
           <Cell>
             <Wrapper>
-              <img
-                alt={item.job_type.display_name}
-                src={mapImage('job_type', item.job_type.display_name, 'svg')}
-                style="max-height: 40px;"
-              />
+              {#if isJobComplete(item)}
+                <a
+                  href={item.artifact_urls[0].url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <img
+                    alt={item.job_type.display_name}
+                    src={mapImage('job_type', item.job_type.display_name, 'svg')}
+                    style="max-height: 40px;"
+                  />
+                </a>
+              {:else}
+                <img
+                  alt={item.job_type.display_name}
+                  src={mapImage('job_type', item.job_type.display_name, 'svg')}
+                  style="max-height: 40px;"
+                />
+              {/if}
               <Tooltip>{item.job_type.display_name}</Tooltip>
             </Wrapper>
           </Cell>
@@ -208,7 +222,8 @@
     handleError,
     repoToString,
     readableDateTime,
-    parseDateTimeAsUTC
+    parseDateTimeAsUTC,
+    isJobComplete
   } from "../ts/utils";
   import NewJobForm from "./NewJobForm.svelte";
   import { submitNewJob } from "../ts/jobs";
