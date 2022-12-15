@@ -1,8 +1,8 @@
 import logging
-from datetime import datetime, timedelta, timezone
 from typing import Awaitable
 
-from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES, IS_DEV_ENV
+from app.core.auth import set_user_session_cookie
+from app.core.config import IS_DEV_ENV
 from app.core.errors import CustomBaseError
 from app.data_models.models import UserSession
 from app.db.utils import get_db
@@ -16,16 +16,6 @@ from sqlalchemy.orm import Session
 from starlette.datastructures import URL
 
 router = APIRouter()
-
-
-def set_user_session_cookie(request: Request, user: UserSession):
-    expiration = datetime.now(timezone.utc) + \
-        timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-
-    request.session["user"] = {
-        "exp": expiration.timestamp(),
-        "session": user.json()
-    }
 
 
 async def handle_auth_errors(thunk: Awaitable):
