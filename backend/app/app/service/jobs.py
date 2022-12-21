@@ -186,11 +186,12 @@ class JobsService(ServiceBase):
             start: datetime,
             end: datetime,
             order_by: Optional[List] = None) -> List[JobSchema]:
-        if order_by is None:
-            order_by = [JobSchema.created_at.desc()]
-        return db.query(JobSchema).filter(
+        query = db.query(JobSchema).filter(
             JobSchema.created_at >= start, JobSchema.created_at <= end
-        ).order_by(*order_by).all()
+        )
+        if order_by is not None:
+            query = query.order_by(*order_by)
+        return query.all()
 
 
 jobs_service = JobsService(JobSchema, JobModel)
