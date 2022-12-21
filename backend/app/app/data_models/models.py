@@ -146,7 +146,6 @@ class JobBase(BaseModel):
     job_type_id: str
     version: Optional[str] = None  # Git: ref
     worker_version: Optional[str] = None
-    # error_message: Optional[str] = None
 
 
 class JobCreate(JobBase):

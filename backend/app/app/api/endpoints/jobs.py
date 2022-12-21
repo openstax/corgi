@@ -1,27 +1,67 @@
 from datetime import datetime, timedelta, timezone
-from typing import List, Optional, cast
+from functools import update_wrapper
+from typing import List, Optional
 
 from app.core.auth import RequiresRole, active_user
-from app.core.errors import CustomBaseError
 from app.data_models.models import (Job, JobCreate, JobMin, JobUpdate, Role,
                                     UserSession)
-from app.db.schema import Jobs as JobSchema
 from app.db.utils import get_db
 from app.github import github_client
 from app.service.jobs import jobs_service
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[Job],
-            dependencies=[Depends(RequiresRole(Role.USER))])
-def list_jobs(db: Session = Depends(get_db)):
-    """List all jobs for this year by default"""
-    end = datetime.now(timezone.utc)
-    start = end - timedelta(days=365)
-    return jobs_service.get_jobs_in_date_range(db, start, end)
+def cache(skip_args=0):
+    def decorating_function(func):
+        last_hash = None
+        last_result = None
+
+        def wrapper(*args):
+            nonlocal last_hash, last_result
+            h = hash(tuple(hash(arg) for arg in args[skip_args:]))
+            if h != last_hash:
+                last_result = func(*args)
+                last_hash = h
+            return last_result
+        return update_wrapper(wrapper, func)
+    return decorating_function
+
+
+@cache(skip_args=1)
+def get_old_jobs_json(db: Session, start: datetime,
+                      end: datetime, _: bool):
+    return ','.join(Job.from_orm(j).json()
+                    for j in jobs_service.get_jobs_in_date_range(
+                        db, start, end))
+
+
+@router.get("/", dependencies=[Depends(RequiresRole(Role.USER))])
+def list_jobs(db: Session = Depends(get_db), clear_cache: bool = False):
+    """List all jobs for this year"""
+    now = datetime.now(timezone.utc)
+    yesterday = datetime(
+        year=now.year,
+        month=now.month,
+        day=now.day,
+        tzinfo=timezone.utc) - timedelta(days=1)
+    # Try to get old jobs from cache and then concatenate jobs from today
+    old_jobs = get_old_jobs_json(
+        db,
+        yesterday - timedelta(days=364),
+        yesterday,
+        clear_cache)
+    new_jobs = ",".join([
+            Job.from_orm(j).json()
+            for j in jobs_service.get_jobs_in_date_range(db, yesterday, now)])
+
+    # Only include lists that have at least 1 job
+    joined_jobs = ",".join(jobs for jobs in (old_jobs, new_jobs) if jobs)
+
+    return Response(content=f"[{joined_jobs}]", media_type='application/json')
 
 
 @router.get("/pages/{page}", response_model=List[Job],

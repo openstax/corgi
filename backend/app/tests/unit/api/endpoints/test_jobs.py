@@ -17,7 +17,7 @@ def test_get_jobs(
     response = testclient_with_session.get("/api/jobs")
     assert response.status_code == 200
     payload = response.json()
-    assert len(payload) == 1
+    assert len(payload) != 0
     first = payload[0]
     assert Job(**first) == Job.from_orm(fake_data.FAKE_JOB)
 
