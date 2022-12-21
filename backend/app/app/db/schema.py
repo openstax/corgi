@@ -51,7 +51,7 @@ class Repository(Base):
     name = sa.Column(sa.String, nullable=False)
     owner = sa.Column(sa.String, nullable=False)
 
-    commits = relationship("Commit", back_populates="repository")
+    commits = relationship("Commit", back_populates="repository", lazy="joined")
     users = relationship("UserRepository", back_populates="repository")
 
 
@@ -61,8 +61,8 @@ class Commit(Base):
     sha = sa.Column(sa.String, nullable=False)
     timestamp = sa.Column(sa.DateTime, nullable=False)
 
-    repository = relationship("Repository", back_populates="commits")
-    books = relationship("Book", back_populates="commit")
+    repository = relationship("Repository", back_populates="commits", lazy="joined")
+    books = relationship("Book", back_populates="commit", lazy="joined")
 
 
 class Book(Base):
@@ -74,7 +74,7 @@ class Book(Base):
     slug = sa.Column(sa.String, nullable=False)
     style = sa.Column(sa.String, nullable=False)
 
-    commit = relationship("Commit", back_populates="books")
+    commit = relationship("Commit", back_populates="books", lazy="joined")
     jobs = relationship("BookJob", back_populates="book")
     __table_args__ = (sa.UniqueConstraint('uuid', 'commit_id',
                       name='_book_to_commit'),)
@@ -95,8 +95,8 @@ class BookJob(Base):
     artifact_url = sa.Column(sa.String, nullable=True)
     approved = sa.Column(sa.Boolean, nullable=False, default=False)
 
-    job = relationship("Jobs", back_populates="books")
-    book = relationship("Book", back_populates="jobs")
+    job = relationship("Jobs", back_populates="books", lazy="joined")
+    book = relationship("Book", back_populates="jobs", lazy="joined")
 
 
 class RepositoryPermission(Base):
