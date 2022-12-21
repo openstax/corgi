@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from httpx import HTTPStatusError
 from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.api import api_router
@@ -38,6 +39,8 @@ server.add_middleware(
     https_only=not config.IS_DEV_ENV)
 
 server.add_middleware(DBSessionMiddleware)
+
+server.add_middleware(GZipMiddleware)
 
 
 @server.exception_handler(HTTPStatusError)
