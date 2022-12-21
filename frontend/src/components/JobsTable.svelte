@@ -394,7 +394,8 @@
 
   onMount(async () => {
     jobsStore.subscribe(updatedJobs => jobs = updatedJobs)
-    await jobsStore.update()
+    // Give job fetching priority over repoSummariesStore on page load
+    jobsStore.update().then(() => void repoSummariesStore.update())
     jobsStore.startPolling(10 * SECONDS)
   });
 </script>
