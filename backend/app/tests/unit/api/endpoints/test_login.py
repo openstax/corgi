@@ -110,7 +110,10 @@ def test_login_no_team(monkeypatch, testclient, mock_login_success):
     monkeypatch.setattr("app.github.api.get_user_teams", return_no_teams)
 
     response = testclient.get("/api/auth/callback", allow_redirects=False)
-    assert response.status_code == 403
+    # Temporarily allow people who are not on an openstax team
+    assert response.status_code == 307
+    # Do not allow people who are not on an openstax team
+    # assert response.status_code == 403
 
 
 @pytest.mark.unit

@@ -37,7 +37,10 @@ def set_user_session_cookie(request: Request, user: UserSession):
 
 def get_user_role(user_teams: List[str]) -> Optional[Role]:
     if len(user_teams) == 0:
-        role = None
+        # Temporarily allow people who are not on an openstax team
+        role = Role.DEFAULT
+        # Do not allow people who are not on an openstax team
+        # role = None
     else:
         role = Role.DEFAULT
         if any(team in user_teams for team in ADMIN_TEAMS):
