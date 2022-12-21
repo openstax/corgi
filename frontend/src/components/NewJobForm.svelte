@@ -185,7 +185,6 @@
       }
       repoSummaries = updateRepoSummaries
     })
-    await repoSummariesStore.update()
   })
 
   $: validJob = selectedJobTypes.length !== 0 && !!selectedRepo?.trim() && !!selectedBook?.trim()
