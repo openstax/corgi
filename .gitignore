@@ -8,4 +8,3 @@ docker-stack.yml
 .vscode
 node_modules
 *pdm*
-frontend-vue
