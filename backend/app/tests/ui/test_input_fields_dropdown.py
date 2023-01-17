@@ -8,51 +8,51 @@ from pages.home import HomeCorgi
 @pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_home_page_loads(chrome_page, corgi_base_url):
+def test_repo_field_dropdown_is_visible(chrome_page, corgi_base_url):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
     chrome_page.goto(corgi_base_url)
     home = HomeCorgi(chrome_page)
 
-    # THEN: The home page UI elements are visible
-    assert home.book_input_fields
-    assert home.job_types_check_boxes
-    assert home.jobs_data_table
-    assert home.jobs_pagination_box
+    # WHEN: Repo field is clicked
+    home.click_repo_field()
+
+    # THEN: Repo dropdown opens
+    assert home.repo_dropdown_is_visible
 
 
 @pytestrail.case("")
 @pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_create_new_job_button_is_disabled(chrome_page, corgi_base_url):
+def test_book_field_dropdown_is_visible(chrome_page, corgi_base_url):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
     chrome_page.goto(corgi_base_url)
     home = HomeCorgi(chrome_page)
 
-    # THEN: Create new job button is initially disabled
-    assert not home.create_new_job_button_is_enabled
+    # WHEN: Book field is clicked
+    home.click_book_field()
+
+    # THEN: Book dropdown opens
+    assert home.book_dropdown_is_visible
 
 
 @pytestrail.case("")
+@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_create_new_job_button_is_enabled(chrome_page, corgi_base_url):
+def test_version_field_dropdown_is_visible(chrome_page, corgi_base_url):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
     chrome_page.goto(corgi_base_url)
     home = HomeCorgi(chrome_page)
 
-    # WHEN: Input fields are filled and a job check box is selected
-    home.fill_repo_field("osbooks-astronomy")
-    home.fill_book_field("astronomy-2e")
-    home.fill_version_field("main")
+    # WHEN: Version field is clicked
+    home.click_version_field()
 
-    home.click_pdf_job_option()
-
-    # THEN: Create new job button is enabled
-    assert home.create_new_job_button_is_enabled
+    # THEN: Version dropdown opens
+    assert home.version_dropdown_is_visible
