@@ -5,7 +5,6 @@ from pages.home import HomeCorgi
 
 
 @pytestrail.case("")
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
@@ -40,7 +39,6 @@ def test_single_same_error_message(chrome_page, corgi_base_url, repo, book, vers
 
 
 @pytestrail.case("")
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
@@ -87,7 +85,6 @@ def test_single_non_dismissed_error_message(chrome_page, corgi_base_url, repo, b
 
 
 @pytestrail.case("")
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
@@ -124,7 +121,6 @@ def test_incorrect_book_corrected(chrome_page, corgi_base_url, repo, book, versi
 
 
 @pytestrail.case("")
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
@@ -161,7 +157,6 @@ def test_incorrect_repo_corrected(chrome_page, corgi_base_url, repo, book, versi
 
 
 @pytestrail.case("")
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
@@ -198,7 +193,6 @@ def test_incorrect_version_corrected(chrome_page, corgi_base_url, repo, book, ve
 
 
 @pytestrail.case("C651216")
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(

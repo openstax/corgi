@@ -5,7 +5,6 @@ from pages.home import HomeCorgi
 
 
 @pytestrail.case("C593561")
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
 def test_home_page_loads(chrome_page, corgi_base_url):
@@ -23,7 +22,6 @@ def test_home_page_loads(chrome_page, corgi_base_url):
 
 
 @pytestrail.case("C624693")
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
 def test_create_new_job_button_is_disabled(chrome_page, corgi_base_url):

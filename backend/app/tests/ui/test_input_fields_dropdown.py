@@ -5,7 +5,6 @@ from pages.home import HomeCorgi
 
 
 @pytestrail.case("C646767")
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
 def test_repo_field_dropdown_is_visible(chrome_page, corgi_base_url):
@@ -23,7 +22,6 @@ def test_repo_field_dropdown_is_visible(chrome_page, corgi_base_url):
 
 
 @pytestrail.case("C646767")
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
 def test_book_field_dropdown_is_visible(chrome_page, corgi_base_url):
@@ -41,7 +39,6 @@ def test_book_field_dropdown_is_visible(chrome_page, corgi_base_url):
 
 
 @pytestrail.case("C646767")
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
 def test_version_field_dropdown_is_visible(chrome_page, corgi_base_url):

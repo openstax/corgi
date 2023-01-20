@@ -5,7 +5,6 @@ from pages.home import HomeCorgi
 
 
 @pytestrail.case("C624696")
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
@@ -41,7 +40,6 @@ def test_incorrect_book_and_version_error_messages(chrome_page, corgi_base_url, 
     home.click_error_banner_okay_button()
 
 
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
@@ -76,7 +74,6 @@ def test_incorrect_repo_and_book_error_messages(chrome_page, corgi_base_url, rep
 
 
 @pytestrail.case("C624695")
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
@@ -110,7 +107,6 @@ def test_incorrect_repo_and_version_error_messages(chrome_page, corgi_base_url, 
     home.click_error_banner_okay_button()
 
 
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
@@ -147,7 +143,6 @@ def test_incorrect_repo_book_and_version_error_messages(chrome_page, corgi_base_
     home.click_error_banner_okay_button()
 
 
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(

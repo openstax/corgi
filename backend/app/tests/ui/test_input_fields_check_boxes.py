@@ -5,7 +5,6 @@ from pages.home import HomeCorgi
 
 
 @pytestrail.case("C593561")
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
 def test_input_fields_are_visible(chrome_page, corgi_base_url):
@@ -22,7 +21,6 @@ def test_input_fields_are_visible(chrome_page, corgi_base_url):
 
 
 @pytestrail.case("C593561")
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
 def test_check_boxes_are_visible(chrome_page, corgi_base_url):
