@@ -4,7 +4,7 @@ from pytest_testrail.plugin import pytestrail
 from pages.home import HomeCorgi
 
 
-@pytestrail.case("")
+@pytestrail.case("C593561")
 @pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
@@ -22,7 +22,7 @@ def test_home_page_loads(chrome_page, corgi_base_url):
     assert home.jobs_pagination_box
 
 
-@pytestrail.case("")
+@pytestrail.case("C624693")
 @pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
@@ -37,10 +37,14 @@ def test_create_new_job_button_is_disabled(chrome_page, corgi_base_url):
     assert not home.create_new_job_button_is_enabled
 
 
-@pytestrail.case("")
+@pytestrail.case("C624694")
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_create_new_job_button_is_enabled(chrome_page, corgi_base_url):
+@pytest.mark.parametrize(
+    "repo, book, version",
+    [("osbooks-astronomy", "astronomy-2e", "main")],
+)
+def test_create_new_job_button_is_enabled(chrome_page, corgi_base_url, repo, book, version):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -48,9 +52,9 @@ def test_create_new_job_button_is_enabled(chrome_page, corgi_base_url):
     home = HomeCorgi(chrome_page)
 
     # WHEN: Input fields are filled and a job check box is selected
-    home.fill_repo_field("osbooks-astronomy")
-    home.fill_book_field("astronomy-2e")
-    home.fill_version_field("main")
+    home.fill_repo_field(repo)
+    home.fill_book_field(book)
+    home.fill_version_field(version)
 
     home.click_pdf_job_option()
 

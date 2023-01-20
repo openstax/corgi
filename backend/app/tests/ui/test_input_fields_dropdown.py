@@ -4,7 +4,7 @@ from pytest_testrail.plugin import pytestrail
 from pages.home import HomeCorgi
 
 
-@pytestrail.case("")
+@pytestrail.case("C646767")
 @pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
@@ -22,7 +22,7 @@ def test_repo_field_dropdown_is_visible(chrome_page, corgi_base_url):
     assert home.repo_dropdown_is_visible
 
 
-@pytestrail.case("")
+@pytestrail.case("C646767")
 @pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
@@ -40,7 +40,7 @@ def test_book_field_dropdown_is_visible(chrome_page, corgi_base_url):
     assert home.book_dropdown_is_visible
 
 
-@pytestrail.case("")
+@pytestrail.case("C646767")
 @pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive

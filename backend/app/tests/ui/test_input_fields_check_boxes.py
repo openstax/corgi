@@ -4,7 +4,7 @@ from pytest_testrail.plugin import pytestrail
 from pages.home import HomeCorgi
 
 
-@pytestrail.case("")
+@pytestrail.case("C593561")
 @pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
@@ -21,7 +21,7 @@ def test_input_fields_are_visible(chrome_page, corgi_base_url):
     assert home.version_field
 
 
-@pytestrail.case("")
+@pytestrail.case("C593561")
 @pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive

@@ -4,10 +4,14 @@ from pytest_testrail.plugin import pytestrail
 from pages.home import HomeCorgi
 
 
-@pytestrail.case("")
+@pytestrail.case("C646763")
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_create_new_job_button_stays_enabled(chrome_page, corgi_base_url):
+@pytest.mark.parametrize(
+    "repo, book, version",
+    [("osbooks-astronomy", "astronomy-2e", "main")],
+)
+def test_create_new_job_button_stays_enabled(chrome_page, corgi_base_url, repo, book, version):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -15,9 +19,9 @@ def test_create_new_job_button_stays_enabled(chrome_page, corgi_base_url):
     home = HomeCorgi(chrome_page)
 
     # WHEN: Input fields are filled and a job check box is selected
-    home.fill_repo_field("osbooks-astronomy")
-    home.fill_book_field("astronomy-2e")
-    home.fill_version_field("main")
+    home.fill_repo_field(repo)
+    home.fill_book_field(book)
+    home.fill_version_field(book)
 
     home.click_docx_job_option()
 
@@ -30,10 +34,14 @@ def test_create_new_job_button_stays_enabled(chrome_page, corgi_base_url):
     assert not home.error_banner_is_visible
 
 
-@pytestrail.case("")
+@pytestrail.case("C646766")
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_create_new_job_button_enabled_disabled(chrome_page, corgi_base_url):
+@pytest.mark.parametrize(
+    "repo, book, version",
+    [("osbooks-astronomy", "astronomy-2e", "")],
+)
+def test_create_new_job_button_enabled_disabled(chrome_page, corgi_base_url, repo, book, version):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -41,9 +49,9 @@ def test_create_new_job_button_enabled_disabled(chrome_page, corgi_base_url):
     home = HomeCorgi(chrome_page)
 
     # WHEN: Input fields are filled and a job check box is selected
-    home.fill_repo_field("osbooks-astronomy")
-    home.fill_book_field("astronomy-2e")
-    home.fill_version_field("")
+    home.fill_repo_field(repo)
+    home.fill_book_field(book)
+    home.fill_version_field(version)
 
     home.click_webview_job_option()
 
@@ -65,7 +73,6 @@ def test_create_new_job_button_enabled_disabled(chrome_page, corgi_base_url):
     assert home.create_new_job_button_is_enabled
 
 
-@pytestrail.case("")
 @pytest.mark.ui
 @pytest.mark.nondestructive
 def test_click_input_fields_only_create_new_job_button_is_disabled(chrome_page, corgi_base_url):
@@ -86,10 +93,14 @@ def test_click_input_fields_only_create_new_job_button_is_disabled(chrome_page, 
     assert not home.create_new_job_button_is_enabled
 
 
-@pytestrail.case("")
+@pytestrail.case("C646766")
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_click_input_fields_then_fill_create_new_job_button_gets_enabled(chrome_page, corgi_base_url):
+@pytest.mark.parametrize(
+    "repo, book",
+    [("osbooks-astronomy", "astronomy-2e")],
+)
+def test_click_input_fields_then_fill_create_new_job_button_gets_enabled(chrome_page, corgi_base_url, repo, book):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -106,18 +117,21 @@ def test_click_input_fields_then_fill_create_new_job_button_gets_enabled(chrome_
     # THEN: The main UI elements are visible and create new job button is disabled/enabled
     assert not home.create_new_job_button_is_enabled
 
-    home.fill_book_field("astronomy-2e")
-    home.fill_repo_field("osbooks-astronomy")
+    home.fill_book_field(repo)
+    home.fill_repo_field(book)
 
     home.click_docx_job_option()
 
     assert home.create_new_job_button_is_enabled
 
 
-@pytestrail.case("")
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_book_field_empty_create_new_job_button_disabled(chrome_page, corgi_base_url):
+@pytest.mark.parametrize(
+    "repo, book, version",
+    [("osbooks-astronomy", "astronomy-2e", "main")],
+)
+def test_book_field_empty_create_new_job_button_disabled(chrome_page, corgi_base_url, repo, book, version):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -125,8 +139,8 @@ def test_book_field_empty_create_new_job_button_disabled(chrome_page, corgi_base
     home = HomeCorgi(chrome_page)
 
     # WHEN: Input fields are filled and a job check box is selected
-    home.fill_repo_field("osbooks-astronomy")
-    home.fill_version_field("main")
+    home.fill_repo_field(repo)
+    home.fill_version_field(version)
 
     home.click_webview_job_option()
     home.click_docx_job_option()
@@ -135,16 +149,20 @@ def test_book_field_empty_create_new_job_button_disabled(chrome_page, corgi_base
     assert not home.create_new_job_button_is_enabled
 
     home.fill_repo_field(" ")
-    home.fill_book_field("astronomy-2e")
+    home.fill_book_field(book)
     home.fill_version_field(" ")
 
     assert not home.create_new_job_button_is_enabled
 
 
-@pytestrail.case("")
+@pytestrail.case("C598227")
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_space_character_create_new_job_button_disabled(chrome_page, corgi_base_url):
+@pytest.mark.parametrize(
+    "repo, book",
+    [("osbooks-astronomy", "astronomy-2e")],
+)
+def test_space_character_create_new_job_button_disabled(chrome_page, corgi_base_url, repo, book):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -161,8 +179,8 @@ def test_space_character_create_new_job_button_disabled(chrome_page, corgi_base_
     # THEN: The main UI elements are visible and create new job button is disabled/enabled
     assert not home.create_new_job_button_is_enabled
 
-    home.fill_book_field("astronomy-2e")
-    home.fill_repo_field("osbooks-astronomy")
+    home.fill_book_field(repo)
+    home.fill_repo_field(book)
 
     assert home.create_new_job_button_is_enabled
 

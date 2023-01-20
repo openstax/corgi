@@ -5,7 +5,7 @@ from pages.home import HomeCorgi
 import pytest
 
 
-@pytestrail.case("")
+@pytestrail.case("C620213")
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
@@ -40,7 +40,7 @@ def test_new_jobs_are_queued(chrome_page_slow, corgi_base_url, repo, book, versi
         pytest.fail(f"No new job was queued. Last job is at {home.elapsed_time.inner_text()}")
 
 
-@pytestrail.case("")
+@pytestrail.case("C651147")
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
@@ -78,10 +78,7 @@ def test_job_id_dialog_opens_closes(chrome_page_slow, corgi_base_url, repo, book
         pytest.fail(f"No new job was queued. Last job is at {home.elapsed_time.inner_text()}")
 
 
-@pytestrail.case("")
-@pytest.mark.ui
-@pytest.mark.nondestructive
-@pytestrail.case("")
+@pytestrail.case("C655443")
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
