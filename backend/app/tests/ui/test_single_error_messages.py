@@ -4,7 +4,7 @@ from pytest_testrail.plugin import pytestrail
 from pages.home import HomeCorgi
 
 
-@pytestrail.case("")
+@pytestrail.case("C623702")
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
@@ -38,7 +38,6 @@ def test_single_same_error_message(chrome_page, corgi_base_url, repo, book, vers
     home.click_error_banner_okay_button()
 
 
-@pytestrail.case("")
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
@@ -84,7 +83,6 @@ def test_single_non_dismissed_error_message(chrome_page, corgi_base_url, repo, b
     assert not home.error_banner_is_visible
 
 
-@pytestrail.case("")
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
@@ -120,7 +118,7 @@ def test_incorrect_book_corrected(chrome_page, corgi_base_url, repo, book, versi
     assert not home.error_banner_is_visible
 
 
-@pytestrail.case("")
+@pytestrail.case("C655444")
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
@@ -156,7 +154,7 @@ def test_incorrect_repo_corrected(chrome_page, corgi_base_url, repo, book, versi
     assert not home.error_banner_is_visible
 
 
-@pytestrail.case("")
+@pytestrail.case("C655445")
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
