@@ -1,46 +1,27 @@
 
-from asyncio import AbstractEventLoop
-from asyncio.locks import Lock
+import asyncio
+import logging
 from datetime import datetime
 from typing import Dict, Generator, List, Optional, Union, cast
 
 from app.core.errors import CustomBaseError
 from app.data_models.models import Job as JobModel
 from app.data_models.models import JobCreate, JobUpdate, UserSession
-from app.db.base_class import Base as BaseSchema
-from app.db.schema import Book, BookJob, Commit, Repository
+from app.db.schema import Book, BookJob, Commit
 from app.db.schema import Jobs as JobSchema
+from app.db.schema import Repository
 from app.github import (AuthenticatedClient, GitHubRepo, get_book_repository,
                         get_collections)
 from app.service.base import ServiceBase
 from app.service.repository import repository_service
 from app.service.user import user_service
 from app.xml_utils import xpath1
-
 from lxml import etree
-from pydantic import BaseModel
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 
-class CountedLock(Lock):
-    def __init__(self, *, loop: Union[AbstractEventLoop, None] = None) -> None:
-        super().__init__(loop=loop)
-        self._counter = 0
-
-    async def acquire(self):
-        self._counter += 1
-        return await super().acquire()
-
-    def release(self):
-        self._counter -= 1
-        return super().release()
-
-    @property
-    def count(self):
-        return self._counter
-
-
-def get_or_create_repository(
+async def get_or_create_repository(
         db: Session,
         repo_name: str,
         repo_owner: str,
@@ -48,8 +29,7 @@ def get_or_create_repository(
         user: UserSession) -> Repository:
     # Check if the repository exists
     db_repo = cast(Optional[Repository], db.query(Repository).filter(
-        Repository.name == repo_name,
-        Repository.owner == repo_owner).first())
+        Repository.id == github_repo.database_id).first())
     # If not, record it and associate it with the user
     if db_repo is None:
         db_repo = Repository(
@@ -71,11 +51,11 @@ def add_books_to_commit(
         slug = repo_book["slug"]
         style = repo_book["style"]
         collection = collections_by_name[f"{slug}.collection.xml"]
-        uuid = xpath1(collection, "//*[local-name()='uuid']").text
-        if not uuid:
+        uuid = xpath1(collection, "//*[local-name()='uuid']")
+        if uuid is None or not uuid.text:
             raise CustomBaseError("Could not get uuid from collection xml")
         # TODO: Edition should be either nullable or in a different table
-        db_book = Book(uuid=uuid, slug=slug, edition=0, style=style)
+        db_book = Book(uuid=uuid.text, slug=slug, edition=0, style=style)
         commit.books.append(db_book)
         db.add(db_book)
 
@@ -93,11 +73,6 @@ def add_books_to_job(
 class JobsService(ServiceBase):
     """If specific methods need to be overridden they can be done here.
     """
-
-    def __init__(self, schema_model: BaseSchema, data_model: BaseModel):
-        super().__init__(schema_model, data_model)
-        self._locks_by_name: Dict[str, CountedLock] = {}
-
     async def create(
             self,
             client: AuthenticatedClient,
@@ -120,14 +95,12 @@ class JobsService(ServiceBase):
         else:
             # Until we can build multiple books
             raise CustomBaseError("Book is required")
-        repo_lock = self._locks_by_name.get(repo_name, None)
-        if repo_lock is None:
-            repo_lock = self._locks_by_name[repo_name] = CountedLock()
-        async with repo_lock:
+
+        async def insert_job():
             commit = cast(Optional[Commit], db.query(Commit).filter(
                 Commit.sha == sha).first())
-            # If the commit has been record and has books, reuse the existing
-            # data
+            # If the commit has been recorded and has books, reuse the
+            # existing data
             if (commit is not None and len(commit.books) != 0
                     and commit.repository.owner == repo_owner):
                 db_repo = commit.repository
@@ -138,16 +111,21 @@ class JobsService(ServiceBase):
                     user_service.upsert_user_repositories(
                         db, user, [github_repo])
             else:
-                db_repo = get_or_create_repository(db, repo_name, repo_owner,
-                                                   github_repo, user)
+                # Could cause integrity error because it commits the
+                # repository to the database before returning
+                db_repo = await get_or_create_repository(
+                    db, repo_name, repo_owner, github_repo, user)
+
                 # Now we can record the commit
                 commit = Commit(repository_id=db_repo.id, sha=sha,
                                 timestamp=timestamp, books=[])
                 db.add(commit)
+
                 # And record all the book metadata
-                collections_by_name = await get_collections(client, repo_name,
-                                                            repo_owner, sha)
-                add_books_to_commit(db, commit, repo_books, collections_by_name)
+                collections_by_name = await get_collections(
+                    client, repo_name, repo_owner, sha)
+                add_books_to_commit(db, commit, repo_books,
+                                    collections_by_name)
 
                 # Flush the db to populate autogenerated book and commit ids
                 db.flush()
@@ -165,10 +143,18 @@ class JobsService(ServiceBase):
             add_books_to_job(db, db_job, books_for_job)
 
             db.commit()
-        # Last one out turns out the lights
-        if repo_lock.count == 0:
-            del self._locks_by_name[repo_name]
-        return db_job
+            return db_job
+        # Very rarely, an integrity error will occur due to asynchronism
+        # in those cases, we can wait about 100ms and try again
+        for _ in range(3):
+            try:
+                return await insert_job()
+            except IntegrityError as ie:
+                # Make these errors visible, but clarify that they were caught
+                logging.error(f"Handled integrity error: {ie}")
+                db.rollback()
+                await asyncio.sleep(0.1)
+        raise CustomBaseError("Could not create job")
 
     def update(self, db_session: Session, job: JobSchema, job_in: JobUpdate):
         if isinstance(job_in.artifact_urls, list):
