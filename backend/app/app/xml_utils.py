@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from lxml import etree
 
@@ -23,7 +23,7 @@ def xpath_some(tree: etree.ElementBase, xpath: str) -> List[etree.ElementBase]:
     return ret
 
 
-def xpath1(tree: etree.ElementBase, xpath: str):
+def xpath1(tree: etree.ElementBase, xpath: str) -> Optional[etree.ElementBase]:
     """Use this when you expect to get the first result from an xpath"""
     try:
         return tree.xpath(xpath)[0]
