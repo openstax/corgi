@@ -32,8 +32,6 @@ services:
     networks:
       - ${TRAEFIK_PUBLIC_NETWORK}
       - default
-    secrets:
-      - basic-auth-users
     
   backend:
     image: 'openstax/corgi-${DOCKER_IMAGE_BACKEND}:${TAG-latest}'
@@ -82,7 +80,6 @@ services:
         - traefik.enable=true
         - traefik.port=80
         - traefik.tags=${TRAEFIK_TAG}
-        - traefik.frontend.auth.basic.usersFile=/run/secrets/basic-auth-users
       replicas: 2
       update_config:
         parallelism: 1
@@ -105,7 +102,4 @@ networks:
       config:
         - subnet: "${SUBNET}"
   traefik-public:
-    external: true
-secrets:
-  basic-auth-users:
     external: true
