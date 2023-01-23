@@ -51,7 +51,8 @@ def upgrade():
     sa.Column('sha', sa.String(), nullable=False),
     sa.Column('timestamp', sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(['repository_id'], ['repository.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('repository_id', 'sha', name='_repository_commit')
     )
     op.create_index(op.f('ix_commit_id'), 'commit', ['id'], unique=False)
     op.create_table('user_repository',
@@ -92,6 +93,7 @@ def upgrade():
     op.create_index(op.f('ix_book_job_job_id'), 'book_job', ['job_id'], unique=False)
     op.create_index(op.f('ix_job_types_created_at'), 'job_types', ['created_at'], unique=False)
     op.add_column('jobs', sa.Column('user_id', sa.Integer(), nullable=True))
+    op.add_column('jobs', sa.Column('git_ref', sa.String(), nullable=True))
     op.drop_index('ix_jobs_collection_id', table_name='jobs')
     op.drop_index('ix_jobs_job_type', table_name='jobs')
     op.drop_constraint('events_content_server_id_fkey', 'jobs', type_='foreignkey')

@@ -144,7 +144,8 @@ class User(UserBase):
 class JobBase(BaseModel):
     status_id: str
     job_type_id: str
-    version: Optional[str] = None  # Git: ref
+    version: Optional[str] = None  # sha
+    git_ref: Optional[str] = None # branch, tag, or sha
     worker_version: Optional[str] = None
 
 

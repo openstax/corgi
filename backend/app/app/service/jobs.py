@@ -132,6 +132,7 @@ class JobsService(ServiceBase):
             db_job = JobSchema(user_id=user.id,
                                status_id=job_in.status_id,
                                job_type_id=job_in.job_type_id,
+                               git_ref=version,
                                worker_version=job_in.worker_version)
             db.add(db_job)
 
