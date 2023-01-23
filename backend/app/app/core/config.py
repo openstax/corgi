@@ -1,5 +1,6 @@
 import os
 
+
 # DATABASE SETTINGS
 POSTGRES_SERVER = os.getenv("POSTGRES_SERVER")
 POSTGRES_USER = os.getenv("POSTGRES_USER")
@@ -23,5 +24,21 @@ TAG = os.getenv("TAG")
 STACK_NAME = os.getenv("STACK_NAME")
 DEPLOYED_AT = os.getenv("DEPLOYED_AT")
 
+IS_DEV_ENV = STACK_NAME is None or STACK_NAME == "dev"
+
+if IS_DEV_ENV:
+    from dotenv import load_dotenv
+    load_dotenv()
+
+
 # GITHUB SETTINGS
 GITHUB_API_TOKEN = os.getenv("GITHUB_API_TOKEN")
+
+# GITHUB OAUTH
+CLIENT_ID = os.getenv("GITHUB_OAUTH_ID")
+CLIENT_SECRET = os.getenv("GITHUB_OAUTH_SECRET")
+ADMIN_TEAMS = ("ce-tech", "ce-admins", "content-managers")
+
+# To encrypt session cookie
+SESSION_SECRET = os.getenv("SESSION_SECRET")
+ACCESS_TOKEN_EXPIRE_MINUTES = 480

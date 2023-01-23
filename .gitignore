@@ -5,3 +5,6 @@ docker-stack.yml
 
 # Ansible
 *.retry
+.vscode
+node_modules
+*pdm*

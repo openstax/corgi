@@ -8,8 +8,8 @@ RUN apt-get update -qq \
 
 FROM openstax/python3-poetry:20220614.214642 as dev-builder
 
-# copy files
-COPY ./app /build/
+# Only include pyproject and poetry.lock in cache invalidation
+COPY ./app/pyproject.toml ./app/poetry.lock /build/
 
 # change working directory
 WORKDIR /build
@@ -54,6 +54,7 @@ COPY ./docker/start.sh /start.sh
 RUN chmod +x /start.sh
 
 COPY ./docker/gunicorn.conf /gunicorn.conf
+RUN echo "reload = True" >> /gunicorn.conf
 
 COPY ./app /app
 WORKDIR /app

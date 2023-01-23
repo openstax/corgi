@@ -11,12 +11,21 @@ set -e
 REVISION=$(git --git-dir=./.git rev-parse --short HEAD)
 DEPLOYED_AT=$(date '+%Y%m%d.%H%M%S')
 
+echo "DOMAIN=${DOMAIN}
+TRAEFIK_TAG=${TRAEFIK_TAG}
+STACK_NAME=${STACK_NAME}
+TAG=${TAG}
+REVISION=${REVISION}
+DEPLOYED_AT=${DEPLOYED_AT}"
+
+set +x
 DOMAIN=${DOMAIN} \
 TRAEFIK_TAG=${TRAEFIK_TAG} \
 STACK_NAME=${STACK_NAME} \
 TAG=${TAG} \
 REVISION=${REVISION} \
 DEPLOYED_AT=${DEPLOYED_AT} \
+SESSION_SECRET=${SESSION_SECRET} \
 docker-compose \
 -f docker-compose.stack.release.yml \
 config > docker-stack.yml

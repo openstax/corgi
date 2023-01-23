@@ -1,8 +1,9 @@
-from typing import Optional, Any
+from typing import List, Optional, Any, Type
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy.orm import Session as BaseSession
+import sqlalchemy as sa
 
 from app.db.base_class import Base as BaseSchema
 
@@ -13,20 +14,42 @@ class ServiceBase(object):
         self.data_model = data_model
 
     def get(self, db_session: BaseSession, obj_id: int) -> Optional[BaseSchema]:
-        return db_session.query(self.schema_model).filter(self.schema_model.id == obj_id).first()
+        return db_session.query(self.schema_model)\
+            .filter(self.schema_model.id == obj_id)\
+            .first()
 
     def get_first_by(self, db_session: BaseSession, **kwargs: Any):
         return db_session.query(self.schema_model).filter_by(**kwargs).first()
 
     def get_items(self, db_session: BaseSession, *, skip=0, limit=100):
-        return db_session.query(self.schema_model).offset(skip).limit(limit).all()
+        return db_session.query(self.schema_model)\
+            .offset(skip)\
+            .limit(limit)\
+            .all()
 
-    def get_items_by(self, db_session: BaseSession, *, skip=0, limit=100, **kwargs):
-        return db_session.query(self.schema_model).offset(skip).limit(limit).filter_by(
-            **kwargs).all()
+    def get_items_by(self, db_session: BaseSession,
+                     *, skip=0, limit=100, **kwargs):
+        return db_session.query(self.schema_model)\
+            .filter_by(**kwargs)\
+            .offset(skip)\
+            .limit(limit)\
+            .all()
 
-    def get_items_order_by(self, db_session: BaseSession, *, skip=0, limit=100, order_by=[]):
-        return db_session.query(self.schema_model).order_by(*order_by).offset(skip).limit(limit).all()
+    def get_fields_by(self, db_session: BaseSession,
+                      fields: List[sa.Column], *, skip=0, limit=100, **kwargs):
+        return db_session.query(*fields)\
+            .filter_by(**kwargs)\
+            .offset(skip)\
+            .limit(limit)\
+            .all()
+
+    def get_items_order_by(self, db_session: BaseSession,
+                           *, skip=0, limit=100, order_by=[]):
+        return db_session.query(self.schema_model)\
+            .order_by(*order_by)\
+            .offset(skip)\
+            .limit(limit)\
+            .all()
 
     def create(self, db_session: BaseSession, obj_in: BaseModel) -> BaseSchema:
         obj_data = jsonable_encoder(obj_in)
@@ -36,9 +59,13 @@ class ServiceBase(object):
         db_session.commit()
         return obj
 
-    def update(self, db_session: BaseSession, obj: BaseSchema, obj_in: BaseModel):
+    def update(self, db_session: BaseSession, obj: BaseSchema,
+               obj_in: BaseModel, data_model: Any = None):
 
-        obj_data = obj.to_data_model(self.data_model).dict(skip_defaults=True)
+        if data_model is None:
+            data_model = self.data_model
+
+        obj_data = obj.to_data_model(data_model).dict(skip_defaults=True)
         update_data = obj_in.dict(skip_defaults=True)
 
         formatted_data = {

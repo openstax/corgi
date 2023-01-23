@@ -32,8 +32,6 @@ services:
     networks:
       - ${TRAEFIK_PUBLIC_NETWORK}
       - default
-    secrets:
-      - basic-auth-users
     
   backend:
     image: 'openstax/corgi-${DOCKER_IMAGE_BACKEND}:${TAG-latest}'
@@ -52,6 +50,9 @@ services:
       - SQLALCHEMY_POOL_SIZE=20
       - SQLALCHEMY_MAX_OVERFLOW=10
       - GITHUB_API_TOKEN=${GITHUB_API_TOKEN}
+      - GITHUB_OAUTH_ID=${GITHUB_OAUTH_ID}
+      - GITHUB_OAUTH_SECRET=${GITHUB_OAUTH_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
     deploy:
       labels:
         - traefik.frontend.rule=PathPrefix:/api,/docs,/redoc,/openapi.json
@@ -79,7 +80,6 @@ services:
         - traefik.enable=true
         - traefik.port=80
         - traefik.tags=${TRAEFIK_TAG}
-        - traefik.frontend.auth.basic.usersFile=/run/secrets/basic-auth-users
       replicas: 2
       update_config:
         parallelism: 1
@@ -95,7 +95,4 @@ services:
       
 networks:
   traefik-public:
-    external: true
-secrets:
-  basic-auth-users:
     external: true

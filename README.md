@@ -2,7 +2,7 @@
 
 ![CORGI](docs/_static/images/corgi.jpg)
 
-_FKA: "COPS", Content Output Production Service_
+_FKA: "CORGI", Content Output Review and Generation Interface_
 
 ---
 - **What does CORGI do? 🤔**
@@ -48,11 +48,18 @@ The full explanation of Enki it is out of scope for this documentation. To learn
 > After installing Docker, navigate to the Docker Desktop GUI preferences and increase the `Memory` value to at least `8GiB`.
 > [Here's where you can find the Docker Desktop GUI settings](https://docs.docker.com/docker-for-windows/#resources)
 
-### Backend local development
+### Local development
 
-Start the stack with Docker Compose:
+**Prerequisites**
+* You will need access to a GitHub OAuth app. You can [create your own](https://docs.github.com/en/developers/apps/building-oauth-apps/creating-an-oauth-app) if you do not have one already.
+* Create an env file, `backend/app/app/core/.env`, with three entries:
+    1. `GITHUB_OAUTH_ID` (your oauth app client id)
+    2. `GITHUB_OAUTH_SECRET` (your oauth app client secret)
+    3. `SESSION_SECRET` (secret used to encrypt session cookies)
 
-    docker-compose up -d
+Build/start the stack with Docker Compose:
+
+    docker-compose -f docker-compose.stack.dev.yml up -d
 
 View the API Docs here:
 
@@ -61,7 +68,16 @@ View the API Docs here:
 
 To check the logs run:
 
-    docker-compose logs
+    docker-compose logs backend/frontend/etc.
+
+
+Using the development stack, the Svelte frontend is rebuilt inside the container 
+as you make changes: no restarts required. The page should reload automatically
+as well.
+
+NOTE: The dev frontend server can take a while to start up. You might get 502
+responses at first: this is normal. Wait a few seconds and try again.
+
 
 ### View the Docs
 
@@ -131,9 +147,12 @@ Start the stack as described above
 Run the reset-db command that is contained in the `manage.py` file.
 
     docker-compose exec backend python manage.py reset-db
+
 ### Migrations
 
 Automatic migration files can be generated for the database. After a change is made you'll want to create a new revision.
+
+Make sure the stack is running in development mode.
 
 Enter the backend Docker container:
 
@@ -165,4 +184,37 @@ The documentation is located in the [Releasing CORGI article]((https://openstax.
 The documentation is located in the [How to Deploy Web Hosting Pipeline article](https://openstax.atlassian.net/wiki/spaces/CE/pages/573538307/Deploying+the+web-hosting+pipeline) in our Confluence Documentation.
 ## Attribution
 
-A lot of the structure and ideas for this service come from Tiangolo's [full-stack-fastapi-postgres](https://github.com/tiangolo/full-stack-fastapi-postgresql) project. Thanks Tiangolo!
+A lot of the structure and ideas for this service come from Tiangolo's [full-stack-fastapi-postgres](https://github.com/tiangolo/full-stack-fastapi-postgresql) project with additional supporting software and ideas from [authlib](https://docs.authlib.org/en/latest/client/fastapi.html). Thanks Tiangolo and Authlib devs!
+
+## Login with GitHub Personal Access Token (PAT)
+For situations where it is difficult or impossible to login with a username and password, there is an alternative way to login with a GitHub PAT. To utilize this functionality:
+
+**Note:** the same restrictions apply to users regardless of login method (i.e. you do not gain additional permissions by logging in with a token).
+
+1. Create a GitHub PAT with at least the `read:user`, `read:org`, and `repo` scopes.
+2. Make a request to `/api/auth/token-login` with an additional header: `Authorization: Bearer <your-token>`
+3. Get the session cookie from the `set-cookie` header in the response.
+4. Make additional response with the session cookie.
+
+### Example
+
+```python
+import os
+
+import requests
+
+# Note: This example assumes you are running CORGI locally
+
+my_token = os.environ["TOKEN"]  # Don't hardcode secrets ;)
+
+with requests.session() as session:
+    response = session.get(
+        "http://localhost/api/auth/token-login",
+        headers={"Authorization": f"Bearer {my_token}"})
+    assert response.cookies.get("session", None) is not None, \
+           "Could not get session cookie"
+    # Now your cookie will be used to make requests that require a valid user
+    # session
+    jobs = session.get("http://localhost/api/jobs")
+    print(jobs.json())
+```

@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache
 
 # C extensions
 *.so
@@ -18,3 +19,7 @@ junit*
 
 # testrail files
 testrail.cfg
+
+.env
+.coverage
+htmlcov
