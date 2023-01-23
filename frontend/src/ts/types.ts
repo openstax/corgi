@@ -3,6 +3,7 @@ export interface Job {
     status_id: string
     job_type_id: string
     version: string
+    git_ref: string
     worker_version: string
     created_at: string
     updated_at: string

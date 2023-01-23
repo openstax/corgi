@@ -23,6 +23,7 @@ class Jobs(Base):
     user_id = sa.Column(sa.Integer, sa.ForeignKey("user.id"))
     status_id = sa.Column(sa.Integer, sa.ForeignKey("status.id"), default=1)
     job_type_id = sa.Column(sa.Integer, sa.ForeignKey("job_types.id"))
+    git_ref = sa.Column(sa.String)
     worker_version = sa.Column(sa.String)
     error_message = sa.Column(sa.String)
     created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
@@ -63,6 +64,9 @@ class Commit(Base):
 
     repository = relationship("Repository", back_populates="commits", lazy="joined")
     books = relationship("Book", back_populates="commit", lazy="joined")
+    # We do not need to store a commit more than once
+    __table_args__ = (sa.UniqueConstraint('repository_id', 'sha',
+                      name='_repository_commit'),)
 
 
 class Book(Base):

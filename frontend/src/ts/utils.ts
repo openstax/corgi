@@ -38,14 +38,6 @@ export function filterBooks(repositories: RepositorySummary[], selectedRepo: str
 }
 
 export function readableDateTime(datetime: string): string {
-  // Problem: does not account for timezone
-  // return datetime.replace(
-  //     /(\d{4})-(\d{2})-(\d{2})T(\d{2}:\d{2}:\d{2}).*/,
-  //     ($0, $1, $2, $3, $4) => {
-  //       return `${$1}/${$2}/${$3} ${$4}`
-  //     }
-  // )
-  // Solution: convert to number using utc timezone, then convert to date
   return (new Date(parseDateTimeAsUTC(datetime))).toLocaleString()
 }
 
@@ -67,6 +59,9 @@ export function parseDateTimeAddTZ(dateTime: string, tzOffset: string) {
 }
 
 export function parseDateTimeAsUTC(dateTime: string) {
+  // The database engine we are using does not seem to support storing timezone.
+  // We store UTC times in the database. Adding the UTC offset here makes
+  // javascript parse the time using UTC timezone instead of local timezone.
   return parseDateTimeAddTZ(dateTime, '+00:00')
 }
 

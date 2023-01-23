@@ -123,7 +123,14 @@
               target="_blank"
               rel="noreferrer"
             >
-              {item.version.slice(0, 7)}
+              {#if item.git_ref !== item.version}
+                {item.git_ref.length <= 16
+                  ? item.git_ref
+                  : `${item.git_ref.slice(0, 16)}...`
+                }@{item.version.slice(0, 7)}
+              {:else}
+                {item.version.slice(0, 7)}
+              {/if}
             </a>
           </Cell>
           <Cell>

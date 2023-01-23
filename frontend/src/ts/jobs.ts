@@ -53,7 +53,7 @@ export async function submitNewJob (
       job.job_type_id,
       repoToString(job.repository),
       job.books[0].slug,
-      job.version
+      job.git_ref
     )
   }
 
