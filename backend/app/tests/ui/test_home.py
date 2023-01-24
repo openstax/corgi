@@ -4,36 +4,57 @@ from pytest_testrail.plugin import pytestrail
 from pages.home import HomeCorgi
 
 
-@pytestrail.case("C624693")
-@pytest.mark.smoke
+@pytestrail.case("C593561")
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_create_new_job_button_is_visible(chrome_page, corgi_base_url):
+def test_home_page_loads(chrome_page, corgi_base_url):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
     chrome_page.goto(corgi_base_url)
     home = HomeCorgi(chrome_page)
 
-    # THEN: The create a new job button is visible
-    assert home.create_new_job_button_is_visible
+    # THEN: The home page UI elements are visible
+    assert home.book_input_fields
+    assert home.job_types_check_boxes
+    assert home.jobs_data_table
+    assert home.jobs_pagination_box
+
+
+@pytestrail.case("C624693")
+@pytest.mark.ui
+@pytest.mark.nondestructive
+def test_create_new_job_button_is_disabled(chrome_page, corgi_base_url):
+    # GIVEN: Playwright, chromium and the corgi_base_url
+
+    # WHEN: The Home page is fully loaded
+    chrome_page.goto(corgi_base_url)
+    home = HomeCorgi(chrome_page)
+
+    # THEN: Create new job button is initially disabled
+    assert not home.create_new_job_button_is_enabled
 
 
 @pytestrail.case("C624694")
-@pytest.mark.smoke
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_create_new_job_modal_form_opens_and_closes(chrome_page, corgi_base_url):
+@pytest.mark.parametrize(
+    "repo, book, version",
+    [("osbooks-astronomy", "astronomy-2e", "main")],
+)
+def test_create_new_job_button_is_enabled(chrome_page, corgi_base_url, repo, book, version):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
     chrome_page.goto(corgi_base_url)
     home = HomeCorgi(chrome_page)
 
-    # THEN: The create a new job modal is open
-    home.click_create_new_job_button()
-    assert home.modal_cancel_button_is_visible
+    # WHEN: Input fields are filled and a job check box is selected
+    home.fill_repo_field(repo)
+    home.fill_book_field(book)
+    home.fill_version_field(version)
 
-    # THEN: The create a new job modal is closed
-    home.click_modal_cancel_button()
-    assert home.create_new_job_button_is_visible
+    home.click_pdf_job_option()
+
+    # THEN: Create new job button is enabled
+    assert home.create_new_job_button_is_enabled

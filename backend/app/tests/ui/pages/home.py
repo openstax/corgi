@@ -3,164 +3,174 @@ class HomeCorgi:
         self.page = page
 
     @property
-    def create_new_job_button_is_visible(self):
-        return self.page.wait_for_selector("button.create-job-button :text('Create a new job')")
-
-    def click_create_new_job_button(self):
-        self.create_new_job_button_is_visible.click()
+    def book_input_fields(self):
+        return self.page.locator("child(2) > div > div:nth-child(2)")
 
     @property
-    def create_job_modal_is_open(self):
-        return self.page.locator("job-modal")
+    def job_types_check_boxes(self):
+        return self.page.locator("child(2) > div > div:nth-child(3)")
 
     @property
-    def create_button_is_visible(self):
-        return self.page.wait_for_selector("button.create-button-start-job :text('Create')")
-
-    def click_create_button(self):
-        self.create_button_is_visible.click()
+    def jobs_data_table(self):
+        return self.page.locator("div.mdc-data-table")
 
     @property
-    def modal_cancel_button_is_visible(self):
-        return self.page.locator("button.job-cancel-button")
-
-    def click_modal_cancel_button(self):
-        self.modal_cancel_button_is_visible.click()
+    def jobs_pagination_box(self):
+        return self.page.locator("div.mdc-data-table__pagination")
 
     @property
-    def pdf_radio_button(self):
-        return self.page.locator("div.v-radio.pdf-radio-button")
-
-    def click_pdf_radio_button(self):
-        self.pdf_radio_button.click()
+    def repo_field(self):
+        return self.page.wait_for_selector("id=repo-input")
 
     @property
-    def web_preview_radio_button(self):
-        return self.page.locator("div.v-radio.preview-radio-button")
+    def repo_field_input_locator(self):
+        return self.page.locator('#repo-input input')
 
-    def click_web_preview_radio_button(self):
-        self.web_preview_radio_button.click()
+    def fill_repo_field(self, value):
+        self.repo_field_input_locator.fill(value)
 
-    @property
-    def pdf_git_radio_button(self):
-        return self.page.locator("div.v-radio.git-pdf-radio-button")
-
-    def click_pdf_git_radio_button(self):
-        self.pdf_git_radio_button.click()
+    def click_repo_field(self):
+        self.repo_field_input_locator.click()
 
     @property
-    def web_preview_git_radio_button(self):
-        return self.page.locator("div.v-radio.git-preview-radio-button")
-
-    def click_web_preview_git_radio_button(self):
-        self.web_preview_git_radio_button.click()
+    def book_field(self):
+        return self.page.wait_for_selector("id=book-input")
 
     @property
-    def modal_hint_text(self):
-        return self.page.locator(
-            "div.v-dialog__content.v-dialog__content--active > div > div > div.v-card__text"
-        )
+    def book_field_input_locator(self):
+        return self.page.locator('#book-input input')
 
-    @property
-    def collection_id_field_texts(self):
-        return self.page.locator(
-            "div:nth-child(2) > div:nth-child(1) > div > div > div.v-text-field__details"
-        )
+    def fill_book_field(self, value):
+        self.book_field_input_locator.fill(value)
 
-    @property
-    def version_field_texts(self):
-        return self.page.locator(
-            "div:nth-child(2) > div:nth-child(2) > div > div > div.v-text-field__details"
-        )
-
-    @property
-    def style_field_texts(self):
-        return self.page.locator(
-            "div:nth-child(2) > div:nth-child(3) > div > div > div.v-text-field__details"
-        )
-
-    @property
-    def content_server_field_texts(self):
-        return self.page.locator(
-            "div:nth-child(2) > div:nth-child(4) > div > div > div.v-text-field__details"
-        )
-
-    @property
-    def collection_id_field(self):
-        return self.page.locator(
-            "div:nth-child(2) > div:nth-child(1) > div > div > div.v-input__slot > div > label"
-        )
-
-    @property
-    def colid_value(self):
-        return self.page.locator(
-            "div:nth-child(3) > div > div > table > tbody > tr:nth-child(1) > td:nth-child(4)"
-        )
-
-    def fill_collection_id_field(self, value):
-        self.collection_id_field.fill(value)
+    def click_book_field(self):
+        self.book_field_input_locator.click()
 
     @property
     def version_field(self):
-        return self.page.locator(
-            "div:nth-child(2) > div:nth-child(2) > div > div > div.v-input__slot > div > label"
-        )
+        return self.page.wait_for_selector("id=version-input")
+
+    @property
+    def version_field_input_locator(self):
+        return self.page.locator('#version-input input')
 
     def fill_version_field(self, value):
-        self.version_field.fill(value)
+        self.version_field_input_locator.fill(value)
+
+    def click_version_field(self):
+        self.version_field_input_locator.click()
 
     @property
-    def style_field(self):
-        return self.page.locator(
-            "div:nth-child(2) > div:nth-child(3) > div > div > div.v-input__slot > div.v-select__slot > label"
-        )
+    def pdf_job_option(self):
+        return self.page.wait_for_selector("id=PDF-job-option")
+
+    def click_pdf_job_option(self):
+        self.pdf_job_option.click()
 
     @property
-    def style_field_drop(self):
-        return self.page.locator(
-            "div:nth-child(2) > div:nth-child(3) > div > div > div.v-input__slot > div.v-select__slot"
-        )
+    def webview_job_option(self):
+        return self.page.wait_for_selector("id=Web-job-option")
 
-    def fill_style_field(self, value):
-        self.style_field.fill(value)
-
-    def click_style_field(self):
-        self.style_field_drop.click()
+    def click_webview_job_option(self):
+        self.webview_job_option.click()
 
     @property
-    def style_field_dropdown(self):
-        return self.page.locator("#list-item-209-0 > div > div")
+    def epub_job_option(self):
+        return self.page.wait_for_selector("id=EPUB-job-option")
+
+    def click_epub_job_option(self):
+        self.epub_job_option.click()
 
     @property
-    def server_field(self):
-        return self.page.locator(
-            "div:nth-child(2) > div:nth-child(4) > div > div > div.v-input__slot > div.v-select__slot > label"
-        )
+    def docx_job_option(self):
+        return self.page.wait_for_selector("id=Docx-job-option")
 
-    def fill_server_field(self, value):
-        self.server_field.fill(value)
+    def click_docx_job_option(self):
+        self.docx_job_option.click()
 
     @property
-    def content_server_locator(self):
-        return self.page.locator(
-            "div:nth-child(2) > div:nth-child(4) > div > div > div.v-input__slot > div.v-select__slot > label"
-        )
-
-    def click_content_server(self):
-        self.content_server_locator.click()
+    def create_new_job_button_is_enabled(self):
+        return self.page.is_enabled("id=submit-job-button")
 
     @property
-    def content_server_dropdown(self):
-        return self.page.locator("div.v-menu__content")
+    def create_new_job_button_locator(self):
+        return self.page.locator("id=submit-job-button")
 
-    def click_content_server_dropdown(self, value):
-        self.content_server_dropdown.locator(f"text={value}").click()
+    def click_create_new_job_button(self):
+        self.create_new_job_button_locator.click()
 
     @property
-    def status_message(self):
-        return self.page.locator(
-            "div:nth-child(3) > div > div > table > tbody > tr:nth-child(1) > td:nth-child(9)"
-        )
+    def error_message_dialog_locator(self):
+        return self.page.locator("div.error.mdc-banner")
 
-    def remove_focus(self):
-        return self.page.keyboard.down("Tab")
+    @property
+    def error_banner_okay_button_locator(self):
+        return self.page.locator("div.error.mdc-banner :text('Okay')")
+
+    def click_error_banner_okay_button(self):
+        self.error_banner_okay_button_locator.click()
+
+    @property
+    def error_banner_is_visible(self):
+        return self.page.is_visible("div.error.mdc-banner")
+
+    @property
+    def repo_dropdown_is_visible(self):
+        return self.page.locator("#repo-input input")
+
+    @property
+    def book_dropdown_is_visible(self):
+        return self.page.locator("#book-input input")
+
+    @property
+    def version_dropdown_is_visible(self):
+        return self.page.locator("#version-input input")
+
+    @property
+    def job_id(self):
+        return self.page.locator("td.mdc-data-table__cell--numeric >> nth=0")
+
+    def click_job_id(self):
+        self.job_id.click()
+
+    @property
+    def latest_job_status(self):
+        return self.page.locator("td:nth-child(6) > img >> nth=0").get_attribute('alt')
+
+    @property
+    def elapsed_time(self):
+        return self.page.locator("td:nth-child(7) >> nth=0")
+
+    @property
+    def wait_for_elapsed_time(self):
+        return self.page.locator("td:nth-child(7) >> nth=0")
+
+    @property
+    def queued_repo_name(self):
+        return self.page.locator("tr:nth-child(1) > td:nth-child(3)")
+
+    @property
+    def queued_job_type(self):
+        return self.page.locator("td:nth-child(2) > img >> nth=0").get_attribute('alt')
+
+    @property
+    def job_id_dialog_is_visible(self):
+        return self.page.is_visible("div.mdc-dialog__container")
+
+    @property
+    def job_id_dialog_title(self):
+        return self.page.locator("div.mdc-dialog__header")
+
+    @property
+    def job_id_dialog_close_button(self):
+        return self.page.locator("div.mdc-dialog__actions > button:nth-child(2)")
+
+    def click_job_id_dialog_close_button(self):
+        self.job_id_dialog_close_button.click()
+
+    @property
+    def version_sha(self):
+        return self.page.locator("div:nth-child(2) > div > div:nth-child(5)")
+
+    def click_version_sha(self):
+        self.version_sha.click()
