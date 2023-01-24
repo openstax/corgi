@@ -37,5 +37,4 @@ def chrome_page_slow():
 @pytest.fixture
 def corgi_base_url(base_url):
     """Return local corgi url"""
-    base_url = "https://corgi-514.ce.openstax.org/"
     return base_url
