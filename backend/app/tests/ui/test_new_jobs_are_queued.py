@@ -1,6 +1,6 @@
 from pytest_testrail.plugin import pytestrail
 
-from pages.home import HomeCorgi
+from tests.ui.pages.home import HomeCorgi
 
 import pytest
 

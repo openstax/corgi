@@ -1,7 +1,7 @@
 import pytest
 from pytest_testrail.plugin import pytestrail
 
-from pages.home import HomeCorgi
+from tests.ui.pages.home import HomeCorgi
 
 
 @pytestrail.case("C623702")
