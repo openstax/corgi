@@ -3,6 +3,54 @@ orbs:
   shellcheck: circleci/shellcheck@1.3.16
   python: circleci/python@2.0.3
 jobs:
+  integration-test:
+    machine:
+      image: ubuntu-2004:current
+      docker_layer_caching: true
+
+    environment:
+      TEST_RESULTS_DIR: /tmp/test-results
+      TEST_RESULTS_INTEGRATION: /tmp/test-results/junit-integration.xml
+      TEST_RESULTS_UI: /tmp/test-results/junit-ui.xml
+      STACK_NAME: dev
+      TAG: dev
+      DOMAIN: http://localhost
+
+    steps:
+      - checkout
+      # Permissions errors occurred with 0775 due to
+      # docker user not having permissions over this folder.
+      - run: mkdir -p -m=0777 $TEST_RESULTS_DIR
+      - run:
+          name: Install poetry
+          command: |
+            curl -sSL https://install.python-poetry.org | python3 -
+            echo 'export PATH=$HOME/.local/bin:$PATH' >> $BASH_ENV
+      - run:
+          name: Install dependencies + playwright
+          command: |
+            cd ./backend/app
+            poetry install --no-root --no-interaction --no-ansi
+            poetry run playwright install chromium --with-deps
+      - run:
+          name: Run integration and ui tests
+          command: |
+            ./scripts/tests.ci.sh
+            REVISION=$(git --git-dir=./.git rev-parse --short HEAD)
+            cd ./backend/app
+            REVISION=$REVISION poetry run pytest -vvv --junitxml="${TEST_RESULTS_UI}" --base-url="${DOMAIN}" ./tests/ui
+            REVISION=$REVISION poetry run pytest -vvv --junitxml="${TEST_RESULTS_INTEGRATION}" --base-url="${DOMAIN}" ./tests/integration
+
+      - store_artifacts:
+          path: /tmp/test-results/junit-integration.xml
+          destination: test-reports
+      
+      - store_artifacts:
+          path: /tmp/test-results/junit-ui.xml
+          destination: test-reports
+
+      - store_test_results:
+          path: /tmp/test-results
 
   frontend-unit:
     docker:
@@ -33,9 +81,9 @@ jobs:
           command: |
 
             cd ./backend/app
-            poetry install
+            poetry install --no-root --no-interaction --no-ansi
             poetry run pytest -vvv --junitxml=/tmp/test-reports/junit.xml ./tests/unit
-      
+
       - store_artifacts:
           path: /tmp/test-reports/junit.xml
           destination: test-reports
