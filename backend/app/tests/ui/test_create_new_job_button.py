@@ -1,7 +1,7 @@
 import pytest
 from pytest_testrail.plugin import pytestrail
 
-from pages.home import HomeCorgi
+from tests.ui.pages.home import HomeCorgi
 
 
 @pytestrail.case("C646763")
@@ -21,7 +21,7 @@ def test_create_new_job_button_stays_enabled(chrome_page, corgi_base_url, repo, 
     # WHEN: Input fields are filled and a job check box is selected
     home.fill_repo_field(repo)
     home.fill_book_field(book)
-    home.fill_version_field(book)
+    home.fill_version_field(version)
 
     home.click_docx_job_option()
 
@@ -117,8 +117,8 @@ def test_click_input_fields_then_fill_create_new_job_button_gets_enabled(chrome_
     # THEN: The main UI elements are visible and create new job button is disabled/enabled
     assert not home.create_new_job_button_is_enabled
 
-    home.fill_book_field(repo)
-    home.fill_repo_field(book)
+    home.fill_book_field(book)
+    home.fill_repo_field(repo)
 
     home.click_docx_job_option()
 
@@ -179,8 +179,8 @@ def test_space_character_create_new_job_button_disabled(chrome_page, corgi_base_
     # THEN: The main UI elements are visible and create new job button is disabled/enabled
     assert not home.create_new_job_button_is_enabled
 
-    home.fill_book_field(repo)
-    home.fill_repo_field(book)
+    home.fill_book_field(book)
+    home.fill_repo_field(repo)
 
     assert home.create_new_job_button_is_enabled
 
