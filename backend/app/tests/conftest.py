@@ -1,4 +1,5 @@
 import re
+import os
 
 import pytest
 
@@ -34,6 +35,10 @@ def pytest_addoption(parser):
         default=False,
         help="include destructive tests (tests not explicitly marked as \'nondestructive\'). (disabled by default).",
     )
+    parser.addoption(
+        "--github-token",
+        default=os.getenv("GITHUB_TOKEN", None)
+    )
     group.addoption("--sensitiveurl",
                     action="store",
                     dest="sensitive_url",
@@ -65,3 +70,14 @@ def pytest_runtest_setup(item):
 @pytest.fixture(scope="session")
 def api_url(base_url):
     return f"{base_url}/api"
+
+
+@pytest.fixture(scope="session")
+def github_token(request):
+    """Return the revision"""
+    config = request.config
+    github_token = config.getoption("--github-token")
+    assert isinstance(github_token, str) and len(github_token) > 0, \
+           ("Use option --github-token or env var GITHUB_TOKEN to set the"
+            "token to use")
+    return github_token
