@@ -22,10 +22,6 @@ def pytest_addoption(parser):
         "--revision",
         default=os.getenv("REVISION", "dev")
     )
-    parser.addoption(
-        "--github-token",
-        default=os.getenv("GITHUB_TOKEN", None)
-    )
 
 
 @pytest.fixture(scope="session")
@@ -64,17 +60,6 @@ def revision(request):
         return revision
     else:
         return "dev"
-
-
-@pytest.fixture(scope="session")
-def github_token(request):
-    """Return the revision"""
-    config = request.config
-    github_token = config.getoption("--github-token")
-    assert isinstance(github_token, str) and len(github_token) > 0, \
-           ("Use option --github-token or env var GITHUB_TOKEN to set the"
-            "token to use")
-    return github_token
 
 
 @pytest.fixture(scope="session")
