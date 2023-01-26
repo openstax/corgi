@@ -30,7 +30,7 @@ jobs:
           name: Install dependencies + playwright
           command: |
             cd ./backend/app
-            poetry install --no-root --no-interaction
+            poetry install --no-root --no-interaction --no-ansi
             poetry run playwright install chromium --with-deps
       - run:
           name: Run integration and ui tests
@@ -78,7 +78,7 @@ jobs:
           command: |
 
             cd ./backend/app
-            poetry install
+            poetry install --no-root --no-interaction --no-ansi
             poetry run pytest -vvv --junitxml=/tmp/test-reports/junit.xml ./tests/unit
       
       - store_artifacts:
