@@ -159,7 +159,7 @@ def test_incorrect_repo_corrected(chrome_page, corgi_base_url, repo, book, versi
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
     "repo, book, version",
-    [("osbooks-astronomy", "astro", "p888p")],
+    [("osbooks-astronomy", "astronomy-2e", "p888p")],
 )
 def test_incorrect_version_corrected(chrome_page, corgi_base_url, repo, book, version):
     # GIVEN: Playwright, chromium and the corgi_base_url
