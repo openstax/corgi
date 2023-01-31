@@ -1,13 +1,21 @@
 import asyncio
 import sys
 from pathlib import Path
-from typing import Callable, cast
+from typing import cast
+import shutil
 
 import vcr
 from app.github import (AuthenticatedClient, get_book_repository,
                         get_collections, get_user, get_user_repositories,
                         get_user_teams)
 from httpx import AsyncClient
+
+
+def apply_key_whitelist(d, whitelist):
+    whitelist = [k.lower() for k in whitelist]
+    for key in list(d.keys()):
+        if key.lower() not in whitelist:
+            del d[key]
 
 
 class BaseSanitizer:
@@ -19,11 +27,10 @@ class BaseSanitizer:
     def transform(self, d):
         request_headers = d["interactions"][0]["request"]["headers"]
         response_headers = d["interactions"][0]["response"]["headers"]
-        for k in ("authorization",):
-            del request_headers[k]
-        for k in list(response_headers.keys()):
-            if k.startswith("X-") or k.startswith("github-"):
-                del response_headers[k]
+        for headers, whitelist in (
+                (request_headers, ("host",)),
+                (response_headers, ("content-type", "server"))):
+            apply_key_whitelist(headers, whitelist)
 
     def serialize(self, d, *args, **kwargs):
         self.transform(d)
@@ -42,14 +49,14 @@ class UserSanitizer(BaseSanitizer):
         import json
         super().transform(d)
         body = json.loads(d["interactions"][0]["response"]["content"])
-        allowed = set(["login", "avatar_url", "id"])
         # Keep exactly what is used by the backend, delete extra data
-        for key in set(body.keys()) - allowed:
-            del body[key]
+        apply_key_whitelist(body, ("login", "avatar_url", "id"))
+        # HACK: Set the content to save from the response
         d["interactions"][0]["response"]["content"] = json.dumps(body)
 
 
-my_vcr = vcr.VCR(cassette_library_dir=str(Path(__file__).parent / "data"))
+DATA_DIR = str(Path(__file__).parent / "data")
+my_vcr = vcr.VCR(cassette_library_dir=DATA_DIR)
 
 
 my_vcr.register_serializer("base_sanitizer", BaseSanitizer(my_vcr))
@@ -85,7 +92,7 @@ async def mock_get_collections(client, repo_name, repo_owner, commit_sha):
     return await get_collections(client, repo_name, repo_owner, commit_sha)
 
 
-async def main(access_token: str):
+async def async_main(access_token: str):
     async with AsyncClient() as client:
         client.headers = {"authorization": f"Bearer {access_token}"}
         client = cast(AuthenticatedClient, client)
@@ -97,6 +104,11 @@ async def main(access_token: str):
         await mock_get_collections(client, "tiny-book", "openstax", "main")
 
 
+def main(access_token):
+    shutil.rmtree(DATA_DIR)
+    asyncio.run(async_main(access_token))
+
+
 if __name__ == "__main__":
     access_token = sys.argv[1]
-    asyncio.run(main(access_token))
+    main(access_token)
