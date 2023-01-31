@@ -33,6 +33,8 @@ if IS_DEV_ENV:
 
 # GITHUB SETTINGS
 GITHUB_API_TOKEN = os.getenv("GITHUB_API_TOKEN")
+GITHUB_ORG = os.getenv("GITHUB_ORG", "openstax")
+GITHUB_REPO_PREFIX = os.getenv("GITHUB_REPO_PREFIX", "osbooks")
 
 # GITHUB OAUTH
 CLIENT_ID = os.getenv("GITHUB_OAUTH_ID")
