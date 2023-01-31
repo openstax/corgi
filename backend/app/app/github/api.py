@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Tuple
 
 from app.core.auth import get_user_role
-from app.core.config import IS_DEV_ENV
+from app.core.config import IS_DEV_ENV, GITHUB_ORG
 from app.core.errors import CustomBaseError
 from app.data_models.models import UserSession
 from app.github.client import AuthenticatedClient
@@ -169,7 +169,7 @@ async def get_user_teams(client: AuthenticatedClient, user: str) -> List[str]:
     else:
         query = f"""
             query {{
-                organization(login: "openstax") {{
+                organization(login: "{GITHUB_ORG}") {{
                     teams(first: 100, userLogins: ["{user}"]) {{
                         totalCount
                         edges {{
