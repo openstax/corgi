@@ -5,50 +5,17 @@ interactions:
       {\n                    endCursor\n                    hasNextPage\n                }\n                edges
       {\n                    node {\n                        ... on Repository {\n                            name\n                            databaseId\n                            viewerPermission\n                        }\n                    }\n                }\n            }\n        }\n    "}'
     headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      connection:
-      - keep-alive
-      content-length:
-      - '591'
-      content-type:
-      - application/json
       host:
       - api.github.com
-      user-agent:
-      - python-httpx/0.23.0
     method: POST
     uri: https://api.github.com/graphql
   response:
-    content: '{"data":{"search":{"repositoryCount":40,"pageInfo":{"endCursor":"Y3Vyc29yOjQw","hasNextPage":false},"edges":[{"node":{"name":"osbooks-writing-guide","databaseId":385349509,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-fizyka-bundle","databaseId":349214243,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-introduction-sociology","databaseId":447724283,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-college-physics-bundle","databaseId":424340810,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-university-physics-bundle","databaseId":331073080,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-american-government","databaseId":447725992,"viewerPermission":"TRIAGE"}},{"node":{"name":"template-osbooks-new","databaseId":384528039,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-precalculo","databaseId":419790341,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-entrepreneurship","databaseId":429096449,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-playground","databaseId":381823217,"viewerPermission":"WRITE"}},{"node":{"name":"osbooks-psychologia","databaseId":428786834,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-quimica-bundle","databaseId":473020953,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-statistics","databaseId":349214030,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-psychology","databaseId":447304990,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-us-history","databaseId":424342926,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-introduction-business","databaseId":428792524,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-principles-finance","databaseId":406121277,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-introduction-political-science","databaseId":402484075,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-astronomy","databaseId":428806530,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-microbiology","databaseId":428802781,"viewerPermission":"TRIAGE"}},{"node":{"name":"template-osbooks","databaseId":368908485,"viewerPermission":"ADMIN"}},{"node":{"name":"osbooks-physics","databaseId":428807294,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-calculus-bundle","databaseId":420179902,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-introductory-statistics-bundle","databaseId":414272555,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-business-ethics","databaseId":428793576,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-principles-accounting-bundle","databaseId":428805571,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-introduccion-estadistica-bundle","databaseId":401836524,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-biology-bundle","databaseId":428804196,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-fisica-universitaria-bundle","databaseId":421906193,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-calculo-bundle","databaseId":419763545,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-college-algebra-bundle","databaseId":329400042,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-business-law","databaseId":349213981,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-college-success","databaseId":428790003,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-principles-of-management-bundle","databaseId":349214008,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-introduction-intellectual-property","databaseId":428794418,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-prealgebra-bundle","databaseId":447720214,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-anatomy-physiology","databaseId":428812124,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-chemistry-bundle","databaseId":439412338,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-introduction-anthropology","databaseId":387500800,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-life-liberty-and-pursuit-happiness","databaseId":429093860,"viewerPermission":"TRIAGE"}}]}}}'
+    content: '{"data":{"search":{"repositoryCount":41,"pageInfo":{"endCursor":"Y3Vyc29yOjQx","hasNextPage":false},"edges":[{"node":{"name":"osbooks-college-physics-bundle","databaseId":424340810,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-writing-guide","databaseId":385349509,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-calculus-bundle","databaseId":420179902,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-introduction-sociology","databaseId":447724283,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-fizyka-bundle","databaseId":349214243,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-university-physics-bundle","databaseId":331073080,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-astronomy","databaseId":428806530,"viewerPermission":"TRIAGE"}},{"node":{"name":"template-osbooks-new","databaseId":384528039,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-precalculo","databaseId":419790341,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-entrepreneurship","databaseId":429096449,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-playground","databaseId":381823217,"viewerPermission":"WRITE"}},{"node":{"name":"osbooks-american-government","databaseId":447725992,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-quimica-bundle","databaseId":473020953,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-psychologia","databaseId":428786834,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-psychology","databaseId":447304990,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-statistics","databaseId":349214030,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-us-history","databaseId":424342926,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-principles-finance","databaseId":406121277,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-introduction-political-science","databaseId":402484075,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-introduction-business","databaseId":428792524,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-microbiology","databaseId":428802781,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-calculo-bundle","databaseId":419763545,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-college-algebra-bundle","databaseId":329400042,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-business-ethics","databaseId":428793576,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-principles-accounting-bundle","databaseId":428805571,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-introductory-statistics-bundle","databaseId":414272555,"viewerPermission":"TRIAGE"}},{"node":{"name":"template-osbooks","databaseId":368908485,"viewerPermission":"ADMIN"}},{"node":{"name":"osbooks-physics","databaseId":428807294,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-principles-economics-bundle","databaseId":447297254,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-introduccion-estadistica-bundle","databaseId":401836524,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-fisica-universitaria-bundle","databaseId":421906193,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-biology-bundle","databaseId":428804196,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-life-liberty-and-pursuit-happiness","databaseId":429093860,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-business-law","databaseId":349213981,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-college-success-bundle","databaseId":428790003,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-principles-of-management-bundle","databaseId":349214008,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-introduction-intellectual-property","databaseId":428794418,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-chemistry-bundle","databaseId":439412338,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-prealgebra-bundle","databaseId":447720214,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-anatomy-physiology","databaseId":428812124,"viewerPermission":"TRIAGE"}},{"node":{"name":"osbooks-introduction-anthropology","databaseId":387500800,"viewerPermission":"TRIAGE"}}]}}}'
     headers:
-      Access-Control-Allow-Origin:
-      - '*'
-      Access-Control-Expose-Headers:
-      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
-        X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes,
-        X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO,
-        X-GitHub-Request-Id, Deprecation, Sunset
-      Content-Encoding:
-      - gzip
-      Content-Security-Policy:
-      - default-src 'none'
       Content-Type:
       - application/json; charset=utf-8
-      Date:
-      - Mon, 21 Nov 2022 18:19:48 GMT
-      Referrer-Policy:
-      - origin-when-cross-origin, strict-origin-when-cross-origin
       Server:
       - GitHub.com
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubdomains; preload
-      Transfer-Encoding:
-      - chunked
-      Vary:
-      - Accept-Encoding, Accept, X-Requested-With
     http_version: HTTP/1.1
     status_code: 200
 version: 1

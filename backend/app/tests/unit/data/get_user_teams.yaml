@@ -5,20 +5,8 @@ interactions:
       {\n                        totalCount\n                        edges {\n                            node
       {\n                                name\n                                description\n                            }\n                        }\n                    }\n                }\n            }\n        "}'
     headers:
-      accept:
-      - '*/*'
-      accept-encoding:
-      - gzip, deflate
-      connection:
-      - keep-alive
-      content-length:
-      - '476'
-      content-type:
-      - application/json
       host:
       - api.github.com
-      user-agent:
-      - python-httpx/0.23.0
     method: POST
     uri: https://api.github.com/graphql
   response:
@@ -27,31 +15,10 @@ interactions:
       board for the Content Engineering Team"}},{"node":{"name":"ce-be","description":"CE
       Backend developers"}}]}}}}'
     headers:
-      Access-Control-Allow-Origin:
-      - '*'
-      Access-Control-Expose-Headers:
-      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
-        X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes,
-        X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO,
-        X-GitHub-Request-Id, Deprecation, Sunset
-      Content-Encoding:
-      - gzip
-      Content-Security-Policy:
-      - default-src 'none'
       Content-Type:
       - application/json; charset=utf-8
-      Date:
-      - Mon, 21 Nov 2022 18:19:46 GMT
-      Referrer-Policy:
-      - origin-when-cross-origin, strict-origin-when-cross-origin
       Server:
       - GitHub.com
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubdomains; preload
-      Transfer-Encoding:
-      - chunked
-      Vary:
-      - Accept-Encoding, Accept, X-Requested-With
     http_version: HTTP/1.1
     status_code: 200
 version: 1
