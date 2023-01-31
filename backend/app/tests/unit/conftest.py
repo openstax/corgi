@@ -1,5 +1,3 @@
-import argparse
-
 import pytest
 from app.main import server
 from fastapi.responses import RedirectResponse
@@ -7,10 +5,7 @@ from starlette.testclient import TestClient
 
 
 def pytest_addoption(parser):
-    parser.addoption(
-        "--init-test-data",
-        action=argparse.BooleanOptionalAction
-    )
+    parser.addoption("--init-test-data", action="store_true")
 
 
 def pytest_configure(config):
