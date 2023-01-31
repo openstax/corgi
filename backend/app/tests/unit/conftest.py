@@ -1,7 +1,28 @@
+import argparse
+
 import pytest
 from app.main import server
 from fastapi.responses import RedirectResponse
 from starlette.testclient import TestClient
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--init-test-data",
+        action=argparse.BooleanOptionalAction
+    )
+
+
+def pytest_configure(config):
+    init_test_data = config.getoption("--init-test-data")
+    if init_test_data:
+        token = config.getoption("--github-token")
+        if token is not None:
+            from tests.unit.init_test_data import main
+            main(token)
+        else:
+            raise Exception("--github-token is required when initializing "
+                            "test data")
 
 
 @pytest.fixture

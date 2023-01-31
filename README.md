@@ -115,6 +115,18 @@ $ docker-compose up
 
 Note: Can be done in container or outside the container, with installed requirements.
 
+### Run backend unit tests
+
+To run unit tests:
+
+    cd backend/app
+    poetry run pytest tests/unit
+
+The unit tests use vcr to store response from GitHub. To initialize test data:
+
+    cd backend/app
+    poetry run pytest tests/unit --init-test-data --github-token "<token>"
+
 ### Run integration and UI tests 
 
 To run the tests execute:
