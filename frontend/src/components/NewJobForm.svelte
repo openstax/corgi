@@ -111,7 +111,7 @@
   let options = [
     { name: "PDF", id: "PDF", disabled: false },
     { name: "WebView", id: "Web", disabled: false },
-    { name: "EPUB", id: "EPUB", disabled: true },
+    { name: "EPUB", id: "EPUB", disabled: false },
     { name: "Docx", id: "Docx", disabled: false },
   ];
 
