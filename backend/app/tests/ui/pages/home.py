@@ -139,11 +139,7 @@ class HomeCorgi:
 
     @property
     def elapsed_time(self):
-        return self.page.locator("td:nth-child(7) >> nth=0")
-
-    @property
-    def wait_for_elapsed_time(self):
-        return self.page.locator("td:nth-child(7) >> nth=0")
+        return self.page.wait_for_selector("td:nth-child(7) >> nth=0", timeout=390000)
 
     @property
     def queued_repo_name(self):
@@ -151,7 +147,14 @@ class HomeCorgi:
 
     @property
     def queued_job_type(self):
-        return self.page.locator("td:nth-child(2) > img >> nth=0").get_attribute('alt')
+        return self.page.locator("tr:nth-child(1) > td:nth-child(2) > a > img").get_attribute('alt', timeout=390000)
+
+    @property
+    def job_type_icon(self):
+        return self.page.locator("tr:nth-child(1) > td:nth-child(2)")
+
+    def click_job_type_icon(self):
+        self.job_type_icon.click()
 
     @property
     def job_id_dialog_is_visible(self):
@@ -174,3 +177,7 @@ class HomeCorgi:
 
     def click_version_sha(self):
         self.version_sha.click()
+
+    @property
+    def check_href_attribute(self):
+        return self.page.locator("tr:nth-child(1) > td:nth-child(2) > a").get_attribute('href', timeout=390000)
