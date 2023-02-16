@@ -134,29 +134,6 @@ class HomeCorgi:
         self.job_id.click()
 
     @property
-    def latest_job_status(self):
-        return self.page.locator("td:nth-child(6) > img >> nth=0").get_attribute('alt')
-
-    @property
-    def elapsed_time(self):
-        return self.page.wait_for_selector("td:nth-child(7) >> nth=0", timeout=390000)
-
-    @property
-    def queued_repo_name(self):
-        return self.page.locator("tr:nth-child(1) > td:nth-child(3)")
-
-    @property
-    def queued_job_type(self):
-        return self.page.locator("tr:nth-child(1) > td:nth-child(2) > a > img").get_attribute('alt', timeout=390000)
-
-    @property
-    def job_type_icon(self):
-        return self.page.locator("tr:nth-child(1) > td:nth-child(2)")
-
-    def click_job_type_icon(self):
-        self.job_type_icon.click()
-
-    @property
     def job_id_dialog_is_visible(self):
         return self.page.is_visible("div.mdc-dialog__container")
 
@@ -172,12 +149,57 @@ class HomeCorgi:
         self.job_id_dialog_close_button.click()
 
     @property
+    def abort_button_locator(self):
+        return self.page.wait_for_selector("id=abort-button")
+
+    def click_abort_button(self):
+        self.abort_button_locator.click()
+
+    @property
+    def job_id_pdf_link_is_visible(self):
+        return self.page.is_visible("div.mdc-dialog__content > a")
+
+    @property
+    def job_id_pdf_link_locator(self):
+        return self.page.locator("div.mdc-dialog__content > a")
+
+    def click_job_id_pdf_link(self):
+        self.job_id_pdf_link_locator.click()
+
+    @property
+    def job_id_link_href(self):
+        return self.job_id_pdf_link_locator.get_attribute('href', timeout=690000)
+
+    @property
+    def latest_job_status(self):
+        return self.page.locator("td:nth-child(6) > img >> nth=0").get_attribute('alt')
+
+    @property
+    def elapsed_time(self):
+        return self.page.wait_for_selector("td:nth-child(7) >> nth=0", timeout=690000)
+
+    @property
+    def queued_repo_name(self):
+        return self.page.locator("tr:nth-child(1) > td:nth-child(3)")
+
+    @property
+    def queued_job_type(self):
+        return self.page.locator("tr:nth-child(1) > td:nth-child(2) > a > img").get_attribute('alt', timeout=690000)
+
+    @property
+    def job_type_icon(self):
+        return self.page.locator("tr:nth-child(1) > td:nth-child(2)")
+
+    def click_job_type_icon(self):
+        self.job_type_icon.click()
+
+    @property
+    def job_type_href(self):
+        return self.page.locator("tr:nth-child(1) > td:nth-child(2) > a").get_attribute('href', timeout=690000)
+
+    @property
     def version_sha(self):
-        return self.page.locator("div:nth-child(2) > div > div:nth-child(5)")
+        return self.page.locator("tr:nth-child(1) > td:nth-child(5)")
 
     def click_version_sha(self):
         self.version_sha.click()
-
-    @property
-    def check_href_attribute(self):
-        return self.page.locator("tr:nth-child(1) > td:nth-child(2) > a").get_attribute('href', timeout=390000)

@@ -30,7 +30,7 @@ def test_e2e_webview_jobs(chrome_page_slow, corgi_base_url, repo, book, version)
     # THEN: A new job is queued and verified
     if home.elapsed_time.inner_text() <= '00:00:03' and home.queued_job_type == "Web Preview (git)":
 
-        while home.check_href_attribute is None:
+        while home.job_type_href is None:
             pass
 
         with chrome_page_slow.context.expect_page() as tab:
