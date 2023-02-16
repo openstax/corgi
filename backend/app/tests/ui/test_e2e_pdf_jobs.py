@@ -30,66 +30,78 @@ def test_e2e_pdf_jobs(chrome_page_slow, corgi_base_url, repo, book, version):
     home.click_create_new_job_button()
 
     # THEN: A new job is queued and verified
-    if home.elapsed_time.inner_text() <= '00:00:03' and home.queued_job_type == "PDF (git)":
+    if home.elapsed_time.inner_text() <= '00:00:07' and home.queued_job_type == "PDF (git)":
 
-        while home.check_href_attribute is None:
+        while home.job_type_href is None:
             pass
 
-        with chrome_page_slow.context.expect_page() as tab:
-            home.click_job_type_icon()
+        home.click_job_id()
 
-        new_tab_pdf = tab.value.url
-
-        assert ".pdf" in new_tab_pdf
-
-        r_url = Request(new_tab_pdf)
-        pdf_url = urlopen(r_url).read()
-
-        io_file = io.BytesIO(pdf_url)
-        pdf_read = PdfReader(io_file)
-
-        pdf_title = pdf_read.metadata.title
-
-        book_adjusted = book.replace("-", " ")
-
-        num_pages = len(pdf_read.pages)
-
-        liszt = []
-
-        if len(pdf_read.pages) < 1:
-            pytest.fail(f"No pages in pdf file: {repo}/{book}")
+        if not home.job_id_dialog_is_visible:
+            pytest.fail("Job ID dialog is not visible")
 
         else:
-            assert book_adjusted.lower() in pdf_title.lower()
+            while home.job_id_link_href is None:
+                pass
 
-            for no in range(0, num_pages):
-                for ppage in pdf_read.pages:
-                    ptext = ppage.extract_text()
+            if not home.job_id_pdf_link_is_visible:
+                pytest.fail("PDF link in Job ID dialog is not visible")
+            else:
+                home.click_job_id_pdf_link()
 
-                    try:
-                        assert ptext is not None
+                href_pdf_url = home.job_id_link_href
 
-                    except AssertionError:
-                        pytest.fail(f"pdf page {no} is empty")
+                assert ".pdf" in href_pdf_url
 
-                    else:
-                        pass
+                r_url = Request(href_pdf_url)
+                pdf_url = urlopen(r_url).read()
 
-                    liszt.append(ptext.split('\n'))
+                io_file = io.BytesIO(pdf_url)
+                pdf_read = PdfReader(io_file)
 
-        flat_liszt = [item for sublist in liszt for item in sublist]
+                pdf_title = pdf_read.metadata.title
 
-        try:
-            assert any("CONTENT" in word for word in flat_liszt)
-            assert any("Preface" in word for word in flat_liszt)
-            assert any("Chapter Outline" in word for word in flat_liszt)
-            assert any("Index" in word for word in flat_liszt)
+                book_adjusted = book.replace("-", " ")
+                assert pdf_title in book_adjusted
 
-        except AssertionError:
-            pytest.fail(f"CONTENT, Preface, Chapter Outline or Index is missing in the pdf: {new_tab_pdf}")
+                num_pages = len(pdf_read.pages)
 
-        else:
-            pass
+                liszt = []
+
+                if len(pdf_read.pages) < 1:
+                    pytest.fail(f"No pages in pdf file: {repo}/{book}")
+
+                else:
+                    assert book_adjusted.lower() in pdf_title.lower()
+
+                    for no in range(0, num_pages):
+                        for ppage in pdf_read.pages:
+                            ptext = ppage.extract_text()
+
+                            try:
+                                assert ptext is not None
+
+                            except AssertionError:
+                                pytest.fail(f"pdf page {no} is empty")
+
+                            else:
+                                pass
+
+                            liszt.append(ptext.split('\n'))
+
+                flat_liszt = [item for sublist in liszt for item in sublist]
+
+                try:
+                    assert any("CONTENT" in word for word in flat_liszt)
+                    assert any("Preface" in word for word in flat_liszt)
+                    assert any("Chapter Outline" in word for word in flat_liszt)
+                    assert any("Index" in word for word in flat_liszt)
+
+                except AssertionError:
+                    pytest.fail(f"CONTENT, Preface, Chapter Outline or Index is missing in the pdf: {href_pdf_url}")
+
+                else:
+                    pass
 
     else:
         pytest.fail(f"No new job was queued. Last job is at {home.elapsed_time.inner_text()}")
