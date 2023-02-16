@@ -41,12 +41,12 @@ def test_create_new_job_button_stays_enabled(chrome_page, corgi_base_url, repo, 
     "repo, book, version",
     [("osbooks-astronomy", "astronomy-2e", "")],
 )
-def test_create_new_job_button_enabled_disabled(chrome_page, corgi_base_url, repo, book, version):
+def test_create_new_job_button_enabled_disabled(chrome_page_slow, corgi_base_url, repo, book, version):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
-    chrome_page.goto(corgi_base_url)
-    home = HomeCorgi(chrome_page)
+    chrome_page_slow.goto(corgi_base_url)
+    home = HomeCorgi(chrome_page_slow)
 
     # WHEN: Input fields are filled and a job check box is selected
     home.fill_repo_field(repo)
@@ -71,6 +71,11 @@ def test_create_new_job_button_enabled_disabled(chrome_page, corgi_base_url, rep
     home.click_pdf_job_option()
 
     assert home.create_new_job_button_is_enabled
+
+    home.click_job_id()
+    home.click_abort_button()
+
+    assert home.latest_job_status == "aborted"
 
 
 @pytest.mark.ui
