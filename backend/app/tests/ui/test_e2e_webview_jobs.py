@@ -28,10 +28,7 @@ def test_e2e_webview_jobs(chrome_page_slow, corgi_base_url, repo, book, version)
     home.click_create_new_job_button()
 
     # THEN: A new job is queued and verified
-    if home.elapsed_time.inner_text() <= '00:00:03' and home.queued_job_type == "Web Preview (git)":
-
-        while home.job_type_href is None:
-            pass
+    if home.elapsed_time.inner_text() <= '00:00:05' and home.queued_job_type == "Web Preview (git)":
 
         with chrome_page_slow.context.expect_page() as tab:
             home.click_job_type_icon()
@@ -59,3 +56,6 @@ def test_e2e_webview_jobs(chrome_page_slow, corgi_base_url, repo, book, version)
             for m_content in sopa.find_all('div', id='main-content'):
                 for p_tag in m_content.find_all('p'):
                     assert len(p_tag.text) > 0
+
+    else:
+        pytest.fail(f"No new job was queued. Last job is at {home.elapsed_time.inner_text()}")
