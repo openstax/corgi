@@ -30,12 +30,13 @@ def test_e2e_pdf_jobs(chrome_page_slow, corgi_base_url, repo, book, version):
     home.click_create_new_job_button()
 
     # THEN: A new job is queued and verified
-    if home.elapsed_time.inner_text() <= '00:00:07' and home.queued_job_type == "PDF (git)":
+    if home.elapsed_time.inner_text() <= '00:00:05' and home.queued_job_type == "PDF (git)":
 
-        while home.job_type_href is None:
-            pass
+        if home.job_type_href:
+            home.click_job_id()
 
-        home.click_job_id()
+        else:
+            raise Exception("Missing URL in job_type_href element")
 
         if not home.job_id_dialog_is_visible:
             pytest.fail("Job ID dialog is not visible")
