@@ -30,9 +30,13 @@ def test_job_id_dialog_opens_closes(chrome_page_slow, corgi_base_url, repo, book
     home.click_create_new_job_button()
 
     # THEN: A new job is queued and job ID is clickable
-    if home.elapsed_time.inner_text() <= '00:00:07' and home.queued_job_type == "Web Preview (git)":
+    if home.elapsed_time.inner_text() <= '00:00:05' and home.queued_job_type == "Web Preview (git)":
 
-        home.click_job_id()
+        if home.job_type_href:
+            home.click_job_id()
+
+        else:
+            raise Exception("Missing URL in job_type_href element")
 
         assert home.job_id_dialog_is_visible
         assert home.job_id.inner_text() in home.job_id_dialog_title.inner_text()
@@ -55,14 +59,9 @@ def test_version_sha_is_clickable(chrome_page_slow, corgi_base_url):
     home = HomeCorgi(chrome_page_slow)
 
     # THEN: A new job's version sha is clickable
-    if home.latest_job_status == 'completed':
+    with chrome_page_slow.context.expect_page() as tab:
+        home.click_version_sha()
 
-        with chrome_page_slow.context.expect_page() as tab:
-            home.click_version_sha()
+    new_tab = tab.value
 
-        new_tab = tab.value
-
-        assert home.queued_repo_name.inner_text() in new_tab.url
-
-    else:
-        pytest.fail(f"No new job was queued. Last job is at {home.elapsed_time.inner_text()}")
+    assert home.queued_repo_name.inner_text() in new_tab.url
