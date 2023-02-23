@@ -94,5 +94,12 @@ services:
       - default
       
 networks:
+  default:
+    driver: overlay
+    internal: true
+    ipam:
+      driver: default
+      config:
+        - subnet: "${SUBNET}"
   traefik-public:
     external: true

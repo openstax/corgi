@@ -6,3 +6,4 @@ set +x
 SESSION_SECRET="$(dd if=/dev/urandom bs=1024 count=1 | base64)"
 set -x
 export SESSION_SECRET
+export SUBNET="172.28.2.0/24"
