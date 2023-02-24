@@ -50,7 +50,7 @@
           </Button>
         {/if}
       {/if}
-      <Button variant="raised" on:click={() => {}}>
+      <Button id="close-button" variant="raised" on:click={() => {}}>
         <Label>Close</Label>
       </Button>
     </Actions>

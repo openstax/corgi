@@ -65,8 +65,8 @@
     <Body>
       {#each slice as item (item.id)}
         <!-- <DetailRow> -->
-        <Row slot="data">
-          <Cell numeric>
+        <Row id="{item.id}" slot="data">
+          <Cell data-test="item_id" numeric>
             <Button
               on:click={() => {
                 selectedJob = item
@@ -76,7 +76,7 @@
               {item.id}
             </Button>
           </Cell>
-          <Cell>
+          <Cell data-test=item_job_type>
             <Wrapper>
               {#if isJobComplete(item)}
                 <a
@@ -100,10 +100,10 @@
               <Tooltip>{item.job_type.display_name}</Tooltip>
             </Wrapper>
           </Cell>
-          <Cell>
+          <Cell data-test="item_repository">
             {repoToString(item.repository)}
           </Cell>
-          <Cell>
+          <Cell data-test="item_book_slug">
             {#if item.books.length === 1}
               {item.books[0].slug}
             {:else}
@@ -117,7 +117,7 @@
               </Wrapper>
             {/if}
           </Cell>
-          <Cell>
+          <Cell data-test="item_version">
             <a
               href={getVersionLink(item)}
               target="_blank"
@@ -133,7 +133,7 @@
               {/if}
             </a>
           </Cell>
-          <Cell>
+          <Cell data-test="item_job_status">
             <Wrapper>
               <img
                 alt={item.status.name}
@@ -143,13 +143,13 @@
               <Tooltip>{item.status.name}</Tooltip>
             </Wrapper>
           </Cell>
-          <Cell>
+          <Cell data-test="item_job_elapsed_time>
             <Wrapper>
               <span>{calculateElapsed(item)}</span>
               <Tooltip>{readableDateTime(item.created_at)}</Tooltip>
             </Wrapper>
           </Cell>
-          <Cell>
+          <Cell data-test="item_job_user">
             <Wrapper>
               <img
                 alt={item.user.name}
