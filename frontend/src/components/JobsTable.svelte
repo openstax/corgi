@@ -65,7 +65,7 @@
     <Body>
       {#each slice as item (item.id)}
         <!-- <DetailRow> -->
-        <Row id="{item.id}" slot="data">
+        <Row id="job_{item.id}" slot="data">
           <Cell data-test="item_id" numeric>
             <Button
               on:click={() => {
@@ -76,7 +76,7 @@
               {item.id}
             </Button>
           </Cell>
-          <Cell data-test=item_job_type>
+          <Cell id="job_{item.id}_job_type">
             <Wrapper>
               {#if isJobComplete(item)}
                 <a
@@ -100,10 +100,10 @@
               <Tooltip>{item.job_type.display_name}</Tooltip>
             </Wrapper>
           </Cell>
-          <Cell data-test="item_repository">
+          <Cell id="{item.id}_repository">
             {repoToString(item.repository)}
           </Cell>
-          <Cell data-test="item_book_slug">
+          <Cell id="job_{item.id}_book_slug">
             {#if item.books.length === 1}
               {item.books[0].slug}
             {:else}
@@ -117,7 +117,7 @@
               </Wrapper>
             {/if}
           </Cell>
-          <Cell data-test="item_version">
+          <Cell id="job_{item.id}_version">
             <a
               href={getVersionLink(item)}
               target="_blank"
@@ -133,7 +133,7 @@
               {/if}
             </a>
           </Cell>
-          <Cell data-test="item_job_status">
+          <Cell id="job_{item.id}_job_status">
             <Wrapper>
               <img
                 alt={item.status.name}
@@ -143,13 +143,13 @@
               <Tooltip>{item.status.name}</Tooltip>
             </Wrapper>
           </Cell>
-          <Cell data-test="item_job_elapsed_time>
+          <Cell did="job_{item.id}_elapse_time">
             <Wrapper>
               <span>{calculateElapsed(item)}</span>
               <Tooltip>{readableDateTime(item.created_at)}</Tooltip>
             </Wrapper>
           </Cell>
-          <Cell data-test="item_job_user">
+          <Cell id="job_{item.id}_user">
             <Wrapper>
               <img
                 alt={item.user.name}
