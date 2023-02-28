@@ -88,6 +88,7 @@
                     alt={item.job_type.display_name}
                     src={mapImage('job_type', item.job_type.display_name, 'svg')}
                     style="max-height: 40px;"
+                    data-is-complete="true"
                   />
                 </a>
               {:else}
@@ -95,6 +96,7 @@
                   alt={item.job_type.display_name}
                   src={mapImage('job_type', item.job_type.display_name, 'svg')}
                   style="max-height: 40px;"
+                  data-is-complete="false"
                 />
               {/if}
               <Tooltip>{item.job_type.display_name}</Tooltip>

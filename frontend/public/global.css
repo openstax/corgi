@@ -66,3 +66,8 @@ button:focus {
   background-color: #f44336 !important;
   color: white;
 }
+
+img[data-is-complete="false"] {
+	opacity: 0.5;
+	filter: grayscale(1);
+}
