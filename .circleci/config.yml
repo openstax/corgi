@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  shellcheck: circleci/shellcheck@1.3.16
+  shellcheck: circleci/shellcheck@3.1.2
   python: circleci/python@2.0.3
 jobs:
   frontend-unit:
@@ -14,6 +14,7 @@ jobs:
           command: |
             cd ./frontend
             npm ci
+            npm run build
             npm run test:unit
   
   backend-unit:
@@ -27,7 +28,6 @@ jobs:
       - run:
           name: Run unit tests
           command: |
-
             cd ./backend/app
             poetry install --no-root --no-interaction --no-ansi
             poetry run pytest -vvv --junitxml=/tmp/test-reports/junit.xml ./tests/unit
@@ -39,11 +39,35 @@ jobs:
       - store_test_results:
           path: /tmp/test-reports
 
+  build-backend:
+    docker:
+      - image: cimg/base:2023.02
+
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Build backend image
+          command: |
+            cd ./backend
+            docker build -f backend.dockerfile --target prod-runner .
+
 workflows:
   version: 2
   run-tests:
     jobs:
+      - shellcheck/check:
+          dir: ./scripts
+          pattern: "*.sh"
+          exclude: SC1091
+      - shellcheck/check:
+          dir: ./backend/app/bin
+          pattern: "*.sh"
+          exclude: SC1091
+      - shellcheck/check:
+          dir: "."
+          pattern: corgi
       - frontend-unit
       - backend-unit
-      - shellcheck/check:
-          path: ./
+      - build-backend
