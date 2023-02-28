@@ -87,7 +87,7 @@
                   <img
                     alt={item.job_type.display_name}
                     src={mapImage('job_type', item.job_type.display_name, 'svg')}
-                    style="max-height: 40px;"
+                    class="job-type-icon"
                     data-is-complete="true"
                   />
                 </a>
@@ -95,7 +95,7 @@
                 <img
                   alt={item.job_type.display_name}
                   src={mapImage('job_type', item.job_type.display_name, 'svg')}
-                  style="max-height: 40px;"
+                  class="job-type-icon"
                   data-is-complete="false"
                 />
               {/if}
