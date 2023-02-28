@@ -3,11 +3,11 @@
 set -eo pipefail
 
 log() {
-    echo $* >&2
+    echo "$@" >&2
 }
 
 die() {
-    log $*
+    log "$@"
     exit 1
 }
 
@@ -34,7 +34,7 @@ The commands are:
 EOF
 
     if [[ -n "$1" ]]; then
-        log $*
+        log "$@"
     fi
     exit 1
 }
@@ -76,7 +76,7 @@ elif [[ "$COMMAND" == "build" || "$COMMAND" == "restart" ]]; then
         docker-compose -f "$dev_stack" -f "$leash_stack" "$COMMAND"
     fi
 elif [[ "$COMMAND" == "logs" ]]; then
-    docker-compose -f "$dev_stack" logs $*
+    docker-compose -f "$dev_stack" logs "$@"
 elif [[ "$COMMAND" == "stop" ]]; then
     docker-compose -f "$dev_stack" down
 elif [[ "$COMMAND" == "create-jobs" ]]; then
