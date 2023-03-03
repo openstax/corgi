@@ -54,7 +54,6 @@ COPY ./docker/start.sh /start.sh
 RUN chmod +x /start.sh
 
 COPY ./docker/gunicorn.conf /gunicorn.conf
-RUN echo "reload = True" >> /gunicorn.conf
 
 COPY ./app /app
 WORKDIR /app
