@@ -48,7 +48,40 @@ The full explanation of Enki it is out of scope for this documentation. To learn
 > After installing Docker, navigate to the Docker Desktop GUI preferences and increase the `Memory` value to at least `8GiB`.
 > [Here's where you can find the Docker Desktop GUI settings](https://docs.docker.com/docker-for-windows/#resources)
 
-### Local development
+
+
+## Local development 
+
+**General Workflow**
+1. Start stack with or without GitHub OAuth (see below)
+1. Visit http://localhost/ to see the frontend
+1. Make modifications
+1. Wait for automatic reload
+
+**NOTE**: You might get 502 when visiting http://localhost/ at first: this is normal. Wait a few seconds and try again.
+
+### GitHub OAuth Disabled (Leashed Mode)
+
+To start corgi without GitHub OAuth, in the project root directory, run:
+
+```bash
+./corgi start-leashed
+```
+
+or
+
+```bash
+./corgi start
+```
+
+
+In leashed mode, corgi only uses data that is stored locally.
+
+Currently, that data is stored in `backend/app/tests/unit/data`.
+
+**NOTE:** By default, you will only be able to use `tiny-book` as the repository and `book-slug1` as the book when queuing jobs. This data can be updated: see [Run backend unit tests](#run-backend-unit-tests) for more information.
+
+### GitHub OAuth Enabled
 
 **Prerequisites**
 * You will need access to a GitHub OAuth app. You can [create your own](https://docs.github.com/en/developers/apps/building-oauth-apps/creating-an-oauth-app) if you do not have one already.
@@ -57,9 +90,11 @@ The full explanation of Enki it is out of scope for this documentation. To learn
     2. `GITHUB_OAUTH_SECRET` (your oauth app client secret)
     3. `SESSION_SECRET` (secret used to encrypt session cookies)
 
-Build/start the stack with Docker Compose:
+Build/start the stack with the Corgi script:
 
-    docker-compose -f docker-compose.stack.dev.yml up -d
+```bash
+./corgi start-dev
+```
 
 View the API Docs here:
 
@@ -68,15 +103,20 @@ View the API Docs here:
 
 To check the logs run:
 
-    docker-compose logs backend/frontend/etc.
+```bash
+./corgi logs backend/frontend/etc.
+```
 
+### Functions Patched in Leashed Mode
+
+Leashed mode attempts to patch any `app.github.api` function functions starting with "get_". It looks for the associated mock functions in `backend/app/tests/unit/init_test_data.py`.
+
+### Hot Reloading
 
 Using the development stack, the Svelte frontend is rebuilt inside the container 
 as you make changes: no restarts required. The page should reload automatically
-as well.
-
-NOTE: The dev frontend server can take a while to start up. You might get 502
-responses at first: this is normal. Wait a few seconds and try again.
+as well. The same is true for the backend: as you make modifications, the
+backend server should reload with your latest changes.
 
 
 ### View the Docs
@@ -119,19 +159,25 @@ Note: Can be done in container or outside the container, with installed requirem
 
 To run unit tests:
 
-    cd backend/app
-    poetry run pytest tests/unit
+```bash
+cd backend/app
+poetry run pytest tests/unit
+```
 
-The unit tests use vcr to store response from GitHub. To initialize test data:
+The unit tests use vcr to store response from GitHub. To update the test data:
 
-    cd backend/app
-    poetry run pytest tests/unit --init-test-data --github-token "<token>"
+```bash
+cd backend/app
+poetry run pytest tests/unit --init-test-data --github-token "<token>"
+```
 
 ### Run integration and UI tests 
 
 To run the tests execute:
 
-    ./scripts/tests.ci.sh
+```bash
+./scripts/tests.ci.sh
+```
 
 ### How to develop UI tests
 
@@ -143,7 +189,9 @@ In the [./scripts/tests.ci.local](./scripts/tests.ci.local) file comment out the
 
 In order to view the browser first list all the containers for the docker-stack.yml file:
 
-    $ docker-compose -f docker-stack.yml ps
+```bash
+docker-compose -f docker-stack.yml ps
+```
 
 A table will be displayed with column names. Find the one labeled PORTS for the backend-tests container.
 

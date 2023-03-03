@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+log() {
+    echo $* >&2
+}
+
+die() {
+    log $*
+    exit 1
+}
+
+usage() {
+    cat <<EOF
+Manage your local corgi stack
+Usage:
+
+    corgi <COMMAND>
+
+The commands are:
+    start               Alias for start-leashed
+    start-dev           Start corgi in dev mode (requires oauth app, see README
+                        for more details)
+    start-leashed       Start corgi in leashed mode (uses mocked GitHub API)
+    logs                See logs (supports same options as docker-compose logs)
+    stop                Stop corgi
+
+EOF
+
+    if [[ -n "$1" ]]; then
+        log $*
+    fi
+    exit 1
+}
+
+COMMAND="$1"
+[[ -n "$COMMAND" ]] || usage
+shift
+
+
+here="$(cd "$(dirname "$0")" && pwd)"
+dev_stack="$here/docker-compose.stack.dev.yml"
+leash_stack="$here/docker-compose.stack.leashed.yml"
+readonly here
+readonly dev_stack
+readonly leash_stack
+
+
+if [[ "$COMMAND" == "start-dev" ]]; then
+    docker-compose -f "$dev_stack" up -d
+elif [[ "$COMMAND" == "start-leashed" || "$COMMAND" == "start" ]]; then
+    docker-compose -f "$dev_stack" -f "$leash_stack" up -d
+elif [[ "$COMMAND" == "logs" ]]; then
+    docker-compose -f "$dev_stack" logs $*
+elif [[ "$COMMAND" == "stop" ]]; then
+    docker-compose -f "$dev_stack" down
+else
+    usage "Unknown command \"$COMMAND\""
+fi
