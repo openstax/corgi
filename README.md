@@ -85,10 +85,9 @@ Currently, that data is stored in `backend/app/tests/unit/data`.
 
 **Prerequisites**
 * You will need access to a GitHub OAuth app. You can [create your own](https://docs.github.com/en/developers/apps/building-oauth-apps/creating-an-oauth-app) if you do not have one already.
-* Create an env file, `backend/app/app/core/.env`, with three entries:
+* Create an env file, `backend/app/app/core/.env`, with two entries:
     1. `GITHUB_OAUTH_ID` (your oauth app client id)
     2. `GITHUB_OAUTH_SECRET` (your oauth app client secret)
-    3. `SESSION_SECRET` (secret used to encrypt session cookies)
 
 Build/start the stack with the Corgi script:
 
