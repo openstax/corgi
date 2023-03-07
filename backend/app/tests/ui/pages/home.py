@@ -130,11 +130,11 @@ class HomeCorgi:
     def job_id(self):
         return self.page.locator("td.mdc-data-table__cell--numeric >> nth=0")
 
-    def job_ids(self, i):
-        return self.page.wait_for_selector(f"td.mdc-data-table__cell--numeric >> nth={i}", timeout=60000)
-
     def click_job_id(self):
         self.job_id.click()
+
+    def job_ids(self, i):
+        return self.page.wait_for_selector(f"td.mdc-data-table__cell--numeric >> nth={i}", timeout=60000)
 
     @property
     def job_id_dialog_is_visible(self):
@@ -146,7 +146,7 @@ class HomeCorgi:
 
     @property
     def job_id_dialog_close_button(self):
-        return self.page.locator("div > div.mdc-dialog__actions > button:nth-child(2)")
+        return self.page.locator("div > div.mdc-dialog__actions :text('close')")
 
     def click_job_id_dialog_close_button(self):
         self.job_id_dialog_close_button.click()
@@ -193,11 +193,10 @@ class HomeCorgi:
 
     @property
     def latest_job_status(self):
-        return self.page.locator("td:nth-child(6) > img >> nth=0").get_attribute('alt')
+        return self.page.locator("td:nth-child(6) > img >> nth=0").get_attribute('alt', timeout=690000)
 
-    @property
-    def job_statuses(self):
-        return self.page.locator("td:nth-child(6) > img >> nth=0").get_attribute('alt')
+    def job_statuses(self, i):
+        return self.page.locator(f"td:nth-child(6) > img >> nth={i}").get_attribute('alt', timeout=690000)
 
     @property
     def elapsed_time(self):
