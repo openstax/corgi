@@ -2,6 +2,8 @@ import logging
 
 from fastapi.responses import RedirectResponse
 
+logger = logging.getLogger("uvicorn")
+
 
 def get_server():
     from app.main import server
@@ -9,12 +11,10 @@ def get_server():
     return server
 
 
-logger = logging.getLogger("uvicorn")
-
-
 def patch_github_api():
     import app.github
     import app.github.api
+    import app.github.utils
     import tests.unit.init_test_data
 
     github_getters = [s for s in dir(app.github.api) if s.startswith("get_")]
@@ -25,15 +25,17 @@ def patch_github_api():
         )
         if mock_function is None:
             logger.warn(
-                f"Missing mock function for {getter}. "
+                f'Missing mock function for "{getter}". '
                 "This is probably fine, but I thought you should know."
             )
         else:
             mock_map.append((getter, mock_function))
 
-    for module in (app.github.api, app.github):
+    for module in (app.github.api, app.github, app.github.utils):
         for getter, mock_function in mock_map:
-            setattr(module, getter, mock_function)
+            if hasattr(module, getter):
+                setattr(module, getter, mock_function)
+                logger.info(f"Patched {module.__name__}.{getter}")
 
 
 def disable_auth():
@@ -49,11 +51,8 @@ def disable_auth():
 
             return {"access_token": str(uuid4())}
 
-    async def nop(*_args, **_kwargs):
-        pass
-
     app.api.endpoints.auth.github_oauth = MockOAuth()
-    app.api.endpoints.auth.sync_user_repositories = nop
+    logger.info("Patched app.api.endpoints.auth.github_oauth")
 
 
 patch_github_api()
