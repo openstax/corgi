@@ -19,12 +19,14 @@ Usage:
     corgi <COMMAND>
 
 The commands are:
-    start               Alias for start-leashed
-    start-dev           Start corgi in dev mode (requires oauth app, see README
-                        for more details)
-    start-leashed       Start corgi in leashed mode (uses mocked GitHub API)
-    logs                See logs (supports same options as docker-compose logs)
-    stop                Stop corgi
+    start                   Alias for start-leashed
+    start-dev               Start corgi in dev mode (requires oauth app, see README
+                            for more details)
+    start-leashed           Start corgi in leashed mode (uses mocked GitHub API)
+    build   <STACK_NAME>    Build all images in the stack           
+    restart <STACK_NAME>    Restart all containers in the stack
+    logs                    See logs (supports same options as docker-compose logs)
+    stop                    Stop corgi
 
 EOF
 
@@ -49,8 +51,27 @@ readonly leash_stack
 
 if [[ "$COMMAND" == "start-dev" ]]; then
     docker-compose -f "$dev_stack" up -d
+    log "Hint: Remember to setup your GitHub app like in the README"
 elif [[ "$COMMAND" == "start-leashed" || "$COMMAND" == "start" ]]; then
     docker-compose -f "$dev_stack" -f "$leash_stack" up -d
+elif [[ "$COMMAND" == "build" || "$COMMAND" == "restart" ]]; then
+    stack_name="$1"
+    stacks_allowed=(dev leashed)
+    is_stack_allowed=0
+    for stack in "${stacks_allowed[@]}"; do
+        if [[ "$stack_name" == "$stack" ]]; then
+            is_stack_allowed=1
+            break
+        fi
+    done
+    if [[ $is_stack_allowed != 1 ]]; then
+        die "You need to specify which stack to use (${stacks_allowed[*]})"
+    fi
+    if [[ "$stack_name" == "dev" ]]; then
+        docker-compose -f "$dev_stack" "$COMMAND"
+    elif [[ "$stack_name" == "leashed" ]]; then
+        docker-compose -f "$dev_stack" -f "$leash_stack" "$COMMAND"
+    fi
 elif [[ "$COMMAND" == "logs" ]]; then
     docker-compose -f "$dev_stack" logs $*
 elif [[ "$COMMAND" == "stop" ]]; then
