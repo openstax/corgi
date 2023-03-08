@@ -1,5 +1,6 @@
+import os
+
 import pytest
-from app.main import server
 from fastapi.responses import RedirectResponse
 from starlette.testclient import TestClient
 
@@ -9,6 +10,9 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
+    os.environ.setdefault(
+        "SESSION_SECRET", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    )
     init_test_data = config.getoption("--init-test-data")
     if init_test_data:
         token = config.getoption("--github-token")
@@ -193,6 +197,8 @@ def session_cookie(testclient, mock_login_success):
 
 @pytest.fixture
 def testclient():
+    from app.main import server
+    
     client = TestClient(server)
     yield client
 
