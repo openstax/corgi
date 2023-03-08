@@ -18,6 +18,11 @@ from starlette.datastructures import URL
 router = APIRouter()
 
 
+class AuthenticationError(Exception):
+    def __init__(self, *args) -> None:
+        super().__init__("Could not authenticate")
+
+
 async def handle_auth_errors(thunk: Awaitable):
     try:
         return await thunk
@@ -30,10 +35,7 @@ async def handle_auth_errors(thunk: Awaitable):
         raise
     except Exception as e:
         logging.error(e)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Could not authenticate"
-        )
+        raise AuthenticationError()
 
 
 async def authenticate_token_user(request: Request, token: str, db: Session):
@@ -76,7 +78,11 @@ async def login(request: Request):
 
 @router.get("/callback")
 async def callback(request: Request, db: Session = Depends(get_db)):
-    user = await handle_auth_errors(authenticate_user(request, db))
+    try:
+        user = await handle_auth_errors(authenticate_user(request, db))
+    except AuthenticationError:
+        return RedirectResponse(url="/errors/auth-error")
+
     set_user_session_cookie(request, user)
 
     response = RedirectResponse(url=f"/")
