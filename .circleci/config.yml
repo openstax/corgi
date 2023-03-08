@@ -19,9 +19,6 @@ jobs:
   backend-unit:
     executor: python/default
 
-    environment:
-      SESSION_SECRET: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-
     steps:
       - checkout
       - python/install-packages:
