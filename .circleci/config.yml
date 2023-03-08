@@ -41,7 +41,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: cimg/base:2023.02
+      - image: cimg/base:stable
 
     steps:
       - checkout
@@ -50,8 +50,11 @@ jobs:
       - run:
           name: Build backend image
           command: |
-            cd ./backend
-            docker build -f backend.dockerfile --target prod-runner .
+            diff="$(git diff --name-only ${CIRCLE_SHA1} || git diff --name-only main)"
+            if echo "$diff" | grep "backend/" > /dev/null; then
+              cd ./backend
+              docker build -f backend.dockerfile --target prod-runner .
+            fi
 
 workflows:
   version: 2
