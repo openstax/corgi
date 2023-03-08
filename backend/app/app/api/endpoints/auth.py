@@ -19,7 +19,7 @@ router = APIRouter()
 
 
 class AuthenticationError(Exception):
-    def __init__(self, *args) -> None:
+    def __init__(self):
         super().__init__("Could not authenticate")
 
 
