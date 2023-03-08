@@ -83,13 +83,13 @@ def test_login_failure_token(testclient, mock_login_success, headers):
 @pytest.mark.unit
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
-    "exc,status_code,text",
+    "exc,status_code,result",
     [(AccessDeniedError, 403, "Forbidden"),
      (CustomBaseError("???"), 500, "???"),
-     (Exception("???"), 500, "Could not authenticate")]
+     (Exception("???"), 307, "/errors/auth-error")]
 )
 def test_login_exception(testclient, monkeypatch, exc,
-                         status_code, text):
+                         status_code, result):
     def get_mock_authenticate(exc):
         async def mock_authenticate(*_):
             raise exc
@@ -99,7 +99,10 @@ def test_login_exception(testclient, monkeypatch, exc,
 
     response = testclient.get("/api/auth/callback", allow_redirects=False)
     assert response.status_code == status_code
-    assert response.json()["detail"] == text
+    if response.status_code == 307:
+        assert response.headers["location"] == result
+    else:
+        assert response.json()["detail"] == result
 
 
 @pytest.mark.unit

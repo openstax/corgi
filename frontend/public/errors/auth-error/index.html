@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authentication Error</title>
+
+  <style>
+    body, html {
+      font-family: Arial, sans-serif;
+    }
+
+    div {
+      text-align: center;
+    }
+
+    #err-img {
+      width: 25%;
+      margin: auto;
+      margin-bottom: 50px;
+    }
+
+    #flavor-text {
+      font-size: large;
+      margin-bottom: 10px;
+    }
+
+    #error-text {
+      font-size: x-large;
+      margin-bottom: 50px;
+    }
+
+    #link {
+      font-size: x-large;
+    }
+  </style>
+</head>
+<body>
+  <div id="err-img">
+    <img src="/icons/job_status/failed.svg"/>
+  </div>
+  <div id="flavor-text">
+
+  </div>
+  <div id="error-text">
+    Authentication Error
+  </div>
+  <div id="link">
+    <a href="/">Try again</a>
+  </div>
+  <script>
+    (function() {
+      const flavorDiv = document.getElementById("flavor-text")
+      const quotes = [
+        "You don't belong here, you've got to move on dear; away from this",
+        "You don't have to go home, but you can't stay here",
+        "Well, this is awkward",
+        "Sorry, I am trying my best, but there seems to have been an",
+        "I can't stand it; I know you planned it; I'ma set it straight this watergate",
+        "One step forward and two steps back; nobody gets too far like that",
+        "I hope your day is going better than mine; I just ran into an"
+      ]
+      const quoteIdx = Math.floor(Math.random() * quotes.length)
+      flavorDiv.innerText = `${quotes[quoteIdx]}...`
+    })()
+  </script>
+</body>
+</html>
