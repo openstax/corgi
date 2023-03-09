@@ -128,7 +128,7 @@ class HomeCorgi:
 
     @property
     def job_id(self):
-        return self.page.locator("td.mdc-data-table__cell--numeric >> nth=0")
+        return self.page.wait_for_selector("td.mdc-data-table__cell--numeric >> nth=0")
 
     def click_job_id(self):
         self.job_id.click()

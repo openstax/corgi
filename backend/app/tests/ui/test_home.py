@@ -54,7 +54,7 @@ def test_create_new_job_button_is_enabled(chrome_page, corgi_base_url, repo, boo
     home.fill_book_field(book)
     home.fill_version_field(version)
 
-    home.click_pdf_job_option()
+    home.click_epub_job_option()
 
     # THEN: Create new job button is enabled
     assert home.create_new_job_button_is_enabled
