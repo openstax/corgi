@@ -66,3 +66,12 @@ button:focus {
   background-color: #f44336 !important;
   color: white;
 }
+
+
+.job-type-icon {
+	max-height: 40px;
+}
+.job-type-icon[data-is-complete="false"] {
+	opacity: 0.5;
+	filter: grayscale(1);
+}
