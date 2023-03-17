@@ -147,7 +147,7 @@ def test_book_field_empty_create_new_job_button_disabled(chrome_page, corgi_base
     home.fill_repo_field(repo)
     home.fill_version_field(version)
 
-    home.click_webview_job_option()
+    home.click_epub_job_option()
     home.click_docx_job_option()
 
     # THEN: The main UI elements are visible and create new job button is disabled
