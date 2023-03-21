@@ -148,6 +148,10 @@ class HomeCorgi:
     def job_id_dialog_close_button(self):
         return self.page.locator("div > div.mdc-dialog__actions :text('close')")
 
+    @property
+    def job_id_dialog_close_button_is_visible(self):
+        return self.page.is_visible("div > div.mdc-dialog__actions :text('close')")
+
     def click_job_id_dialog_close_button(self):
         self.job_id_dialog_close_button.click()
 
@@ -155,12 +159,20 @@ class HomeCorgi:
     def job_id_dialog_approve_button(self):
         return self.page.locator("id=approve-button")
 
+    @property
+    def job_id_dialog_approve_button_is_visible(self):
+        return self.page.is_visible("id=approve-button")
+
     def click_job_id_dialog_approve_button(self):
         self.job_id_dialog_approve_button.click()
 
     @property
     def job_id_dialog_repeat_button(self):
         return self.page.locator("id=repeat-button")
+
+    @property
+    def job_id_dialog_repeat_button_is_visible(self):
+        return self.page.is_visible("id=repeat-button")
 
     def click_job_id_dialog_repeat_button(self):
         self.job_id_dialog_repeat_button.click()
@@ -177,23 +189,39 @@ class HomeCorgi:
         self.abort_button_locator.click()
 
     @property
-    def job_id_pdf_link_is_visible(self):
+    def job_id_artifact_link_is_visible(self):
         return self.page.is_visible("div.mdc-dialog__content > a")
 
     @property
-    def job_id_pdf_link_locator(self):
+    def job_id_artifact_link_locator(self):
         return self.page.locator("div.mdc-dialog__content > a")
 
-    def click_job_id_pdf_link(self):
-        self.job_id_pdf_link_locator.click()
+    def click_job_id_artifact_link(self):
+        self.job_id_artifact_link_locator.click()
 
     @property
     def job_id_link_href(self):
-        return self.job_id_pdf_link_locator.get_attribute('href', timeout=690000)
+        return self.job_id_artifact_link_locator.get_attribute('href', timeout=690000)
+
+    @property
+    def job_id_dialog_error_message_is_visible(self):
+        return self.page.is_visible("div > div.mdc-dialog__content")
+
+    @property
+    def job_id_dialog_error_message(self):
+        return self.page.wait_for_selector("div > div.mdc-dialog__content")
 
     @property
     def latest_job_status(self):
         return self.page.locator("td:nth-child(6) > img >> nth=0").get_attribute('alt', timeout=690000)
+
+    @property
+    def latest_job_status_for_aborted(self):
+        return self.page.locator("td:nth-child(6) > img >> nth=0").get_attribute('alt=aborted', timeout=690000)
+
+    def click_job_id_for_aborted(self):
+        _ = self.latest_job_status_for_aborted  # Make sure alt=aborted exists
+        self.job_id.click()
 
     def job_statuses(self, i):
         return self.page.locator(f"td:nth-child(6) > img >> nth={i}").get_attribute('alt', timeout=690000)
