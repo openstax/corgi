@@ -46,6 +46,8 @@ const RateLimited = <T extends Updatable>(
     }
   }
 
+  public updateImmediate = super.update
+
   public clearLimit() {
     this.nextUpdate = 0
   }
