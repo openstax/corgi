@@ -310,7 +310,7 @@
     );
     setTimeout(async () => {
       await Promise.all([
-        jobsStore.update(),
+        jobsStore.updateImmediate(),
         repoSummariesStore.update()
       ])
     }, 1 * SECONDS);
