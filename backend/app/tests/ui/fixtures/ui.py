@@ -51,7 +51,7 @@ def chrome_page_slow(additional_headers):
     """Return playwright chromium browser page - slow flow"""
     playwright_sync = sync_playwright().start()
     chrome_browser = playwright_sync.chromium.launch(
-        headless=True, slow_mo=3700, timeout=120000
+        headless=True, slow_mo=4100, timeout=120000
     )
     context = chrome_browser.new_context()
     context.set_extra_http_headers(additional_headers)
