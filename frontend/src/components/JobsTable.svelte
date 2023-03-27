@@ -475,4 +475,12 @@
   :global(#version-input > div > label) {
     width: 120px !important;
   }
+
+  .job-type-icon {
+    max-height: 40px;
+  }
+  .job-type-icon[data-is-complete="false"] {
+    opacity: 0.5;
+    filter: grayscale(1);
+  }
 </style>
