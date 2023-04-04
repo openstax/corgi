@@ -1,14 +1,200 @@
+<script lang="ts">
+  import Tooltip, { Wrapper } from "@smui/tooltip";
+  import {
+    calculateElapsed,
+    mapImage,
+    handleError,
+    repoToString,
+    readableDateTime,
+    parseDateTimeAsUTC,
+    isJobComplete,
+  } from "../ts/utils";
+  import NewJobForm from "./NewJobForm.svelte";
+  import { submitNewJob } from "../ts/jobs";
+  import type { Repository } from "../ts/types";
+  import { onMount } from "svelte";
+  import DataTable, {
+    Head,
+    Body,
+    Row,
+    Cell,
+    SortValue,
+    Pagination,
+  } from "@smui/data-table";
+  import Select, { Option } from "@smui/select";
+  import IconButton from "@smui/icon-button";
+  import { Label } from "@smui/common";
+  import Button from "@smui/button";
+  import { repoSummariesStore, jobsStore } from "../ts/stores";
+
+  import type { Job, JobType } from "../ts/types";
+  import DetailsDialog from "./DetailsDialog.svelte";
+  import { SECONDS } from "../ts/time";
+
+  let statusStyles = {
+    queued: "filter-yellow",
+    assigned: "filter-yellow pulse",
+    processing: "filter-yellow rock",
+    failed: "filter-red",
+    completed: "filter-green",
+    aborted: "filter-red",
+  };
+
+  let selectedJobTypes = [];
+
+  let open = false;
+  let selectedJob: Job;
+
+  let selectedRepo: string;
+  let selectedBook: string;
+
+  // Initialization
+  let jobs: Job[] = [];
+  let slice: Job[] = [];
+  let sort: keyof Job = "id";
+  let sortDirection: Lowercase<keyof typeof SortValue> = "descending";
+
+  const jobStartRateLimitDurationMillis = 1000;
+  let lastJobStartTime = Date.now();
+
+  enum JobTypeId {
+    PDF = 3,
+    Web = 4,
+    Docx = 5,
+    EPUB = 6,
+  }
+
+  // Job creation
+  async function clickNewJob(
+    selectedRepo,
+    selectedBook,
+    selectedVersion,
+    selectedJobTypes
+  ) {
+    if (lastJobStartTime + jobStartRateLimitDurationMillis > Date.now()) {
+      return;
+    }
+    lastJobStartTime = Date.now();
+    await Promise.all(
+      selectedJobTypes.map((jobType) => {
+        submitNewJob(
+          JobTypeId[jobType as number],
+          selectedRepo,
+          selectedBook,
+          selectedVersion
+        );
+      })
+    );
+    setTimeout(async () => {
+      await Promise.all([
+        jobsStore.updateImmediate(),
+        repoSummariesStore.update(),
+      ]);
+    }, 1 * SECONDS);
+  }
+
+  function getStatusStyle(job: Job) {
+    const statusName = job.status.name;
+    if (statusName === "completed") {
+      return Date.now() - parseDateTimeAsUTC(job.updated_at) < 30 * SECONDS
+        ? `${statusStyles[statusName]} bounce`
+        : statusStyles[statusName];
+    }
+    return statusStyles[statusName];
+  }
+
+  function getVersionLink(job: Job) {
+    return `https://github.com/${repoToString(job.repository, true)}/tree/${
+      job.version
+    }`;
+  }
+
+  // Pagination
+  let rowsPerPage = 10;
+  let currentPage = 0;
+  $: start = currentPage * rowsPerPage;
+  $: end = Math.min(start + rowsPerPage, sortedRows.length);
+  $: lastPage = Math.max(Math.ceil(sortedRows.length / rowsPerPage) - 1, 0);
+  $: if (currentPage > lastPage) {
+    currentPage = lastPage;
+  }
+
+  // Job filtering
+  $: filteredRows = jobs.filter(
+    (entry) =>
+      (selectedJobTypes.length === 0 ||
+        selectedJobTypes.some((id) =>
+          entry.job_type.display_name.includes(id)
+        )) &&
+      (!selectedRepo ||
+        repoToString(entry.repository).includes(selectedRepo)) &&
+      (!selectedBook ||
+        entry.books.find((item) => item.slug.includes(selectedBook)) != null)
+  );
+
+  // Job sorting
+  $: sortedRows = filteredRows.sort((a, b) => {
+    let [aVal, bVal] = [a[sort], b[sort]][
+      sortDirection === "ascending" ? "slice" : "reverse"
+    ]();
+    if (sort === "id") {
+      aVal = parseInt(aVal as string);
+      bVal = parseInt(bVal as string);
+    } else if (sort === "repository") {
+      aVal = repoToString(aVal as Repository);
+      bVal = repoToString(bVal as Repository);
+    } else if (sort === "job_type") {
+      aVal = (aVal as JobType).display_name;
+      bVal = (bVal as JobType).display_name;
+    }
+    if (typeof aVal === "string" && typeof bVal === "string") {
+      return aVal.localeCompare(bVal);
+    } else if (aVal instanceof Array && bVal instanceof Array) {
+      // lexicographic string sort for books
+      let a: string[];
+      let b: string[];
+      if (sort === "books") {
+        a = aVal.map((b) => b.slug);
+        b = bVal.map((b) => b.slug);
+      } else {
+        handleError(new Error(`Cannot handle list sort of ${sort}`));
+        return;
+      }
+      if (a.length !== b.length) {
+        return a.length - b.length;
+      }
+      for (let i = 0; i < a.length; i++) {
+        const cmp = a[i].localeCompare(b[i]);
+        if (cmp !== 0) {
+          return cmp;
+        }
+      }
+      return 0;
+    }
+    return Number(aVal) - Number(bVal);
+  });
+
+  $: slice = sortedRows.slice(start, end);
+
+  onMount(async () => {
+    jobsStore.subscribe((updatedJobs) => (jobs = updatedJobs));
+    // Give job fetching priority over repoSummariesStore on page load
+    jobsStore.update().then(() => void repoSummariesStore.update());
+    jobsStore.startPolling(10 * SECONDS);
+  });
+</script>
+
 <img
   alt="Content Output Review and Generation Interface"
   src="./title-image.png"
   style="max-height: 100px; padding-top: 8px;"
 />
 
-<NewJobForm 
+<NewJobForm
   bind:selectedJobTypes
   bind:selectedRepo
   bind:selectedBook
-  clickNewJob={clickNewJob} 
+  {clickNewJob}
 />
 
 <div>
@@ -69,8 +255,8 @@
           <Cell numeric>
             <Button
               on:click={() => {
-                selectedJob = item
-                open = true
+                selectedJob = item;
+                open = true;
               }}
             >
               {item.id}
@@ -86,7 +272,11 @@
                 >
                   <img
                     alt={item.job_type.display_name}
-                    src={mapImage('job_type', item.job_type.display_name, 'svg')}
+                    src={mapImage(
+                      "job_type",
+                      item.job_type.display_name,
+                      "svg"
+                    )}
                     class="job-type-icon"
                     data-is-complete="true"
                   />
@@ -94,7 +284,7 @@
               {:else}
                 <img
                   alt={item.job_type.display_name}
-                  src={mapImage('job_type', item.job_type.display_name, 'svg')}
+                  src={mapImage("job_type", item.job_type.display_name, "svg")}
                   class="job-type-icon"
                   data-is-complete="false"
                 />
@@ -120,16 +310,14 @@
             {/if}
           </Cell>
           <Cell>
-            <a
-              href={getVersionLink(item)}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a href={getVersionLink(item)} target="_blank" rel="noreferrer">
               {#if item.git_ref !== item.version}
                 {item.git_ref.length <= 16
                   ? item.git_ref
-                  : `${item.git_ref.slice(0, 16)}...`
-                }@{item.version.slice(0, 7)}
+                  : `${item.git_ref.slice(0, 16)}...`}@{item.version.slice(
+                  0,
+                  7
+                )}
               {:else}
                 {item.version.slice(0, 7)}
               {/if}
@@ -223,194 +411,7 @@
   <DetailsDialog bind:open {selectedJob} />
 </div>
 
-<script lang="ts">
-  import Tooltip, { Wrapper } from "@smui/tooltip";
-  import {
-    calculateElapsed,
-    mapImage,
-    handleError,
-    repoToString,
-    readableDateTime,
-    parseDateTimeAsUTC,
-    isJobComplete
-  } from "../ts/utils";
-  import NewJobForm from "./NewJobForm.svelte";
-  import { submitNewJob } from "../ts/jobs";
-  import type { Repository } from "../ts/types";
-  import { onMount } from "svelte";
-  import DataTable, {
-    Head,
-    Body,
-    Row,
-    Cell,
-    SortValue,
-    Pagination,
-  } from "@smui/data-table";
-  import Select, { Option } from "@smui/select";
-  import IconButton from "@smui/icon-button";
-  import { Label } from "@smui/common";
-  import Button from "@smui/button";
-  import { repoSummariesStore, jobsStore } from "../ts/stores";
-
-  import type { Job, JobType } from "../ts/types";
-  import DetailsDialog from "./DetailsDialog.svelte";
-  import { SECONDS } from "../ts/time";
-
-  let statusStyles = {
-    queued: "filter-yellow",
-    assigned: "filter-yellow pulse",
-    processing: "filter-yellow rock",
-    failed: "filter-red",
-    completed: "filter-green",
-    aborted: "filter-red",
-  };
-
-  let selectedJobTypes = [];
-
-  let open = false;
-  let selectedJob: Job;
-
-  let selectedRepo: string;
-  let selectedBook: string;
-
-  // Initialization
-  let jobs: Job[] = [];
-  let slice: Job[] = [];
-  let sort: keyof Job = "id";
-  let sortDirection: Lowercase<keyof typeof SortValue> = "descending";
-
-  const jobStartRateLimitDurationMillis = 1000;
-  let lastJobStartTime = Date.now();
-
-  enum JobTypeId {
-    PDF = 3,
-    Web = 4,
-    Docx = 5,
-    EPUB = 6,
-  }
-
-  // Job creation
-  async function clickNewJob(
-    selectedRepo,
-    selectedBook,
-    selectedVersion,
-    selectedJobTypes
-  ) {
-    if (lastJobStartTime + jobStartRateLimitDurationMillis > Date.now()) {
-      return;
-    }
-    lastJobStartTime = Date.now();
-    await Promise.all(
-      selectedJobTypes.map((jobType) => {
-        submitNewJob(
-          JobTypeId[jobType as number],
-          selectedRepo,
-          selectedBook,
-          selectedVersion
-        );
-      })
-    );
-    setTimeout(async () => {
-      await Promise.all([
-        jobsStore.updateImmediate(),
-        repoSummariesStore.update()
-      ])
-    }, 1 * SECONDS);
-  }
-
-  function getStatusStyle(job: Job) {
-    const statusName = job.status.name
-    if (statusName === "completed") {
-      return (
-        (Date.now() - parseDateTimeAsUTC(job.updated_at)) < (30 * SECONDS)
-          ? `${statusStyles[statusName]} bounce`
-          : statusStyles[statusName]
-      )
-    }
-    return statusStyles[statusName]
-  }
-
-  function getVersionLink(job: Job) {
-    return `https://github.com/${repoToString(job.repository, true)}/tree/${job.version}`
-  }
-
-  // Pagination
-  let rowsPerPage = 10;
-  let currentPage = 0;
-  $: start = currentPage * rowsPerPage;
-  $: end = Math.min(start + rowsPerPage, sortedRows.length);
-  $: lastPage = Math.max(Math.ceil(sortedRows.length / rowsPerPage) - 1, 0);
-  $: if (currentPage > lastPage) {
-    currentPage = lastPage;
-  }
-
-  // Job filtering
-  $: filteredRows = jobs.filter(
-    (entry) =>
-      (selectedJobTypes.length === 0 ||
-        selectedJobTypes.some((id) =>
-          entry.job_type.display_name.includes(id)
-        )) &&
-      (!selectedRepo ||
-        repoToString(entry.repository).includes(selectedRepo)) &&
-      (!selectedBook ||
-        entry.books.find((item) => item.slug.includes(selectedBook)) != null)
-  );
-
-  // Job sorting
-  $: sortedRows = filteredRows.sort((a, b) => {
-    let [aVal, bVal] = [a[sort], b[sort]][
-      sortDirection === "ascending" ? "slice" : "reverse"
-    ]();
-    if (sort === "id") {
-      aVal = parseInt(aVal as string);
-      bVal = parseInt(bVal as string);
-    } else if (sort === "repository") {
-      aVal = repoToString(aVal as Repository);
-      bVal = repoToString(bVal as Repository);
-    } else if (sort === "job_type") {
-      aVal = (aVal as JobType).display_name;
-      bVal = (bVal as JobType).display_name;
-    }
-    if (typeof aVal === "string" && typeof bVal === "string") {
-      return aVal.localeCompare(bVal);
-    } else if (aVal instanceof Array && bVal instanceof Array) {
-      // lexicographic string sort for books
-      let a: string[];
-      let b: string[];
-      if (sort === "books") {
-        a = aVal.map((b) => b.slug);
-        b = bVal.map((b) => b.slug);
-      } else {
-        handleError(new Error(`Cannot handle list sort of ${sort}`));
-        return;
-      }
-      if (a.length !== b.length) {
-        return a.length - b.length;
-      }
-      for (let i = 0; i < a.length; i++) {
-        const cmp = a[i].localeCompare(b[i]);
-        if (cmp !== 0) {
-          return cmp;
-        }
-      }
-      return 0;
-    }
-    return Number(aVal) - Number(bVal);
-  });
-
-  $: slice = sortedRows.slice(start, end);
-
-  onMount(async () => {
-    jobsStore.subscribe(updatedJobs => jobs = updatedJobs)
-    // Give job fetching priority over repoSummariesStore on page load
-    jobsStore.update().then(() => void repoSummariesStore.update())
-    jobsStore.startPolling(10 * SECONDS)
-  });
-</script>
-
 <style>
-
   @keyframes spin-frames {
     0% {
       transform: rotate(0deg);
@@ -421,23 +422,45 @@
   }
 
   @keyframes bounce-frames {
-    0%{transform:translateY(5px) rotate(0deg)}
-    25%{transform:translateY(0px) rotate(-5deg)}
-    50%{transform:translateY(5px) rotate(0deg)}
-    75%{transform:translateY(0px) rotate(5deg)}
-    100%{transform:translateY(5px) rotate(0deg)} 
+    0% {
+      transform: translateY(5px) rotate(0deg);
+    }
+    25% {
+      transform: translateY(0px) rotate(-5deg);
+    }
+    50% {
+      transform: translateY(5px) rotate(0deg);
+    }
+    75% {
+      transform: translateY(0px) rotate(5deg);
+    }
+    100% {
+      transform: translateY(5px) rotate(0deg);
+    }
   }
 
   @keyframes rock-frames {
-    0%{transform:translateX(0px) rotate(0deg)}
-    25%{transform:translateX(-10px) rotate(-25deg)}
-    50%{transform:translateX(0px) rotate(0deg)}
-    75%{transform:translateX(10px) rotate(25deg)}
-    100%{transform:translateX(0px) rotate(0deg)} 
+    0% {
+      transform: translateX(0px) rotate(0deg);
+    }
+    25% {
+      transform: translateX(-10px) rotate(-25deg);
+    }
+    50% {
+      transform: translateX(0px) rotate(0deg);
+    }
+    75% {
+      transform: translateX(10px) rotate(25deg);
+    }
+    100% {
+      transform: translateX(0px) rotate(0deg);
+    }
   }
 
   @keyframes pulse-frames {
-    50%{transform:scale(0.90)}
+    50% {
+      transform: scale(0.9);
+    }
   }
 
   .spin {
