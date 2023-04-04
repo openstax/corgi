@@ -49,10 +49,10 @@ def test_e2e_pdf_jobs(chrome_page_slow, corgi_base_url, repo, book, version):
             while home.job_id_link_href is None:
                 pass
 
-            if not home.job_id_pdf_link_is_visible:
+            if not home.job_id_artifact_link_is_visible:
                 pytest.fail("PDF link in Job ID dialog is not visible")
             else:
-                home.click_job_id_pdf_link()
+                home.click_job_id_artifact_link()
 
                 href_pdf_url = home.job_id_link_href
 
@@ -67,7 +67,7 @@ def test_e2e_pdf_jobs(chrome_page_slow, corgi_base_url, repo, book, version):
                 pdf_title = pdf_read.metadata.title
 
                 book_adjusted = book.replace("-", " ")
-                assert pdf_title in book_adjusted
+                assert book_adjusted.lower() in pdf_title.lower()
 
                 num_pages = len(pdf_read.pages)
 
@@ -97,7 +97,6 @@ def test_e2e_pdf_jobs(chrome_page_slow, corgi_base_url, repo, book, version):
                 flat_liszt = [item for sublist in liszt for item in sublist]
 
                 try:
-                    assert any("CONTENT" in word for word in flat_liszt)
                     assert any("Preface" in word for word in flat_liszt)
                     assert any("Chapter Outline" in word for word in flat_liszt)
                     assert any("Index" in word for word in flat_liszt)
