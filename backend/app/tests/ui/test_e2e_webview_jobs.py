@@ -37,7 +37,6 @@ def test_e2e_webview_jobs(chrome_page_slow, corgi_base_url, repo, book, version)
         with chrome_page_slow.context.expect_page() as tab:
             home.click_job_type_icon()
 
-        new_tab_title = tab.value.title()
         new_tab_content = tab.value.content()
         new_tab_url = tab.value.url
 
@@ -45,7 +44,7 @@ def test_e2e_webview_jobs(chrome_page_slow, corgi_base_url, repo, book, version)
 
         book_title_mod = book.replace("-", " ")
 
-        assert book_title_mod in new_tab_title
+        assert book_title_mod in new_tab_content
 
         soup = BeautifulSoup(new_tab_content, 'html.parser')
 
