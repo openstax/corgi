@@ -4,11 +4,11 @@ import pytest
 
 from bs4 import BeautifulSoup
 
-"""Abort any running jobs before tests starts"""
+"""After all corgi UI tests are completed, all running jobs are aborted"""
 
 
 @pytest.mark.nondestructive
-def test_abort_jobs(chrome_page, corgi_base_url):
+def test_zzz_abort_jobs(chrome_page, corgi_base_url):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
