@@ -126,7 +126,7 @@ async def main():
             job_id = job["id"]
             update_args = {"status_id": str(status_id)}
             if status_id == 4:
-                update_args["error_message"] = "Just testing\\n1\\n2\\n3"
+                update_args["error_message"] = "+ Trace line\\n+ Trace line 2\\nJust testing\\n1\\n2\\n3"
             elif status_id == 5:
                 update_args["artifact_urls"] = [
                     {

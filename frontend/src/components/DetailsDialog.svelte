@@ -39,7 +39,7 @@
         {:then error_message}
           <h3>Error:</h3>
           {#each error_message.trim().split("\n") as line, i}
-            <div class="error-line">
+            <div class={`error-line ${line.startsWith('+') ? 'trace-text' : ''}`}>
               <span class="number">{(i + 1).toString().padStart(5, " ")}</span>
               {line}
             </div>
@@ -105,5 +105,9 @@
     padding: 3px 2px;
     background-color: #ccc;
     user-select: none;
+  }
+
+  .trace-text {
+    opacity: 0.5;
   }
 </style>
