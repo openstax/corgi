@@ -36,7 +36,7 @@ describe("submitNewJob", () => {
 });
 describe("abortJob", () => {
   it("calls fetch with the correct information", () => {
-    const jobId = 1;
+    const jobId = "1";
     const mockUpdate = jest.fn();
     jobsStore.update = mockUpdate as any;
     window.setTimeout = jest.fn().mockImplementation((fn: any, _) => {

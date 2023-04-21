@@ -4,7 +4,7 @@ class HomeCorgi:
 
     @property
     def book_input_fields(self):
-        return self.page.locator("child(2) > div > div:nth-child(2) > span")
+        return self.page.locator("child(2) > div > div:nth-child(2)")
 
     @property
     def job_types_check_boxes(self):
