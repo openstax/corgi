@@ -4,7 +4,7 @@ class HomeCorgi:
 
     @property
     def book_input_fields(self):
-        return self.page.locator("child(2) > div > div:nth-child(2)")
+        return self.page.locator("child(2) > div > div:nth-child(2) > span")
 
     @property
     def job_types_check_boxes(self):
@@ -228,11 +228,11 @@ class HomeCorgi:
 
     @property
     def elapsed_time(self):
-        return self.page.wait_for_selector("td:nth-child(7) >> nth=0", timeout=690000)
+        return self.page.wait_for_selector("td:nth-child(7) > span > div:nth-child(1) >> nth=0", timeout=690000)
 
     @property
     def queued_repo_name(self):
-        return self.page.locator("tr:nth-child(1) > td:nth-child(3)")
+        return self.page.locator("tr:nth-child(1) > td:nth-child(3) > span")
 
     @property
     def queued_job_type(self):

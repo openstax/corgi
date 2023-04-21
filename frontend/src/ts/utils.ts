@@ -97,7 +97,7 @@ export function calculateAge(job: Job): string {
 
   for ([conversion, unit] of toCheck) {
     converted = Math.round(elapsed / conversion);
-    if (converted > 1) {
+    if (converted >= 1) {
       break;
     }
   }

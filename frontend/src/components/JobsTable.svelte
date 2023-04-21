@@ -2,6 +2,7 @@
   import Tooltip, { Wrapper } from "@smui/tooltip";
   import {
     calculateElapsed,
+    calculateAge,
     mapImage,
     handleError,
     repoToString,
@@ -42,7 +43,7 @@
 
   let selectedJobTypes = [];
 
-  let open = false;
+  let detailsOpen = false;
   let selectedJob: Job;
 
   let selectedRepo: string;
@@ -95,18 +96,34 @@
 
   function getStatusStyle(job: Job) {
     const statusName = job.status.name;
-    if (statusName === "completed") {
-      return Date.now() - parseDateTimeAsUTC(job.updated_at) < 30 * SECONDS
-        ? `${statusStyles[statusName]} bounce`
-        : statusStyles[statusName];
+    let cssClasses = `job-status-icon ${statusStyles[statusName]}`;
+    if (
+      statusName === "completed" &&
+      Date.now() - parseDateTimeAsUTC(job.updated_at) < 30 * SECONDS
+    ) {
+      cssClasses += " bounce";
     }
-    return statusStyles[statusName];
+    return cssClasses;
   }
 
   function getVersionLink(job: Job) {
     return `https://github.com/${repoToString(job.repository, true)}/tree/${
       job.version
     }`;
+  }
+
+  function handleHash() {
+    const jobId = document.location.hash.slice(1);
+    const job = jobs.find((j) => j.id === jobId);
+    if (job) {
+      selectedJob = job;
+      detailsOpen = true;
+      return true;
+    } else if (jobs.length > 0) {
+      handleError(new Error(`Could not find job "${jobId}"`));
+      return true;
+    }
+    return false;
   }
 
   // Pagination
@@ -133,7 +150,7 @@
   );
 
   // Job sorting
-  $: sortedRows = filteredRows.sort((a, b) => {
+  $: sortedRows = filteredRows.sort((a: any, b: any) => {
     let [aVal, bVal] = [a[sort], b[sort]][
       sortDirection === "ascending" ? "slice" : "reverse"
     ]();
@@ -177,10 +194,22 @@
   $: slice = sortedRows.slice(start, end);
 
   onMount(async () => {
-    jobsStore.subscribe((updatedJobs) => (jobs = updatedJobs));
+    const onJobsAvailable = [];
+    if (document.location.hash) {
+      onJobsAvailable.push(handleHash);
+    }
+    jobsStore.subscribe((updatedJobs) => {
+      jobs = updatedJobs;
+      // Run each one until it returns true, then remove it
+      onJobsAvailable
+        .map((cb, idx) => [cb(), idx])
+        .filter(([shouldRemove, _]) => shouldRemove)
+        .forEach(([_, idx]) => onJobsAvailable.splice(idx, 1));
+    });
     // Give job fetching priority over repoSummariesStore on page load
     jobsStore.update().then(() => void repoSummariesStore.update());
     jobsStore.startPolling(10 * SECONDS);
+    addEventListener("hashchange", handleHash);
   });
 </script>
 
@@ -212,32 +241,35 @@
           <IconButton class="material-icons">arrow_upward</IconButton>
           <Label>Id</Label>
         </Cell>
-        <Cell columnId="job_type" style="width: 100%;">
+        <Cell columnId="job_type">
           <Label>Type</Label>
           <IconButton class="material-icons">arrow_upward</IconButton>
         </Cell>
-        <Cell columnId="repository" style="width: 100%;">
+        <Cell columnId="repository">
           <Label>Repo</Label>
           <IconButton class="material-icons">arrow_upward</IconButton>
         </Cell>
-        <Cell columnId="books" style="width: 100%;">
+        <Cell columnId="books">
           <Label>Book</Label>
           <IconButton class="material-icons">arrow_upward</IconButton>
         </Cell>
-        <Cell columnId="version" style="width: 100%;">
+        <Cell columnId="version">
           <Label>Version</Label>
           <IconButton class="material-icons">arrow_upward</IconButton>
         </Cell>
-        <Cell columnId="status" style="width: 100%;" sortable={false}>
+        <Cell columnId="status" sortable={false}>
           <Label>Status</Label>
         </Cell>
-        <Cell columnId="updated-at" style="width: 100%;" sortable={false}>
-          <Label>Elapsed</Label>
+        <Cell columnId="updated-at" sortable={false}>
+          <Label>Elapsed/Created</Label>
         </Cell>
-        <Cell columnId="github-user" style="width: 100%;" sortable={false}>
+        <Cell columnId="worker-version" sortable={false}>
+          <Label>Worker Version</Label>
+        </Cell>
+        <Cell columnId="github-user" sortable={false}>
           <Label>User</Label>
         </Cell>
-        <!-- <Cell columnId="approved" style="width: 100%;" sortable={false}>
+        <!-- <Cell columnId="approved" sortable={false}>
         <Label>Approved</Label>
       </Cell> -->
       </Row>
@@ -252,11 +284,11 @@
       {#each slice as item (item.id)}
         <!-- <DetailRow> -->
         <Row slot="data">
-          <Cell numeric>
+          <Cell>
             <Button
               on:click={() => {
                 selectedJob = item;
-                open = true;
+                detailsOpen = true;
               }}
             >
               {item.id}
@@ -293,14 +325,22 @@
             </Wrapper>
           </Cell>
           <Cell>
-            {repoToString(item.repository)}
+            <Wrapper>
+              <span class="table-text repo"
+                >{repoToString(item.repository)}</span
+              >
+              <Tooltip>{repoToString(item.repository)}</Tooltip>
+            </Wrapper>
           </Cell>
           <Cell>
             {#if item.books.length === 1}
-              {item.books[0].slug}
+              <Wrapper>
+                <span class="table-text book">{item.books[0].slug}</span>
+                <Tooltip>{item.books[0].slug}</Tooltip>
+              </Wrapper>
             {:else}
               <Wrapper>
-                <span>all</span>
+                <span class="table-text book">all</span>
                 <Tooltip>
                   {#each item.books as book}
                     {book.slug}<br />
@@ -335,9 +375,15 @@
           </Cell>
           <Cell>
             <Wrapper>
-              <span>{calculateElapsed(item)}</span>
+              <span>
+                <div>{calculateElapsed(item)}</div>
+                <div>{calculateAge(item)}</div>
+              </span>
               <Tooltip>{readableDateTime(item.created_at)}</Tooltip>
             </Wrapper>
+          </Cell>
+          <Cell>
+            <span class="table-text worker-version">{item.worker_version}</span>
           </Cell>
           <Cell>
             <Wrapper>
@@ -408,7 +454,7 @@
     </Pagination>
   </DataTable>
 
-  <DetailsDialog bind:open {selectedJob} />
+  <DetailsDialog bind:open={detailsOpen} {selectedJob} />
 </div>
 
 <style>
@@ -463,6 +509,10 @@
     }
   }
 
+  .job-status-icon {
+    max-height: 40px;
+  }
+
   .spin {
     animation-name: spin-frames;
     animation-duration: 1.5s;
@@ -505,5 +555,21 @@
   .job-type-icon[data-is-complete="false"] {
     opacity: 0.5;
     filter: grayscale(1);
+  }
+
+  .table-text {
+    display: inline-block;
+    vertical-align: middle;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .table-text.book,
+  .table-text.repo {
+    max-width: 250px;
+  }
+
+  .table-text.worker-version {
+    max-width: 150px;
   }
 </style>

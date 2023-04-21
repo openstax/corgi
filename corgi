@@ -85,11 +85,13 @@ elif [[ "$COMMAND" == "create-jobs" ]]; then
     docker-compose -f "$dev_stack" exec -T backend bash -e - <<BASH_EOF
 python - <<PYTHON_EOF
 import asyncio
+from time import strftime
 
 from httpx import AsyncClient
 
 
 async def main():
+    worker_version = strftime("%Y%m%d.%H%M%S+dev")
     async with AsyncClient() as client:
         response = await client.get(
             "http://localhost/api/auth/token-login",
@@ -104,6 +106,7 @@ async def main():
                 "job_type_id": job_type_id,
                 "repository": {"name": "tiny-book", "owner": "openstax"},
                 "book": "book-slug1",
+                "worker_version": worker_version,
             }
             for job_type_id in ((3, 4, 5, 6) * 2)
         ]
