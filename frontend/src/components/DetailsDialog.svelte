@@ -14,7 +14,7 @@
   import { newABLentry } from "../ts/utils";
 
   export let selectedJob: Job;
-  export let open;
+  export let open: boolean;
   let isErrorDialog;
   $: isErrorDialog = selectedJob?.status.name === "failed";
 </script>
@@ -39,7 +39,9 @@
         {:then error_message}
           <h3>Error:</h3>
           {#each error_message.trim().split("\n") as line, i}
-            <div class={`error-line ${line.startsWith('+') ? 'trace-text' : ''}`}>
+            <div
+              class={`error-line ${line.startsWith("+") ? "trace-text" : ""}`}
+            >
               <span class="number">{(i + 1).toString().padStart(5, " ")}</span>
               {line}
             </div>
