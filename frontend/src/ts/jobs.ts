@@ -57,7 +57,7 @@ export function repeatJob(job: Job) {
   );
 }
 
-export async function abortJob(jobId: number) {
+export async function abortJob(jobId: string) {
   try {
     const data = {
       status_id: "6",
@@ -91,7 +91,7 @@ export async function getJobs(): Promise<Job[]> {
   return jobs;
 }
 
-export async function getErrorMessage(jobId: number): Promise<string | null> {
+export async function getErrorMessage(jobId: string): Promise<string | null> {
   let error: string;
   try {
     error = await RequireAuth.fetchJson(`/api/jobs/error/${jobId}`);

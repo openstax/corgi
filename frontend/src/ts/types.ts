@@ -1,5 +1,5 @@
 export interface Job {
-  id: number;
+  id: string;
   status_id: string;
   job_type_id: string;
   version: string;
