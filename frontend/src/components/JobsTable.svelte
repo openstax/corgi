@@ -285,12 +285,7 @@
         <!-- <DetailRow> -->
         <Row slot="data">
           <Cell>
-            <Button
-              on:click={() => {
-                selectedJob = item;
-                detailsOpen = true;
-              }}
-            >
+            <Button on:click={() => (document.location.hash = item.id)}>
               {item.id}
             </Button>
           </Cell>
