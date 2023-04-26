@@ -128,13 +128,13 @@ class HomeCorgi:
 
     @property
     def job_id(self):
-        return self.page.wait_for_selector("td.mdc-data-table__cell--numeric >> nth=0")
+        return self.page.wait_for_selector("tr:nth-child(1) > td:nth-child(1) > button")
 
     def click_job_id(self):
         self.job_id.click()
 
     def job_ids(self, i):
-        return self.page.wait_for_selector(f"td.mdc-data-table__cell--numeric >> nth={i}", timeout=60000)
+        return self.page.wait_for_selector(f"tr:nth-child({i + 1}) > td:nth-child(1) > button", timeout=60000)
 
     @property
     def job_id_dialog_is_visible(self):
