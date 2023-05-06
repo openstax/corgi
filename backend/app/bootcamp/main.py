@@ -89,7 +89,8 @@ def head():
 
 @server.get("/")
 def home():
-    return HTMLResponse("""\
+    saved = load()
+    return HTMLResponse(f"""\
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -101,13 +102,14 @@ def home():
     <h1>CORGI Bootcamp</h1>
     <form id="ref-form">
         <label for="corgi_ref">CORGI Ref:</label>
-        <input type="text" id="corgi_ref" name="corgi_ref">
+        <input type="text" id="corgi_ref" name="corgi_ref" placeholder="{saved.corgi_ref}">
         <br>
         <label for="enki_ref">Enki Ref:</label>
-        <input type="text" id="enki_ref" name="enki_ref">
+        <input type="text" id="enki_ref" name="enki_ref" placeholder="{saved.enki_ref}">
         <br>
         <button id="submit-btn" type="submit">Submit</button>
     </form>
+""" + """\
     <script>
         document.getElementById("ref-form").addEventListener("submit", async (event) => {
             event.preventDefault();
