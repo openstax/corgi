@@ -41,6 +41,7 @@ services:
     logging:
       options:
         awslogs-stream: corgi_bootcamp_backend
+    command: ./bin/prestart-bootcamp.sh
     networks:
       default: {}
       traefik-public: {}
