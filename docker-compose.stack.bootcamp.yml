@@ -7,13 +7,15 @@ services:
     build:
       context: ./backend
       dockerfile: backend.dockerfile
-      target: prod-runner
+      target: dev-runner
     deploy:
       labels:
         traefik.enable: "true"
-        traefik.frontend.rule: PathPrefix:/api,/docs,/redoc,/openapi.json
-        traefik.port: '80'
-        traefik.tags: traefik-pr-${PR_NUMBER}
+        traefik.corgi.frontend.rule: "PathPrefix:/api,/docs,/redoc,/openapi.json"
+        traefik.corgi.port: 80
+        traefik.bootcamp.frontend.rule: "PathPrefixStrip:/bootcamp"
+        traefik.bootcamp.port: 3000
+        traefik.tags: ${TRAEFIK_TAG}
       replicas: 1
       restart_policy:
         condition: on-failure
@@ -22,7 +24,7 @@ services:
         parallelism: 1
     environment:
       BACKEND_CORS_ORIGINS: http://localhost, http://localhost:3000
-      POSTGRES_DB: corgi_${PR_NUMBER}
+      POSTGRES_DB: corgi_bootcamp
       POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_PASSWORD: ''
       POSTGRES_SERVER: db
@@ -38,7 +40,7 @@ services:
     image: openstax/corgi-backend:${TAG}
     logging:
       options:
-        awslogs-stream: corgi_${PR_NUMBER}_backend
+        awslogs-stream: corgi_bootcamp_backend
     networks:
       default: {}
       traefik-public: {}
@@ -50,7 +52,7 @@ services:
         - node.role == manager
     environment:
       PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_DB: corgi_${PR_NUMBER}
+      POSTGRES_DB: corgi_bootcamp
       POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_PASSWORD: ''
       POSTGRES_SERVER: db
@@ -64,14 +66,14 @@ services:
     image: postgres:12
     logging:
       options:
-        awslogs-stream: corgi_${PR_NUMBER}_db
+        awslogs-stream: corgi_bootcamp_db
   frontend:
     deploy:
       labels:
         traefik.enable: "true"
         traefik.frontend.rule: PathPrefix:/
         traefik.port: '80'
-        traefik.tags: traefik-pr-${PR_NUMBER}
+        traefik.tags: ${TRAEFIK_TAG}
       replicas: 1
       restart_policy:
         condition: on-failure
@@ -81,18 +83,18 @@ services:
     image: openstax/corgi-frontend:${TAG}
     logging:
       options:
-        awslogs-stream: corgi_${PR_NUMBER}_frontend
+        awslogs-stream: corgi_bootcamp_frontend
     networks:
       default: {}
       traefik-public: {}
   proxy:
     command: --docker \ --docker.swarmmode \ --docker.watch \ --docker.exposedbydefault=false
-      \ --constraints=tag==traefik-pr-${PR_NUMBER} \ --logLevel=INFO \ --accessLog \ --web
+      \ --constraints=tag==${TRAEFIK_TAG} \ --logLevel=INFO \ --accessLog \ --web
     deploy:
       labels:
         traefik.docker.network: traefik-public
         traefik.enable: "true"
-        traefik.frontend.rule: Host:corgi-${PR_NUMBER}.ce.openstax.org
+        traefik.frontend.rule: Host:corgi-bootcamp.ce.openstax.org
         traefik.port: '80'
         traefik.servicehttp.frontend.entryPoints: http
         traefik.tags: traefik-public
@@ -103,7 +105,7 @@ services:
     image: traefik:v1.7
     logging:
       options:
-        awslogs-stream: corgi_${PR_NUMBER}_proxy
+        awslogs-stream: corgi_bootcamp_proxy
     networks:
       default: {}
       traefik-public: {}

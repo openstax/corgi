@@ -58,6 +58,7 @@ COPY ./docker/gunicorn.conf /gunicorn.conf
 COPY ./app /app
 WORKDIR /app
 
+EXPOSE 3000
 EXPOSE 8888
 EXPOSE 80
 
