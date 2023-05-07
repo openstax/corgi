@@ -26,6 +26,7 @@ services:
     build:
       context: ./frontend
       dockerfile: dev.dockerfile
+      target: dev-runner
     labels:
       - "traefik.http.services.corgi-frontend.loadbalancer.server.port=80"
       - "traefik.http.routers.corgi-frontend.rule=Host(`${DOMAIN}`) && PathPrefix(`/`)"
