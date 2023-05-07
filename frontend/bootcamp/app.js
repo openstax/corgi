@@ -56,13 +56,13 @@ function copyDirectory(src, dest) {
 app.use(express.json());
 
 app.post("/checkout", async (req, res) => {
-  const { commit } = req.body;
-  if (commit == null) {
+  const { ref } = req.body;
+  if (ref == null) {
     res.status(500).send("Need commit to checkout");
   } else {
     try {
       await scopedGit("fetch");
-      await scopedGit(`checkout ${commit}`);
+      await scopedGit(`checkout ${ref}`);
       copyDirectory(frontendRepoDir, frontendDir);
       res.sendStatus(200);
     } catch (err) {
