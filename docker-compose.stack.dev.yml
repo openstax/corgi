@@ -22,6 +22,7 @@ services:
     build:
       context: ./frontend
       dockerfile: dev.dockerfile
+      target: dev-runner
     labels:
       - traefik.frontend.rule=PathPrefix:/
       - traefik.enable=true
