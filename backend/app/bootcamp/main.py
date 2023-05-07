@@ -1,9 +1,9 @@
-import logging
 import os
+from datetime import datetime
 from shutil import copytree, ignore_patterns
 from subprocess import run, PIPE
 from typing import Optional
-import traceback
+from time import time
 
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
@@ -16,15 +16,22 @@ server = FastAPI(title="CORGI Bootcamp")
 
 # NOTE: These global variables will not work if multiple instances are running
 CORGI_REPO = "https://github.com/openstax/corgi"
+FRONTEND_BOOTCAMP = "http://frontend:3000/checkout"
 REPO_PATH = "/corgi"
 BACKEND_REPO_DIR = os.path.join(REPO_PATH, "backend", "app")
 BACKEND_DIR = "/app"
-SAVED = None
+SAVED: Optional["Bundle"] = None
 
 
-class Checkout(BaseModel):
+class Head(BaseModel):
     corgi_ref: Optional[str]
     enki_ref: Optional[str]
+    corgi_modified: Optional[float]
+    enki_modified: Optional[float]
+
+
+class Bundle(BaseModel):
+    head: Head
 
 
 def sh(cmd: str, ignore_exitcode=False):
@@ -38,59 +45,76 @@ def scoped_git(cmd, scope=REPO_PATH):
     return sh(f"git -C {scope} {cmd}")
 
 
-def save(checkout: Checkout):
+def save(*, head: Optional[Head] = None):
     global SAVED
-    SAVED = checkout
+    prev = load()
+    SAVED = Bundle(head=head if head is not None else prev.head)
 
 
 def load():
     if SAVED is None:
-        return Checkout(corgi_ref="main", enki_ref="main")
-    else:
-        return SAVED
+        return Bundle(
+            head=Head(
+                corgi_ref="main",
+                enki_ref="main",
+                corgi_modified=time(),
+                enki_modified=time(),
+            )
+        )
+    return SAVED
 
 
-def _corgi_checkout(commit):
+def _corgi_checkout(ref):
     scoped_git("fetch")
-    scoped_git(f"checkout {commit}")
+    scoped_git(f"checkout {ref}")
     copytree(
         BACKEND_REPO_DIR,
         BACKEND_DIR,
         dirs_exist_ok=True,
         ignore=ignore_patterns("bootcamp*"),
     )
-    response = httpx.post(
-        "http://frontend:3000/checkout", json={"commit": commit}
-    )
+    response = httpx.post(FRONTEND_BOOTCAMP, json={"ref": ref})
     response.raise_for_status()
 
 
 @server.post("/checkout")
-def corgi_checkout(checkout_request: Checkout):
-    saved = load()
+def corgi_checkout(checkout_request: Head):
+    saved = load().head
     corgi_ref = saved.corgi_ref
     enki_ref = saved.enki_ref
+    corgi_modified = saved.corgi_modified
+    enki_modified = saved.enki_modified
     if checkout_request.corgi_ref:
         try:
             _corgi_checkout(checkout_request.corgi_ref)
             corgi_ref = checkout_request.corgi_ref
+            corgi_modified = time()
         except Exception:
             _corgi_checkout(saved.corgi_ref)
             raise
     if checkout_request.enki_ref:
         enki_ref = checkout_request.enki_ref
-    save(Checkout(corgi_ref=corgi_ref, enki_ref=enki_ref))
+        enki_modified = time()
+    save(
+        head=Head(
+            corgi_ref=corgi_ref,
+            corgi_modified=corgi_modified,
+            enki_ref=enki_ref,
+            enki_modified=enki_modified,
+        )
+    )
 
 
-@server.get("/head", response_model=Checkout)
+@server.get("/head", response_model=Head)
 def head():
-    return load()
+    return load().head
 
 
 @server.get("/")
 def home():
-    saved = load()
-    return HTMLResponse(f"""\
+    saved = load().head
+    return HTMLResponse(
+        f"""\
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -109,7 +133,14 @@ def home():
         <br>
         <button id="submit-btn" type="submit">Submit</button>
     </form>
-""" + """\
+    <div>
+        CORGI last modified: {datetime.fromtimestamp(saved.corgi_modified or 0)}
+    </div>
+    <div>
+        Enki last modified: {datetime.fromtimestamp(saved.enki_modified or 0)}
+    </div>
+"""
+        + """\
     <script>
         document.getElementById("ref-form").addEventListener("submit", async (event) => {
             event.preventDefault();
@@ -142,7 +173,8 @@ def home():
     </script>
 </body>
 </html>
-""")
+"""
+    )
 
 
 if not os.path.exists(REPO_PATH):
