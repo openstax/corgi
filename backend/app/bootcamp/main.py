@@ -14,15 +14,6 @@ import httpx
 server = FastAPI(title="CORGI Bootcamp")
 
 
-# NOTE: These global variables will not work if multiple instances are running
-CORGI_REPO = "https://github.com/openstax/corgi"
-FRONTEND_BOOTCAMP = "http://frontend:3000/checkout"
-REPO_PATH = "/corgi"
-BACKEND_REPO_DIR = os.path.join(REPO_PATH, "backend", "app")
-BACKEND_DIR = "/app"
-SAVED: Optional["Bundle"] = None
-
-
 class Head(BaseModel):
     corgi_ref: Optional[str]
     enki_ref: Optional[str]
@@ -32,6 +23,22 @@ class Head(BaseModel):
 
 class Bundle(BaseModel):
     head: Head
+
+
+# NOTE: These global variables will not work if multiple instances are running
+CORGI_REPO = "https://github.com/openstax/corgi"
+FRONTEND_BOOTCAMP = "http://frontend:3000/checkout"
+REPO_PATH = "/corgi"
+BACKEND_REPO_DIR = os.path.join(REPO_PATH, "backend", "app")
+BACKEND_DIR = "/app"
+SAVED = Bundle(
+    head=Head(
+        corgi_ref="main",
+        enki_ref="main",
+        corgi_modified=time(),
+        enki_modified=time(),
+    )
+)
 
 
 def sh(cmd: str, ignore_exitcode=False):
@@ -52,15 +59,6 @@ def save(*, head: Optional[Head] = None):
 
 
 def load():
-    if SAVED is None:
-        return Bundle(
-            head=Head(
-                corgi_ref="main",
-                enki_ref="main",
-                corgi_modified=time(),
-                enki_modified=time(),
-            )
-        )
     return SAVED
 
 
