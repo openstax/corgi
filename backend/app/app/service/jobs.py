@@ -95,9 +95,6 @@ class JobsService(ServiceBase):
         if repo_book_in is not None:
             if not any(b["slug"] == repo_book_in for b in repo_books):
                 raise CustomBaseError(f"Book not in repository '{repo_book_in}'")
-        else:
-            # Until we can build multiple books
-            raise CustomBaseError("Book is required")
 
         async def insert_job():
             commit = cast(Optional[Commit], db.query(Commit).filter(
