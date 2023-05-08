@@ -31,7 +31,7 @@ FRONTEND_BOOTCAMP = "http://frontend:3000/checkout"
 REPO_PATH = "/corgi"
 BACKEND_REPO_DIR = os.path.join(REPO_PATH, "backend", "app")
 BACKEND_DIR = "/app"
-SAVED = Bundle(
+saved_bundle = Bundle(
     head=Head(
         corgi_ref="main",
         enki_ref="main",
@@ -53,18 +53,19 @@ def scoped_git(cmd, scope=REPO_PATH):
 
 
 def save(*, head: Optional[Head] = None):
-    global SAVED
+    global saved_bundle
     prev = load()
-    SAVED = Bundle(head=head if head is not None else prev.head)
+    saved_bundle = Bundle(head=head if head is not None else prev.head)
 
 
 def load():
-    return SAVED
+    return saved_bundle
 
 
 def _corgi_checkout(ref):
     scoped_git("fetch")
     scoped_git(f"checkout {ref}")
+    scoped_git("pull --rebase")
     copytree(
         BACKEND_REPO_DIR,
         BACKEND_DIR,

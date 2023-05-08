@@ -63,6 +63,7 @@ app.post("/checkout", async (req, res) => {
     try {
       await scopedGit("fetch");
       await scopedGit(`checkout ${ref}`);
+      await scopedGit("pull --rebase");
       copyDirectory(frontendRepoDir, frontendDir);
       res.sendStatus(200);
     } catch (err) {
