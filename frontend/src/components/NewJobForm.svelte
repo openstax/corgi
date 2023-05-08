@@ -115,8 +115,7 @@
 
   $: validJob =
     selectedJobTypes.length !== 0 &&
-    !!selectedRepo?.trim() &&
-    !!selectedBook?.trim();
+    !!selectedRepo?.trim()
   $: void setSelectedRepo(selectedBook);
 </script>
 
