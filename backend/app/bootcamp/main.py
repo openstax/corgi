@@ -67,7 +67,8 @@ def load():
 def _corgi_checkout(ref):
     scoped_git("fetch")
     scoped_git(f"checkout {ref}")
-    scoped_git("pull --rebase")
+    if scoped_git("branch --show-current")[1] != b"":
+        scoped_git("pull --rebase")
     copytree(
         BACKEND_REPO_DIR,
         BACKEND_DIR,
