@@ -4,6 +4,7 @@ from shutil import copytree, ignore_patterns
 from subprocess import run, PIPE
 from typing import Optional
 from time import time
+import re
 
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
@@ -31,6 +32,7 @@ FRONTEND_BOOTCAMP = "http://frontend:3000/checkout"
 REPO_PATH = "/corgi"
 BACKEND_REPO_DIR = os.path.join(REPO_PATH, "backend", "app")
 BACKEND_DIR = "/app"
+REF_REGEX = re.compile(r"^[a-zA-Z0-9_./-]+$")
 saved_bundle = Bundle(
     head=Head(
         corgi_ref="main",
@@ -84,6 +86,8 @@ def corgi_checkout(checkout_request: Head):
     corgi_modified = saved.corgi_modified
     enki_modified = saved.enki_modified
     if checkout_request.corgi_ref:
+        if not REF_REGEX.match(checkout_request.corgi_ref):
+            raise Exception("Unsupported ref")
         try:
             _corgi_checkout(checkout_request.corgi_ref)
             corgi_ref = checkout_request.corgi_ref
@@ -92,6 +96,8 @@ def corgi_checkout(checkout_request: Head):
             _corgi_checkout(saved.corgi_ref)
             raise
     if checkout_request.enki_ref:
+        if not REF_REGEX.match(checkout_request.enki_ref):
+            raise Exception("Unsupported ref")
         enki_ref = checkout_request.enki_ref
         enki_modified = time()
     save(
