@@ -21,8 +21,18 @@ function sh(cmd, ignoreExitCode = false) {
   });
 }
 
-function scopedGit(cmd, scope = repoPath) {
-  return sh(`git -C ${scope} ${cmd}`);
+function scopedGit(cmd, kwargs = {}) {
+  const { scope = repoPath, ignoreExitCode = false } = kwargs;
+  return sh(`git -C ${scope} ${cmd}`, ignoreExitCode);
+}
+
+async function isPullable(ref) {
+  return (await scopedGit('show-ref'))
+    .stdout
+    .trim()
+    .split('\n')
+    .filter(line => line.includes('refs/heads/') || line.includes('refs/remotes/'))
+    .some(line => line.endsWith(ref))
 }
 
 function gitInit() {
@@ -63,7 +73,7 @@ app.post("/checkout", async (req, res) => {
     try {
       await scopedGit("fetch");
       await scopedGit(`checkout ${ref}`);
-      if ((await scopedGit("branch --show-current")).stdout !== "") {
+      if (await isPullable(ref)) {
         await scopedGit("pull --rebase");
       }
       copyDirectory(frontendRepoDir, frontendDir);

@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from shutil import copytree, ignore_patterns
 from subprocess import run, PIPE
+from shlex import split
 from typing import Optional
 from time import time
 import re
@@ -44,14 +45,22 @@ saved_bundle = Bundle(
 
 
 def sh(cmd: str, ignore_exitcode=False):
-    p = run(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+    p = run(split(cmd), stdout=PIPE, stderr=PIPE)
     if not ignore_exitcode and p.returncode != 0:
         raise Exception(p.stderr.decode())
-    return (p, p.stdout, p.stderr)
+    return (p, p.stdout.decode(), p.stderr.decode())
 
 
-def scoped_git(cmd, scope=REPO_PATH):
-    return sh(f"git -C {scope} {cmd}")
+def scoped_git(cmd, scope=REPO_PATH, ignore_exitcode=False):
+    return sh(f"git -C {scope} {cmd}", ignore_exitcode)
+
+
+def is_pullable(ref):
+    return any(
+        line.endswith(ref)
+        for line in scoped_git("show-ref")[1].strip().splitlines()
+        if "refs/heads/" in line or "refs/remotes" in line
+    )
 
 
 def save(*, head: Optional[Head] = None):
@@ -67,7 +76,7 @@ def load():
 def _corgi_checkout(ref):
     scoped_git("fetch")
     scoped_git(f"checkout {ref}")
-    if scoped_git("branch --show-current")[1] != b"":
+    if is_pullable(ref):
         scoped_git("pull --rebase")
     copytree(
         BACKEND_REPO_DIR,
