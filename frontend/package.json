@@ -8,7 +8,7 @@
     "lint": "prettier --write --plugin-search-dir=. .",
     "validate": "svelte-check",
     "test:unit": "npx jest --verbose",
-    "bootcamp": "BOOTCAMP=1 node ./bootcamp/app.js &"
+    "bootcamp": "node ./bootcamp/app.js &"
   },
   "devDependencies": {
     "@jest/globals": "^29.3.1",

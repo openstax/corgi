@@ -83,6 +83,8 @@ services:
       update_config:
         delay: 10s
         parallelism: 1
+    environment:
+      BOOTCAMP: true
     image: openstax/corgi-frontend:${TAG}
     logging:
       options:
