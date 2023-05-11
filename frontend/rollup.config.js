@@ -8,7 +8,7 @@ import typescript from "@rollup/plugin-typescript";
 import css from "rollup-plugin-css-only";
 
 const production = !process.env.ROLLUP_WATCH;
-const bootcamp = !!process.env.BOOTCAMP
+const bootcamp = process.env.DEPLOYED_IN === "bootcamp"
 
 function serve() {
   let server;

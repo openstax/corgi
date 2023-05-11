@@ -84,7 +84,7 @@ services:
         delay: 10s
         parallelism: 1
     environment:
-      BOOTCAMP: 1
+      DEPLOYED_IN: "bootcamp"
     image: openstax/corgi-frontend:${TAG}
     logging:
       options:
