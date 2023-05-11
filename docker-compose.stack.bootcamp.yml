@@ -84,7 +84,7 @@ services:
         delay: 10s
         parallelism: 1
     environment:
-      BOOTCAMP: true
+      BOOTCAMP: 1
     image: openstax/corgi-frontend:${TAG}
     logging:
       options:
