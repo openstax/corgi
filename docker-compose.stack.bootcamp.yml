@@ -8,6 +8,8 @@ services:
       context: ./backend
       dockerfile: backend.dockerfile
       target: dev-runner
+    volumes:
+      - bootcamp:/persist
     deploy:
       labels:
         traefik.enable: "true"
