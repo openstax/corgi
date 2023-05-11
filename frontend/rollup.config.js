@@ -8,6 +8,7 @@ import typescript from "@rollup/plugin-typescript";
 import css from "rollup-plugin-css-only";
 
 const production = !process.env.ROLLUP_WATCH;
+const bootcamp = !!process.env.BOOTCAMP
 
 function serve() {
   let server;
@@ -75,7 +76,7 @@ export default {
 
     // Watch the `public` directory and refresh the
     // browser on changes when not in production
-    !production && livereload({ watch: "public", port: 35729 }),
+    !production && !bootcamp && livereload({ watch: "public", port: 35729 }),
 
     // If we're building for production (npm run build
     // instead of npm run dev), minify
