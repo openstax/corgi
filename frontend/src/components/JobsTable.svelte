@@ -116,8 +116,10 @@
     const jobId = document.location.hash.slice(1);
     const job = jobs.find((j) => j.id === jobId);
     if (job) {
+      const loc = document.location;
       selectedJob = job;
       detailsOpen = true;
+      history.replaceState("", document.title, loc.pathname + loc.search);
       return true;
     } else if (jobs.length > 0) {
       handleError(new Error(`Could not find job "${jobId}"`));
@@ -285,7 +287,12 @@
         <!-- <DetailRow> -->
         <Row slot="data">
           <Cell>
-            <Button on:click={() => (document.location.hash = item.id)}>
+            <Button
+              on:click={() => {
+                selectedJob = item;
+                detailsOpen = true;
+              }}
+            >
               {item.id}
             </Button>
           </Cell>
