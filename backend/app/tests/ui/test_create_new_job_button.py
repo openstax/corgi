@@ -1,7 +1,7 @@
 import pytest
 from pytest_testrail.plugin import pytestrail
 
-from tests.ui.pages.home import HomeCorgi
+from tests.ui.pages.home import HomeCorgi, JobStatus
 
 
 @pytestrail.case("C646763")
@@ -75,7 +75,7 @@ def test_create_new_job_button_enabled_disabled(chrome_page_slow, corgi_base_url
     home.click_job_id()
     home.click_abort_button()
 
-    assert home.latest_job_status == "aborted"
+    home.wait_for_job_status(JobStatus.ABORTED, 60 * 5)
 
 
 @pytest.mark.ui

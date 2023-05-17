@@ -1,3 +1,16 @@
+from time import sleep, time
+from enum import Enum
+
+
+class JobStatus(str, Enum):
+    QUEUED = "queued"
+    ASSIGNED = "assigned"
+    PROCESSING = "processing"
+    FAILED = "failed"
+    COMPLETED = "completed"
+    ABORTED = "aborted"
+
+
 class HomeCorgi:
     def __init__(self, page):
         self.page = page
@@ -253,6 +266,37 @@ class HomeCorgi:
     @property
     def version_sha(self):
         return self.page.locator("tr:nth-child(1) > td:nth-child(5)")
+    
+    @property
+    def next_job_id(self):
+        return int(self.job_id.inner_text()) + 1
 
     def click_version_sha(self):
         self.version_sha.click()
+
+    def wait_for(self, condition, timeout_seconds=10, interval_seconds=0.25):
+        start_time = time()
+        while time() - start_time < timeout_seconds:
+            if condition():
+                return True
+            sleep(interval_seconds)
+        raise Exception("Timeout")
+    
+    def wait_for_job_created(self, job_id, timeout_seconds=10):
+        return self.wait_for(
+            lambda: int(self.job_id.inner_text()) == job_id,
+            timeout_seconds
+        )
+    
+    def wait_for_job_status(self, target_status, timeout_seconds=60 * 30):
+        def _wait_for_job_status():
+            latest_status = self.latest_job_status
+            if latest_status == target_status:
+                return True
+            if latest_status == JobStatus.FAILED:
+                raise Exception("Job failed unexpectedly")
+        return self.wait_for(
+            _wait_for_job_status,
+            timeout_seconds,
+            1
+        )

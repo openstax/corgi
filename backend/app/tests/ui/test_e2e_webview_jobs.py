@@ -1,4 +1,4 @@
-from tests.ui.pages.home import HomeCorgi
+from tests.ui.pages.home import HomeCorgi, JobStatus
 import pytest
 
 from bs4 import BeautifulSoup
@@ -17,7 +17,7 @@ def test_e2e_webview_jobs(chrome_page_slow, corgi_base_url, repo, book, version)
     chrome_page_slow.goto(corgi_base_url)
     home = HomeCorgi(chrome_page_slow)
 
-    latest_job_id = home.job_id.inner_text()
+    current_job_id = home.next_job_id
 
     # WHEN: Input fields are filled and a job check box is selected
     home.fill_repo_field(repo)
@@ -29,10 +29,11 @@ def test_e2e_webview_jobs(chrome_page_slow, corgi_base_url, repo, book, version)
     # WHEN: The create new job button is clicked
     home.click_create_new_job_button()
 
-    current_job_id = home.job_id.inner_text()
-
     # THEN: A new job is queued and verified
-    if int(current_job_id) == int(latest_job_id)+1 and home.queued_job_type == "Web Preview (git)":
+    home.wait_for_job_created(current_job_id)
+    home.wait_for_job_status(JobStatus.COMPLETED)
+
+    if home.queued_job_type == "Web Preview (git)":
 
         with chrome_page_slow.context.expect_page() as tab:
             home.click_job_type_icon()
