@@ -86,6 +86,18 @@
           </Button>
         {/if}
       {/if}
+      <Button
+        variant="raised"
+        on:click={() => {
+          const href = document.location.href.replace(
+            document.location.hash,
+            ""
+          );
+          navigator.clipboard.writeText(`${href}#${selectedJob.id}`);
+        }}
+      >
+        <Label>Get Link</Label>
+      </Button>
       <Button variant="raised" on:click={() => {}}>
         <Label>Close</Label>
       </Button>
