@@ -385,7 +385,7 @@
             </Wrapper>
           </Cell>
           <Cell>
-            <span class="table-text worker-version">{item.worker_version}</span>
+            <span class="table-text worker-version">{item.worker_version || '(pending)'}</span>
           </Cell>
           <Cell>
             <Wrapper>
