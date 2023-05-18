@@ -1,6 +1,7 @@
 import type { Job, Repository, RepositorySummary } from "./types";
 import { RequireAuth } from "./fetch-utils";
 import { errorStore } from "./stores";
+import { MINUTES, HOURS, DAYS } from "./time";
 
 type Errors = Error;
 
@@ -82,6 +83,25 @@ export function calculateElapsed(job: Job): string {
   const minutes = (Math.floor(elapsed / 60) % 60).toString().padStart(2, "0");
   const seconds = (Math.floor(elapsed) % 60).toString().padStart(2, "0");
   return `${hours}:${minutes}:${seconds}`;
+}
+
+export function calculateAge(job: Job): string {
+  const start_time = parseDateTimeAsUTC(job.created_at);
+  const elapsed = Date.now() - start_time;
+  const toCheck: Array<[number, string]> = [
+    [DAYS, "days"],
+    [HOURS, "hours"],
+    [MINUTES, "minutes"],
+  ];
+  let conversion: number, unit: string, converted: number;
+
+  for ([conversion, unit] of toCheck) {
+    converted = Math.round(elapsed / conversion);
+    if (converted >= 1) {
+      break;
+    }
+  }
+  return `${converted} ${unit} ago`;
 }
 
 export async function newABLentry(job: Job) {

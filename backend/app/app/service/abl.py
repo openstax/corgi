@@ -41,7 +41,7 @@ async def get_book_metadata(client, repo_name, version="main"):
 
     # books
     meta_inf = await get_git_file(client, owner, repo_name, "META-INF/books.xml", version)
-    meta = etree.fromstring(meta_inf, parser=None)
+    meta = etree.fromstring(meta_inf.encode(), parser=None)
     books = []
     for el in meta.xpath(f"//*[local-name()='book']"):
         book = {
@@ -52,7 +52,7 @@ async def get_book_metadata(client, repo_name, version="main"):
         collection_xml = await get_git_file(
             client, owner, repo_name, f"/collections/{slug}.collection.xml",
             version)
-        collection = etree.fromstring(collection_xml, parser=None)
+        collection = etree.fromstring(collection_xml.encode(), parser=None)
         uuid = collection.xpath("//*[local-name()='uuid']")[0].text
         book["uuid"] = uuid
 
