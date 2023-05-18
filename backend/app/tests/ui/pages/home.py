@@ -293,8 +293,10 @@ class HomeCorgi:
             latest_status = self.latest_job_status
             if latest_status == target_status:
                 return True
-            if latest_status == JobStatus.FAILED:
-                raise Exception("Job failed unexpectedly")
+            # raise Exception if the job concluded in an unexpected way
+            if latest_status in (JobStatus.FAILED, JobStatus.ABORTED,
+                                 JobStatus.COMPLETED):
+                raise Exception(f"Job unexpectedly {latest_status}")
         return self.wait_for(
             _wait_for_job_status,
             timeout_seconds,
