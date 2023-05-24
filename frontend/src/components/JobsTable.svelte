@@ -300,7 +300,7 @@
             <Wrapper>
               {#if isJobComplete(item)}
                 <a
-                  href={item.artifact_urls[0].url}
+                  href={item.artifact_urls.find(a => a.url != null)?.url ?? ''}
                   target="_blank"
                   rel="noreferrer"
                 >
