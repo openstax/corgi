@@ -10,7 +10,7 @@ import pytest
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
     "repo, book",
-    [("osbooks-otto-book", "ottó-book")],
+    [("osbooks-otto-book", "ottó-könyv")],
 )
 def test_job_id_dialog_box_aborted_job(chrome_page_slow, corgi_base_url, repo, book):
     # GIVEN: Playwright, chromium and the corgi_base_url
@@ -62,7 +62,7 @@ def test_job_id_dialog_box_aborted_job(chrome_page_slow, corgi_base_url, repo, b
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
     "repo, book",
-    [("osbooks-otto-book", "ottó-book")],
+    [("osbooks-otto-book", "ottó-könyv")],
 )
 def test_job_id_dialog_box_completed_job(chrome_page_slow, corgi_base_url, repo, book):
     # GIVEN: Playwright, chromium and the corgi_base_url

@@ -8,7 +8,7 @@ import os
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
     "repo, book",
-    [("osbooks-otto-book", "ottó-book")],
+    [("osbooks-otto-book", "ottó-könyv")],
 )
 def test_e2e_docx_jobs(chrome_page_slow, corgi_base_url, repo, book):
     # GIVEN: Playwright, chromium and the corgi_base_url
