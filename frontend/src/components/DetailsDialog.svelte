@@ -88,6 +88,7 @@
       {/if}
       <Button
         variant="raised"
+        id="get-link"
         on:click={() => {
           const href = document.location.href.replace(
             document.location.hash,
