@@ -236,6 +236,17 @@ class HomeCorgi:
         _ = self.latest_job_status_for_aborted  # Make sure alt=aborted exists
         self.job_id.click()
 
+    @property
+    def get_link_button_is_visible(self):
+        return self.page.is_visible("div.mdc-dialog__actions > button :text('Get Link')")
+
+    @property
+    def get_link_button_locator(self):
+        return self.page.locator("div.mdc-dialog__actions > button :text('Get Link')")
+
+    def click_get_link_button(self):
+        self.get_link_button_locator.click()
+
     def job_statuses(self, i):
         return self.page.locator(f"td:nth-child(6) > img >> nth={i}").get_attribute('alt', timeout=690000)
 
