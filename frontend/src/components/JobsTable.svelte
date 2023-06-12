@@ -247,7 +247,7 @@
           <Label>Type</Label>
           <IconButton class="material-icons">arrow_upward</IconButton>
         </Cell>
-        <Cell columnId="repository">
+        <Cell columnId="repository" class="md">
           <Label>Repo</Label>
           <IconButton class="material-icons">arrow_upward</IconButton>
         </Cell>
@@ -262,10 +262,10 @@
         <Cell columnId="status" sortable={false}>
           <Label>Status</Label>
         </Cell>
-        <Cell columnId="updated-at" sortable={false}>
+        <Cell columnId="updated-at" class="md" sortable={false}>
           <Label>Elapsed/Created</Label>
         </Cell>
-        <Cell columnId="worker-version" sortable={false}>
+        <Cell columnId="worker-version" class="lg" sortable={false}>
           <Label>Worker Version</Label>
         </Cell>
         <Cell columnId="github-user" sortable={false}>
@@ -326,7 +326,7 @@
               <Tooltip>{item.job_type.display_name}</Tooltip>
             </Wrapper>
           </Cell>
-          <Cell>
+          <Cell class="md">
             <Wrapper>
               <span class="table-text repo"
                 >{repoToString(item.repository)}</span
@@ -375,7 +375,7 @@
               <Tooltip>{item.status.name}</Tooltip>
             </Wrapper>
           </Cell>
-          <Cell>
+          <Cell class="md">
             <Wrapper>
               <span>
                 <div>{calculateElapsed(item)}</div>
@@ -384,8 +384,11 @@
               <Tooltip>{readableDateTime(item.created_at)}</Tooltip>
             </Wrapper>
           </Cell>
-          <Cell>
-            <span class="table-text worker-version">{item.worker_version || '(pending)'}</span>
+          <Cell class="lg">
+            <Wrapper>
+              <span class="table-text worker-version">{item.worker_version || '(pending)'}</span>
+              <Tooltip>{item.worker_version || '(pending)'}</Tooltip>
+            </Wrapper>
           </Cell>
           <Cell>
             <Wrapper>
@@ -573,5 +576,17 @@
 
   .table-text.worker-version {
     max-width: 150px;
+  }
+
+  @media (max-width: 1000px) {
+    :global(.lg) {
+      display: none;
+    }
+  }
+
+  @media (max-width: 800px) {
+    :global(.md) {
+      display: none;
+    }
   }
 </style>
