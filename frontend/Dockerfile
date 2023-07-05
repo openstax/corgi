@@ -1,4 +1,4 @@
-FROM node:16-alpine as node_modules
+FROM node:18-alpine as node_modules
 
 WORKDIR /deps
 
@@ -9,7 +9,7 @@ RUN set -ex && \
 
 
 # ---
-FROM node:16-alpine as builder
+FROM node:18-alpine as builder
 
 WORKDIR /build
 
