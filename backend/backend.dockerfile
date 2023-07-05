@@ -6,7 +6,7 @@ RUN apt-get update -qq \
     libpq-dev \
  && apt-get autoremove -y
 
-FROM openstax/python3-poetry:20220614.214642 as dev-builder
+FROM openstax/python3-poetry:20230310.212344 as dev-builder
 
 # Only include pyproject and poetry.lock in cache invalidation
 COPY ./app/pyproject.toml ./app/poetry.lock /build/
@@ -20,7 +20,7 @@ RUN python -m venv /opt/venv && \
   pip install --no-cache-dir -U 'pip' && \
   poetry install --no-root --no-interaction
 
-FROM openstax/python3-poetry:20220614.214642 as prod-builder
+FROM openstax/python3-poetry:20230310.212344 as prod-builder
 
 # copy files
 COPY ./app /build/
