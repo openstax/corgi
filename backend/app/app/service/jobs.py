@@ -50,6 +50,9 @@ def add_books_to_commit(
     for repo_book in repo_books:
         slug = repo_book["slug"]
         style = repo_book["style"]
+        collection_name = f"{slug}.collection.xml"
+        if collection_name not in collections_by_name:
+            raise CustomBaseError(f'Collection not found "{collection_name}"')
         collection = collections_by_name[f"{slug}.collection.xml"]
         uuid = xpath1(collection, "//*[local-name()='uuid']")
         if uuid is None or not uuid.text:
