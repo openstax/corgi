@@ -52,7 +52,7 @@ export function repeatJob(job: Job) {
   void submitNewJob(
     job.job_type_id,
     repoToString(job.repository),
-    job.books[0].slug,
+    job.books.length === 1 ? job.books[0].slug : null,
     job.git_ref
   );
 }
