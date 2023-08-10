@@ -300,8 +300,10 @@
             <Wrapper>
               {#if isJobComplete(item)}
                 <a
-                  href={item.artifact_urls.find(a => a.url != null)?.url ?? ''}
-                  target="_blank"
+                  href={item.books.length === 1
+                    ? item.artifact_urls[0].url
+                    : `#${item.id}`}
+                  target={item.books.length === 1 ? "_blank" : "_self"}
                   rel="noreferrer"
                 >
                   <img
@@ -386,8 +388,10 @@
           </Cell>
           <Cell class="lg">
             <Wrapper>
-              <span class="table-text worker-version">{item.worker_version || '(pending)'}</span>
-              <Tooltip>{item.worker_version || '(pending)'}</Tooltip>
+              <span class="table-text worker-version"
+                >{item.worker_version || "(pending)"}</span
+              >
+              <Tooltip>{item.worker_version || "(pending)"}</Tooltip>
             </Wrapper>
           </Cell>
           <Cell>
