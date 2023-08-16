@@ -313,3 +313,18 @@ class HomeCorgi:
             timeout_seconds,
             1
         )
+
+    @property
+    def job_type_icon_job_link(self):
+        return self.page.locator("div.mdc-dialog__container > div > div.mdc-dialog__content > a:nth-child(7)")
+
+    @property
+    def job_type_icon_job_links_are_visible(self):
+        return self.page.locator("div.mdc-dialog__container > div > div.mdc-dialog__content")
+
+    def click_job_type_icon_job_link(self):
+        self.job_type_icon_job_link.click()
+
+    @property
+    def book_title_column(self):
+        return self.page.locator("div.mdc-data-table__table-container > table > tbody > tr:nth-child(1) > td:nth-child(4)")

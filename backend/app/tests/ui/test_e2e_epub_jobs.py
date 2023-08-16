@@ -7,10 +7,8 @@ import os
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
-    "repo, book",
-    [("osbooks-astronomy", "astronomy-2e")],
-)
-def test_e2e_epub_jobs(chrome_page_slow, corgi_base_url, repo, book):
+    "repo", ["osbooks-otto-book"],)
+def test_e2e_epub_jobs(chrome_page_slow, corgi_base_url, repo):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -19,9 +17,8 @@ def test_e2e_epub_jobs(chrome_page_slow, corgi_base_url, repo, book):
 
     current_job_id = home.next_job_id
 
-    # WHEN: Input fields are filled and a job check box is selected
+    # WHEN: Only repo input field is filled and a job check box is selected
     home.fill_repo_field(repo)
-    home.fill_book_field(book)
 
     home.click_epub_job_option()
 
@@ -34,13 +31,19 @@ def test_e2e_epub_jobs(chrome_page_slow, corgi_base_url, repo, book):
 
     if home.queued_job_type == "EPUB (git)":
 
+        assert "all" in home.book_title_column.inner_text()
+
+        home.click_job_type_icon()
+
+        assert home.job_type_icon_job_links_are_visible
+
         with chrome_page_slow.expect_download() as download_info:
-            home.click_job_type_icon()
+
+            home.click_job_type_icon_job_link()
 
         download = download_info.value
 
-        assert "epub.zip" in download.url
-        assert repo in download.url
+        assert repo and "hellas.epub" in download.url
 
         download.save_as("epub_doc.zip")
 

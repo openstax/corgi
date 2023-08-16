@@ -8,7 +8,7 @@ import os
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
     "repo, book",
-    [("osbooks-otto-book", "ottó-könyv")],
+    [("osbooks-otto-book", "hellas")],
 )
 def test_e2e_docx_jobs(chrome_page_slow, corgi_base_url, repo, book):
     # GIVEN: Playwright, chromium and the corgi_base_url
@@ -39,12 +39,13 @@ def test_e2e_docx_jobs(chrome_page_slow, corgi_base_url, repo, book):
 
         download = download_info.value
 
-        assert "docx.zip" in download.url
-        assert repo in download.url
+        assert "zip" in download.url
 
-        download.save_as("docx_doc.zip")
+        assert repo and book in download.url
 
-        assert os.path.getsize("docx_doc.zip") > 0
+        download.save_as("docx.zip")
+
+        assert os.path.getsize("docx.zip") > 0
 
     else:
         pytest.fail(f"No new job was queued. Last job is at {home.elapsed_time.inner_text()}")

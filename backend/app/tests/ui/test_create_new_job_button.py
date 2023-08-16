@@ -150,13 +150,14 @@ def test_book_field_empty_create_new_job_button_disabled(chrome_page, corgi_base
     home.click_epub_job_option()
     home.click_docx_job_option()
 
-    # THEN: The main UI elements are visible and create new job button is disabled
-    assert not home.create_new_job_button_is_enabled
+    # THEN: The main UI elements are visible and create new job button is enabled
+    assert home.create_new_job_button_is_enabled
 
     home.fill_repo_field(" ")
     home.fill_book_field(book)
     home.fill_version_field(" ")
 
+    # THEN: The main UI elements are visible and create new job button is disabled
     assert not home.create_new_job_button_is_enabled
 
 
@@ -191,4 +192,23 @@ def test_space_character_create_new_job_button_disabled(chrome_page, corgi_base_
 
     home.fill_book_field(" ")
 
-    assert not home.create_new_job_button_is_enabled
+    assert home.create_new_job_button_is_enabled
+
+
+@pytest.mark.ui
+@pytest.mark.nondestructive
+@pytest.mark.parametrize("repo", ["osbooks-astronomy"])
+def test_book_field_is_optional(chrome_page, corgi_base_url, repo):
+    # GIVEN: Playwright, chromium and the corgi_base_url
+
+    # WHEN: The Home page is fully loaded
+    chrome_page.goto(corgi_base_url)
+    home = HomeCorgi(chrome_page)
+
+    # WHEN: Only repo field is filled and a job check box is selected
+    home.fill_repo_field(repo)
+
+    home.click_epub_job_option()
+
+    # THEN: The main UI elements are visible and create new job button is disabled/enabled
+    assert home.create_new_job_button_is_enabled
