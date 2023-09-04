@@ -33,27 +33,29 @@ def test_e2e_webview_jobs_book_optional(chrome_page_slow, corgi_base_url, repo):
 
         assert home.job_id_dialog_is_visible
 
+        job_link_text = home.job_type_icon_job_links_are_visible.inner_text().replace(
+            "\n", ""
+        )
+
         chrome_page_slow.keyboard.press("Escape")
 
         assert not home.job_id_dialog_is_visible
 
-        assert (
-            home.book_title_column_tooltip.inner_text()
-            == home.job_type_icon_job_links_are_visible.inner_text().replace(" ", "")
-        )
+        assert home.book_title_column_tooltip.inner_text() == job_link_text
 
         home.click_job_type_icon()
 
         assert home.job_id_dialog_is_visible
 
+        job_link_text = home.job_type_icon_job_links_are_visible.inner_text().replace(
+            "\n", ""
+        )
+
         home.click_job_id_dialog_close_button()
 
         assert not home.job_id_dialog_is_visible
 
-        assert (
-            home.book_title_column_tooltip.inner_text()
-            == home.job_type_icon_job_links_are_visible.inner_text().replace(" ", "")
-        )
+        assert home.book_title_column_tooltip.inner_text() == job_link_text
 
     else:
         pytest.fail(
