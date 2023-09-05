@@ -37,7 +37,7 @@ class HomeCorgi:
 
     @property
     def repo_field_input_locator(self):
-        return self.page.locator('#repo-input input')
+        return self.page.locator("#repo-input input")
 
     def fill_repo_field(self, value):
         self.repo_field_input_locator.fill(value)
@@ -51,7 +51,7 @@ class HomeCorgi:
 
     @property
     def book_field_input_locator(self):
-        return self.page.locator('#book-input input')
+        return self.page.locator("#book-input input")
 
     def fill_book_field(self, value):
         self.book_field_input_locator.fill(value)
@@ -65,7 +65,7 @@ class HomeCorgi:
 
     @property
     def version_field_input_locator(self):
-        return self.page.locator('#version-input input')
+        return self.page.locator("#version-input input")
 
     def fill_version_field(self, value):
         self.version_field_input_locator.fill(value)
@@ -147,7 +147,9 @@ class HomeCorgi:
         self.job_id.click()
 
     def job_ids(self, i):
-        return self.page.wait_for_selector(f"tr:nth-child({i + 1}) > td:nth-child(1) > button", timeout=60000)
+        return self.page.wait_for_selector(
+            f"tr:nth-child({i + 1}) > td:nth-child(1) > button", timeout=60000
+        )
 
     @property
     def job_id_dialog_is_visible(self):
@@ -214,7 +216,7 @@ class HomeCorgi:
 
     @property
     def job_id_link_href(self):
-        return self.job_id_artifact_link_locator.get_attribute('href', timeout=690000)
+        return self.job_id_artifact_link_locator.get_attribute("href", timeout=690000)
 
     @property
     def job_id_dialog_error_message_is_visible(self):
@@ -226,11 +228,15 @@ class HomeCorgi:
 
     @property
     def latest_job_status(self):
-        return self.page.locator("td:nth-child(6) > img >> nth=0").get_attribute('alt', timeout=690000)
+        return self.page.locator("td:nth-child(6) > img >> nth=0").get_attribute(
+            "alt", timeout=690000
+        )
 
     @property
     def latest_job_status_for_aborted(self):
-        return self.page.locator("td:nth-child(6) > img >> nth=0").get_attribute('alt=aborted', timeout=690000)
+        return self.page.locator("td:nth-child(6) > img >> nth=0").get_attribute(
+            "alt=aborted", timeout=690000
+        )
 
     def click_job_id_for_aborted(self):
         _ = self.latest_job_status_for_aborted  # Make sure alt=aborted exists
@@ -238,7 +244,9 @@ class HomeCorgi:
 
     @property
     def get_link_button_is_visible(self):
-        return self.page.is_visible("div.mdc-dialog__actions > button :text('Get Link')")
+        return self.page.is_visible(
+            "div.mdc-dialog__actions > button :text('Get Link')"
+        )
 
     @property
     def get_link_button_locator(self):
@@ -248,11 +256,15 @@ class HomeCorgi:
         self.get_link_button_locator.click()
 
     def job_statuses(self, i):
-        return self.page.locator(f"td:nth-child(6) > img >> nth={i}").get_attribute('alt', timeout=690000)
+        return self.page.locator(f"td:nth-child(6) > img >> nth={i}").get_attribute(
+            "alt", timeout=690000
+        )
 
     @property
     def elapsed_time(self):
-        return self.page.wait_for_selector("td:nth-child(7) > span > div:nth-child(1) >> nth=0", timeout=690000)
+        return self.page.wait_for_selector(
+            "td:nth-child(7) > span > div:nth-child(1) >> nth=0", timeout=690000
+        )
 
     @property
     def queued_repo_name(self):
@@ -260,7 +272,9 @@ class HomeCorgi:
 
     @property
     def queued_job_type(self):
-        return self.page.locator("tr:nth-child(1) > td:nth-child(2) > a > img").get_attribute('alt', timeout=690000)
+        return self.page.locator(
+            "tr:nth-child(1) > td:nth-child(2) > a > img"
+        ).get_attribute("alt", timeout=690000)
 
     @property
     def job_type_icon(self):
@@ -272,12 +286,14 @@ class HomeCorgi:
 
     @property
     def job_type_href(self):
-        return self.page.locator("tr:nth-child(1) > td:nth-child(2) > a").get_attribute('href', timeout=690000)
+        return self.page.locator("tr:nth-child(1) > td:nth-child(2) > a").get_attribute(
+            "href", timeout=690000
+        )
 
     @property
     def version_sha(self):
         return self.page.locator("tr:nth-child(1) > td:nth-child(5)")
-    
+
     @property
     def next_job_id(self):
         return int(self.job_id.inner_text()) + 1
@@ -292,39 +308,54 @@ class HomeCorgi:
                 return True
             sleep(interval_seconds)
         raise Exception("Timeout")
-    
+
     def wait_for_job_created(self, job_id, timeout_seconds=10):
         return self.wait_for(
-            lambda: int(self.job_id.inner_text()) == job_id,
-            timeout_seconds
+            lambda: int(self.job_id.inner_text()) == job_id, timeout_seconds
         )
-    
+
     def wait_for_job_status(self, target_status, timeout_seconds=60 * 30):
         def _wait_for_job_status():
             latest_status = self.latest_job_status
             if latest_status == target_status:
                 return True
             # raise Exception if the job concluded in an unexpected way
-            if latest_status in (JobStatus.FAILED, JobStatus.ABORTED,
-                                 JobStatus.COMPLETED):
+            if latest_status in (
+                JobStatus.FAILED,
+                JobStatus.ABORTED,
+                JobStatus.COMPLETED,
+            ):
                 raise Exception(f"Job unexpectedly {latest_status}")
-        return self.wait_for(
-            _wait_for_job_status,
-            timeout_seconds,
-            1
-        )
+
+        return self.wait_for(_wait_for_job_status, timeout_seconds, 1)
 
     @property
     def job_type_icon_job_link(self):
-        return self.page.locator("div.mdc-dialog__container > div > div.mdc-dialog__content > a:nth-child(7)")
+        return self.page.locator(
+            "div.mdc-dialog__container > div > div.mdc-dialog__content > a:nth-child(7)"
+        )
 
     @property
     def job_type_icon_job_links_are_visible(self):
-        return self.page.locator("div.mdc-dialog__container > div > div.mdc-dialog__content")
+        return self.page.locator(
+            "div.mdc-dialog__container > div > div.mdc-dialog__content"
+        )
 
     def click_job_type_icon_job_link(self):
         self.job_type_icon_job_link.click()
 
     @property
     def book_title_column(self):
-        return self.page.locator("div.mdc-data-table__table-container > table > tbody > tr:nth-child(1) > td:nth-child(4)")
+        return self.page.locator(
+            "div.mdc-data-table__table-container > table > tbody > tr:nth-child(1) > td:nth-child(4)"
+        )
+
+    @property
+    def book_title_column_tooltip(self):
+        return self.page.locator("id=SMUI-tooltip-65")
+
+    @property
+    def worker_version(self):
+        return self.page.locator(
+            "div.mdc-data-table__table-container > table > tbody > tr:nth-child(1) > td.lg.mdc-data-table__cell"
+        )
