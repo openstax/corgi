@@ -26,36 +26,38 @@ def test_e2e_webview_jobs_book_optional(chrome_page_slow, corgi_base_url, repo):
     home.wait_for_job_created(current_job_id)
     home.wait_for_job_status(JobStatus.COMPLETED)
 
-    if home.queued_job_type == "Web Preview (git)":
+    if home.queued_job_type == "Web Preview (git)" and home.current_jobs_row:
         assert "all" in home.book_title_column.inner_text()
 
         home.click_job_id()
 
         assert home.job_id_dialog_is_visible
 
-        job_link_text = home.job_type_icon_job_links_are_visible.inner_text().replace(
-            "\n", ""
-        )
+        job_link_text = home.job_type_icon_job_links_are_visible.inner_text()
 
         chrome_page_slow.keyboard.press("Escape")
 
         assert not home.job_id_dialog_is_visible
 
-        assert home.book_title_column_tooltip.inner_text() == job_link_text
+        home.book_title_column.hover()
 
-        home.click_job_type_icon()
+        tooltip_txt = home.book_title_column_shown_tooltip.inner_text()
 
-        assert home.job_id_dialog_is_visible
+        assert job_link_text in tooltip_txt
 
-        job_link_text = home.job_type_icon_job_links_are_visible.inner_text().replace(
-            "\n", ""
-        )
+        home.click_job_id()
+
+        job_link_text = home.job_type_icon_job_links_are_visible.inner_text()
 
         home.click_job_id_dialog_close_button()
 
         assert not home.job_id_dialog_is_visible
 
-        assert home.book_title_column_tooltip.inner_text() == job_link_text
+        home.book_title_column.hover()
+
+        tooltip_txt = home.book_title_column_shown_tooltip.inner_text()
+
+        assert job_link_text in tooltip_txt
 
     else:
         pytest.fail(
