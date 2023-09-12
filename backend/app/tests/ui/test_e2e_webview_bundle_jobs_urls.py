@@ -3,8 +3,6 @@ import pytest
 
 from bs4 import BeautifulSoup
 
-import requests
-
 
 @pytest.mark.ui
 @pytest.mark.nondestructive
@@ -54,8 +52,9 @@ def test_e2e_webview_bundle_jobs_urls(chrome_page_slow, corgi_base_url, repo, ve
                 book_hrefs.append(atag["href"])
 
         for bhref in book_hrefs:
-            reqs = requests.head(bhref)
-            assert reqs.status_code == 200
+            resp = chrome_page_slow.request.get(bhref)
+
+            assert resp.status == 200
 
             assert home.worker_version.inner_text() in bhref
 
