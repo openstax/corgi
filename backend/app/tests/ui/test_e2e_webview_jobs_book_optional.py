@@ -26,7 +26,7 @@ def test_e2e_webview_jobs_book_optional(chrome_page_slow, corgi_base_url, repo):
     home.wait_for_job_created(current_job_id)
     home.wait_for_job_status(JobStatus.COMPLETED)
 
-    if home.queued_job_type == "Web Preview (git)" and home.current_jobs_row:
+    if home.queued_job_type == "Web Preview (git)":
         assert "all" in home.book_title_column.inner_text()
 
         home.click_job_id()
@@ -45,13 +45,19 @@ def test_e2e_webview_jobs_book_optional(chrome_page_slow, corgi_base_url, repo):
 
         assert job_link_text in tooltip_txt
 
-        home.click_job_id()
+        chrome_page_slow.keyboard.press("Escape")
+
+        home.click_job_type_icon()
 
         job_link_text = home.job_type_icon_job_links_are_visible.inner_text()
 
         home.click_job_id_dialog_close_button()
 
         assert not home.job_id_dialog_is_visible
+
+        # This escape key press clears the tooltip of job type icon appearing twice
+        # or gets stuck open (as a quirk of the used UI library)
+        chrome_page_slow.keyboard.press("Escape")
 
         home.book_title_column.hover()
 
