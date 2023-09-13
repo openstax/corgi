@@ -346,16 +346,20 @@ class HomeCorgi:
 
     @property
     def book_title_column(self):
-        return self.page.locator(
-            "div.mdc-data-table__table-container > table > tbody > tr:nth-child(1) > td:nth-child(4)"
-        )
+        return self.page.locator("tbody > tr:nth-child(1) > td:nth-child(4) > span")
 
     @property
-    def book_title_column_tooltip(self):
-        return self.page.locator("id=SMUI-tooltip-65")
+    def book_title_column_shown_tooltip(self):
+        return self.page.locator("[class='mdc-tooltip mdc-tooltip--shown']")
 
     @property
     def worker_version(self):
         return self.page.locator(
             "div.mdc-data-table__table-container > table > tbody > tr:nth-child(1) > td.lg.mdc-data-table__cell"
+        )
+
+    @property
+    def current_jobs_row(self):
+        return self.page.locator(
+            "mdc-data-table__table-container > table > tbody > tr:nth-child(1)"
         )

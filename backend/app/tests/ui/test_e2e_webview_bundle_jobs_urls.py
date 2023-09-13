@@ -42,21 +42,13 @@ def test_e2e_webview_bundle_jobs_urls(chrome_page_slow, corgi_base_url, repo, ve
         sopa = BeautifulSoup(ccont, "html.parser")
         books = sopa.select("div[class*=mdc-dialog__content]")
 
-        book_titles = []
-        book_hrefs = []
-
         for book in books:
             atags = book.find_all("a")
             for atag in atags:
-                book_titles.append(atag.text)
-                book_hrefs.append(atag["href"])
+                req = chrome_page_slow.request.get(atag["href"])
 
-        for bhref in book_hrefs:
-            resp = chrome_page_slow.request.get(bhref)
-
-            assert resp.status == 200
-
-            assert home.worker_version.inner_text() in bhref
+                assert req.status == 200
+                assert home.worker_version.inner_text() in req.url
 
     else:
         pytest.fail(
