@@ -65,8 +65,8 @@ class ServiceBase(object):
         if data_model is None:
             data_model = self.data_model
 
-        obj_data = obj.to_data_model(data_model).dict(skip_defaults=True)
-        update_data = obj_in.dict(skip_defaults=True)
+        obj_data = obj.to_data_model(data_model).dict(exclude_unset=True)
+        update_data = obj_in.dict(exclude_unset=True)
 
         formatted_data = {
             key: value
