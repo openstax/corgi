@@ -5,6 +5,8 @@ from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
 
 class CustomBase(object):
+    __allow_unmapped__ = True
+
     # Generate __tablename__ automatically
     @declared_attr
     def __tablename__(cls):

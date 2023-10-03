@@ -3,6 +3,7 @@ import logging
 from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed
 
 from app.db.session import db_session
+from sqlalchemy import text
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,7 +22,7 @@ def init():
     try:
         # Try to create session to check if DB is awake
         logger.debug(db_session.__dict__)
-        db_session.execute("SELECT 1")
+        db_session.execute(text("SELECT 1"))
     except Exception as e:
         logger.error(e)
         raise e
