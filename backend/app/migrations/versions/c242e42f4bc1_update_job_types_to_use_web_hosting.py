@@ -24,17 +24,17 @@ job_types_table = sa.table('job_types',
 
 def upgrade():
     bind = op.get_bind()
-    stmt = sa.sql.select([job_types_table]).where(
+    stmt = sa.sql.select(job_types_table).where(
         job_types_table.c.id.in_([2, 4])
     )
     dist_results = bind.execute(stmt)
 
     for result in dist_results:
-        original_name = result["name"]
+        original_name = result[1]
         new_name = original_name.replace("distribution", "web-hosting")
 
         update_stmt = job_types_table.update().values(name=new_name).where(
-            job_types_table.c.id == result["id"])
+            job_types_table.c.id == result[0])
 
         bind.execute(update_stmt)
 
@@ -42,16 +42,16 @@ def upgrade():
 def downgrade():
     bind = op.get_bind()
 
-    stmt = sa.sql.select([job_types_table]).where(
+    stmt = sa.sql.select(job_types_table).where(
         job_types_table.c.id.in_([2, 4])
     )
     web_hosting_results = bind.execute(stmt)
 
     for result in web_hosting_results:
-        original_name = result["name"]
+        original_name = result[1]
         new_name = original_name.replace("web-hosting", "distribution")
 
         update_stmt = job_types_table.update().values(name=new_name).where(
-            job_types_table.c.id == result["id"])
+            job_types_table.c.id == result[0])
 
         bind.execute(update_stmt)

@@ -30,14 +30,14 @@ def upgrade():
 
     op.add_column('content_servers', sa.Column('name', sa.String()))
 
-    s = select([content_servers_table])
+    s = select(content_servers_table)
 
     content_servers = bind.execute(s)
 
     for server in content_servers:
-        simple_name = server['hostname'].split('.')[0]
+        simple_name = server[2].split('.')[0]
         update = content_servers_table.update().where(
-            content_servers_table.c.id == server["id"]).values(name=simple_name)
+            content_servers_table.c.id == server[0]).values(name=simple_name)
 
         bind.execute(update)
 

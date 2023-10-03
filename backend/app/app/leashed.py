@@ -24,7 +24,7 @@ def patch_github_api():
             tests.unit.init_test_data, f"mock_{getter}", None
         )
         if mock_function is None:
-            logger.warn(
+            logger.warning(
                 f'Missing mock function for "{getter}". '
                 "This is probably fine, but I thought you should know."
             )
