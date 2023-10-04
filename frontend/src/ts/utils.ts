@@ -143,3 +143,8 @@ export async function newABLentry(job: Job) {
     "_blank"
   );
 }
+
+// https://stackoverflow.com/a/22706073
+export function escapeHTML(str: string) {
+  return new Option(str).innerHTML;
+}
