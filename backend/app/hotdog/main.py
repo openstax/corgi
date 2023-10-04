@@ -97,7 +97,8 @@ class BundleManager:
 
 # NOTE: These global variables will not work if multiple instances are running
 CORGI_REPO = "https://github.com/openstax/corgi"
-FRONTEND_HOTDOG = "http://frontend:3000/checkout"
+FRONTEND_PORT = os.environ.get('HOTDOG_FRONTEND_PORT', '8080')
+FRONTEND_HOTDOG = f"http://frontend:{FRONTEND_PORT}/checkout"
 REPO_PATH = "/corgi"
 BACKEND_REPO_DIR = os.path.join(REPO_PATH, "backend", "app")
 BACKEND_DIR = "/app"
