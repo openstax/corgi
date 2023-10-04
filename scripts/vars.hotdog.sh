@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-export DOMAIN="corgi-bootcamp.ce.openstax.org"
-export STACK_NAME="corgi_bootcamp"
-export TRAEFIK_TAG="traefik-bootcamp"
+export DOMAIN="corgi-hotdog.ce.openstax.org"
+export STACK_NAME="corgi_hotdog"
+export TRAEFIK_TAG="traefik-hotdog"
 set +x
 SESSION_SECRET="$(dd if=/dev/urandom bs=1024 count=1 2> /dev/null | base64)"
 set -x

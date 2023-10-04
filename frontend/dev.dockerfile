@@ -20,8 +20,8 @@ CMD nginx && npm i && npm run dev
 
 # ---
 
-FROM dev-runner AS bootcamp-runner
+FROM dev-runner AS hotdog-runner
 
 COPY . .
 
-CMD nginx && npm i && npm run bootcamp && npm run dev
+CMD nginx && npm i && npm run hotdog && npm run dev

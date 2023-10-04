@@ -8,7 +8,7 @@
     "lint": "prettier --write --plugin-search-dir=. .",
     "validate": "svelte-check",
     "test:unit": "npx jest --verbose",
-    "bootcamp": "node ./bootcamp/app.js &"
+    "hotdog": "node ./hotdog/app.js &"
   },
   "devDependencies": {
     "@jest/globals": "^29.3.1",

@@ -15,7 +15,7 @@ from pydantic import BaseModel
 import httpx
 
 
-server = FastAPI(title="CORGI Bootcamp")
+server = FastAPI(title="CORGI Hotdog")
 
 
 class StatusType(str, Enum):
@@ -97,7 +97,7 @@ class BundleManager:
 
 # NOTE: These global variables will not work if multiple instances are running
 CORGI_REPO = "https://github.com/openstax/corgi"
-FRONTEND_BOOTCAMP = "http://frontend:3000/checkout"
+FRONTEND_HOTDOG = "http://frontend:3000/checkout"
 REPO_PATH = "/corgi"
 BACKEND_REPO_DIR = os.path.join(REPO_PATH, "backend", "app")
 BACKEND_DIR = "/app"
@@ -133,9 +133,9 @@ def _corgi_checkout(ref):
         BACKEND_REPO_DIR,
         BACKEND_DIR,
         dirs_exist_ok=True,
-        ignore=ignore_patterns("bootcamp*"),
+        ignore=ignore_patterns("hotdog*"),
     )
-    response = httpx.post(FRONTEND_BOOTCAMP, json={"ref": ref})
+    response = httpx.post(FRONTEND_HOTDOG, json={"ref": ref})
     response.raise_for_status()
 
 
@@ -186,10 +186,10 @@ def home():
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CORGI Bootcamp</title>
+    <title>CORGI Hotdog</title>
 </head>
 <body>
-    <h1>CORGI Bootcamp</h1>
+    <h1>CORGI Hotdog</h1>
     <form id="ref-form">
         <label for="corgi_ref">CORGI Ref:</label>
         <input type="text" id="corgi_ref" name="corgi_ref" placeholder="{saved.corgi_ref}">
@@ -220,7 +220,7 @@ def home():
             });
 
             submitBtn.disabled = true;
-            const response = await fetch("/bootcamp/checkout", {
+            const response = await fetch("/hotdog/checkout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
