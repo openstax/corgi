@@ -9,14 +9,14 @@ services:
       dockerfile: backend.dockerfile
       target: dev-runner
     volumes:
-      - bootcamp:/persist
+      - hotdog:/persist
     deploy:
       labels:
         traefik.enable: "true"
         traefik.corgi.frontend.rule: "PathPrefix:/api,/docs,/redoc,/openapi.json"
         traefik.corgi.port: 80
-        traefik.bootcamp.frontend.rule: "PathPrefixStrip:/bootcamp"
-        traefik.bootcamp.port: 3000
+        traefik.hotdog.frontend.rule: "PathPrefixStrip:/hotdog"
+        traefik.hotdog.port: 3000
         traefik.tags: ${TRAEFIK_TAG}
       replicas: 1
       restart_policy:
@@ -26,7 +26,7 @@ services:
         parallelism: 1
     environment:
       BACKEND_CORS_ORIGINS: http://localhost, http://localhost:3000
-      POSTGRES_DB: corgi_bootcamp
+      POSTGRES_DB: corgi_hotdog
       POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_PASSWORD: ''
       POSTGRES_SERVER: db
@@ -42,8 +42,8 @@ services:
     image: openstax/corgi-backend:${TAG}
     logging:
       options:
-        awslogs-stream: corgi_bootcamp_backend
-    command: ./bin/prestart-bootcamp.sh
+        awslogs-stream: corgi_hotdog_backend
+    command: ./bin/prestart-hotdog.sh
     networks:
       default: {}
       traefik-public: {}
@@ -55,7 +55,7 @@ services:
         - node.role == manager
     environment:
       PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_DB: corgi_bootcamp
+      POSTGRES_DB: corgi_hotdog
       POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_PASSWORD: ''
       POSTGRES_SERVER: db
@@ -69,7 +69,7 @@ services:
     image: postgres:12
     logging:
       options:
-        awslogs-stream: corgi_bootcamp_db
+        awslogs-stream: corgi_hotdog_db
   frontend:
     deploy:
       labels:
@@ -84,11 +84,11 @@ services:
         delay: 10s
         parallelism: 1
     environment:
-      DEPLOYED_IN: "bootcamp"
+      DEPLOYED_IN: "hotdog"
     image: openstax/corgi-frontend:${TAG}
     logging:
       options:
-        awslogs-stream: corgi_bootcamp_frontend
+        awslogs-stream: corgi_hotdog_frontend
     networks:
       default: {}
       traefik-public: {}
@@ -99,7 +99,7 @@ services:
       labels:
         traefik.docker.network: traefik-public
         traefik.enable: "true"
-        traefik.frontend.rule: Host:corgi-bootcamp.ce.openstax.org
+        traefik.frontend.rule: Host:corgi-hotdog.ce.openstax.org
         traefik.port: '80'
         traefik.servicehttp.frontend.entryPoints: http
         traefik.tags: traefik-public
@@ -110,7 +110,7 @@ services:
     image: traefik:v1.7
     logging:
       options:
-        awslogs-stream: corgi_bootcamp_proxy
+        awslogs-stream: corgi_hotdog_proxy
     networks:
       default: {}
       traefik-public: {}
@@ -118,4 +118,4 @@ services:
     - /var/run/docker.sock:/var/run/docker.sock:rw
 version: '3.7'
 volumes:
-  bootcamp:
+  hotdog:
