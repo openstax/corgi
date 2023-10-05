@@ -1,38 +1,5 @@
 version: '3.7'
 services:
-  proxy:
-    image: traefik:v1.7
-    command: --docker \
-      --docker.swarmmode \
-      --docker.watch \
-      --docker.exposedbydefault=false \
-      --constraints=tag==${TRAEFIK_TAG} \
-      --logLevel=INFO \
-      --accessLog \
-      --web
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    deploy:
-      labels:
-        # For the configured domain
-        - traefik.frontend.rule=Host:${DOMAIN}
-        - traefik.enable=true
-        - traefik.port=80
-        - traefik.tags=${TRAEFIK_PUBLIC_TAG}
-        - traefik.docker.network=${TRAEFIK_PUBLIC_NETWORK}
-        # Traefik service that listens to HTTP
-        - traefik.servicehttp.frontend.entryPoints=http
-      placement:
-        constraints:
-          - node.role == manager
-          - node.labels.proxy == true
-    logging:
-      options:
-        awslogs-stream: "${STACK_NAME}_proxy"
-    networks:
-      - ${TRAEFIK_PUBLIC_NETWORK}
-      - default
-    
   backend:
     image: 'openstax/corgi-${DOCKER_IMAGE_BACKEND}:${TAG-latest}'
     env_file:
@@ -55,10 +22,10 @@ services:
       - SESSION_SECRET=${SESSION_SECRET}
     deploy:
       labels:
-        - traefik.frontend.rule=PathPrefix:/api,/docs,/redoc,/openapi.json
-        - traefik.enable=true
-        - traefik.port=80
-        - traefik.tags=${TRAEFIK_TAG}
+        - "traefik.http.services.corgi-backend.loadbalancer.server.port=80"
+        - "traefik.http.routers.corgi-backend.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`) || PathPrefix(`/openapi.json`))"
+        - "traefik.tags=${TRAEFIK_TAG}"
+        - "traefik.enable=true"
       replicas: 2
       update_config:
         parallelism: 1
@@ -76,10 +43,10 @@ services:
     image: 'openstax/corgi-${DOCKER_IMAGE_FRONTEND}:${TAG-latest}'
     deploy:
       labels:
-        - traefik.frontend.rule=PathPrefix:/
-        - traefik.enable=true
-        - traefik.port=80
-        - traefik.tags=${TRAEFIK_TAG}
+        - "traefik.http.services.corgi-frontend.loadbalancer.server.port=80"
+        - "traefik.http.routers.corgi-frontend.rule=Host(`${DOMAIN}`) && PathPrefix(`/`)"
+        - "traefik.tags=${TRAEFIK_TAG}"
+        - "traefik.enable=true"
       replicas: 2
       update_config:
         parallelism: 1
