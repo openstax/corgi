@@ -1,0 +1,73 @@
+name: CI GitHub Actions
+
+# https://stackoverflow.com/a/67136237
+on:
+  pull_request:
+  push:
+  workflow_dispatch: #So we can trigger Workflow runs using `gh workflow run "test.yaml" --ref branch
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout git repository 🕝
+        uses: actions/checkout@v3
+
+      - name: Run ShellCheck Scripts
+        uses: ludeeus/action-shellcheck@master
+        with:
+          check_together: 'yes'
+          scandir: ./scripts
+          severity: error
+
+      - name: Run ShellCheck Backend
+        uses: ludeeus/action-shellcheck@master
+        with:
+          check_together: 'yes'
+          scandir: ./backend/app/bin
+          severity: error
+
+      - name: Run ShellCheck Corgi
+        uses: ludeeus/action-shellcheck@master
+        with:
+          additional_files: ./corgi
+          severity: error
+
+      - name: Frontend Unit Tests
+        run: |
+          set -e
+          npm --prefix ./frontend install
+          npm --prefix ./frontend run build
+          npm --prefix ./frontend run test:unit
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+
+      - name: Install poetry
+        uses: Gr1N/setup-poetry@v8
+        with:
+          poetry-version: "1.4.0"
+
+      - name: Backend Unit Tests
+        run: |
+          set -e
+          cd ./backend/app
+          poetry install --no-root --no-interaction --no-ansi
+          poetry run pytest -vvv --junitxml=/tmp/test-reports/junit.xml ./tests/unit
+          cd ..
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Backend
+        id: docker_build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/backend.dockerfile
+          target: prod-runner
+          push: false
