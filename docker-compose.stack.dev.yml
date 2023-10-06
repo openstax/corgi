@@ -5,14 +5,15 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: 
-      - --providers.docker
-      - --providers.docker.watch
-      - --providers.docker.exposedByDefault=false
-      - --providers.docker.constraints=Label(`traefik.tags`, `${TRAEFIK_TAG}`)
-      - --log.level=DEBUG
-      - --accessLog
-      - --api.dashboard=true
-      - --api.insecure=true
+      - "--providers.docker"
+      - "--providers.docker.watch"
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.docker.constraints=Label(`traefik.tags`, `${TRAEFIK_TAG}`)"
+      - "--entrypoints.http.address=:80"
+      - "--log.level=DEBUG"
+      - "--accessLog"
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
     labels:
       - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
       - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
@@ -29,6 +30,7 @@ services:
     labels:
       - "traefik.http.services.corgi-frontend.loadbalancer.server.port=80"
       - "traefik.http.routers.corgi-frontend.rule=Host(`${DOMAIN}`) && PathPrefix(`/`)"
+      - "traefik.http.routers.corgi-frontend.entrypoints=http"
       - "traefik.tags=${TRAEFIK_TAG}"
       - "traefik.enable=true"
     volumes:
@@ -60,6 +62,7 @@ services:
     labels:
       - "traefik.http.services.corgi-backend.loadbalancer.server.port=80"
       - "traefik.http.routers.corgi-backend.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`) || PathPrefix(`/openapi.json`))"
+      - "traefik.http.routers.corgi-backend.entrypoints=http"
       - "traefik.tags=${TRAEFIK_TAG}"
       - "traefik.enable=true"
     command: ./bin/prestart-dev.sh
