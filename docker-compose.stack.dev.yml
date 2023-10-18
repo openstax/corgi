@@ -13,7 +13,6 @@ services:
       - "--log.level=DEBUG"
       - "--accessLog"
       - "--api.dashboard=true"
-      - "--api.insecure=true"
     labels:
       - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
       - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
