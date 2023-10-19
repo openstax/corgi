@@ -43,7 +43,7 @@
               class={`error-line ${line.startsWith("+") ? "trace-text" : ""}`}
             >
               <span class="number">{(i + 1).toString().padStart(5, " ")}</span>
-              {line}
+              - {line}
             </div>
           {/each}
         {:catch requestError}
