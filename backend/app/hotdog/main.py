@@ -195,7 +195,7 @@ def home():
         varname = match.group(2)
         value = template_vars.get(varname, None)
         assert value, f'Expected value for "{varname}", got None'
-        return value
+        return str(value)
 
     return HTMLResponse(
         re.sub(r'({{)([^}]+)(}})', get_variable, HTML_TEMPLATE)
