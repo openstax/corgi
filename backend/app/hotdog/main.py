@@ -8,6 +8,7 @@ from enum import Enum
 from time import time
 import re
 import json
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
@@ -182,67 +183,22 @@ def head():
 @server.get("/")
 def home():
     saved = BUNDLE_MGR.bundle.head
+    template_vars = {
+        "corgi_ref": saved.corgi_ref,
+        "corgi_modified": saved.corgi_modified,
+        "enki_ref": saved.enki_ref,
+        "enki_modified": saved.enki_modified,
+    }
+
+    def get_variable(match):
+        assert match, "Expected match, got None"
+        varname = match.group(2)
+        value = template_vars.get(varname, None)
+        assert value, f'Expected value for "{varname}", got None'
+        return value
+
     return HTMLResponse(
-        f"""\
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CORGI Hotdog</title>
-</head>
-<body>
-    <h1>CORGI Hotdog</h1>
-    <form id="ref-form">
-        <label for="corgi_ref">CORGI Ref:</label>
-        <input type="text" id="corgi_ref" name="corgi_ref" placeholder="{saved.corgi_ref}">
-        <br>
-        <label for="enki_ref">Enki Ref:</label>
-        <input type="text" id="enki_ref" name="enki_ref" placeholder="{saved.enki_ref}">
-        <br>
-        <button id="submit-btn" type="submit">Submit</button>
-    </form>
-    <div>
-        CORGI last modified: {datetime.fromtimestamp(saved.corgi_modified or 0)}
-    </div>
-    <div>
-        Enki last modified: {datetime.fromtimestamp(saved.enki_modified or 0)}
-    </div>
-"""
-        + """\
-    <script>
-        document.getElementById("ref-form").addEventListener("submit", async (event) => {
-            event.preventDefault();
-
-            const formData = new FormData(event.target);
-            const data = {};
-            const submitBtn = document.getElementById("submit-btn");
-
-            formData.forEach((value, key) => {
-                data[key] = value;
-            });
-
-            submitBtn.disabled = true;
-            const response = await fetch("/hotdog/checkout", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            });
-            submitBtn.disabled = false;
-
-            if (response.ok) {
-                alert("Checkout successful!");
-            } else {
-                alert("Something bad happened; maybe check the logs");
-            }
-        });
-
-    </script>
-</body>
-</html>
-"""
+        re.sub(r'({{)([^}]+)(}})', get_variable, HTML_TEMPLATE)
     )
 
 
