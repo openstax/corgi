@@ -277,3 +277,41 @@ with requests.session() as session:
     jobs = session.get("http://localhost/api/jobs")
     print(jobs.json())
 ```
+
+## Testing Unmerged CORGI & Enki Changes in Concourse
+
+[CORGI Hotdog](https://corgi-hotdog.ce.openstax.org/) is a testing environment for experimenting with changes before they go to staging. 
+
+URL: https://corgi-hotdog.ce.openstax.org/
+
+### Use cases for hotdog
+- Catching issues that do not appear on Enki GitHub actions but does error in Concourse
+- Experimenting with changes that would be difficult/tedious to test locally (changes to concourse resource, upload steps, etc.)
+
+### Deploy Porcess
+
+- Two ways to deploy changes
+    - https://corgi-hotdog.ce.openstax.org/hotdog
+        * Enter the ref for one or both repos into the fields (ref can be commit sha or branch name)
+    - There is a script in [ce-scripts](https://github.com/openstax/ce-scripts/blob/c6c2e63d8941392003a4462c8a73e86aa06a598e/bash/hotdog)
+        * Run this script in Enki or CORGI.
+        * You can either specify a ref as an argument to the script or use your current ref by omitting this argument.
+- At this point, the two ways converge and the following occurs
+    - Success message
+    - On concourse, corgi-hotdog, wait for hotdog-head to get new checked out version, this triggers a concourse build pipeline is set in build-deploy-Enki
+        - See api call: `corgi-hotdog.openstax.org/hotdog/head` if you would like more details
+    - Since concourse depends on production Enki tags on dockerhub, there isn’t a way to do concourse + dev Enki tag — except thru hotdog
+    - Hotdog tag on dockerhub: corgi-hotdog rebuild as whatever dev ref you give it, then rebuilds the docker image for Enki. 
+        - Rebuild triggered by submitting a new ref.
+    - Wait to build hotdog tag and push to dockerhub. At this point, you can create a job. still have to wait for concourse (steps: corgi-git-pdf & corgi-resource) to fetch the tag. then eventually the job will run.
+- Some additional details are
+    - If you checkout a branch, you will need to checkout the branch again if you want to pull the latest changes from the branch
+    - Jobs run on concourse. See logging & progress details on concourse/CORGI.
+    - In hotdog corgi ui: worker-version tells you what Enki ref it is & a timestamp
+    - Only one corgi-hotdog tag at a time
+   
+### Hotdog TODO
+1. Automatically pull changes from branches
+1. Automatically redeploy the stack if python dependencies change (maybe add a field to corgi refs that, when set, will trigger deploy on checkout?)
+1. Consider creating a hybrid of PR pipeline so each PR can have a hotdog stack
+
