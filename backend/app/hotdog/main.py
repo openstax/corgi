@@ -96,14 +96,16 @@ class BundleManager:
 
 
 # NOTE: These global variables will not work if multiple instances are running
-CORGI_REPO = "https://github.com/openstax/corgi"
-FRONTEND_PORT = os.environ.get('HOTDOG_FRONTEND_PORT', '8080')
+CORGI_REPO = os.environ["CORGI_REPO"]
+FRONTEND_PORT = os.environ["HOTDOG_FRONTEND_PORT"]
 FRONTEND_HOTDOG = f"http://frontend:{FRONTEND_PORT}/checkout"
 REPO_PATH = "/corgi"
 BACKEND_REPO_DIR = os.path.join(REPO_PATH, "backend", "app")
 BACKEND_DIR = "/app"
 REF_REGEX = re.compile(r"^[a-zA-Z0-9_./-]+$")
-BUNDLE_MGR = BundleManager("/persist/bundle.json")
+BUNDLE_PATH = os.environ["BUNDLE_PATH"]
+BUNDLE_MGR = BundleManager(BUNDLE_PATH)
+HTML_TEMPLATE = (Path(__file__).parent / "index.html.template").read_text()
 
 
 def sh(cmd: str, ignore_exitcode=False):

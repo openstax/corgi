@@ -39,6 +39,9 @@ services:
       GITHUB_OAUTH_ID: ${GITHUB_OAUTH_ID}
       GITHUB_OAUTH_SECRET: ${GITHUB_OAUTH_SECRET}
       SESSION_SECRET: ${SESSION_SECRET}
+      BUNDLE_PATH: /persist/bundle.json
+      CORGI_REPO: https://github.com/openstax/corgi
+      HOTDOG_FRONTEND_PORT: 8080
     image: openstax/corgi-backend:${TAG}
     logging:
       options:
