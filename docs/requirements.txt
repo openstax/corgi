@@ -19,7 +19,7 @@ Pygments==2.15.0
 pyparsing==2.4.5
 pytz==2019.3
 PyYAML==5.4
-requests==2.22.0
+requests==2.31.0
 seqdiag==0.9.6
 six==1.13.0
 snowballstemmer==2.0.0
