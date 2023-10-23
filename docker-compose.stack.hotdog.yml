@@ -42,6 +42,7 @@ services:
       BUNDLE_PATH: /persist/bundle.json
       CORGI_REPO: https://github.com/openstax/corgi
       HOTDOG_FRONTEND_PORT: 8080
+      PATH_PREFIX: /hotdog
     image: openstax/corgi-backend:${TAG}
     logging:
       options:

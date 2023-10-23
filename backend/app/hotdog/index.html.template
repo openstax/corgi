@@ -9,20 +9,25 @@
     <h1>CORGI Hotdog</h1>
     <form id="ref-form">
         <label for="corgi_ref">CORGI Ref:</label>
-        <input type="text" id="corgi_ref" name="corgi_ref" placeholder="{{corgi_ref}}">
+        <input type="text" id="corgi_ref" name="corgi_ref" placeholder="N/A">
         <br>
         <label for="enki_ref">Enki Ref:</label>
-        <input type="text" id="enki_ref" name="enki_ref" placeholder="{{enki_ref}}">
+        <input type="text" id="enki_ref" name="enki_ref" placeholder="N/A">
         <br>
         <button id="submit-btn" type="submit">Submit</button>
     </form>
     <div>
-        CORGI last modified: {{corgi_modified}}
+        CORGI last modified: <span id="corgi_modified">N/A</span>
     </div>
     <div>
-        Enki last modified: {{enki_modified}}
+        Enki last modified: <span id="enki_modified">N/A</span>
+    </div>
+    <div>
+        Enki Status: <span id="enki_status">N/A</span>
     </div>
     <script>
+        const PATH_PREFIX = "{{path_prefix}}";
+
         document.getElementById("ref-form").addEventListener("submit", async (event) => {
             event.preventDefault();
 
@@ -35,7 +40,7 @@
             });
 
             submitBtn.disabled = true;
-            const response = await fetch("/hotdog/checkout", {
+            const response = await fetch(`${PATH_PREFIX}/checkout`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -51,6 +56,53 @@
             }
         });
 
+        async function get(url) {
+            const resp = await fetch(`${PATH_PREFIX}${url}`);
+            if (!resp.ok) {
+                throw new Error(`Error ${resp.status}: "${resp.statusText}"`);
+            }
+            return resp;
+        }
+
+        function updateRefs(info) {
+            const updates = [
+                ["corgi_ref", (el, value) => { el.placeholder = value; }],
+                ["corgi_modified", (el, value) => {
+                    el.textContent = new Date(value * 1000).toLocaleString();
+                }],
+                ["enki_ref", (el, value) => { el.placeholder = value; }],
+                ["enki_modified", (el, value) => {
+                    el.textContent = new Date(value * 1000).toLocaleString();
+                }],
+            ];
+            for (const [elemId, cb] of updates) {
+                cb(document.getElementById(elemId), info[elemId]);
+            }
+        }
+
+        async function checkHead() {
+            const resp = await get("/head");
+            updateRefs(await resp.json());
+        }
+
+        async function checkStatus() {
+            const resp = await get("/status");
+            const status = await resp.json();
+            const enkiStatus = status["enki_status"];
+            document.getElementById("enki_status").textContent = enkiStatus;
+            document.getElementById("submit-btn")
+                .disabled = enkiStatus === "building";
+        }
+
+        function update() {
+            checkStatus().catch(console.error);
+            checkHead().catch(console.error);
+        }
+
+        (function() {
+            update();
+            setInterval(update, 5000);
+        })();
     </script>
 </body>
 </html>

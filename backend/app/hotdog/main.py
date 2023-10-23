@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from shutil import copytree, ignore_patterns
 from subprocess import run, PIPE
 from shlex import split
@@ -22,6 +22,7 @@ server = FastAPI(title="CORGI Hotdog")
 class StatusType(str, Enum):
     running = "running"
     building = "building"
+    error = "error"
 
 
 class Head(BaseModel):
@@ -106,7 +107,12 @@ BACKEND_DIR = "/app"
 REF_REGEX = re.compile(r"^[a-zA-Z0-9_./-]+$")
 BUNDLE_PATH = os.environ["BUNDLE_PATH"]
 BUNDLE_MGR = BundleManager(BUNDLE_PATH)
-HTML_TEMPLATE = (Path(__file__).parent / "index.html.template").read_text()
+PATH_PREFIX = os.environ["PATH_PREFIX"]
+HTML_TEMPLATE = (
+    (Path(__file__).parent / "index.html.template")
+    .read_text()
+    .replace("{{path_prefix}}", PATH_PREFIX)
+)
 
 
 def sh(cmd: str, ignore_exitcode=False):
@@ -175,6 +181,16 @@ def corgi_checkout(checkout_request: Head):
     )
 
 
+@server.post("/status")
+def update_enki_status(status_request: Status):
+    BUNDLE_MGR.save(status=status_request)
+
+
+@server.get("/status")
+def get_enki_status():
+    return BUNDLE_MGR.bundle.status
+
+
 @server.get("/head", response_model=Head)
 def head():
     return BUNDLE_MGR.bundle.head
@@ -182,24 +198,7 @@ def head():
 
 @server.get("/")
 def home():
-    saved = BUNDLE_MGR.bundle.head
-    template_vars = {
-        "corgi_ref": saved.corgi_ref,
-        "corgi_modified": saved.corgi_modified,
-        "enki_ref": saved.enki_ref,
-        "enki_modified": saved.enki_modified,
-    }
-
-    def get_variable(match):
-        assert match, "Expected match, got None"
-        varname = match.group(2)
-        value = template_vars.get(varname, None)
-        assert value, f'Expected value for "{varname}", got None'
-        return str(value)
-
-    return HTMLResponse(
-        re.sub(r'({{)([^}]+)(}})', get_variable, HTML_TEMPLATE)
-    )
+    return HTMLResponse(HTML_TEMPLATE)
 
 
 if not os.path.exists(REPO_PATH):
