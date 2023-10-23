@@ -91,7 +91,7 @@
             const enkiStatus = status["enki_status"];
             document.getElementById("enki_status").textContent = enkiStatus;
             document.getElementById("submit-btn")
-                .disabled = enkiStatus === "building";
+                .disabled = ["building", "assigned"].indexOf(enkiStatus) !== -1;
         }
 
         function update() {

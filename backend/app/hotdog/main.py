@@ -22,6 +22,7 @@ server = FastAPI(title="CORGI Hotdog")
 class StatusType(str, Enum):
     running = "running"
     building = "building"
+    assigned = "assigned"
     error = "error"
 
 
@@ -34,6 +35,13 @@ class Head(BaseModel):
 
 class Status(BaseModel):
     enki_status: StatusType
+
+    def update(self, enki_status: Optional[StatusType] = None):
+        return Status(
+            enki_status=enki_status
+            if enki_status is not None
+            else self.enki_status
+        )
 
 
 class Bundle(BaseModel):
@@ -156,6 +164,7 @@ def corgi_checkout(checkout_request: Head):
     enki_ref = saved.enki_ref
     corgi_modified = saved.corgi_modified
     enki_modified = saved.enki_modified
+    status = None
     if checkout_request.corgi_ref:
         if not REF_REGEX.match(checkout_request.corgi_ref):
             raise Exception("Unsupported ref")
@@ -171,13 +180,17 @@ def corgi_checkout(checkout_request: Head):
             raise Exception("Unsupported ref")
         enki_ref = checkout_request.enki_ref
         enki_modified = time()
+        status = BUNDLE_MGR.bundle.status.update(
+            enki_status=StatusType.assigned
+        )
     BUNDLE_MGR.save(
         head=Head(
             corgi_ref=corgi_ref,
             corgi_modified=corgi_modified,
             enki_ref=enki_ref,
             enki_modified=enki_modified,
-        )
+        ),
+        status=status,
     )
 
 
