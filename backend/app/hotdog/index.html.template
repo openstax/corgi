@@ -27,17 +27,14 @@
     </div>
     <script>
         const PATH_PREFIX = "{{path_prefix}}";
+        let updateTimeout = -1;
 
         document.getElementById("ref-form").addEventListener("submit", async (event) => {
             event.preventDefault();
 
             const formData = new FormData(event.target);
-            const data = {};
+            const data = Object.fromEntries(formData.entries());
             const submitBtn = document.getElementById("submit-btn");
-
-            formData.forEach((value, key) => {
-                data[key] = value;
-            });
 
             submitBtn.disabled = true;
             const response = await fetch(`${PATH_PREFIX}/checkout`, {
@@ -51,6 +48,9 @@
 
             if (response.ok) {
                 alert("Checkout successful!");
+                updateImmediate();
+                Array.from(event.target.querySelectorAll('input'))
+                    .forEach(i => { i.value = "" })
             } else {
                 alert("Something bad happened; maybe check the logs");
             }
@@ -97,11 +97,16 @@
         function update() {
             checkStatus().catch(console.error);
             checkHead().catch(console.error);
+            updateTimeout = setTimeout(update, 10000)
+        }
+
+        function updateImmediate() {
+            clearTimeout(updateTimeout);
+            update();
         }
 
         (function() {
             update();
-            setInterval(update, 5000);
         })();
     </script>
 </body>
