@@ -1089,24 +1089,24 @@ files = [
 
 [[package]]
 name = "pypdf"
-version = "3.12.0"
+version = "3.17.0"
 description = "A pure-python PDF library capable of splitting, merging, cropping, and transforming PDF files"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "pypdf-3.12.0-py3-none-any.whl", hash = "sha256:826ad4681660394d7a5742fe8380168cf13058e27b826b7f5b798e994cb77b38"},
-    {file = "pypdf-3.12.0.tar.gz", hash = "sha256:cebac920db0698369f49c389018858a5436862bf3c45b64b10c55c008878db95"},
+    {file = "pypdf-3.17.0-py3-none-any.whl", hash = "sha256:67f6bb7acd8fdbcf7e7a7d5319d12b8de100f5f94538d6e5647aaec3eb7c7dde"},
+    {file = "pypdf-3.17.0.tar.gz", hash = "sha256:9fab275fea57c9e5b2416035d13d867a459ebe36294a4c39a3d0bb45a7404bad"},
 ]
 
 [package.dependencies]
-typing_extensions = {version = ">=3.10.0.0", markers = "python_version < \"3.10\""}
+typing_extensions = {version = ">=3.7.4.3", markers = "python_version < \"3.10\""}
 
 [package.extras]
-crypto = ["PyCryptodome"]
-dev = ["black", "flit", "pip-tools", "pre-commit (<2.18.0)", "pytest-cov", "pytest-socket", "wheel"]
+crypto = ["PyCryptodome", "cryptography"]
+dev = ["black", "flit", "pip-tools", "pre-commit (<2.18.0)", "pytest-cov", "pytest-socket", "pytest-timeout", "pytest-xdist", "wheel"]
 docs = ["myst_parser", "sphinx", "sphinx_rtd_theme"]
-full = ["Pillow", "PyCryptodome"]
-image = ["Pillow"]
+full = ["Pillow (>=8.0.0)", "PyCryptodome", "cryptography"]
+image = ["Pillow (>=8.0.0)"]
 
 [[package]]
 name = "pytest"
@@ -1805,4 +1805,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7"
-content-hash = "08c699fc58dc0b11af09cb6b53c7449a615582e8e509d4733ee3bfc7c9b165fa"
+content-hash = "a4af76e22e1c0ec90a0786ba347eedc4697add1fbb29f103300cd9e83af6239d"
