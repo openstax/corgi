@@ -179,6 +179,18 @@ class JobsService(ServiceBase):
         if order_by is not None:
             query = query.order_by(*order_by)
         return query.all()
+    
+    def get_jobs_after_date(
+            self,
+            db: Session,
+            start: datetime,
+            order_by: Optional[List] = None) -> List[JobSchema]:
+        query = db.query(JobSchema).filter(
+            JobSchema.created_at >= start
+        )
+        if order_by is not None:
+            query = query.order_by(*order_by)
+        return query.all()
 
 
 jobs_service = JobsService(JobSchema, JobModel)

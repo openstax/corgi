@@ -1,19 +1,75 @@
-import { derived, Writable, writable } from "svelte/store";
+import { derived, Writable, Readable, writable } from "svelte/store";
 import { getJobs } from "./jobs";
 import { SECONDS } from "./time";
-import type { Job, RepositorySummary } from "./types";
-import { fetchRepoSummaries } from "./utils";
+import type { Job, JobType, RepositorySummary } from "./types";
+import { fetchRepoSummaries, isJobComplete, parseDateTimeAsUTC } from "./utils";
 
 type GConstructor<T = {}> = new (...args: any[]) => T;
 type Updatable = GConstructor<{ update: () => Promise<void> }>;
 type ErrorWithDate = { date: Date; error: string };
 
+// class APIStore<T> {
+//   private fetching = false;
+
+//   constructor(
+//     protected readonly baseStore: Writable<T>,
+//     private readonly fetchValue: () => Promise<T>,
+//     public readonly subscribe = baseStore.subscribe
+//   ) {}
+
+//   async update() {
+//     if (this.fetching) {
+//       return;
+//     }
+//     try {
+//       this.fetching = true;
+//       this.baseStore.set(await this.fetchValue());
+//     } catch (e) {
+//       errorStore.add(e.toString());
+//     } finally {
+//       this.fetching = false;
+//     }
+//   }
+// }
+
+type Updater<T> = (value: T) => Promise<T>;
+
+interface AsyncWritable<T> extends Readable<T> {
+  /**
+   * Set value and inform subscribers.
+   * @param value to set
+   */
+  set(this: void, value: T): void;
+
+  /**
+   * Update value using callback and inform subscribers.
+   * @param updater callback
+   */
+  update(this: void, updater: Updater<T>): void;
+}
+
+const asyncWritable = (value) => {
+  const { set, subscribe } = writable(value);
+  function intersetpt(newValue) {
+    value = newValue;
+    set(newValue);
+  }
+  function update(fn) {
+    fn(value).then((newValue) => intersetpt(newValue));
+  }
+  return {
+    set: intersetpt,
+    subscribe,
+    update,
+  };
+};
+
 class APIStore<T> {
   private fetching = false;
 
   constructor(
-    protected readonly baseStore: Writable<T>,
-    private readonly fetchValue: () => Promise<T>,
+    protected readonly baseStore: AsyncWritable<T>,
+    private readonly fetchValue: (value: T) => Promise<T>,
     public readonly subscribe = baseStore.subscribe
   ) {}
 
@@ -23,7 +79,7 @@ class APIStore<T> {
     }
     try {
       this.fetching = true;
-      this.baseStore.set(await this.fetchValue());
+      this.baseStore.update(this.fetchValue);
     } catch (e) {
       errorStore.add(e.toString());
     } finally {
@@ -109,8 +165,36 @@ export const errorStore = (() => {
 export const repoSummariesStore = new (RateLimited(
   APIStore<RepositorySummary[]>,
   3
-))(writable([]), fetchRepoSummaries);
+))(asyncWritable([]), fetchRepoSummaries);
+
+// export const oldJobsStore = new (APIStore<Job[]>)(
+//   asyncWritable([]),
+//   async () => {
+//     const jobs = await getJobs();
+//     return jobs.filter((j) => j.status === "old");
+//   }
+// );
+
 export const jobsStore = new (Pollable(RateLimited(APIStore<Job[]>, 3)))(
-  writable([]),
-  getJobs
+  asyncWritable([]),
+  async (jobs) => {
+    const oldestRunningJobIndex = jobs.findIndex((j) => !isJobComplete(j));
+
+    let lastJob;
+
+    if (oldestRunningJobIndex === -1) {
+      if (jobs.length === 0) {
+        return await getJobs();
+      }
+
+      lastJob = jobs[jobs.length - 1];
+    } else {
+      lastJob = jobs[oldestRunningJobIndex];
+    }
+
+    const rangeStart = parseDateTimeAsUTC(lastJob.created_at) / 1000;
+    return jobs
+      .slice(0, oldestRunningJobIndex)
+      .concat(await getJobs(rangeStart));
+  }
 );
