@@ -1,7 +1,4 @@
-networks:
-  traefik-public:
-    external: true
-    name: traefik-public
+version: '3.7'
 services:
   backend:
     build:
@@ -12,12 +9,19 @@ services:
       - hotdog:/persist
     deploy:
       labels:
-        traefik.enable: "true"
-        traefik.corgi.frontend.rule: "PathPrefix:/api,/docs,/redoc,/openapi.json"
-        traefik.corgi.port: 80
-        traefik.hotdog.frontend.rule: "PathPrefixStrip:/hotdog"
-        traefik.hotdog.port: 3000
-        traefik.tags: ${TRAEFIK_TAG}
+        - "traefik.http.services.${STACK_NAME}_backend.loadbalancer.server.port=80"
+        - "traefik.http.routers.${STACK_NAME}_backend.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`) || PathPrefix(`/openapi.json`))"
+        - "traefik.http.routers.${STACK_NAME}_backend.entrypoints=http"
+
+        - "traefik.http.services.${STACK_NAME}_hotdog.loadbalancer.server.port=3000"
+        - "traefik.http.routers.${STACK_NAME}_hotdog.rule=Host(`${DOMAIN}`) && PathPrefix(`/hotdog`)"
+        - "traefik.http.routers.${STACK_NAME}_hotdog.entrypoints=http"
+        - "traefik.http.services.${STACK_NAME}_hotdog.middlewares=${STACK_NAME}_hotdog_stripprefix"
+        - "traefik.http.middlewares.${STACK_NAME}_hotdog_stripprefix.stripprefix.prefixes=/hotdog"
+
+        - "traefik.tags=${TRAEFIK_PUBLIC_TAG}"
+        - "traefik.docker.network=${TRAEFIK_PUBLIC_NETWORK}"
+        - "traefik.enable=true"
       replicas: 1
       restart_policy:
         condition: on-failure
@@ -46,11 +50,12 @@ services:
     image: openstax/corgi-backend:${TAG}
     logging:
       options:
-        awslogs-stream: corgi_hotdog_backend
+        awslogs-stream: "${STACK_NAME}_backend"
     command: ./bin/prestart-hotdog.sh
     networks:
-      default: {}
-      traefik-public: {}
+      - ${TRAEFIK_PUBLIC_NETWORK}
+      - default
+
   db:
     deploy:
       placement:
@@ -73,14 +78,18 @@ services:
     image: postgres:12
     logging:
       options:
-        awslogs-stream: corgi_hotdog_db
+        awslogs-stream: "${STACK_NAME}_db"
+
   frontend:
     deploy:
       labels:
-        traefik.enable: "true"
-        traefik.frontend.rule: PathPrefix:/
-        traefik.port: '80'
-        traefik.tags: ${TRAEFIK_TAG}
+        - "traefik.http.services.${STACK_NAME}_frontend.loadbalancer.server.port=80"
+        - "traefik.http.routers.${STACK_NAME}_frontend.rule=Host(`${DOMAIN}`) && PathPrefix(`/`)"
+        - "traefik.http.routers.${STACK_NAME}_frontend.entrypoints=http"
+
+        - "traefik.tags=${TRAEFIK_PUBLIC_TAG}"
+        - "traefik.docker.network=${TRAEFIK_PUBLIC_NETWORK}"
+        - "traefik.enable=true"
       replicas: 1
       restart_policy:
         condition: on-failure
@@ -92,34 +101,15 @@ services:
     image: openstax/corgi-frontend:${TAG}
     logging:
       options:
-        awslogs-stream: corgi_hotdog_frontend
+        awslogs-stream: "${STACK_NAME}_frontend"
     networks:
-      default: {}
-      traefik-public: {}
-  proxy:
-    command: --docker \ --docker.swarmmode \ --docker.watch \ --docker.exposedbydefault=false
-      \ --constraints=tag==${TRAEFIK_TAG} \ --logLevel=INFO \ --accessLog \ --web
-    deploy:
-      labels:
-        traefik.docker.network: traefik-public
-        traefik.enable: "true"
-        traefik.frontend.rule: Host:corgi-hotdog.ce.openstax.org
-        traefik.port: '80'
-        traefik.servicehttp.frontend.entryPoints: http
-        traefik.tags: traefik-public
-      placement:
-        constraints:
-        - node.labels.proxy == true
-        - node.role == manager
-    image: traefik:v1.7
-    logging:
-      options:
-        awslogs-stream: corgi_hotdog_proxy
-    networks:
-      default: {}
-      traefik-public: {}
-    volumes:
-    - /var/run/docker.sock:/var/run/docker.sock:rw
-version: '3.7'
+      - ${TRAEFIK_PUBLIC_NETWORK}
+      - default
+
 volumes:
   hotdog:
+
+networks:
+  traefik-public:
+    external: true
+    name: traefik-public
