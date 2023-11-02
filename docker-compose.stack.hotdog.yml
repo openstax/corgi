@@ -12,11 +12,13 @@ services:
         - "traefik.http.services.${STACK_NAME}_backend.loadbalancer.server.port=80"
         - "traefik.http.routers.${STACK_NAME}_backend.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`) || PathPrefix(`/openapi.json`))"
         - "traefik.http.routers.${STACK_NAME}_backend.entrypoints=http"
+        - "traefik.http.routers.${STACK_NAME}_backend.service=${STACK_NAME}_backend"
 
         - "traefik.http.services.${STACK_NAME}_hotdog.loadbalancer.server.port=3000"
         - "traefik.http.routers.${STACK_NAME}_hotdog.rule=Host(`${DOMAIN}`) && PathPrefix(`/hotdog`)"
         - "traefik.http.routers.${STACK_NAME}_hotdog.entrypoints=http"
-        - "traefik.http.services.${STACK_NAME}_hotdog.middlewares=${STACK_NAME}_hotdog_stripprefix"
+        - "traefik.http.routers.${STACK_NAME}_hotdog.service=${STACK_NAME}_hotdog"
+        - "traefik.http.routers.${STACK_NAME}_hotdog.middlewares=${STACK_NAME}_hotdog_stripprefix"
         - "traefik.http.middlewares.${STACK_NAME}_hotdog_stripprefix.stripprefix.prefixes=/hotdog"
 
         - "traefik.tags=${TRAEFIK_PUBLIC_TAG}"
