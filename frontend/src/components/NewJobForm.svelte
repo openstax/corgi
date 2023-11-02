@@ -113,9 +113,7 @@
     });
   });
 
-  $: validJob =
-    selectedJobTypes.length !== 0 &&
-    !!selectedRepo?.trim()
+  $: validJob = selectedJobTypes.length !== 0 && !!selectedRepo?.trim();
   $: void setSelectedRepo(selectedBook);
 </script>
 

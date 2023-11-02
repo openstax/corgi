@@ -1,36 +1,42 @@
 version: '3.7'
 services:
   proxy:
-    image: traefik:v1.7
+    image: traefik:v2.10
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: --docker \
-      --docker.watch \
-      --docker.exposedbydefault=false \
-      --constraints=tag==${TRAEFIK_TAG} \
-      --logLevel=DEBUG \
-      --accessLog \
-      --web
+    command: 
+      - "--providers.docker"
+      - "--providers.docker.watch"
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.docker.constraints=Label(`traefik.tags`, `${TRAEFIK_TAG}`)"
+      - "--entrypoints.http.address=:80"
+      - "--log.level=DEBUG"
+      - "--accessLog"
+      - "--api.dashboard=true"
     labels:
-      - traefik.frontend.rule=Host:${DOMAIN}
-      - traefik.enable=true
-      - traefik.port=80
+      - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.tags=${TRAEFIK_TAG}"
+      - "traefik.enable=true"
     ports:
-      - '80:80'
-  
+      # Traefik handles http
+      - "80:80"
   frontend:
     build:
       context: ./frontend
       dockerfile: dev.dockerfile
       target: dev-runner
     labels:
-      - traefik.frontend.rule=PathPrefix:/
-      - traefik.enable=true
-      - traefik.port=80
-      - traefik.tags=${TRAEFIK_TAG}
+      - "traefik.http.services.corgi-frontend.loadbalancer.server.port=80"
+      - "traefik.http.routers.corgi-frontend.rule=Host(`${DOMAIN}`) && PathPrefix(`/`)"
+      - "traefik.http.routers.corgi-frontend.entrypoints=http"
+      - "traefik.tags=${TRAEFIK_TAG}"
+      - "traefik.enable=true"
     volumes:
       - ./frontend:/app
     ports:
+      # This is for the live reloading (maybe add to traefik as a tcp service?)
       - '35729:35729'
 
   backend:
@@ -54,10 +60,11 @@ services:
       - STACK_NAME=${STACK_NAME}
       - DEPLOYED_AT=${DEPLOYED_AT}
     labels:
-      - traefik.frontend.rule=PathPrefix:/api,/docs,/redoc,/openapi.json
-      - traefik.enable=true
-      - traefik.port=80
-      - traefik.tags=${TRAEFIK_TAG}
+      - "traefik.http.services.corgi-backend.loadbalancer.server.port=80"
+      - "traefik.http.routers.corgi-backend.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`) || PathPrefix(`/openapi.json`))"
+      - "traefik.http.routers.corgi-backend.entrypoints=http"
+      - "traefik.tags=${TRAEFIK_TAG}"
+      - "traefik.enable=true"
     command: ./bin/prestart-dev.sh
     networks:
       default:

@@ -1,22 +1,42 @@
 <script lang="ts">
-  import Dialog, {
-    Header,
-    Title,
-    Content,
-    Actions,
-    InitialFocus,
-  } from "@smui/dialog";
+  import Dialog, { Header, Title, Content, Actions } from "@smui/dialog";
   import CircularProgress from "@smui/circular-progress";
   import Button from "@smui/button";
   import { Label } from "@smui/common";
   import { abortJob, repeatJob, getErrorMessage } from "../ts/jobs";
   import type { Job } from "../ts/types";
-  import { newABLentry } from "../ts/utils";
+  import { newABLentry, escapeHTML } from "../ts/utils";
 
   export let selectedJob: Job;
   export let open: boolean;
   let isErrorDialog;
   $: isErrorDialog = selectedJob?.status.name === "failed";
+
+  function linkToSource(job: Job, msg: string) {
+    // Example: ./modules/m59948/index.cnxml:3:1
+    // To https://github.com/<owner>/<book>/blob/<version>/modules/m59948/index.cnxml#L3:1
+    return msg.replace(
+      /\.\/(.+?)(\.cnxml|\.xml):(\d+):(\d+)/g,
+      (orig, stem, ext, lineNum, colNum) => {
+        const link = document.createElement("a");
+        link.dataset.elementType = "error-source-link";
+        link.href = encodeURI(
+          [
+            "https://github.com",
+            job.repository.owner,
+            job.repository.name,
+            "blob",
+            job.version,
+            `${stem}${ext}#L${lineNum}:${colNum}`,
+          ].join("/")
+        );
+        link.rel = "noreferrer";
+        link.target = "_blank";
+        link.textContent = orig;
+        return link.outerHTML;
+      }
+    );
+  }
 </script>
 
 <Dialog bind:open bind:fullscreen={isErrorDialog} sheet>
@@ -38,12 +58,14 @@
           <CircularProgress style="height: 32px; width: 32px;" indeterminate />
         {:then error_message}
           <h3>Error:</h3>
-          {#each error_message.trim().split("\n") as line, i}
+          {#each linkToSource(selectedJob, escapeHTML(error_message))
+            .trim()
+            .split("\n") as line, i}
             <div
               class={`error-line ${line.startsWith("+") ? "trace-text" : ""}`}
             >
               <span class="number">{(i + 1).toString().padStart(5, " ")}</span>
-              {line}
+              {@html line}
             </div>
           {/each}
         {:catch requestError}
