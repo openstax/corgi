@@ -34,7 +34,12 @@ class Jobs(Base):
     status = relationship("Status", back_populates="jobs", lazy="joined")
     job_type = relationship("JobTypes", back_populates="jobs", lazy="joined")
     user = relationship("User", back_populates="jobs", lazy="joined")
-    books = relationship("BookJob", back_populates="job", lazy="joined")
+    books = relationship(
+        "BookJob",
+        back_populates="job",
+        lazy="joined",
+        order_by="asc(BookJob.book_id)",
+    )
 
 
 class Status(Base):
