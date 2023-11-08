@@ -167,26 +167,43 @@ export const repoSummariesStore = new (RateLimited(
   3
 ))(asyncWritable([]), fetchRepoSummaries);
 
-// export const oldJobsStore = new (APIStore<Job[]>)(
-//   asyncWritable([]),
-//   async () => {
-//     const jobs = await getJobs();
-//     return jobs.filter((j) => j.status === "old");
-//   }
-// );
-
 export const jobsStore = new (Pollable(RateLimited(APIStore<Job[]>, 3)))(
   asyncWritable([]),
   async (jobs) => {
-    const oldestRunningJobIndex = jobs.findIndex((j) => !isJobComplete(j));
+    // if there are no jobs get all jobs
+    if (jobs.length === 0) {
+      return await getJobs();
+    }
+
+    // if there are jobs get the oldest job that was created in the last 24 hours
+    const searchRangeStartTimestamp = Date.now() - 86400000; // yesterday
+
+    let oldestJobInSearchRangeIndex = 0;
+
+    for (let i = jobs.length - 1; i > 0; i--) {
+      const j = jobs[i];
+      console.log(parseDateTimeAsUTC(j.updated_at));
+      if (parseDateTimeAsUTC(j.updated_at) < searchRangeStartTimestamp) {
+        oldestJobInSearchRangeIndex = i;
+        break;
+      }
+    }
+
+    // search for the oldest running job in the search range
+    let oldestRunningJobIndex = -1;
+
+    for (let i = oldestJobInSearchRangeIndex; i < jobs.length; i++) {
+      const j = jobs[i];
+      if (!isJobComplete(j)) {
+        oldestRunningJobIndex = i;
+        break;
+      }
+    }
 
     let lastJob;
 
+    console.log(oldestRunningJobIndex);
     if (oldestRunningJobIndex === -1) {
-      if (jobs.length === 0) {
-        return await getJobs();
-      }
-
       lastJob = jobs[jobs.length - 1];
     } else {
       lastJob = jobs[oldestRunningJobIndex];
