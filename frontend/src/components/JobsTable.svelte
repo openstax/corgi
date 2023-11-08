@@ -212,6 +212,8 @@
     jobsStore.update().then(() => void repoSummariesStore.update());
     jobsStore.startPolling(10 * SECONDS);
     addEventListener("hashchange", handleHash);
+    addEventListener("focus", () => jobsStore.startPolling(10 * SECONDS));
+    addEventListener("blur", jobsStore.stopPolling);
   });
 </script>
 
