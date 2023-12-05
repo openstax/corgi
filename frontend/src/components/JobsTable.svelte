@@ -195,6 +195,8 @@
 
   $: slice = sortedRows.slice(start, end);
 
+  let isFocused = true;
+
   onMount(async () => {
     const onJobsAvailable = [];
     if (document.location.hash) {
@@ -212,8 +214,20 @@
     jobsStore.update().then(() => void repoSummariesStore.update());
     jobsStore.startPolling(10 * SECONDS);
     addEventListener("hashchange", handleHash);
-    addEventListener("focus", () => jobsStore.startPolling(10 * SECONDS));
-    addEventListener("blur", jobsStore.stopPolling);
+    addEventListener("focus", () => {
+      if (isFocused) {
+        return;
+      }
+      isFocused = true;
+      jobsStore.startPolling(10 * SECONDS);
+    });
+    addEventListener("blur", () => {
+      if (!isFocused) {
+        return;
+      }
+      isFocused = false;
+      jobsStore.stopPolling();
+    });
   });
 </script>
 
@@ -230,7 +244,7 @@
   {clickNewJob}
 />
 
-<div>
+<div class:desaturated={!isFocused}>
   <DataTable
     responsive
     sortable
@@ -594,5 +608,10 @@
     :global(.md) {
       display: none;
     }
+  }
+
+  :global(.desaturated) {
+    transition: filter 0.3s ease-in-out;
+    filter: grayscale(100%) blur(2px);
   }
 </style>

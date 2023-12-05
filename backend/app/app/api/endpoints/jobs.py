@@ -36,7 +36,7 @@ def get_old_jobs_json(db: Session, start: datetime,
                       end: datetime, _: bool):
     return ','.join(Job.from_orm(j).json()
                     for j in jobs_service.get_jobs_in_date_range(
-                        db, start, end))
+                        db, start, end, order_by=[jobs_service.schema_model.id.asc()]))
 
 @router.get("/", dependencies=[Depends(RequiresRole(Role.USER))])
 def list_jobs(
@@ -70,7 +70,8 @@ def list_jobs(
         return [Job.from_orm(j) for j in  jobs_service.get_jobs_in_date_range(
             db,
             datetime.fromtimestamp(range_start),
-            now
+            now,
+            order_by=[jobs_service.schema_model.id.asc()]
         )]
 
 # rewrite the above endpoint to not use a query param

@@ -120,6 +120,7 @@ const Pollable = <T extends Updatable>(Base: T) =>
           throw new Error("Polling already running");
         }
       }
+      void this.update();
       this.polling = setInterval(() => void this.update(), interval);
     }
 
@@ -169,49 +170,41 @@ export const repoSummariesStore = new (RateLimited(
 
 export const jobsStore = new (Pollable(RateLimited(APIStore<Job[]>, 3)))(
   asyncWritable([]),
-  async (jobs) => {
-    // if there are no jobs get all jobs
-    if (jobs.length === 0) {
-      return await getJobs();
-    }
-
-    // if there are jobs get the oldest job that was created in the last 24 hours
-    const searchRangeStartTimestamp = Date.now() - 86400000; // yesterday
-
-    let oldestJobInSearchRangeIndex = 0;
-
-    for (let i = jobs.length - 1; i > 0; i--) {
-      const j = jobs[i];
-      console.log(parseDateTimeAsUTC(j.updated_at));
-      if (parseDateTimeAsUTC(j.updated_at) < searchRangeStartTimestamp) {
-        oldestJobInSearchRangeIndex = i;
-        break;
-      }
-    }
-
-    // search for the oldest running job in the search range
-    let oldestRunningJobIndex = -1;
-
-    for (let i = oldestJobInSearchRangeIndex; i < jobs.length; i++) {
-      const j = jobs[i];
-      if (!isJobComplete(j)) {
-        oldestRunningJobIndex = i;
-        break;
-      }
-    }
-
-    let lastJob;
-
-    console.log(oldestRunningJobIndex);
-    if (oldestRunningJobIndex === -1) {
-      lastJob = jobs[jobs.length - 1];
-    } else {
-      lastJob = jobs[oldestRunningJobIndex];
-    }
-
-    const rangeStart = parseDateTimeAsUTC(lastJob.created_at) / 1000;
-    return jobs
-      .slice(0, oldestRunningJobIndex)
-      .concat(await getJobs(rangeStart));
-  }
+  updateRunningJobs
 );
+
+export async function updateRunningJobs(jobs: Job[]): Promise<Job[]> {
+  console.table(jobs.map((j) => j.id));
+
+  // if there are no jobs get all jobs
+  if (jobs.length === 0) {
+    return await getJobs();
+  }
+
+  // if there are jobs get the oldest job that was created in the last 24 hours
+  const searchRangeStartTimestamp = Date.now() - 86400000; // yesterday
+
+  // search for the oldest running job in the search range
+  let oldestRunningJobIndex = -1;
+
+  for (let i = jobs.length - 1; i > 0; i--) {
+    const j = jobs[i];
+    if (parseDateTimeAsUTC(j.updated_at) < searchRangeStartTimestamp) {
+      break;
+    }
+    if (!isJobComplete(j)) {
+      oldestRunningJobIndex = i;
+    }
+  }
+
+  const lastJobIndex =
+    oldestRunningJobIndex === -1 ? jobs.length - 1 : oldestRunningJobIndex;
+
+  const lastJob = jobs[lastJobIndex];
+  const rangeStart = parseDateTimeAsUTC(lastJob.created_at) / 1000;
+  const newJobs = await getJobs(rangeStart);
+  if (newJobs.length === 0) {
+    return jobs;
+  }
+  return jobs.slice(0, lastJobIndex).concat(newJobs);
+}
