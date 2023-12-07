@@ -1,4 +1,4 @@
-"""test
+"""fix UserRepository primary key
 
 Revision ID: fd185b46ac05
 Revises: 603c41a55f80
