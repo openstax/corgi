@@ -120,7 +120,7 @@ class UserRepository(Base):
     user_id = sa.Column(sa.ForeignKey("user.id"), primary_key=True, index=True)
     repository_id = sa.Column(sa.ForeignKey("repository.id"), primary_key=True)
     permission_id = sa.Column(sa.ForeignKey("repository_permission.id"),
-                              primary_key=True, index=True)
+                              nullable=False, index=True)
 
     repository = relationship("Repository", back_populates="users")
     user = relationship("User", back_populates="repositories")
