@@ -60,7 +60,14 @@ def list_jobs(
             clear_cache)
         new_jobs = ",".join([
                 Job.from_orm(j).json()
-                for j in jobs_service.get_jobs_in_date_range(db, yesterday, now)])
+                for j in jobs_service.get_jobs_in_date_range(
+                    db,
+                    yesterday,
+                    now,
+                    order_by=[jobs_service.schema_model.id.asc()]
+                )
+            ]
+        )
 
         # Only include lists that have at least 1 job
         joined_jobs = ",".join(jobs for jobs in (old_jobs, new_jobs) if jobs)
