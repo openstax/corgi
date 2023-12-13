@@ -184,27 +184,17 @@ export async function updateRunningJobs(jobs: Job[]): Promise<Job[]> {
   // if there are jobs get the oldest job that was created in the last 24 hours
   const searchRangeStartTimestamp = Date.now() - 86400000; // yesterday
 
-  // search for the oldest running job in the search range
-  let oldestRunningJobIndex = -1;
-
-  for (let i = jobs.length - 1; i > 0; i--) {
-    const j = jobs[i];
-    if (parseDateTimeAsUTC(j.updated_at) < searchRangeStartTimestamp) {
-      break;
-    }
-    if (!isJobComplete(j)) {
-      oldestRunningJobIndex = i;
-    }
-  }
-
-  const lastJobIndex =
-    oldestRunningJobIndex === -1 ? jobs.length - 1 : oldestRunningJobIndex;
-
-  const lastJob = jobs[lastJobIndex];
+  const lastJobIndex = jobs.findIndex((j) => 
+    !isJobComplete(j) &&
+    parseDateTimeAsUTC(j.updated_at) > searchRangeStartTimestamp
+  );
+  console.log('idx', lastJobIndex)
+  const lastJob = jobs[lastJobIndex === -1 ? jobs.length - 1 : lastJobIndex];
   const rangeStart = parseDateTimeAsUTC(lastJob.created_at) / 1000;
   const newJobs = await getJobs(rangeStart);
-  if (newJobs.length === 0) {
-    return jobs;
-  }
-  return jobs.slice(0, lastJobIndex).concat(newJobs);
+  console.table(jobs.slice(0, lastJobIndex));
+  console.table(newJobs);
+  return newJobs.length === 0
+    ? jobs 
+    : jobs.slice(0, lastJobIndex).concat(newJobs);
 }
