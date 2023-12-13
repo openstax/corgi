@@ -214,17 +214,25 @@
     jobsStore.update().then(() => void repoSummariesStore.update());
     jobsStore.startPolling(10 * SECONDS);
     addEventListener("hashchange", handleHash);
-    addEventListener("focus", () => {
+    document.addEventListener("focus", (event) => {
+      if (event.target !== document) {
+        return true;
+      }
       if (isFocused) {
         return;
       }
+      console.log("focus");
       isFocused = true;
       jobsStore.startPolling(10 * SECONDS);
     });
-    addEventListener("blur", () => {
+    document.addEventListener("blur", (event) => {
+      if (event.target !== document) {
+        return true;
+      }
       if (!isFocused) {
         return;
       }
+      console.log("blur");
       isFocused = false;
       jobsStore.stopPolling();
     });
