@@ -47,32 +47,13 @@ def list_jobs(
     """List jobs from time range start till now, up to a maximum of one year trailing"""
     now = datetime.now(timezone.utc)
     if range_start is None:
-        yesterday = datetime(
-            year=now.year,
-            month=now.month,
-            day=now.day,
-            tzinfo=timezone.utc) - timedelta(days=1)
-        # Try to get old jobs from cache and then concatenate jobs from today
-        old_jobs = get_old_jobs_json(
-            db,
-            yesterday - timedelta(days=364),
-            yesterday,
-            clear_cache)
-        new_jobs = ",".join([
-                Job.from_orm(j).json()
-                for j in jobs_service.get_jobs_in_date_range(db, yesterday, now)])
-
-        # Only include lists that have at least 1 job
-        joined_jobs = ",".join(jobs for jobs in (old_jobs, new_jobs) if jobs)
-
-        return Response(content=f"[{joined_jobs}]", media_type='application/json')
-    else:
-        return [Job.from_orm(j) for j in  jobs_service.get_jobs_in_date_range(
-            db,
-            datetime.fromtimestamp(range_start),
-            now,
-            order_by=[jobs_service.schema_model.id.asc()]
-        )]
+        range_start = 0
+    return [Job.from_orm(j) for j in  jobs_service.get_jobs_in_date_range(
+        db,
+        datetime.fromtimestamp(range_start),
+        now,
+        order_by=[jobs_service.schema_model.id.asc()]
+    )]
 
 # rewrite the above endpoint to not use a query param
 # and instead use a path param
