@@ -180,5 +180,4 @@ class JobsService(ServiceBase):
             query = query.order_by(*order_by)
         return query.all()
 
-
 jobs_service = JobsService(JobSchema, JobModel)

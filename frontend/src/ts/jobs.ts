@@ -80,10 +80,12 @@ export async function abortJob(jobId: string) {
   }
 }
 
-export async function getJobs(): Promise<Job[]> {
+export async function getJobs(start?: number): Promise<Job[]> {
   let jobs: Job[];
   try {
-    jobs = await RequireAuth.fetchJson("/api/jobs/");
+    const query_url =
+      start == null ? "/api/jobs/" : `/api/jobs/?range_start=${start}`;
+    jobs = await RequireAuth.fetchJson(query_url);
   } catch (error) {
     handleError(error);
     jobs = [];

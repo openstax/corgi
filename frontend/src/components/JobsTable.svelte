@@ -212,6 +212,13 @@
     jobsStore.update().then(() => void repoSummariesStore.update());
     jobsStore.startPolling(10 * SECONDS);
     addEventListener("hashchange", handleHash);
+    document.addEventListener("visibilitychange", (event) => {
+      if (document.visibilityState === "visible") {
+        jobsStore.startPolling(10 * SECONDS);
+      } else if (document.visibilityState === "hidden") {
+        jobsStore.stopPolling();
+      }
+    });
   });
 </script>
 
