@@ -150,8 +150,6 @@ export const jobsStore = new (Pollable(RateLimited(APIStore<Job[]>, 3)))(
 );
 
 export async function updateRunningJobs(jobs: Job[]): Promise<Job[]> {
-  console.table(jobs.map((j) => j.id));
-
   // if there are no jobs get all jobs
   if (jobs.length === 0) {
     return await getJobs();
