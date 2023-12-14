@@ -8,30 +8,6 @@ type GConstructor<T = {}> = new (...args: any[]) => T;
 type Updatable = GConstructor<{ update: () => Promise<void> }>;
 type ErrorWithDate = { date: Date; error: string };
 
-// class APIStore<T> {
-//   private fetching = false;
-
-//   constructor(
-//     protected readonly baseStore: Writable<T>,
-//     private readonly fetchValue: () => Promise<T>,
-//     public readonly subscribe = baseStore.subscribe
-//   ) {}
-
-//   async update() {
-//     if (this.fetching) {
-//       return;
-//     }
-//     try {
-//       this.fetching = true;
-//       this.baseStore.set(await this.fetchValue());
-//     } catch (e) {
-//       errorStore.add(e.toString());
-//     } finally {
-//       this.fetching = false;
-//     }
-//   }
-// }
-
 type Updater<T> = (value: T) => Promise<T>;
 
 interface AsyncWritable<T> extends Readable<T> {
