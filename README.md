@@ -175,30 +175,22 @@ poetry run pytest tests/unit --init-test-data --github-token "<token>"
 To run the tests execute:
 
 ```bash
-./scripts/tests.ci.sh
+./corgi ui-tests <BASE_URL> <TOKEN>
+
+# Run UI tests on staging
+# IMPORTANT: no trailing slash
+./corgi ui-tests https://corgi-staging.ce.openstax.org <github-token>
+
+# Run UI tests on localhost (see note)
+./corgi ui-tests http://host.docker.internal fake-token
 ```
+
+**NOTE**: `host.docker.internal` refers to the host machine's `localhost` instead of the container's (see [documentation](https://docs.docker.com/desktop/networking/#use-cases-and-workarounds-for-all-platforms) for more info). The ui tests will still fail if CORGI is running in leashed mode because of how the the github api calls are patched.
 
 ### How to develop UI tests
 
-> :warning: WARNING :warning: This functionality does not currently work because of the replacement of Selenium with Playwright. We do plan to return the functionality to the backend-tests image 
+Playwright UI tests are stored in `backend/app/tests/ui`. 
 
-It's useful to run the stack locally when developing UI tests. The same script above in `Run integration tests` section can be edited in order to support interactive testing.
-
-In the [./scripts/tests.ci.local](./scripts/tests.ci.local) file comment out the last line. This will keep all the containers alive after running the tests. Then you can continue to develop your tests and not need to re-create the environment everytime. 
-
-In order to view the browser first list all the containers for the docker-stack.yml file:
-
-```bash
-docker-compose -f docker-stack.yml ps
-```
-
-A table will be displayed with column names. Find the one labeled PORTS for the backend-tests container.
-
-    PORTS
-    4444/tcp, 0.0.0.0:32778->5900/tcp
-
-Use a VNC application to connect to `0.0.0.0:32778`. The port number `32778` may be different.
-The password for the VNC session is `secret`.
 ### Clear the database
 
 Start the stack as described above
