@@ -19,17 +19,20 @@ Usage:
     corgi <COMMAND>
 
 The commands are:
-    start                   Alias for start-leashed
-    start-dev               Start corgi in dev mode (requires oauth app, see
-                            README for more details)
-    start-leashed           Start corgi in leashed mode (uses mocked GitHub API)
-    create-jobs [TOKEN]     Creates sample jobs with each type and status (token
-                            is required in dev mode)
-    build   <STACK_NAME>    Build all images in the stack           
-    restart <STACK_NAME>    Restart all containers in the stack
-    logs                    See logs (supports same options as docker-compose
-                            logs)
-    stop                    Stop corgi
+    start                       Alias for start-leashed
+    start-dev                   Start corgi in dev mode (requires oauth app, see
+                                README for more details)
+    start-leashed               Start corgi in leashed mode (uses mocked GitHub API)
+    create-jobs [TOKEN]         Creates sample jobs with each type and status (token
+                                is required in dev mode)
+    build   <STACK_NAME>        Build all images in the stack           
+    restart <STACK_NAME>        Restart all containers in the stack
+    logs                        See logs (supports same options as docker-compose
+                                logs)
+    ui-tests <BASE_URL> <TOKEN> Run UI tests (playwright) on BASE_URL. These can run
+                                without a github token on localhost, but otherwise a
+                                token with correct access level is required (see README)
+    stop                        Stop corgi
 
 EOF
 
@@ -37,6 +40,12 @@ EOF
         log "$@"
     fi
     exit 1
+}
+
+expect_value() {
+  if [[ -z "$1" ]]; then
+    usage "${2:-"Missing required argument"}"
+  fi
 }
 
 COMMAND="$1"
@@ -51,8 +60,17 @@ readonly here
 readonly dev_stack
 readonly leash_stack
 
-
-if [[ "$COMMAND" == "start-dev" ]]; then
+if [[ "$COMMAND" == "ui-tests" ]]; then
+    BASE_URL="$1"
+    TOKEN="${2:-fake-token}"
+    IMAGE_TAG=corgi-cli/corgi-ui-tests
+    for varname in BASE_URL TOKEN; do
+        expect_value "${!varname-}" "ui-tests: $varname is required"
+    done
+    docker build -t $IMAGE_TAG -f backend/tests.dockerfile backend
+    docker run --rm -it corgi-ui-tests bash -c \
+        "pytest --tb=long --showlocals --base-url=\"$BASE_URL\" --github-token=\"$TOKEN\" -vvv ./tests/ui"
+elif [[ "$COMMAND" == "start-dev" ]]; then
     docker-compose -f "$dev_stack" up -d
     log "Hint: Remember to setup your GitHub app like in the README"
 elif [[ "$COMMAND" == "start-leashed" || "$COMMAND" == "start" ]]; then
