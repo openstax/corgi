@@ -14,7 +14,7 @@ export async function fetchRepoSummaries(): Promise<RepositorySummary[]> {
   let repoSummaries: RepositorySummary[];
   try {
     repoSummaries = await RequireAuth.fetchJson(
-      "/api/github/repository-summary"
+      "/api/github/repository-summary",
     );
   } catch (error) {
     handleError(error);
@@ -31,9 +31,9 @@ export function repoToString(repo: Repository, fullyQualified = false) {
 
 export function filterBooks(
   repositories: RepositorySummary[],
-  selectedRepo: string
+  selectedRepo: string,
 ): string[] {
-  let books: string[] = [];
+  const books: string[] = [];
   repositories
     .filter((s) => selectedRepo == "" || repoToString(s).includes(selectedRepo))
     .map((s) => s.books)
@@ -93,7 +93,9 @@ export function calculateAge(job: Job): string {
     [HOURS, "hours"],
     [MINUTES, "minutes"],
   ];
-  let conversion: number, unit: string, converted: number;
+  let converted = 0;
+  let unit = "N/A";
+  let conversion: number;
 
   for ([conversion, unit] of toCheck) {
     converted = Math.round(elapsed / conversion);
@@ -140,7 +142,7 @@ export async function newABLentry(job: Job) {
   await navigator.clipboard.writeText(JSON.stringify(ablEntry, null, 2));
   window.open(
     `https://github.com/openstax/content-manager-approved-books/edit/main/approved-book-list.json#L${ablData.line_number}`,
-    "_blank"
+    "_blank",
   );
 }
 

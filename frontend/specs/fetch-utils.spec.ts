@@ -29,7 +29,7 @@ describe("fetch", () => {
             statusText,
             json: async () => ({}),
             headers: new Map(),
-          })
+          }),
         );
         const mockTimeout = jest.fn();
         window.fetch = mockFetch as any;
@@ -57,7 +57,7 @@ describe("fetch", () => {
             status: 500,
             json: async () => error,
             headers: new Map([["content-type", "application/json"]]),
-          })
+          }),
         );
         const mockTimeout = jest.fn();
         window.fetch = mockFetch as any;
@@ -72,8 +72,8 @@ describe("fetch", () => {
               type === "unknown"
                 ? "unknown"
                 : type === "json"
-                ? JSON.stringify(error.detail)
-                : error.detail;
+                  ? JSON.stringify(error.detail)
+                  : error.detail;
             expect(errString).toContain(expectedError);
             expect(mockTimeout.mock.calls.length).toBe(0);
           });
@@ -87,7 +87,7 @@ describe("fetchJson", () => {
       Promise.resolve({
         status: 200,
         json: async () => obj,
-      })
+      }),
     );
     window.fetch = mockFetch as any;
     RequireAuth.fetchJson("/")

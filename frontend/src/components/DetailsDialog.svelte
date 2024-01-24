@@ -58,7 +58,7 @@
           <CircularProgress style="height: 32px; width: 32px;" indeterminate />
         {:then error_message}
           <h3>Error:</h3>
-          {#each linkToSource(selectedJob, escapeHTML(error_message))
+          {#each linkToSource(selectedJob, escapeHTML(error_message ?? 'N/A'))
             .trim()
             .split("\n") as line, i}
             <div

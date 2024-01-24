@@ -6,7 +6,6 @@
   import Button from "@smui/button";
   import { Label } from "@smui/common";
   import {
-    fetchRepoSummaries,
     filterBooks,
     handleError,
     repoToString,
@@ -14,8 +13,8 @@
   import type { RepositorySummary } from "../ts/types";
   import { repoSummariesStore } from "../ts/stores";
 
-  export let selectedRepo = "";
-  export let selectedBook = "";
+  export let selectedRepo: string | null = "";
+  export let selectedBook: string | null = "";
   export let selectedVersion = "";
   export let selectedJobTypes = [];
   export let clickNewJob!: (
@@ -25,10 +24,7 @@
     selectedJobTypes: string[]
   ) => Promise<void>;
 
-  let repoAutocomplete;
-  let bookAutocomplete;
-  let versionAutocomplete;
-  let previousRepo: string;
+  let previousRepo: string | null;
   let validJob = false;
 
   let repoSummaries: RepositorySummary[] = [];
@@ -46,13 +42,14 @@
     ) => string[]
   ) {
     return async function (input: string) {
+      let options: string[] = [];
       try {
         const lowerInput = input?.toLocaleLowerCase().trim();
-        const options = getOptions(repoSummaries, lowerInput);
-        return options;
+        options = getOptions(repoSummaries, lowerInput);
       } catch (e) {
         handleError(e);
       }
+      return options;
     };
   }
 
@@ -63,7 +60,7 @@
   //   rs.books.find(b => b.includes(selectedBook))
   // )
   const searchRepos = createSearchFunction((repoSummaries, lowerInput) => {
-    const matches = [];
+    const matches: string[] = [];
     if (lowerInput == null) {
       lowerInput = "";
     }
@@ -84,7 +81,7 @@
     if (lowerInput == null) {
       lowerInput = "";
     }
-    const matches = filterBooks(repoSummaries, selectedRepo).filter(
+    const matches = filterBooks(repoSummaries, selectedRepo ?? "").filter(
       (bookSlug) => bookSlug.toLocaleLowerCase().includes(lowerInput)
     );
     matches.sort();
@@ -184,8 +181,8 @@
   disabled={!validJob}
   on:click={() => {
     void clickNewJob(
-      selectedRepo,
-      selectedBook,
+      selectedRepo ?? "",
+      selectedBook ?? "",
       selectedVersion,
       selectedJobTypes
     );
