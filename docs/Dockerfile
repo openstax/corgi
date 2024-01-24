@@ -1,25 +1,11 @@
-FROM openstax/python3-base:latest
+FROM sphinxdoc/sphinx:7.1.2 as base
 
-LABEL maintainer="OpenStax Content Engineering"
+COPY requirements.txt /docs/requirements.txt
+RUN pip install -r /docs/requirements.txt
 
-COPY requirements.txt .
 
-# Update System Dependencies
-RUN set -x \
-  && apt-get update && apt-get upgrade -y \
-  && apt-get install make \
-  && apt-get autoremove -y \
-  && rm -rf /var/cache/* \
-  && rm -rf /var/lib/apt/lists/*
-
-RUN pip install -r requirements.txt
+FROM base as runner
 
 COPY . /docs
-
-ENV DOC_DIR=/docs
-
-WORKDIR $DOC_DIR
-
 EXPOSE 8000
-
-CMD make livehtml
+CMD sphinx-autobuild --host 0.0.0.0 --port 8000 /docs /build/html
