@@ -1,10 +1,10 @@
-import { derived, Writable, Readable, writable } from "svelte/store";
+import { derived, Readable, writable } from "svelte/store";
 import { getJobs } from "./jobs";
 import { SECONDS } from "./time";
-import type { Job, JobType, RepositorySummary } from "./types";
+import type { Job, RepositorySummary } from "./types";
 import { fetchRepoSummaries, isJobComplete, parseDateTimeAsUTC } from "./utils";
 
-type GConstructor<T = {}> = new (...args: any[]) => T;
+type GConstructor<T = object> = new (...args: any[]) => T;
 type Updatable = GConstructor<{ update: () => Promise<void> }>;
 type ErrorWithDate = { date: Date; error: string };
 
@@ -21,17 +21,17 @@ interface AsyncWritable<T> extends Readable<T> {
    * Update value using callback and inform subscribers.
    * @param updater callback
    */
-  update(this: void, updater: Updater<T>): void;
+  update(this: void, updater: Updater<T>): Promise<void>;
 }
 
-const asyncWritable = (value) => {
+const asyncWritable = <T>(value: T): AsyncWritable<T> => {
   const { set, subscribe } = writable(value);
   function intersetpt(newValue) {
     value = newValue;
     set(newValue);
   }
-  function update(fn) {
-    fn(value).then((newValue) => intersetpt(newValue));
+  async function update(fn: (p: T) => Promise<T>) {
+    intersetpt(await fn(value));
   }
   return {
     set: intersetpt,
@@ -46,7 +46,7 @@ class APIStore<T> {
   constructor(
     protected readonly baseStore: AsyncWritable<T>,
     private readonly fetchValue: (value: T) => Promise<T>,
-    public readonly subscribe = baseStore.subscribe
+    public readonly subscribe = baseStore.subscribe,
   ) {}
 
   async update() {
@@ -55,7 +55,7 @@ class APIStore<T> {
     }
     try {
       this.fetching = true;
-      this.baseStore.update(this.fetchValue);
+      await this.baseStore.update(this.fetchValue);
     } catch (e) {
       errorStore.add(e.toString());
     } finally {
@@ -86,7 +86,7 @@ const RateLimited = <T extends Updatable>(Base: T, timeoutSeconds: number) =>
 
 const Pollable = <T extends Updatable>(Base: T) =>
   class extends Base {
-    private polling = undefined;
+    private polling: NodeJS.Timer | undefined = undefined;
 
     startPolling(interval: number, force: boolean = false) {
       if (this.polling !== undefined) {
@@ -130,7 +130,7 @@ const baseErrorStore = (() => {
 
 export const errorStore = (() => {
   const { subscribe } = derived(baseErrorStore, (errors) =>
-    errors.map((e) => `${e.date.toLocaleTimeString()} - ${e.error}`)
+    errors.map((e) => `${e.date.toLocaleTimeString()} - ${e.error}`),
   );
   // NOTE: The order is important here because we want to override `subscribe`
   return {
@@ -141,12 +141,12 @@ export const errorStore = (() => {
 
 export const repoSummariesStore = new (RateLimited(
   APIStore<RepositorySummary[]>,
-  3
+  3,
 ))(asyncWritable([]), fetchRepoSummaries);
 
 export const jobsStore = new (Pollable(RateLimited(APIStore<Job[]>, 3)))(
   asyncWritable([]),
-  updateRunningJobs
+  updateRunningJobs,
 );
 
 export async function updateRunningJobs(jobs: Job[]): Promise<Job[]> {
@@ -161,7 +161,7 @@ export async function updateRunningJobs(jobs: Job[]): Promise<Job[]> {
   // search for the oldest running job in the search range
   let oldestRunningJobIndex = -1;
 
-  for (let i = jobs.length - 1; i > 0; i--) {
+  for (let i = jobs.length - 1; i >= 0; i--) {
     const j = jobs[i];
     if (parseDateTimeAsUTC(j.updated_at) < searchRangeStartTimestamp) {
       break;

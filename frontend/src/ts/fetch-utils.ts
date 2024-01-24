@@ -1,27 +1,27 @@
 import { SECONDS } from "./time";
 
-let redirectTimeout = undefined;
+// https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+const _hadUnexpectedError = (response: { status: number }) => {
+  // Anything in the range [200, 400) is OK for now
+  return !(response.status >= 200 && response.status < 400);
+};
 
-export namespace RequireAuth {
-  // https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
-  const hadAuthError = (response: Response) => {
-    return response.status === 401 || response.status === 403;
-  };
+const _hadAuthError = (response: { status: number }) => {
+  return response.status === 401 || response.status === 403;
+};
 
-  const hadUnexpectedError = (response: Response) => {
-    // Anything in the range [200, 400) is OK for now
-    return !(response.status >= 200 && response.status < 400);
-  };
+export const RequireAuth = new (class {
+  private _redirectTimeout: NodeJS.Timeout | undefined = undefined;
 
-  export const handleFetchError = async (response: Response) => {
-    if (hadAuthError(response)) {
-      if (redirectTimeout === undefined) {
-        redirectTimeout = setTimeout(() => {
+  async handleFetchError(response: Response) {
+    if (_hadAuthError(response)) {
+      if (this._redirectTimeout === undefined) {
+        this._redirectTimeout = setTimeout(() => {
           document.location.href = "/api/auth/login";
         }, 1 * SECONDS);
       }
       throw new Error("Session expired, redirecting to login page...");
-    } else if (hadUnexpectedError(response)) {
+    } else if (_hadUnexpectedError(response)) {
       if (response.headers.get("content-type") === "application/json") {
         const payload = await response.json();
         let error;
@@ -39,15 +39,13 @@ export namespace RequireAuth {
       }
     }
     return response;
-  };
+  }
 
-  export const fetch = async (
-    input: URL | RequestInfo,
-    init?: RequestInit | undefined
-  ) => await handleFetchError(await window.fetch(input, init));
+  async fetch(input: URL | RequestInfo, init?: RequestInit | undefined) {
+    return await this.handleFetchError(await window.fetch(input, init));
+  }
 
-  export const fetchJson = async (
-    input: URL | RequestInfo,
-    init?: RequestInit | undefined
-  ) => await (await RequireAuth.fetch(input, init)).json();
-}
+  async fetchJson(input: URL | RequestInfo, init?: RequestInit | undefined) {
+    return await (await this.fetch(input, init)).json();
+  }
+})();

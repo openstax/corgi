@@ -12,7 +12,7 @@
   } from "../ts/utils";
   import NewJobForm from "./NewJobForm.svelte";
   import { submitNewJob } from "../ts/jobs";
-  import type { Repository } from "../ts/types";
+  import type { ArtifactUrl, Book, Repository, Status } from "../ts/types";
   import { onMount } from "svelte";
   import DataTable, {
     Head,
@@ -152,8 +152,11 @@
   );
 
   // Job sorting
-  $: sortedRows = filteredRows.sort((a: any, b: any) => {
-    let [aVal, bVal] = [a[sort], b[sort]][
+  $: sortedRows = filteredRows.sort((a: Job, b: Job) => {
+    type ValueTypes =
+      number| string | Status | Repository | ArtifactUrl[] | Book[];
+    let aVal: ValueTypes, bVal: ValueTypes;
+    [aVal, bVal] = [a[sort], b[sort]][
       sortDirection === "ascending" ? "slice" : "reverse"
     ]();
     if (sort === "id") {
@@ -168,7 +171,7 @@
     }
     if (typeof aVal === "string" && typeof bVal === "string") {
       return aVal.localeCompare(bVal);
-    } else if (aVal instanceof Array && bVal instanceof Array) {
+    } else if (Array.isArray(aVal) && Array.isArray(bVal)) {
       // lexicographic string sort for books
       let a: string[];
       let b: string[];
@@ -177,7 +180,7 @@
         b = bVal.map((b) => b.slug);
       } else {
         handleError(new Error(`Cannot handle list sort of ${sort}`));
-        return;
+        return 0;
       }
       if (a.length !== b.length) {
         return a.length - b.length;
@@ -196,7 +199,7 @@
   $: slice = sortedRows.slice(start, end);
 
   onMount(async () => {
-    const onJobsAvailable = [];
+    const onJobsAvailable: Array<(jobs: Job[]) => boolean> = [];
     if (document.location.hash) {
       onJobsAvailable.push(handleHash);
     }
@@ -204,7 +207,7 @@
       jobs = updatedJobs;
       // Run each one until it returns true, then remove it
       onJobsAvailable
-        .map((cb, idx) => [cb(), idx])
+        .map((cb, idx): [boolean, number] => [cb(jobs), idx])
         .filter(([shouldRemove, _]) => shouldRemove)
         .forEach(([_, idx]) => onJobsAvailable.splice(idx, 1));
     });

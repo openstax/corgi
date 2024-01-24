@@ -8,7 +8,7 @@ import typescript from "@rollup/plugin-typescript";
 import css from "rollup-plugin-css-only";
 
 const production = !process.env.ROLLUP_WATCH;
-const hotdog = process.env.DEPLOYED_IN === "hotdog"
+const hotdog = process.env.DEPLOYED_IN === "hotdog";
 
 function serve() {
   let server;
@@ -26,7 +26,7 @@ function serve() {
         {
           stdio: ["ignore", "inherit", "inherit"],
           shell: true,
-        }
+        },
       );
 
       process.on("SIGTERM", toExit);

@@ -7,8 +7,8 @@ import { jobsStore } from "./stores";
 export async function submitNewJob(
   jobTypeId: string,
   repo: string,
-  book?: string,
-  version?: string
+  book?: string | null,
+  version?: string | null,
 ) {
   // This fails to queue the job silently so the rate limit duration shouldn't
   // be a noticable time period for reasonable usage, else confusion will ensue
@@ -30,8 +30,8 @@ export async function submitNewJob(
         name: repo,
         owner: owner,
       },
-      book: book?.trim() || null,
-      version: version?.trim() || null, //(optional)
+      book: (book?.trim() ?? "") || null, // null means all books
+      version: (version?.trim() ?? "") || null, //(optional)
     };
 
     const options = {
@@ -53,7 +53,7 @@ export function repeatJob(job: Job) {
     job.job_type_id,
     repoToString(job.repository),
     job.books.length === 1 ? job.books[0].slug : null,
-    job.git_ref
+    job.git_ref,
   );
 }
 

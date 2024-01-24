@@ -41,6 +41,7 @@ jobs:
           npm --prefix ./frontend install
           npm --prefix ./frontend run build
           npm --prefix ./frontend run test:unit
+          npm --prefix ./frontend run lint
 
       - name: Setup Python
         uses: actions/setup-python@v4

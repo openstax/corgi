@@ -1,5 +1,5 @@
 import { expect, describe, it, jest, beforeEach } from "@jest/globals";
-import { submitNewJob, abortJob, getJobs } from "../src/ts/jobs";
+import { submitNewJob, abortJob } from "../src/ts/jobs";
 import * as jobs from "../src/ts/jobs";
 import { repoToString, parseDateTimeAsUTC } from "../src/ts/utils";
 import { jobsStore, updateRunningJobs } from "../src/ts/stores";
@@ -31,8 +31,8 @@ describe("submitNewJob", () => {
         expect(body.status_id).toBe(1);
         expect(body.job_type_id).toBe(jobTypeId);
         expect(repoToString(body.repository)).toBe(repo);
-        expect(body.book).toBe(!!book ? book : null);
-        expect(body.version).toBe(!!version ? version : null);
+        expect(body.book).toBe(book || null);
+        expect(body.version).toBe(version || null);
       });
     });
   });
@@ -42,7 +42,7 @@ describe("abortJob", () => {
     const jobId = "1";
     const mockUpdate = jest.fn();
     jobsStore.update = mockUpdate as any;
-    window.setTimeout = jest.fn().mockImplementation((fn: any, _) => {
+    window.setTimeout = jest.fn().mockImplementation((fn: any) => {
       fn();
     }) as any;
     abortJob(jobId).then(() => {
@@ -98,10 +98,10 @@ describe("updateRunningJobs", () => {
 
     getJobsMock.mockResolvedValue([]);
 
-    const result = await updateRunningJobs(jobs);
+    await updateRunningJobs(jobs);
 
     expect(getJobsMock).toHaveBeenCalledWith(
-      parseDateTimeAsUTC(jobs[1].created_at) / 1000
+      parseDateTimeAsUTC(jobs[1].created_at) / 1000,
     );
   });
 });
