@@ -27,7 +27,7 @@
             job.repository.name,
             "blob",
             job.version,
-            `${stem}${ext}#L${lineNum}:${colNum}`,
+            `${stem}${ext}#L${lineNum}C${colNum}-L${lineNum}`,
           ].join("/")
         );
         link.rel = "noreferrer";
