@@ -139,20 +139,20 @@ can do so by running:
 
 Edits are done in restructured text (rst). 
 
-Validate and update edits by running:
+While editing, you can check the logs by running
 ```
-$ cd docs
-$ make html
+$ ./corgi docs logs
+```
+or
+```
+$ ./corgi docs logs -f
 ```
 
 If edits have been made to the Navigation and are not reflected, re-build the docker image:
 ```
-$ cd $CORGI_ROOT_PATH
-$ docker-compose down
-$ docker-compose up
+$ ./corgi build <stack-name>
+$ ./corgi start [stack-name]
 ```
-
-Note: Can be done in container or outside the container, with installed requirements.
 
 ### Run backend unit tests
 
