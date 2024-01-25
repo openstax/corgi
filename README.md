@@ -18,16 +18,16 @@ _FKA: "CORGI", Content Output Review and Generation Interface_
 
 The CORGI system consists of 2 parts:
 
-1. CORGI Job Dashboard 
+1. CORGI Job Dashboard
 2. [Enki](https://github.com/openstax/enki) Pipeline
 
 ### CORGI Job Dashboard
 
 The CORGI Job Dashboard or "CORGI dashboard" consists of a front-end microservice and a backend microservice. The CORGI Dashboard acts mainly as a "queue" of jobs to be processed by the Enki Concourse pipeline.
 
-1. Backend - written using Python and the [FastAPI ASGI Framework](https://fastapi.tiangolo.com/). The backend API is used by the front-end and Enki pipelines to create, retrieve, or update job information. 
+1. Backend - written using Python and the [FastAPI ASGI Framework](https://fastapi.tiangolo.com/). The backend API is used by the front-end and Enki pipelines to create, retrieve, or update job information.
 
-2. Frontend - written using [nuxt.js](https://nuxtjs.org/) and acts as the main dashboard interface of the CORGI system. You can see the list of jobs, create jobs, or abort a job that's in progress. Shows information pertaining to errors and status.
+2. Frontend - written using [svelte](https://svelte.dev/) and acts as the main dashboard interface of the CORGI system. You can see the list of jobs, create jobs, or abort a job that's in progress. Shows information pertaining to errors and status.
 
 ### [Enki](https://github.com/openstax/enki)
 
@@ -38,7 +38,7 @@ The full explanation of Enki it is out of scope for this documentation. To learn
 ---
 ## Development Internals
 
-### Installing Docker 
+### Installing Docker
 
 * Install [Docker](https://docs.docker.com/install/).
 
@@ -50,7 +50,7 @@ The full explanation of Enki it is out of scope for this documentation. To learn
 
 
 
-## Local development 
+## Local development
 
 **General Workflow**
 1. Start stack with or without GitHub OAuth (see below)
@@ -108,51 +108,14 @@ To check the logs run:
 
 ### Functions Patched in Leashed Mode
 
-Leashed mode attempts to patch any `app.github.api` function functions starting with "get_". It looks for the associated mock functions in `backend/app/tests/unit/init_test_data.py`.
+Leashed mode attempts to patch any `app.github.api` function functions starting with `get_`. It looks for the associated mock functions in `backend/app/tests/unit/init_test_data.py`.
 
 ### Hot Reloading
 
-Using the development stack, the Svelte frontend is rebuilt inside the container 
+Using the development stack, the Svelte frontend is rebuilt inside the container
 as you make changes: no restarts required. The page should reload automatically
 as well. The same is true for the backend: as you make modifications, the
 backend server should reload with your latest changes.
-
-
-### View the Docs
-
-For our documentation we use [Sphinx-docs](https://www.sphinx-doc.org/en/master/)
-and lives in the [./docs](./docs) directory.
-
-If you are currently running the entire stack you should be able to see the
-documentation by visiting [http://localhost:8000](http://localhost:8000).
-
-The documentation is configured to watch for changes and re-build the documentation.
-This allows developers the ability to preview their documentation changes as they 
-make them.
-
-If you would like to run the documentation without the entire stack running you 
-can do so by running:
-
-    docker-compose up docs
-
-### Editing The Docs
-
-Edits are done in restructured text (rst). 
-
-While editing, you can check the logs by running
-```
-$ ./corgi docs logs
-```
-or
-```
-$ ./corgi docs logs -f
-```
-
-If edits have been made to the Navigation and are not reflected, re-build the docker image:
-```
-$ ./corgi build <stack-name>
-$ ./corgi start [stack-name]
-```
 
 ### Run backend unit tests
 
@@ -170,7 +133,7 @@ cd backend/app
 poetry run pytest tests/unit --init-test-data --github-token "<token>"
 ```
 
-### Run integration and UI tests 
+### Run integration and UI tests
 
 To run the tests execute:
 
@@ -185,11 +148,12 @@ To run the tests execute:
 ./corgi ui-tests http://host.docker.internal fake-token
 ```
 
-**NOTE**: `host.docker.internal` refers to the host machine's `localhost` instead of the container's (see [documentation](https://docs.docker.com/desktop/networking/#use-cases-and-workarounds-for-all-platforms) for more info). The ui tests will still fail if CORGI is running in leashed mode because of how the the github api calls are patched.
+**NOTE**: `host.docker.internal` refers to the host machine's `localhost` instead of the container's (see [documentation](https://docs.docker.com/desktop/networking/#use-cases-and-workarounds-for-all-platforms) for more info). The ui tests will still fail if CORGI is running in leashed mode because of how the the github api calls are patched. If you want the ui tests to work locally, you will need to configure the
+OAuth credentials accordingly and run CORGI in dev mode.
 
 ### How to develop UI tests
 
-Playwright UI tests are stored in `backend/app/tests/ui`. 
+Playwright UI tests are stored in `backend/app/tests/ui`.
 
 ### Clear the database
 
@@ -221,14 +185,68 @@ Do the migration:
 
     docker-compose exec alembic upgrade head
 
-### Load testing for the backend
+### Load testing for the backend (Under Construction)
+
+*UNDER CONSTRUCTION*
 
 Load testing with Locust.io is in the directory `./backend/app/tests/performance/`
 
 Please look at the [README](./backend/app/tests/performance/README.md) in this directory on how to run load tests locally and for production systems.
+
+## Sphinx Documentation
+
+### View the Docs
+
+For our documentation we use [Sphinx-docs](https://www.sphinx-doc.org/en/master/)
+and lives in the [./docs](./docs) directory.
+
+If you are currently running the entire stack you should be able to see the
+documentation by visiting [http://localhost:8000](http://localhost:8000).
+
+The documentation is configured to watch for changes and re-build the documentation.
+This allows developers the ability to preview their documentation changes as they
+make them.
+
+If you would like to run the documentation without the entire stack running you
+can do so by running:
+
+    docker-compose up docs
+
+### Editing The Docs
+
+Edits are done in restructured text (rst).
+
+While editing, you can check the logs by running
+```
+$ ./corgi docs logs
+```
+or
+```
+$ ./corgi docs logs -f
+```
+
+If edits have been made to the Navigation and are not reflected, re-build the docker image:
+```
+$ ./corgi build <stack-name>
+$ ./corgi start [stack-name]
+```
+
+### Auto-generated docs
+
+Additional documentation is automatically pulled from this README and added to the sphinx docs when the docs service is running and when corgi.readthedocs.io is deployed. Each level 2 header (##) becomes a separate page in the sphinx docs. Links, like [README.md](./README.md), are resolved to github links relative to the markdown file's parent directory.
+
+This documentation is stored in [docs/auto](./docs/auto) and this directory should not be modified directly. It is saved as markdown and converted with the m2r2 sphinx extension (see [conf.py](./docs/conf.py) for more information).
+
+When the files are generated, they are numbered so that the glob result will match the order the headers occurred in within the README.
+
+The `docs` docker image uses [watchdog](https://pypi.org/project/watchdog/) to automatically update the auto-generated documentation as you update [README.md](./README.md).
+
+There is a pre_build step in [.readthedocs.yaml](./.readthedocs.yaml) that generates the documentation during deployment.
+
+
 ## Releasing
 
-The documentation is located in the [Releasing CORGI article]((https://openstax.atlassian.net/wiki/spaces/CE/pages/1256521739/Releasing+CORGI)) in our Confluence documentation.
+The documentation is located in the [Releasing CORGI article](https://openstax.atlassian.net/wiki/spaces/CE/pages/1256521739/Releasing+CORGI) in our Confluence documentation.
 
 ## Deploying Web Hosting Pipeline
 
@@ -272,7 +290,7 @@ with requests.session() as session:
 
 ## Testing Unmerged CORGI & Enki Changes in Concourse
 
-[CORGI Hotdog](https://corgi-hotdog.ce.openstax.org/) is a testing environment for experimenting with changes before they go to staging. 
+[CORGI Hotdog](https://corgi-hotdog.ce.openstax.org/) is a testing environment for experimenting with changes before they go to staging.
 
 URL: https://corgi-hotdog.ce.openstax.org/
 
@@ -293,7 +311,7 @@ URL: https://corgi-hotdog.ce.openstax.org/
     - On concourse, corgi-hotdog, wait for hotdog-head to get new checked out version, this triggers a concourse build pipeline is set in build-deploy-Enki
         - See api call: `corgi-hotdog.openstax.org/hotdog/head` if you would like more details
     - Since concourse depends on production Enki tags on dockerhub, there isn’t a way to do concourse + dev Enki tag — except thru hotdog
-    - Hotdog tag on dockerhub: corgi-hotdog rebuild as whatever dev ref you give it, then rebuilds the docker image for Enki. 
+    - Hotdog tag on dockerhub: corgi-hotdog rebuild as whatever dev ref you give it, then rebuilds the docker image for Enki.
         - Rebuild triggered by submitting a new ref.
     - Wait to build hotdog tag and push to dockerhub. At this point, you can create a job. still have to wait for concourse (steps: corgi-git-pdf & corgi-resource) to fetch the tag. then eventually the job will run.
 - Some additional details are
@@ -301,9 +319,8 @@ URL: https://corgi-hotdog.ce.openstax.org/
     - Jobs run on concourse. See logging & progress details on concourse/CORGI.
     - In hotdog corgi ui: worker-version tells you what Enki ref it is & a timestamp
     - Only one corgi-hotdog tag at a time
-   
+
 ### Hotdog TODO
 1. Automatically pull changes from branches
 1. Automatically redeploy the stack if python dependencies change (maybe add a field to corgi refs that, when set, will trigger deploy on checkout?)
 1. Consider creating a hybrid of PR pipeline so each PR can have a hotdog stack
-

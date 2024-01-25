@@ -1,7 +1,7 @@
-Load testing of COPS
+Load testing of CORGI
 ====================
 
-Load tests for COPS.
+Load tests for CORGI.
 
 **Warning:** Be very careful before testing any production URLs! Speak with your team before doing so.
 

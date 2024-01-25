@@ -4,7 +4,7 @@ services:
     image: traefik:v2.10
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: 
+    command:
       - "--providers.docker"
       - "--providers.docker.watch"
       - "--providers.docker.exposedByDefault=false"
@@ -82,3 +82,4 @@ services:
       - '8000:8000'
     volumes:
       - ./docs:/docs
+      - .:/corgi
