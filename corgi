@@ -25,7 +25,9 @@ The commands are:
     start-leashed               Start corgi in leashed mode (uses mocked GitHub API)
     create-jobs [TOKEN]         Creates sample jobs with each type and status (token
                                 is required in dev mode)
-    build   <STACK_NAME>        Build all images in the stack           
+    create-erd                  Creates an Entity-relationship diagram (ERD)0
+                                using data int he CORGI database
+    build   <STACK_NAME>        Build all images in the stack
     restart <STACK_NAME>        Restart all containers in the stack
     logs                        See logs (supports same options as docker-compose
                                 logs)
@@ -59,6 +61,44 @@ leash_stack="$here/docker-compose.stack.leashed.yml"
 readonly here
 readonly dev_stack
 readonly leash_stack
+
+replace_readme_section() {
+    section_prefix="${1:?}"
+    section_label="${2:?}"
+    full_label="${section_prefix}${section_label}"
+    tmp_file="$(mktemp)"
+    readme_file="$here/README.md"
+    print_section='
+        print "'"$full_label"'\n"
+        print "[comment]: <> (BEGIN AUTO-GENERATED SECTION - '"$section_label"')"
+        for(i=0; i<length(new_content); i++) {
+            print new_content[i]
+        }
+        print "[comment]: <> (END AUTO-GENERATED SECTION - '"$section_label"')"
+
+    '
+    {
+        awk '{
+            if (FNR == NR) {
+                new_content[length(new_content)]=$0
+                next
+            }
+            if (in_section == 1 && $0 ~ /^\s*'"$section_prefix"'/) {
+                in_section = 0
+            } else if ($0 ~ /^\s*'"$full_label"'/) {
+                in_section = 1
+                found_section = 1
+                '"$print_section"'
+            }
+            if (in_section == 0) print
+        } END {
+            if (found_section != 1) {
+                '"$print_section"'
+            }
+        }' <(cat) "$readme_file"
+    } > "$tmp_file"
+    mv "$tmp_file" "$readme_file"
+}
 
 if [[ "$COMMAND" == "ui-tests" ]]; then
     BASE_URL="$1"
@@ -97,6 +137,15 @@ elif [[ "$COMMAND" == "logs" ]]; then
     docker-compose -f "$dev_stack" logs "$@"
 elif [[ "$COMMAND" == "stop" ]]; then
     docker-compose -f "$dev_stack" down
+elif [[ "$COMMAND" == "create-erd" ]]; then
+    {
+        cat /dev/stdin <<eof
+This section describes the data model used by CORGI. For more information
+about how to read this diagram, see [Crow's foot notation](https://en.wikipedia.org/wiki/Entity%E2%80%93relationship_model#Crow's_foot_notation).
+eof
+        docker-compose -f "$dev_stack" exec -w /app/app -T backend \
+            python - < "$here/scripts/generate-erd.py"
+    } | replace_readme_section "## " "CORGI ERD"
 elif [[ "$COMMAND" == "create-jobs" ]]; then
     # Should work in dev and leashed mode if token can be passed in
     token="${1:-fake-token}"
