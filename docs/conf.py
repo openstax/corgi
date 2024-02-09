@@ -29,6 +29,7 @@ author = "OpenStax Content Engineering"
 extensions = [
     "sphinxcontrib.blockdiag",
     "sphinxcontrib.seqdiag",
+    "sphinxcontrib.mermaid",
     "sphinx.ext.autosectionlabel",
     "m2r2",
 ]
