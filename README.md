@@ -352,3 +352,86 @@ This will run the [generate-erd](./scripts/generate-erd.py) script which attempt
 * Does not specify which fields are primary or foreign keys
 * When an optional field is None, it cannot infer the data type (uses `opt` as placeholder type)
 * Annoyingly, in mermaid ERD syntax `relationship-label` is [required](https://mermaid.js.org/syntax/entityRelationshipDiagram.html#entities-and-relationships). Since that is non-trivial to auto-generate, it is set to "" (empty string).
+
+## CORGI ERD
+
+[comment]: <> (BEGIN AUTO-GENERATED SECTION - CORGI ERD)
+This section describes the data model used by CORGI. For more information
+about how to read this diagram, see [Crow's foot notation](https://en.wikipedia.org/wiki/Entity%E2%80%93relationship_model#Crow's_foot_notation).
+```mermaid
+erDiagram
+    Jobs {
+        int id
+        int user_id
+        str git_ref
+        int status_id
+        datetime created_at
+        datetime updated_at
+        int job_type_id
+        opt error_message
+        str worker_version
+    }
+    Status {
+        int id
+        str name
+        datetime created_at
+        datetime updated_at
+    }
+    JobTypes {
+        int id
+        str name
+        datetime created_at
+        datetime updated_at
+        str display_name
+    }
+    User {
+        int id
+        str name
+        str avatar_url
+    }
+    BookJob {
+        int job_id
+        int book_id
+        bool approved
+        opt artifact_url
+    }
+    UserRepository {
+        int user_id
+        int permission_id
+        int repository_id
+    }
+    Book {
+        int id
+        str slug
+        str uuid
+        str style
+        int edition
+        int commit_id
+    }
+    RepositoryPermission {
+        int id
+        str name
+    }
+    Repository {
+        int id
+        str name
+        str owner
+    }
+    Commit {
+        int id
+        str sha
+        datetime timestamp
+        int repository_id
+    }
+    Commit ||--|{ Book : ""
+    Book ||--|{ BookJob : ""
+    Jobs ||--|{ BookJob : ""
+    Repository ||--|{ Commit : ""
+    JobTypes ||--|{ Jobs : ""
+    Status ||--|{ Jobs : ""
+    User ||--|{ Jobs : ""
+    Repository ||--|{ UserRepository : ""
+    RepositoryPermission ||--|{ UserRepository : ""
+    User ||--|{ UserRepository : ""
+```
+[comment]: <> (END AUTO-GENERATED SECTION - CORGI ERD)
