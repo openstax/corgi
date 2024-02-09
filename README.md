@@ -74,6 +74,11 @@ or
 ./corgi start
 ```
 
+then you can initialize the database with sample data by running
+
+```bash
+./corgi create-jobs
+```
 
 In leashed mode, corgi only uses data that is stored locally.
 
@@ -324,3 +329,26 @@ URL: https://corgi-hotdog.ce.openstax.org/
 1. Automatically pull changes from branches
 1. Automatically redeploy the stack if python dependencies change (maybe add a field to corgi refs that, when set, will trigger deploy on checkout?)
 1. Consider creating a hybrid of PR pipeline so each PR can have a hotdog stack
+
+## Generating an ERD
+
+The corgi CLI supports generating an ERD from database data. The auto-generated ERD, as well as a small description, replaces the README section labeled `## CORGI ERD`.
+
+### Running the script
+Assuming you have the CORGI stack running and you are in the root of the repository, you can generate an ERD like this:
+```bash
+# Create some sample data if you have not already
+./corgi create-jobs
+# Generate the ERD and update the README
+./corgi create-erd
+```
+
+### How it works
+
+This will run the [generate-erd](./scripts/generate-erd.py) script which attempts to crawl all database entities, starting with `Jobs` entity, and collect information about their fields and relationships. From this, the script generates an ERD using mermaid diagram syntax. An awk script replaces the section in the README with the newly generated ERD.
+
+### Limitations (TODO?)
+
+* Does not specify which fields are primary or foreign keys
+* When an optional field is None, it cannot infer the data type (uses `opt` as placeholder type)
+* Annoyingly, in mermaid ERD syntax `relationship-label` is [required](https://mermaid.js.org/syntax/entityRelationshipDiagram.html#entities-and-relationships). Since that is non-trivial to auto-generate, it is set to "" (empty string).
