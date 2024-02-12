@@ -360,46 +360,6 @@ This section describes the data model used by CORGI. For more information
 about how to read this diagram, see [Crow's foot notation](https://en.wikipedia.org/wiki/Entity%E2%80%93relationship_model#Crow's_foot_notation).
 ```mermaid
 erDiagram
-    Jobs {
-        int id
-        int user_id
-        str git_ref
-        int status_id
-        datetime created_at
-        datetime updated_at
-        int job_type_id
-        opt error_message
-        str worker_version
-    }
-    Status {
-        int id
-        str name
-        datetime created_at
-        datetime updated_at
-    }
-    JobTypes {
-        int id
-        str name
-        datetime created_at
-        datetime updated_at
-        str display_name
-    }
-    User {
-        int id
-        str name
-        str avatar_url
-    }
-    BookJob {
-        int job_id
-        int book_id
-        bool approved
-        opt artifact_url
-    }
-    UserRepository {
-        int user_id
-        int permission_id
-        int repository_id
-    }
     Book {
         int id
         str slug
@@ -408,19 +368,59 @@ erDiagram
         int edition
         int commit_id
     }
-    RepositoryPermission {
+    BookJob {
+        int job_id
+        int book_id
+        bool approved
+        opt artifact_url
+    }
+    Commit {
+        int id
+        str sha
+        datetime timestamp
+        int repository_id
+    }
+    JobTypes {
         int id
         str name
+        datetime created_at
+        datetime updated_at
+        str display_name
+    }
+    Jobs {
+        int id
+        str git_ref
+        int user_id
+        int status_id
+        datetime created_at
+        datetime updated_at
+        int job_type_id
+        opt error_message
+        str worker_version
     }
     Repository {
         int id
         str name
         str owner
     }
-    Commit {
+    RepositoryPermission {
         int id
-        str sha
-        datetime timestamp
+        str name
+    }
+    Status {
+        int id
+        str name
+        datetime created_at
+        datetime updated_at
+    }
+    User {
+        int id
+        str name
+        str avatar_url
+    }
+    UserRepository {
+        int user_id
+        int permission_id
         int repository_id
     }
     Commit ||--|{ Book : ""

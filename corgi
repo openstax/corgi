@@ -25,7 +25,7 @@ The commands are:
     start-leashed               Start corgi in leashed mode (uses mocked GitHub API)
     create-jobs [TOKEN]         Creates sample jobs with each type and status (token
                                 is required in dev mode)
-    create-erd                  Creates an Entity-relationship diagram (ERD)0
+    create-erd                  Creates an Entity-relationship diagram (ERD)
                                 using data int he CORGI database
     build   <STACK_NAME>        Build all images in the stack
     restart <STACK_NAME>        Restart all containers in the stack

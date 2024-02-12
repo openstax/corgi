@@ -55,16 +55,19 @@ def crawl_database(session, cls):
         o = entities_to_visit.pop(0)
         name = o.__class__.__name__
         # Force all lazy joins to be executed and added to session
+        # Without this, child entities could be absent from relationships
         for _ in session.query(o.__class__).options(joinedload("*")):
             pass
         entity = entities_by_name.setdefault(name, Entity(name=name))
         for key, value in o.__dict__.items():
-            if key == "_sa_instance_state":
+            if key.startswith("_"):
+                logging.info(f'Skipping private field: {key}')
                 continue
             if isinstance(value, list):
                 if len(value) < 1:
                     logging.warn(
-                        f"Could not map relationship for {key} " "(no instances found)"
+                        f"Could not map relationship for {key} "
+                        "(no instances found)"
                     )
                     continue
                 entity.self_to_many.append(new_child(value[0]))
@@ -95,11 +98,11 @@ def main():
     print("```mermaid")
     print("erDiagram")
 
-    for entity in entities.values():
+    for entity in sorted(entities.values(), key=lambda e: e.name):
         print(
             f"    {entity.name} {{"
         )
-        fields = sorted(entity.fields, key=lambda f: len(f.name))
+        fields = sorted(entity.fields, key=lambda f: (len(f.name), f.name))
         print("\n".join(
             f"        {field.type} {field.name}" for field in fields)
         )
@@ -108,7 +111,9 @@ def main():
     print(
         "\n".join(
             f'    {relationship.one} ||--|{{ {relationship.many} : ""'
-            for relationship in sorted(relationships, key=lambda r: (r.many, r.one))
+            for relationship in sorted(
+                relationships, key=lambda r: (r.many, r.one)
+            )
         )
     )
     print("```")
