@@ -73,3 +73,4 @@ jobs:
             echo "ERD did not match commit" >&2
             exit 1
           fi
+          ./corgi stop
