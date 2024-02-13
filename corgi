@@ -79,7 +79,9 @@ replace_readme_section() {
     '
     echo "Replacing README section ($full_label) ..." >&2
     {
-        awk '{
+        awk 'BEGIN {
+            delete new_content["create array"]
+        } {
             if (FNR == NR) {
                 new_content[length(new_content)]=$0
                 next

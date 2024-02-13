@@ -34,41 +34,32 @@ jobs:
         with:
           additional_files: ./corgi
           severity: error
+      
+      - name: Set up Docker
+        uses: crazy-max/ghaction-setup-docker@v3
+
+      - name: Start stack
+        run: |
+          set -e
+          ./corgi start
 
       - name: Frontend Unit Tests
         run: |
           set -e
-          npm --prefix ./frontend install
-          npm --prefix ./frontend run build
-          npm --prefix ./frontend run test:unit
-          npm --prefix ./frontend run lint
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.8"
-
-      - name: Install poetry
-        uses: Gr1N/setup-poetry@v8
-        with:
-          poetry-version: "1.4.0"
+          docker compose exec frontend npm run test:unit
+          docker compose exec frontend npm run lint
 
       - name: Backend Unit Tests
         run: |
           set -e
-          cd ./backend/app
-          poetry install --no-root --no-interaction --no-ansi
-          poetry run pytest -vvv --junitxml=/tmp/test-reports/junit.xml ./tests/unit
-          cd ..
+          docker compose exec backend pytest -vvv ./tests/unit
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Backend
-        id: docker_build
-        uses: docker/build-push-action@v5
-        with:
-          context: ./backend
-          file: ./backend/backend.dockerfile
-          target: prod-runner
-          push: false
+      - name: Test database
+        run: |
+          set -e
+          ./corgi create-jobs
+          ./corgi create-erd
+          if git diff --name-only | grep -E '^README' &> /dev/null; then
+            echo "ERD did not match commit" >&2
+            exit 1
+          fi
