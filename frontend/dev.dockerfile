@@ -18,6 +18,8 @@ ENV API_URL_BROWSER=${API_URL_BROWSER}
 
 COPY ./nginx.dev.conf /etc/nginx/conf.d/default.conf
 COPY ./nginx-backend-not-found.conf /etc/nginx/extra-conf.d/backend-not-found.conf
+COPY ./package*.json ./
+RUN npm i
 
 CMD nginx && npm i && npm run dev
 
