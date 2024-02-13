@@ -42,6 +42,16 @@ jobs:
         run: |
           set -e
           ./corgi start
+          for i in {1..5}; do
+            if curl -IL 'http://localhost/' &> /dev/null; then
+              break
+            elif [ $i -eq 5 ]; then
+              echo "Server did not start in time" >&2
+              exit 1
+            else
+              sleep 1
+            fi
+          done
 
       - name: Frontend Unit Tests
         run: |
