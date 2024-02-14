@@ -29,7 +29,7 @@ The commands are:
                                 using data int he CORGI database
     build   <STACK_NAME>        Build all images in the stack
     restart <STACK_NAME>        Restart all containers in the stack
-    logs                        See logs (supports same options as docker-compose
+    logs                        See logs (supports same options as docker compose
                                 logs)
     ui-tests <BASE_URL> <TOKEN> Run UI tests (playwright) on BASE_URL. These can run
                                 without a github token on localhost, but otherwise a
@@ -114,10 +114,10 @@ if [[ "$COMMAND" == "ui-tests" ]]; then
     docker run --rm -it corgi-ui-tests bash -c \
         "pytest --tb=long --showlocals --base-url=\"$BASE_URL\" --github-token=\"$TOKEN\" -vvv ./tests/ui"
 elif [[ "$COMMAND" == "start-dev" ]]; then
-    docker-compose -f "$dev_stack" up -d
+    docker compose -f "$dev_stack" up -d
     log "Hint: Remember to setup your GitHub app like in the README"
 elif [[ "$COMMAND" == "start-leashed" || "$COMMAND" == "start" ]]; then
-    docker-compose -f "$dev_stack" -f "$leash_stack" up -d
+    docker compose -f "$dev_stack" -f "$leash_stack" up -d
 elif [[ "$COMMAND" == "build" || "$COMMAND" == "restart" ]]; then
     stack_name="$1"
     stacks_allowed=(dev leashed)
@@ -132,27 +132,27 @@ elif [[ "$COMMAND" == "build" || "$COMMAND" == "restart" ]]; then
         die "You need to specify which stack to use (${stacks_allowed[*]})"
     fi
     if [[ "$stack_name" == "dev" ]]; then
-        docker-compose -f "$dev_stack" "$COMMAND"
+        docker compose -f "$dev_stack" "$COMMAND"
     elif [[ "$stack_name" == "leashed" ]]; then
-        docker-compose -f "$dev_stack" -f "$leash_stack" "$COMMAND"
+        docker compose -f "$dev_stack" -f "$leash_stack" "$COMMAND"
     fi
 elif [[ "$COMMAND" == "logs" ]]; then
-    docker-compose -f "$dev_stack" logs "$@"
+    docker compose -f "$dev_stack" logs "$@"
 elif [[ "$COMMAND" == "stop" ]]; then
-    docker-compose -f "$dev_stack" down
+    docker compose -f "$dev_stack" down
 elif [[ "$COMMAND" == "create-erd" ]]; then
     {
         cat /dev/stdin <<eof
 This section describes the data model used by CORGI. For more information
 about how to read this diagram, see [Crow's foot notation](https://en.wikipedia.org/wiki/Entity%E2%80%93relationship_model#Crow's_foot_notation).
 eof
-        docker-compose -f "$dev_stack" exec -w /app/app -T backend \
+        docker compose -f "$dev_stack" exec -w /app/app -T backend \
             python - < "$here/scripts/generate-erd.py"
     } | replace_readme_section "## " "CORGI ERD"
 elif [[ "$COMMAND" == "create-jobs" ]]; then
     # Should work in dev and leashed mode if token can be passed in
     token="${1:-fake-token}"
-    docker-compose -f "$dev_stack" exec -T backend \
+    docker compose -f "$dev_stack" exec -T backend \
         python - "$token" < "$here/scripts/create-jobs.py"
 else
     usage "Unknown command \"$COMMAND\""
