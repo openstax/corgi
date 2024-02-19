@@ -73,4 +73,8 @@ jobs:
             echo "ERD did not match commit" >&2
             exit 1
           fi
+          # Ensure the latest migration works backwards and forwards with 
+          # existing job data
+          docker compose exec backend alembic downgrade -1
+          docker compose exec backend alembic upgrade head
           ./corgi stop
