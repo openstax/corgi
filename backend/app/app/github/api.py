@@ -1,4 +1,6 @@
+import base64
 from datetime import datetime
+import json
 from typing import Any, Dict, List, Tuple
 
 from app.core.auth import get_user_role
@@ -110,6 +112,42 @@ async def get_collections(
                      ["entries"])
     return {entry["name"]: parse_xml_doc(entry["object"]["text"])
             for entry in files_entries}
+
+
+async def push_to_github(
+    client: AuthenticatedClient,
+    path: str,
+    content: str,
+    owner: str,
+    repo: str,
+    branch: str,
+    commit_message: str,
+    file_exists=True
+):
+    url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
+
+    base64content = base64.b64encode(content.encode("utf-8"))
+    message = {
+        "message": commit_message,
+        "branch": branch,
+        "content": base64content.decode("utf-8"),
+    }
+
+    if file_exists:
+        response = await client.get(url + "?ref=" + branch)
+        response.raise_for_status()
+        data = response.json()
+        message["sha"] = data["sha"]
+
+        if base64content.decode('utf-8').strip() == data["content"].strip():
+            raise CustomBaseError("No changes to push")
+
+    response = await client.put(url, data=json.dumps(message), headers={
+        **client.headers,
+        "Content-Type": "application/json",
+    })
+
+    response.raise_for_status()
 
 
 async def get_user_repositories(

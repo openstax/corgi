@@ -106,6 +106,18 @@ export function calculateAge(job: Job): string {
   return `${converted} ${unit} ago`;
 }
 
+export async function fetchABL(): Promise<any> {
+  let abl: any;
+  try {
+    abl = await RequireAuth.fetchJson("/api/abl");
+  } catch (error) {
+    handleError(error);
+    abl = [];
+  }
+  return abl;
+}
+
+
 export async function newABLentry(job: Job) {
   const repo = job.repository;
   if (repo.owner !== "openstax") {
@@ -128,6 +140,15 @@ export async function newABLentry(job: Job) {
       books: ablData.books,
     },
   };
+
+abl_versions
+
+for each (let book in ablData.books)
+{
+  uuid: book.uuid,
+  code_version: job.worker_version
+  commit_sha: job.version
+}
 
   // Line number is 1 for new ABL entries
   const ablEntry =

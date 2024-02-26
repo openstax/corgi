@@ -1,8 +1,13 @@
 import { derived, Readable, writable } from "svelte/store";
 import { getJobs } from "./jobs";
 import { SECONDS } from "./time";
-import type { Job, RepositorySummary } from "./types";
-import { fetchRepoSummaries, isJobComplete, parseDateTimeAsUTC } from "./utils";
+import type { BookInfo, Job, RepositorySummary } from "./types";
+import {
+  fetchABL,
+  fetchRepoSummaries,
+  isJobComplete,
+  parseDateTimeAsUTC,
+} from "./utils";
 
 type GConstructor<T = object> = new (...args: any[]) => T;
 type Updatable = GConstructor<{ update: () => Promise<void> }>;
@@ -182,3 +187,8 @@ export async function updateRunningJobs(jobs: Job[]): Promise<Job[]> {
   }
   return jobs.slice(0, lastJobIndex).concat(newJobs);
 }
+
+export const ABLStore = new (Pollable(RateLimited(APIStore<BookInfo[]>, 3)))(
+  asyncWritable([]),
+  fetchABL,
+);
