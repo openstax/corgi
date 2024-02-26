@@ -2,15 +2,38 @@
   import Dialog, { Header, Title, Content, Actions } from "@smui/dialog";
   import CircularProgress from "@smui/circular-progress";
   import Button from "@smui/button";
+  import SegmentedButton from "@smui/segmented-button";
+  import Segement from "@smui/segmented-button";
   import { Label } from "@smui/common";
   import { abortJob, repeatJob, getErrorMessage } from "../ts/jobs";
   import type { Job } from "../ts/types";
-  import { newABLentry, escapeHTML } from "../ts/utils";
-
+  import { newABLentry, escapeHTML, fetchABL } from "../ts/utils";
+  import { ABLStore } from "../ts/stores"
+;
   export let selectedJob: Job;
   export let open: boolean;
+  let abl;
   let isErrorDialog;
   $: isErrorDialog = selectedJob?.status.name === "failed";
+  $: abl = {};
+
+  let disableWorkerCodeVersionCheckbox = false;
+  let useWorkerCodeVersion = false;
+  
+  // [{
+  // uuid
+  // code_version
+  // commit_sha
+  // platform
+  // }]
+
+  async function getVersions(job: Job) {
+    const abl = await fetchABL();
+    const anyNew = !job.books.every((book) => abl.find(({ uuid }) => uuid === book.uuid) === undefined);
+    if (!anyNew) {
+      disableWorkerCodeVersionCheckbox = true;
+    }
+  }
 
   function linkToSource(job: Job, msg: string) {
     // Example: ./modules/m59948/index.cnxml:3:1
@@ -37,28 +60,73 @@
       }
     );
   }
+
+  ABLStore.subscribe((bookInfos) => {
+    const approvedVersionByBookByPlatform = {};
+    selectedJob.books.forEach((book) => {
+      abl
+        .filter((approvedVersion) => approvedVersion.uuid === book.uuid)
+        .forEach((approvedVersion) => {
+          let obj = approvedVersionByBookByPlatform[approvedVersion.platform];
+          if (obj == null) {
+            obj = {};
+            approvedVersionByBookByPlatform[approvedVersion.platform] = obj;
+          }
+          obj[book.uuid] = approvedVersion.code_version;
+        });
+    })
+    $abl = approvedVersionByBookByPlatform;
+  })
+
 </script>
 
 <Dialog bind:open bind:fullscreen={isErrorDialog} sheet>
   {#if selectedJob}
     <Header>
       <Title>Job #{selectedJob.id}</Title>
+      {#if selectedJob.status.name === "completed"}
+        <select>
+          <!--Platform Selection-->
+        </select>
+      {/if}
     </Header>
     <Content>
       {#if selectedJob.status.name === "completed"}
-        {#each selectedJob.artifact_urls as artifact}
-          <a href={artifact.url} target="_blank" rel="noreferrer"
-            >{artifact.slug}</a
-          >
-          <br />
-        {/each}
+        <table>
+          <tr>
+            <th>Artifact</th>
+            <th>Code Version</th>
+          </tr>
+          {#each selectedJob.artifact_urls as artifact}
+          <tr>
+            <td>
+              <a href={artifact.url} target="_blank" rel="noreferrer">{artifact.slug}</a>
+              {#if selectedJob.job_type.name === "git-web-hosting-preview"}
+                  <SegmentedButton>
+                    <Segement>
+                      <label> None </label>
+                    </Segement>
+                    {#if (abl[platform][artifact.slug].code_version ?? selectedJob.worker_version) !== selectedJob.worker_version }
+                    <Segement>
+                      <label> abl[platform][artifact.slug].code_version </label>
+                    </Segement>
+                    {/if}
+                    <Segement>
+                      <label> selectedJob.worker_version </label>
+                    </Segement>
+                  </SegmentedButton>
+                  {/if}
+                </td>
+              </tr>
+              {/each}
+            </table>
       {:else if isErrorDialog}
         {#await getErrorMessage(selectedJob.id)}
           <h3>Fetching error</h3>
           <CircularProgress style="height: 32px; width: 32px;" indeterminate />
         {:then error_message}
           <h3>Error:</h3>
-          {#each linkToSource(selectedJob, escapeHTML(error_message ?? 'N/A'))
+          {#each linkToSource(selectedJob, escapeHTML(error_message ?? "N/A"))
             .trim()
             .split("\n") as line, i}
             <div

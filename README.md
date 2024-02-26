@@ -371,8 +371,8 @@ erDiagram
     BookJob {
         int job_id
         int book_id
-        bool approved
         opt artifact_url
+        opt approved_code_version
     }
     Commit {
         int id
