@@ -66,6 +66,11 @@ class BookBase(BaseModel):
     style: str
 
 
+class RequestApproveBook(BaseModel):
+    book_uuids: List[str]
+    code_version: str
+
+
 class Book(BookBase):
     uuid: str
 
@@ -88,6 +93,7 @@ class JobGetter(GetterDict):
             ]
         elif key == 'version':
             return self._obj.books[0].book.commit.sha
+        # probably add information about approved versions
         else:
             try:
                 return getattr(self._obj, key)
