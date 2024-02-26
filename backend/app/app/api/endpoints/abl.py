@@ -17,7 +17,7 @@ async def get(repo_name, version):
 
 @router.post("/")
 async def add_to_abl(
-    info: RequestApproveBook,
+    info: List[RequestApproveBook],
     db: Session = Depends(get_db),
     user: UserSession = Depends(active_user)
 ):
@@ -27,5 +27,5 @@ async def add_to_abl(
     # Creates new ABL
     # Pushes new ABL
     async with github_client(user) as client:
-        return await add_new_entry(db, info.book_uuids, info.code_version, client)
+        return await add_new_entry(db, info, client)
 

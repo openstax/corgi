@@ -154,6 +154,8 @@ elif [[ "$COMMAND" == "create-jobs" ]]; then
     token="${1:-fake-token}"
     docker compose -f "$dev_stack" exec -T backend \
         python - "$token" < "$here/scripts/create-jobs.py"
+elif [[ "$COMMAND" == "generate-migration" ]]; then
+    docker compose exec backend alembic revision --autogenerate -m "$1"
 else
     usage "Unknown command \"$COMMAND\""
 fi
