@@ -1,40 +1,104 @@
-from httpx import AsyncClient
+from app.core.errors import CustomBaseError
+from app.data_models.models import BookInfo
+from httpx import AsyncClient, HTTPStatusError
 from app.core import config
 from lxml import etree
-import json
-from typing import List
+from typing import List, Dict, Any
 
-from sqlalchemy.orm import Session
-from sqlalchemy import or_
-from app.github.api import get_file
-from app.core.config import REX_WEB_REPO, REX_WEB_BOOKS_PATH, GITHUB_ORG
+from sqlalchemy.orm import Session, lazyload
+from sqlalchemy import or_, delete, select, desc, and_
+from app.core.config import GITHUB_ORG
 from app.github import AuthenticatedClient
-from app.db.schema import ApprovedBook, Commit
+from app.db.schema import ApprovedBook, Book, Commit
 
 
 async def get_rex_books(client: AuthenticatedClient):
-    response = await get_file(
-        client,
-        REX_WEB_REPO,
-        GITHUB_ORG,
-        "main",
-        REX_WEB_BOOKS_PATH
+    try:
+        response = await client.get(
+            "https://openstax.org/rex/release.json",
+            headers={ "Accept": "application/json" }
+        )
+        response.raise_for_status()
+        release_json = response.json()
+        return release_json["books"]
+    except HTTPStatusError as he:
+        raise CustomBaseError(
+            f"Failed to fetch rex release: {he.response.status_code}"
+        )
+
+
+def get_rex_book_versions(rex_books: Dict[str, Any], book_uuids: List[str]):
+    rex_book_versions = []
+    for book_uuid in book_uuids:
+        if book_uuid not in rex_books:
+            continue
+        rex_book = rex_books[book_uuid]
+        version = rex_book.get("defaultVersion", None)
+        assert version is not None, \
+            f"Could not get defaultVersion for {book_uuid}"
+        rex_book_versions.append({"uuid": book_uuid, "sha": version})
+    return rex_book_versions
+
+
+async def cleanup_rex_versions(
+    db: Session,
+    book_info: List[BookInfo],
+    client: AuthenticatedClient,
+):
+    rex_book_uuids = [
+        b.uuid
+        for b in book_info
+        if b.platform == "REX"
+    ]
+    if len(rex_book_uuids) == 0:
+        return
+    rex_books = await get_rex_books(client)
+    rex_book_versions = get_rex_book_versions(rex_books, rex_book_uuids)
+    to_delete = db.scalars(
+        select(ApprovedBook).options(lazyload("*"))
+            .join(Book)
+            .join(Commit)
+            .where(ApprovedBook.platform == "REX")
+            .where(Book.uuid.in_())
+            .where(
+                ~or_(*[
+                    and_(
+                        Book.uuid == rex_version["uuid"],
+                        Commit.sha.startswith(rex_version["sha"])
+                    )
+                    for rex_version in rex_book_versions
+                ])
+            )
     )
-    response["json"] = json.loads(response["text"])
-    return response
+    db.execute(
+        delete(ApprovedBook).where(ApprovedBook.book_id.in_([
+            c.id for c in to_delete
+        ]))
+    )
 
 
 async def add_new_entry(
     db: Session,
-    book_uuids: List[str],
-    code_version: str,
+    book_info: List[BookInfo],
     client: AuthenticatedClient,
-):
-    rex_books = await get_rex_books(client)
-    rex_books_json = rex_books["json"]
-    rex_short_shas = [item["defaultVersion"] for item in rex_books_json.values()]
-    db.delete()
-    new_commit = db.query(Commit).where(Commit.commit_sha == commit_sha).first()
+):  
+    try:
+        await cleanup_rex_versions(db, book_info, client)
+        new_book_ids = db.scalars(
+            select(Book.id).options(lazyload("*"))
+                .join(Commit)
+                .where(
+                    or_(*[
+                        Book.uuid == b.uuid and
+                        Commit.sha == b.commit_sha
+                        for b in book_info
+                    ])
+                )
+        )
+    except Exception:
+        db.rollback()
+        raise
+    
     # approved_commits = db.query(ApprovedCommit).all()
     rex_commits = db.query(Commit).where(
         or_(*[Commit.sha.like(substring + '%') for substring in rex_short_shas])
