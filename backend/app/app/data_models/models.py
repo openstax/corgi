@@ -67,8 +67,10 @@ class BookBase(BaseModel):
 
 
 class RequestApproveBook(BaseModel):
-    book_uuids: List[str]
+    uuid: str
     code_version: str
+    commit_sha: str
+    consumer: str
 
 
 class Book(BookBase):

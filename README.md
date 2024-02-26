@@ -360,6 +360,13 @@ This section describes the data model used by CORGI. For more information
 about how to read this diagram, see [Crow's foot notation](https://en.wikipedia.org/wiki/Entity%E2%80%93relationship_model#Crow's_foot_notation).
 ```mermaid
 erDiagram
+    ApprovedBook {
+        int book_id
+        datetime created_at
+        datetime updated_at
+        int consumer_id
+        int code_version_id
+    }
     Book {
         int id
         str slug
@@ -374,11 +381,23 @@ erDiagram
         opt artifact_url
         opt approved_code_version
     }
+    CodeVersion {
+        int id
+        datetime created_at
+        datetime updated_at
+        str code_version
+    }
     Commit {
         int id
         str sha
         datetime timestamp
         int repository_id
+    }
+    Consumer {
+        int id
+        str name
+        datetime created_at
+        datetime updated_at
     }
     JobTypes {
         int id
@@ -423,6 +442,9 @@ erDiagram
         int permission_id
         int repository_id
     }
+    Book ||--|{ ApprovedBook : ""
+    CodeVersion ||--|{ ApprovedBook : ""
+    Consumer ||--|{ ApprovedBook : ""
     Commit ||--|{ Book : ""
     Book ||--|{ BookJob : ""
     Jobs ||--|{ BookJob : ""
