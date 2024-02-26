@@ -54,3 +54,10 @@ export interface ArtifactUrl {
 export interface RepositorySummary extends Repository {
   books: string[];
 }
+
+export interface BookInfo {
+  uuid: string;
+  code_version: string;
+  commit_sha: string;
+  platform: string;
+}

@@ -26,7 +26,7 @@
   import IconButton from "@smui/icon-button";
   import { Label } from "@smui/common";
   import Button from "@smui/button";
-  import { repoSummariesStore, jobsStore } from "../ts/stores";
+  import { repoSummariesStore, jobsStore, ABLStore } from "../ts/stores";
 
   import type { Job, JobType } from "../ts/types";
   import DetailsDialog from "./DetailsDialog.svelte";
@@ -212,7 +212,10 @@
         .forEach(([_, idx]) => onJobsAvailable.splice(idx, 1));
     });
     // Give job fetching priority over repoSummariesStore on page load
-    jobsStore.update().then(() => void repoSummariesStore.update());
+    jobsStore.update().then(() => {
+      void repoSummariesStore.update();
+      void ABLStore.update();
+    });
     jobsStore.startPolling(10 * SECONDS);
     addEventListener("hashchange", handleHash);
     document.addEventListener("visibilitychange", (event) => {
@@ -222,6 +225,8 @@
         jobsStore.stopPolling();
       }
     });
+
+
   });
 </script>
 
@@ -248,7 +253,7 @@
     table$aria-label="Jobs list"
   >
     <Head>
-      <Row>
+      <Row color={is_on_abl(books)}>
         <Cell numeric columnId="id">
           <IconButton class="material-icons">arrow_upward</IconButton>
           <Label>Id</Label>
@@ -571,6 +576,7 @@
   .job-type-icon {
     max-height: 40px;
   }
+
   .job-type-icon[data-is-complete="false"] {
     opacity: 0.5;
     filter: grayscale(1);
@@ -584,6 +590,7 @@
   }
 
   .table-text.book,
+  
   .table-text.repo {
     max-width: 250px;
   }

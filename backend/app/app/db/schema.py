@@ -85,8 +85,19 @@ class Book(Base):
 
     commit = relationship("Commit", back_populates="books", lazy="joined")
     jobs = relationship("BookJob", back_populates="book")
+    approved_versions = relationship("ApprovedBook", back_populates="book")
     __table_args__ = (sa.UniqueConstraint('uuid', 'commit_id',
                       name='_book_to_commit'),)
+
+
+class ApprovedBook(Base):
+    book_id = sa.Column(sa.ForeignKey("book.id"), primary_key=True, index=True)
+    approved_code_version = sa.Column(sa.String, nullable=False)
+    created_at = sa.Column(sa.DateTime, default=datetime.utcnow, index=True)
+    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
+                           onupdate=datetime.utcnow, index=True)
+
+    book = relationship("Book", back_populates="approved_versions", lazy="joined")
 
 
 class User(Base):
@@ -102,11 +113,10 @@ class BookJob(Base):
     book_id = sa.Column(sa.ForeignKey("book.id"), primary_key=True, index=True)
     job_id = sa.Column(sa.ForeignKey("jobs.id"), primary_key=True, index=True)
     artifact_url = sa.Column(sa.String, nullable=True)
-    approved = sa.Column(sa.Boolean, nullable=False, default=False)
+    approved_code_version = sa.Column(sa.String, nullable=True, default=None)
 
     job = relationship("Jobs", back_populates="books", lazy="joined")
     book = relationship("Book", back_populates="jobs", lazy="joined")
-
 
 class RepositoryPermission(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
