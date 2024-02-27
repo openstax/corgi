@@ -1,5 +1,5 @@
 from app.core.errors import CustomBaseError
-# from app.data_models.models import RequestApproveBook
+from app.data_models.models import RequestApproveBook
 from httpx import AsyncClient, HTTPStatusError
 from app.core import config
 from lxml import etree
@@ -40,78 +40,79 @@ def get_rex_book_versions(rex_books: Dict[str, Any], book_uuids: List[str]):
     return rex_book_versions
 
 
-# async def cleanup_rex_versions(
-#     db: Session,
-#     book_info: List[BookInfo],
-#     client: AuthenticatedClient,
-# ):
-#     rex_book_uuids = [
-#         b.uuid
-#         for b in book_info
-#         if b.platform == "REX"
-#     ]
-#     if len(rex_book_uuids) == 0:
-#         return
-#     rex_books = await get_rex_books(client)
-#     rex_book_versions = get_rex_book_versions(rex_books, rex_book_uuids)
-#     to_delete = db.scalars(
-#         select(ApprovedBook).options(lazyload("*"))
-#             .join(Book)
-#             .join(Commit)
-#             .where(ApprovedBook.platform == "REX")
-#             .where(Book.uuid.in_())
-#             .where(
-#                 ~or_(*[
-#                     and_(
-#                         Book.uuid == rex_version["uuid"],
-#                         Commit.sha.startswith(rex_version["sha"])
-#                     )
-#                     for rex_version in rex_book_versions
-#                 ])
-#             )
-#     )
-#     db.execute(
-#         delete(ApprovedBook).where(ApprovedBook.book_id.in_([
-#             c.id for c in to_delete
-#         ]))
-#     )
+async def update_versions_by_consumer(
+    db: Session,
+    client: AuthenticatedClient,
+    consumer_name: str,
+    to_add: List[RequestApproveBook],
+    to_keep: List[RequestApproveBook] = [],
+):
+    consumer_id = db.scalars(select(Consumer.id).where(Consumer.name == consumer_name)).first()
+    if consumer_id:  
+        to_delete = select(ApprovedBook).options(lazyload("*")).where(ApprovedBook.consumer_id == consumer_id)
+        if to_keep:
+            to_delete = (
+                to_delete
+                    .join(Book)
+                    .join(Commit)
+                    .where(
+                        ~or_(*[
+                            and_(
+                                Book.uuid == version.uuid,
+                                Commit.sha.startswith(version.sha)
+                            )
+                            for version in to_keep
+                        ])
+                    )
+            )
+        db.execute(
+            delete(ApprovedBook).where(or_(*[
+                and_(
+                    ApprovedBook.consumer_id == approved_book.consumer_id,
+                    ApprovedBook.book_id == approved_book.book_id,
+                    ApprovedBook.code_version_id == approved_book.code_version_id
+                )
+                for approved_book in db.scalars(to_delete).all()
+            ]))
+        )
+    # Add new entries
 
 
-# async def add_new_entry(
-#     db: Session,
-#     book_info: List[BookInfo],
-#     client: AuthenticatedClient,
-# ):  
-#     try:
-#         await cleanup_rex_versions(db, book_info, client)
-#         new_book_ids = db.scalars(
-#             select(Book.id).options(lazyload("*"))
-#                 .join(Commit)
-#                 .where(
-#                     or_(*[
-#                         Book.uuid == b.uuid and
-#                         Commit.sha == b.commit_sha
-#                         for b in book_info
-#                     ])
-#                 )
-#         )
-#     except Exception:
-#         db.rollback()
-#         raise
+async def add_new_entry(
+    db: Session,
+    book_info: List[RequestApproveBook],
+    client: AuthenticatedClient,
+):  
+    try:
+        await update_versions_by_consumer(db, book_info, client)
+        new_book_ids = db.scalars(
+            select(Book.id).options(lazyload("*"))
+                .join(Commit)
+                .where(
+                    or_(*[
+                        Book.uuid == b.uuid and
+                        Commit.sha == b.commit_sha
+                        for b in book_info
+                    ])
+                )
+        )
+    except Exception:
+        db.rollback()
+        raise
     
-#     # approved_commits = db.query(ApprovedCommit).all()
-#     rex_commits = db.query(Commit).where(
-#         or_(*[Commit.sha.like(substring + '%') for substring in rex_short_shas])
-#     )
-#     # Condition for removing an entry
-#     #   Entry is not in rex books config and it is older than the one they use
-#     commit_by_book_uuid = {}
-#     for commit in rex_commits:
-#         for book in commit.books:
-#             commit_by_book_uuid.setdefault(book.uuid, []).append(commit)
-#     for book in new_commit.books:
-#         commit_by_book_uuid.setdefault(book.uuid, []).append(commit)
-#     # TODO: delete extra entries or clear and repopulate table
+    # approved_commits = db.query(ApprovedCommit).all()
+    rex_commits = db.query(Commit).where(
+        or_(*[Commit.sha.like(substring + '%') for substring in rex_short_shas])
+    )
+    # Condition for removing an entry
+    #   Entry is not in rex books config and it is older than the one they use
+    commit_by_book_uuid = {}
+    for commit in rex_commits:
+        for book in commit.books:
+            commit_by_book_uuid.setdefault(book.uuid, []).append(commit)
+    for book in new_commit.books:
+        commit_by_book_uuid.setdefault(book.uuid, []).append(commit)
+    # TODO: delete extra entries or clear and repopulate table
     
 
 def remove_approved_commit(db: Session, commit_sha: str):
@@ -122,7 +123,6 @@ def map_rex_to_database(rex_books):
     for book_uuid, info in rex_books.items():
         version = info.get("defaultVersion", None)
         assert version is not None, f"Expected defaultVersion in {book_uuid}"
-
 
 
 async def get_abl_info_github(repo_name, version="main"):
