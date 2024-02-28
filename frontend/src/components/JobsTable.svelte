@@ -154,7 +154,12 @@
   // Job sorting
   $: sortedRows = filteredRows.sort((a: Job, b: Job) => {
     type ValueTypes =
-      number| string | Status | Repository | ArtifactUrl[] | Book[];
+      | number
+      | string
+      | Status
+      | Repository
+      | ArtifactUrl[]
+      | Book[];
     let aVal: ValueTypes, bVal: ValueTypes;
     [aVal, bVal] = [a[sort], b[sort]][
       sortDirection === "ascending" ? "slice" : "reverse"
@@ -225,8 +230,6 @@
         jobsStore.stopPolling();
       }
     });
-
-
   });
 </script>
 
@@ -253,7 +256,7 @@
     table$aria-label="Jobs list"
   >
     <Head>
-      <Row color={is_on_abl(books)}>
+      <Row>
         <Cell numeric columnId="id">
           <IconButton class="material-icons">arrow_upward</IconButton>
           <Label>Id</Label>
@@ -590,7 +593,6 @@
   }
 
   .table-text.book,
-  
   .table-text.repo {
     max-width: 250px;
   }

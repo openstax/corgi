@@ -7,19 +7,19 @@
   import { Label } from "@smui/common";
   import { abortJob, repeatJob, getErrorMessage } from "../ts/jobs";
   import type { Job } from "../ts/types";
-  import { newABLentry, escapeHTML, fetchABL } from "../ts/utils";
-  import { ABLStore } from "../ts/stores"
-;
+  import {
+    /*newABLentry,*/ escapeHTML /*fetchABL*/,
+    parseDateTimeAsUTC,
+  } from "../ts/utils";
+  import { ABLStore } from "../ts/stores";
   export let selectedJob: Job;
   export let open: boolean;
-  let abl;
   let isErrorDialog;
   $: isErrorDialog = selectedJob?.status.name === "failed";
-  $: abl = {};
 
   let disableWorkerCodeVersionCheckbox = false;
   let useWorkerCodeVersion = false;
-  
+
   // [{
   // uuid
   // code_version
@@ -27,12 +27,34 @@
   // platform
   // }]
 
-  async function getVersions(job: Job) {
-    const abl = await fetchABL();
-    const anyNew = !job.books.every((book) => abl.find(({ uuid }) => uuid === book.uuid) === undefined);
-    if (!anyNew) {
-      disableWorkerCodeVersionCheckbox = true;
-    }
+  // async function getVersions(job: Job) {
+  //   const abl = await fetchABL();
+  //   const anyNew = !job.books.every((book) => abl.find(({ uuid }) => uuid === book.uuid) === undefined);
+  //   if (!anyNew) {
+  //     disableWorkerCodeVersionCheckbox = true;
+  //   }
+  // }
+
+  function getCodeVersionForJob() {
+    return selectedJob.books
+      .map((book) => {
+        return $ABLStore
+          .filter((abl) => abl.uuid === book.uuid)
+          .sort(
+            (b, a) =>
+              parseDateTimeAsUTC(a.created_at) -
+              parseDateTimeAsUTC(b.created_at)
+          )[0];
+      })
+      .reduce((accumulator, current): BookInfo | undefined => {
+        if (current === undefined) {
+          return undefined;
+        }
+        if (accumulator?.code_version !== current?.code_version) {
+          return undefined;
+        }
+        return accumulator;
+      });
   }
 
   function linkToSource(job: Job, msg: string) {
@@ -60,66 +82,40 @@
       }
     );
   }
-
-  ABLStore.subscribe((bookInfos) => {
-    const approvedVersionByBookByPlatform = {};
-    selectedJob.books.forEach((book) => {
-      abl
-        .filter((approvedVersion) => approvedVersion.uuid === book.uuid)
-        .forEach((approvedVersion) => {
-          let obj = approvedVersionByBookByPlatform[approvedVersion.platform];
-          if (obj == null) {
-            obj = {};
-            approvedVersionByBookByPlatform[approvedVersion.platform] = obj;
-          }
-          obj[book.uuid] = approvedVersion.code_version;
-        });
-    })
-    $abl = approvedVersionByBookByPlatform;
-  })
-
 </script>
 
 <Dialog bind:open bind:fullscreen={isErrorDialog} sheet>
   {#if selectedJob}
     <Header>
       <Title>Job #{selectedJob.id}</Title>
-      {#if selectedJob.status.name === "completed"}
-        <select>
-          <!--Platform Selection-->
-        </select>
+      {#if true}
+        {#if selectedJob.job_type.name === "git-web-hosting-preview"}
+          <!-- <select>
+          Platform Selection
+        </select> -->
+          <!-- check if all the books on a job are on the abl and have the same code_version -->
+
+          <SegmentedButton>
+            {@const codeVersion = getCodeVersionForJob()}
+            {#if codeVersion !== undefined}
+              <Segement>
+                <Label>{codeVersion}</Label>
+              </Segement>
+            {/if}
+            <Segement>
+              <Label>{selectedJob.worker_version}</Label>
+            </Segement>
+          </SegmentedButton>
+        {/if}
       {/if}
     </Header>
     <Content>
       {#if selectedJob.status.name === "completed"}
-        <table>
-          <tr>
-            <th>Artifact</th>
-            <th>Code Version</th>
-          </tr>
-          {#each selectedJob.artifact_urls as artifact}
-          <tr>
-            <td>
-              <a href={artifact.url} target="_blank" rel="noreferrer">{artifact.slug}</a>
-              {#if selectedJob.job_type.name === "git-web-hosting-preview"}
-                  <SegmentedButton>
-                    <Segement>
-                      <label> None </label>
-                    </Segement>
-                    {#if (abl[platform][artifact.slug].code_version ?? selectedJob.worker_version) !== selectedJob.worker_version }
-                    <Segement>
-                      <label> abl[platform][artifact.slug].code_version </label>
-                    </Segement>
-                    {/if}
-                    <Segement>
-                      <label> selectedJob.worker_version </label>
-                    </Segement>
-                  </SegmentedButton>
-                  {/if}
-                </td>
-              </tr>
-              {/each}
-            </table>
+        {#each selectedJob.artifact_urls as artifact}
+          <a href={artifact.url} target="_blank" rel="noreferrer"
+            >{artifact.slug}</a
+          >
+        {/each}
       {:else if isErrorDialog}
         {#await getErrorMessage(selectedJob.id)}
           <h3>Fetching error</h3>
@@ -169,7 +165,7 @@
             color="secondary"
             variant="raised"
             on:click={() => {
-              newABLentry(selectedJob);
+              // newABLentry(selectedJob);
             }}
           >
             <Label>Approve</Label>

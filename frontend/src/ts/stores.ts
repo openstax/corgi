@@ -51,7 +51,7 @@ class APIStore<T> {
   constructor(
     protected readonly baseStore: AsyncWritable<T>,
     private readonly fetchValue: (value: T) => Promise<T>,
-    public readonly subscribe = baseStore.subscribe,
+    public readonly subscribe = baseStore.subscribe
   ) {}
 
   async update() {
@@ -135,7 +135,7 @@ const baseErrorStore = (() => {
 
 export const errorStore = (() => {
   const { subscribe } = derived(baseErrorStore, (errors) =>
-    errors.map((e) => `${e.date.toLocaleTimeString()} - ${e.error}`),
+    errors.map((e) => `${e.date.toLocaleTimeString()} - ${e.error}`)
   );
   // NOTE: The order is important here because we want to override `subscribe`
   return {
@@ -146,12 +146,12 @@ export const errorStore = (() => {
 
 export const repoSummariesStore = new (RateLimited(
   APIStore<RepositorySummary[]>,
-  3,
+  3
 ))(asyncWritable([]), fetchRepoSummaries);
 
 export const jobsStore = new (Pollable(RateLimited(APIStore<Job[]>, 3)))(
   asyncWritable([]),
-  updateRunningJobs,
+  updateRunningJobs
 );
 
 export async function updateRunningJobs(jobs: Job[]): Promise<Job[]> {
@@ -190,5 +190,5 @@ export async function updateRunningJobs(jobs: Job[]): Promise<Job[]> {
 
 export const ABLStore = new (Pollable(RateLimited(APIStore<BookInfo[]>, 3)))(
   asyncWritable([]),
-  fetchABL,
+  fetchABL
 );
