@@ -55,10 +55,13 @@ export interface RepositorySummary extends Repository {
   books: string[];
 }
 
-export interface BookInfo {
+export interface ApprovedBook {
   uuid: string;
   code_version: string;
   commit_sha: string;
   consumer: string;
+}
+
+export interface ApprovedBookWithDate extends ApprovedBook {
   created_at: string;
 }

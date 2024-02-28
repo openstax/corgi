@@ -2,60 +2,16 @@
   import Dialog, { Header, Title, Content, Actions } from "@smui/dialog";
   import CircularProgress from "@smui/circular-progress";
   import Button from "@smui/button";
-  import SegmentedButton from "@smui/segmented-button";
-  import Segement from "@smui/segmented-button";
   import { Label } from "@smui/common";
   import { abortJob, repeatJob, getErrorMessage } from "../ts/jobs";
   import type { Job } from "../ts/types";
-  import {
-    /*newABLentry,*/ escapeHTML /*fetchABL*/,
-    parseDateTimeAsUTC,
-  } from "../ts/utils";
-  import { ABLStore } from "../ts/stores";
+  import ApproveBook from "./ApproveBook.svelte";
+  import { escapeHTML } from "../ts/utils";
   export let selectedJob: Job;
   export let open: boolean;
   let isErrorDialog;
   $: isErrorDialog = selectedJob?.status.name === "failed";
 
-  let disableWorkerCodeVersionCheckbox = false;
-  let useWorkerCodeVersion = false;
-
-  // [{
-  // uuid
-  // code_version
-  // commit_sha
-  // platform
-  // }]
-
-  // async function getVersions(job: Job) {
-  //   const abl = await fetchABL();
-  //   const anyNew = !job.books.every((book) => abl.find(({ uuid }) => uuid === book.uuid) === undefined);
-  //   if (!anyNew) {
-  //     disableWorkerCodeVersionCheckbox = true;
-  //   }
-  // }
-
-  function getCodeVersionForJob() {
-    return selectedJob.books
-      .map((book) => {
-        return $ABLStore
-          .filter((abl) => abl.uuid === book.uuid)
-          .sort(
-            (b, a) =>
-              parseDateTimeAsUTC(a.created_at) -
-              parseDateTimeAsUTC(b.created_at)
-          )[0];
-      })
-      .reduce((accumulator, current): BookInfo | undefined => {
-        if (current === undefined) {
-          return undefined;
-        }
-        if (accumulator?.code_version !== current?.code_version) {
-          return undefined;
-        }
-        return accumulator;
-      });
-  }
 
   function linkToSource(job: Job, msg: string) {
     // Example: ./modules/m59948/index.cnxml:3:1
@@ -73,13 +29,13 @@
             "blob",
             job.version,
             `${stem}${ext}#L${lineNum}C${colNum}-L${lineNum}`,
-          ].join("/")
+          ].join("/"),
         );
         link.rel = "noreferrer";
         link.target = "_blank";
         link.textContent = orig;
         return link.outerHTML;
-      }
+      },
     );
   }
 </script>
@@ -88,29 +44,12 @@
   {#if selectedJob}
     <Header>
       <Title>Job #{selectedJob.id}</Title>
-      {#if true}
-        {#if selectedJob.job_type.name === "git-web-hosting-preview"}
-          <!-- <select>
-          Platform Selection
-        </select> -->
-          <!-- check if all the books on a job are on the abl and have the same code_version -->
-
-          <SegmentedButton>
-            {@const codeVersion = getCodeVersionForJob()}
-            {#if codeVersion !== undefined}
-              <Segement>
-                <Label>{codeVersion}</Label>
-              </Segement>
-            {/if}
-            <Segement>
-              <Label>{selectedJob.worker_version}</Label>
-            </Segement>
-          </SegmentedButton>
-        {/if}
-      {/if}
     </Header>
     <Content>
       {#if selectedJob.status.name === "completed"}
+        {#if selectedJob.job_type.name === "git-web-hosting-preview"}
+          <ApproveBook {selectedJob} bind:open />
+        {/if}
         {#each selectedJob.artifact_urls as artifact}
           <a href={artifact.url} target="_blank" rel="noreferrer"
             >{artifact.slug}</a
@@ -159,18 +98,6 @@
         >
           <Label>Repeat</Label>
         </Button>
-        {#if selectedJob.status.name == "completed"}
-          <Button
-            id="approve-button"
-            color="secondary"
-            variant="raised"
-            on:click={() => {
-              // newABLentry(selectedJob);
-            }}
-          >
-            <Label>Approve</Label>
-          </Button>
-        {/if}
       {/if}
       <Button
         variant="raised"
@@ -178,7 +105,7 @@
         on:click={() => {
           const href = document.location.href.replace(
             document.location.hash,
-            ""
+            "",
           );
           navigator.clipboard.writeText(`${href}#${selectedJob.id}`);
         }}

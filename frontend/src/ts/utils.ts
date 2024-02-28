@@ -1,4 +1,4 @@
-import type { BookInfo, Job, Repository, RepositorySummary } from "./types";
+import type { Job, Repository, RepositorySummary } from "./types";
 import { RequireAuth } from "./fetch-utils";
 import { errorStore } from "./stores";
 import { MINUTES, HOURS, DAYS } from "./time";
@@ -14,7 +14,7 @@ export async function fetchRepoSummaries(): Promise<RepositorySummary[]> {
   let repoSummaries: RepositorySummary[];
   try {
     repoSummaries = await RequireAuth.fetchJson(
-      "/api/github/repository-summary"
+      "/api/github/repository-summary",
     );
   } catch (error) {
     handleError(error);
@@ -31,7 +31,7 @@ export function repoToString(repo: Repository, fullyQualified = false) {
 
 export function filterBooks(
   repositories: RepositorySummary[],
-  selectedRepo: string
+  selectedRepo: string,
 ): string[] {
   const books: string[] = [];
   repositories
@@ -40,7 +40,7 @@ export function filterBooks(
     .forEach((bookNames) => {
       bookNames.forEach((b) => books.push(b as any));
     });
-  return [...new Set(books)];
+  return Array.from(new Set(books));
 }
 
 export function readableDateTime(datetime: string): string {
@@ -105,66 +105,6 @@ export function calculateAge(job: Job): string {
   }
   return `${converted} ${unit} ago`;
 }
-
-export async function fetchABL(): Promise<BookInfo[]> {
-  let abl: any;
-  try {
-    abl = await RequireAuth.fetchJson("/api/abl");
-  } catch (error) {
-    handleError(error);
-    abl = [];
-  }
-  return abl;
-}
-
-// export async function newABLentry(job: Job) {
-//   const repo = job.repository;
-//   if (repo.owner !== "openstax") {
-//     const errMsg =
-//       "Only Openstax repositories can be added to the ABL at this time";
-//     alert(errMsg);
-//     throw new Error(errMsg);
-//   }
-//   const ablData = await (
-//     await fetch(`/api/abl/${repo.name}/${job.version}`)
-//   ).json();
-
-//   // What goes inside the versions array
-//   const versionEntry = {
-//     min_code_version: null, // To be filled in manually
-//     edition: null, // To be filled in manually
-//     commit_sha: ablData.commit_sha,
-//     commit_metadata: {
-//       committed_at: ablData.committed_at,
-//       books: ablData.books,
-//     },
-//   };
-
-// abl_versions
-
-// for each (let book in ablData.books)
-// {
-//   uuid: book.uuid,
-//   code_version: job.worker_version
-//   commit_sha: job.version
-// }
-
-//   // Line number is 1 for new ABL entries
-//   const ablEntry =
-//     ablData.line_number === 1
-//       ? {
-//           repository_name: repo.name,
-//           platforms: ["REX"],
-//           versions: [versionEntry],
-//         }
-//       : versionEntry;
-
-//   await navigator.clipboard.writeText(JSON.stringify(ablEntry, null, 2));
-//   window.open(
-//     `https://github.com/openstax/content-manager-approved-books/edit/main/approved-book-list.json#L${ablData.line_number}`,
-//     "_blank",
-//   );
-// }
 
 // https://stackoverflow.com/a/22706073
 export function escapeHTML(str: string) {
