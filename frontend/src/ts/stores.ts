@@ -1,13 +1,9 @@
 import { derived, Readable, writable } from "svelte/store";
 import { getJobs } from "./jobs";
 import { SECONDS } from "./time";
-import type { BookInfo, Job, RepositorySummary } from "./types";
-import {
-  fetchABL,
-  fetchRepoSummaries,
-  isJobComplete,
-  parseDateTimeAsUTC,
-} from "./utils";
+import type { ApprovedBookWithDate, Job, RepositorySummary } from "./types";
+import { fetchRepoSummaries, isJobComplete, parseDateTimeAsUTC } from "./utils";
+import { fetchABL } from "./abl";
 
 type GConstructor<T = object> = new (...args: any[]) => T;
 type Updatable = GConstructor<{ update: () => Promise<void> }>;
@@ -51,7 +47,7 @@ class APIStore<T> {
   constructor(
     protected readonly baseStore: AsyncWritable<T>,
     private readonly fetchValue: (value: T) => Promise<T>,
-    public readonly subscribe = baseStore.subscribe
+    public readonly subscribe = baseStore.subscribe,
   ) {}
 
   async update() {
@@ -135,7 +131,7 @@ const baseErrorStore = (() => {
 
 export const errorStore = (() => {
   const { subscribe } = derived(baseErrorStore, (errors) =>
-    errors.map((e) => `${e.date.toLocaleTimeString()} - ${e.error}`)
+    errors.map((e) => `${e.date.toLocaleTimeString()} - ${e.error}`),
   );
   // NOTE: The order is important here because we want to override `subscribe`
   return {
@@ -146,12 +142,12 @@ export const errorStore = (() => {
 
 export const repoSummariesStore = new (RateLimited(
   APIStore<RepositorySummary[]>,
-  3
+  3,
 ))(asyncWritable([]), fetchRepoSummaries);
 
 export const jobsStore = new (Pollable(RateLimited(APIStore<Job[]>, 3)))(
   asyncWritable([]),
-  updateRunningJobs
+  updateRunningJobs,
 );
 
 export async function updateRunningJobs(jobs: Job[]): Promise<Job[]> {
@@ -188,7 +184,6 @@ export async function updateRunningJobs(jobs: Job[]): Promise<Job[]> {
   return jobs.slice(0, lastJobIndex).concat(newJobs);
 }
 
-export const ABLStore = new (Pollable(RateLimited(APIStore<BookInfo[]>, 3)))(
-  asyncWritable([]),
-  fetchABL
-);
+export const ABLStore = new (Pollable(
+  RateLimited(APIStore<ApprovedBookWithDate[]>, 3),
+))(asyncWritable([]), fetchABL);
