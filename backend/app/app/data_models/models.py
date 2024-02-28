@@ -75,6 +75,8 @@ class RequestApproveBook(BaseModel):
 
 
 class ResponseApprovedBook(RequestApproveBook):
+    created_at: datetime
+
     class Config:
         class Getter(GetterDict):
             def get(self, key: str, default: Any) -> Any:
@@ -86,6 +88,8 @@ class ResponseApprovedBook(RequestApproveBook):
                     return self._obj.code_version.version
                 elif key == "consumer":
                     return self._obj.consumer.name
+                elif key == "created_at":
+                    return self._obj.created_at
                 return default
 
         orm_mode = True

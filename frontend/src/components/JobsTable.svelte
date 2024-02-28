@@ -31,6 +31,7 @@
   import type { Job, JobType } from "../ts/types";
   import DetailsDialog from "./DetailsDialog.svelte";
   import { SECONDS } from "../ts/time";
+    import { hasABLEntry } from "../ts/abl";
 
   let statusStyles = {
     queued: "filter-yellow",
@@ -70,7 +71,7 @@
     selectedRepo,
     selectedBook,
     selectedVersion,
-    selectedJobTypes
+    selectedJobTypes,
   ) {
     if (lastJobStartTime + jobStartRateLimitDurationMillis > Date.now()) {
       return;
@@ -82,9 +83,9 @@
           JobTypeId[jobType as number],
           selectedRepo,
           selectedBook,
-          selectedVersion
+          selectedVersion,
         );
-      })
+      }),
     );
     setTimeout(async () => {
       await Promise.all([
@@ -143,12 +144,12 @@
     (entry) =>
       (selectedJobTypes.length === 0 ||
         selectedJobTypes.some((id) =>
-          entry.job_type.display_name.includes(id)
+          entry.job_type.display_name.includes(id),
         )) &&
       (!selectedRepo ||
         repoToString(entry.repository).includes(selectedRepo)) &&
       (!selectedBook ||
-        entry.books.find((item) => item.slug.includes(selectedBook)) != null)
+        entry.books.find((item) => item.slug.includes(selectedBook)) != null),
   );
 
   // Job sorting
@@ -303,7 +304,8 @@
     <Body>
       {#each slice as item (item.id)}
         <!-- <DetailRow> -->
-        <Row slot="data">
+        {@const isApproved = hasABLEntry($ABLStore, item)}
+        <Row slot="data" class={isApproved ? 'abl' : ''}>
           <Cell>
             <Button
               on:click={() => {
@@ -329,7 +331,7 @@
                     src={mapImage(
                       "job_type",
                       item.job_type.display_name,
-                      "svg"
+                      "svg",
                     )}
                     class="job-type-icon"
                     data-is-complete="true"
@@ -378,7 +380,7 @@
                   ? item.git_ref
                   : `${item.git_ref.slice(0, 16)}...`}@{item.version.slice(
                   0,
-                  7
+                  7,
                 )}
               {:else}
                 {item.version.slice(0, 7)}
@@ -534,6 +536,10 @@
     50% {
       transform: scale(0.9);
     }
+  }
+
+  :global(.abl) {
+    background-color: rgba(0, 255, 128, 0.2) !important;
   }
 
   .job-status-icon {
