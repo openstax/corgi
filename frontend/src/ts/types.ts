@@ -59,5 +59,6 @@ export interface BookInfo {
   uuid: string;
   code_version: string;
   commit_sha: string;
-  platform: string;
+  consumer: string;
+  created_at: string;
 }
