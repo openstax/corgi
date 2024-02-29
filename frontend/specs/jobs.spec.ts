@@ -4,6 +4,7 @@ import * as jobs from "../src/ts/jobs";
 import { repoToString, parseDateTimeAsUTC } from "../src/ts/utils";
 import { jobsStore, updateRunningJobs } from "../src/ts/stores";
 import type { Job } from "../src/ts/types";
+import { jobFactory } from "./spec-helpers";
 
 let mockFetch;
 beforeEach(() => {
@@ -76,25 +77,22 @@ describe("updateRunningJobs", () => {
 
   it("should update including and after the oldest running job that was created in the last 24 hours", async () => {
     const jobs: Job[] = [
-      {
-        id: 1,
+      jobFactory.build({
         updated_at: new Date(Date.now() - 96400000).toISOString().slice(0, -1),
         created_at: new Date().toISOString().slice(0, -1),
         status: { id: "5" },
-      },
-      {
-        id: 2,
+      }),
+      jobFactory.build({
         updated_at: new Date().toISOString().slice(0, -1),
         created_at: new Date().toISOString().slice(0, -1),
         status: { id: "3" },
-      },
-      {
-        id: 3,
+      }),
+      jobFactory.build({
         updated_at: new Date().toISOString().slice(0, -1),
         created_at: new Date().toISOString().slice(0, -1),
         status: { id: "5" },
-      },
-    ] as any as Job[];
+      }),
+    ];
 
     getJobsMock.mockResolvedValue([]);
 
