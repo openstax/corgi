@@ -379,13 +379,12 @@ erDiagram
         int job_id
         int book_id
         opt artifact_url
-        opt approved_code_version
     }
     CodeVersion {
         int id
+        str version
         datetime created_at
         datetime updated_at
-        str code_version
     }
     Commit {
         int id
