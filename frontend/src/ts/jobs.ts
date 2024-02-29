@@ -34,15 +34,7 @@ export async function submitNewJob(
       version: (version?.trim() ?? "") || null, //(optional)
     };
 
-    const options = {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
-    await RequireAuth.fetch("/api/jobs/", options);
+    await RequireAuth.sendJson("/api/jobs/", data);
   } catch (error) {
     handleError(error);
   }
@@ -63,15 +55,7 @@ export async function abortJob(jobId: string) {
       status_id: "6",
     };
 
-    const options = {
-      method: "PUT",
-      body: JSON.stringify(data),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
-    await RequireAuth.fetch(`/api/jobs/${jobId}`, options);
+    await RequireAuth.sendJson(`/api/jobs/${jobId}`, data, { method: "PUT" });
     setTimeout(() => {
       void jobsStore.update();
     }, 1 * SECONDS);
