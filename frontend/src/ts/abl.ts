@@ -12,15 +12,11 @@ export async function newABLentry(job: Job, codeVersion: string) {
     commit_sha: job.version,
     consumer: guessConsumer(b),
   }));
-  const options = {
-    method: "POST",
-    body: JSON.stringify(entries),
-    headers: {
-      "Content-Type": "application/json",
-    },
+  const handleAuthError = () => {
+    throw new Error("You do not have permission to add ABL entries.");
   };
   try {
-    await RequireAuth.fetch("/api/abl/", options);
+    await RequireAuth.sendJson("/api/abl/", entries, { handleAuthError });
   } catch (error) {
     handleError(error);
   }
