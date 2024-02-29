@@ -30,7 +30,7 @@
 
   import type { Job, JobType } from "../ts/types";
   import DetailsDialog from "./DetailsDialog.svelte";
-  import { SECONDS } from "../ts/time";
+  import { MINUTES, SECONDS } from "../ts/time";
     import { hasABLEntry } from "../ts/abl";
 
   let statusStyles = {
@@ -220,7 +220,7 @@
     // Give job fetching priority over repoSummariesStore on page load
     jobsStore.update().then(() => {
       void repoSummariesStore.update();
-      void ABLStore.update();
+      void ABLStore.startPolling(1 * MINUTES);
     });
     jobsStore.startPolling(10 * SECONDS);
     addEventListener("hashchange", handleHash);
