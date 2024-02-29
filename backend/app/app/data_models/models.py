@@ -67,10 +67,13 @@ class BookBase(BaseModel):
     style: str
 
 
-class RequestApproveBook(BaseModel):
-    uuid: str
-    code_version: str
+class BaseApprovedBook(BaseModel):
     commit_sha: str
+    uuid: str
+    
+
+class RequestApproveBook(BaseApprovedBook):
+    code_version: str
     consumer: str
 
 
