@@ -76,6 +76,9 @@ class RequestApproveBook(BaseModel):
 
 class ResponseApprovedBook(RequestApproveBook):
     created_at: datetime
+    committed_at: datetime
+    repository_name: str
+    slug: str
 
     class Config:
         class Getter(GetterDict):
@@ -90,6 +93,12 @@ class ResponseApprovedBook(RequestApproveBook):
                     return self._obj.consumer.name
                 elif key == "created_at":
                     return self._obj.created_at
+                elif key == "committed_at":
+                    return self._obj.book.commit.timestamp
+                elif key == "repository_name":
+                    return self._obj.book.commit.repository.name
+                elif key == "slug":
+                    return self._obj.book.slug
                 return default
 
         orm_mode = True
