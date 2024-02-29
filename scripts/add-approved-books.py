@@ -1,32 +1,66 @@
-from datetime import datetime
+import asyncio
+import json
+import sys
+from time import strftime
 
-from app.db.schema import ApprovedBook, CodeVersion, Consumer
-from app.db.session import Session
+from httpx import AsyncClient
 
 
-def main():
-    with Session() as db:
-        book_id = 1
-        consumers = db.query(Consumer).all()
-        if not any(c.name == "test" for c in consumers):
-            test_consumer = Consumer(name="test", id=len(consumers) + 1)
-            db.add(test_consumer)
-            db.flush()
-            consumers.append(test_consumer)
-        code_version = CodeVersion(
-            version=datetime.utcnow().strftime("%Y%m%d.%H%M%S")
-        )
-        db.add(code_version)
-        db.flush()
-        for consumer in consumers:
-            approved_book = ApprovedBook(
-                book_id=book_id,
-                consumer_id=consumer.id,
-                code_version_id=code_version.id
-            )
-            db.add(approved_book)
-        db.commit()
+async def create_entries(client, jobs, code_version):
+    assert len(jobs) > 0, "Create some jobs first"
+    job = jobs[0]
+    book = job["books"][0]
+    entries = [
+        {
+            "uuid": book["uuid"],
+            "commit_sha": job["version"],
+            "code_version": code_version,
+            "consumer": "REX",
+        }
+    ]
+    response = await client.post(
+        "http://localhost/api/abl/", data=json.dumps(entries)
+    )
+    response.raise_for_status()
+    return entries
+
+
+async def check_entries(client, entries, code_version):
+    response = await client.get("http://localhost/api/abl/")
+    response.raise_for_status()
+    fetched_entries = response.json()
+    filtered = [
+        entry["uuid"] == entries[0]["uuid"]
+        and entry["code_version"] == code_version
+        for entry in fetched_entries
+    ]
+    assert len(filtered) == len(entries), "Failed to add ABL entry"
+
+
+async def authenticate_client(client, token):
+    response = await client.get(
+        "http://localhost/api/auth/token-login",
+        headers={"Authorization": f"Bearer {token}"},
+        follow_redirects=True,
+    )
+    response.raise_for_status()
+    assert (
+        response.cookies.get("session", None) is not None
+    ), "Could not get session cookie"
+
+
+async def main():
+    token = sys.argv[1]
+    async with AsyncClient() as client:
+        await authenticate_client(client, token)
+        response = await client.get("http://localhost/api/jobs/")
+        response.raise_for_status()
+        jobs = response.json()
+        for i in range(2):
+            test_code_version = strftime(f"%Y%m%d.%H%M%S-{i}")
+            entries = await create_entries(client, jobs, test_code_version)
+            await check_entries(client, entries, test_code_version)
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
