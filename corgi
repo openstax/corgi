@@ -1,6 +1,26 @@
 #!/usr/bin/env bash
 
-set -eo pipefail
+if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+    # If the script is sourced, handle aliases and exit early
+    if [[ -z "$PS1_PREV_CORGI" ]]; then
+        here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        # shellcheck disable=SC2139
+        alias corgi="$here/corgi"
+        # shellcheck disable=SC2139
+        alias npm="command npm --prefix \"$here/frontend\""
+        PS1_PREV_CORGI="$PS1"
+        PS1="(corgi) $PS1"
+    else
+        PS1="$PS1_PREV_CORGI"
+        unalias corgi
+        unalias npm
+        unset PS1_PREV_CORGI
+    fi
+    return 0
+else
+    # Script is being executed
+    set -eo pipefail
+fi
 
 log() {
     echo "$@" >&2
@@ -16,24 +36,21 @@ usage() {
 Manage your local corgi stack
 Usage:
 
-    corgi <COMMAND>
+    corgi <COMMAND> [arguments]
 
 The commands are:
     start                       Alias for start-leashed
-    start-dev                   Start corgi in dev mode (requires oauth app, see
-                                README for more details)
+    start-dev                   Start corgi in dev mode (requires oauth app, see README for more details)
     start-leashed               Start corgi in leashed mode (uses mocked GitHub API)
-    create-jobs [TOKEN]         Creates sample jobs with each type and status (token
-                                is required in dev mode)
-    create-erd                  Creates an Entity-relationship diagram (ERD)
-                                using data int he CORGI database
+    create-jobs [TOKEN]         Creates sample jobs with each type and status (token is required in dev mode)
+    create-erd                  Creates an Entity-relationship diagram (ERD) using data int he CORGI database
     build   <STACK_NAME>        Build all images in the stack
     restart <STACK_NAME>        Restart all containers in the stack
-    logs                        See logs (supports same options as docker compose
-                                logs)
-    ui-tests <BASE_URL> <TOKEN> Run UI tests (playwright) on BASE_URL. These can run
-                                without a github token on localhost, but otherwise a
-                                token with correct access level is required (see README)
+    logs                        See logs (supports same options as docker compose logs)
+    ui-tests <BASE_URL> <TOKEN> Run UI tests (playwright) on BASE_URL. These can run without a github token
+                                on localhost, but otherwise a token with correct accesslevel is required (see README)
+    generate-migration          Shortcut for alembic revision --autogenerate -m (See README for more details)
+    create-approved-books       Create some approved book entries from data in the database
     stop                        Stop corgi
 
 EOF
@@ -156,6 +173,10 @@ elif [[ "$COMMAND" == "create-jobs" ]]; then
         python - "$token" < "$here/scripts/create-jobs.py"
 elif [[ "$COMMAND" == "generate-migration" ]]; then
     docker compose exec backend alembic revision --autogenerate -m "$1"
+elif [[ "$COMMAND" == "create-approved-books" ]]; then
+    token="${1:-fake-token}"
+    docker compose -f "$dev_stack" exec -T backend \
+        python - "$token" < "$here/scripts/add-approved-books.py"
 else
     usage "Unknown command \"$COMMAND\""
 fi
