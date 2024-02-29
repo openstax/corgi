@@ -60,6 +60,20 @@ The full explanation of Enki it is out of scope for this documentation. To learn
 
 **NOTE**: You might get 502 when visiting http://localhost/ at first: this is normal. Wait a few seconds and try again.
 
+It's recommended that you initialize your corgi environment before starting by running:
+
+```bash
+source corgi
+```
+
+in the root of the repository. This will initialize your environment with helpful aliases.
+
+With your environment initialized:
+
+1. You can run `corgi` without prefixing it with `./`
+1. `npm` will be prefixed with your `frontend` directory (you can run npm from anywhere)
+1. Your PS1 should be updated to include (corgi)
+
 ### GitHub OAuth Disabled (Leashed Mode)
 
 To start corgi without GitHub OAuth, in the project root directory, run:
