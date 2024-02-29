@@ -13,14 +13,14 @@ from app.db.schema import (
     CodeVersion,
     Commit,
     Repository,
-    Consumer
+    Consumer,
 )
+
 
 async def get_rex_books(client: AuthenticatedClient):
     try:
         response = await client.get(
-            config.REX_WEB_RELEASE_URL,
-            headers={ "Accept": "application/json" }
+            config.REX_WEB_RELEASE_URL, headers={"Accept": "application/json"}
         )
         response.raise_for_status()
         release_json = response.json()
@@ -38,8 +38,9 @@ def get_rex_book_versions(rex_books: Dict[str, Any], book_uuids: List[str]):
             continue
         rex_book = rex_books[book_uuid]
         version = rex_book.get("defaultVersion", None)
-        assert version is not None, \
-            f"Could not get defaultVersion for {book_uuid}"
+        assert (
+            version is not None
+        ), f"Could not get defaultVersion for {book_uuid}"
         rex_book_versions.append(
             BaseApprovedBook(commit_sha=version, uuid=book_uuid)
         )
@@ -70,19 +71,15 @@ def remove_old_versions(
     )
     if to_keep:
         # Keep a subset (`~or_` is like `if not any(...)`)
-        query = (
-            query
-            .join(Commit)
-            .where(
-                ~or_(
-                    *[
-                        and_(
-                            Book.uuid == entry.uuid,
-                            Commit.sha.startswith(entry.commit_sha),
-                        )
-                        for entry in to_keep
-                    ]
-                )
+        query = query.join(Commit).where(
+            ~or_(
+                *[
+                    and_(
+                        Book.uuid == entry.uuid,
+                        Commit.sha.startswith(entry.commit_sha),
+                    )
+                    for entry in to_keep
+                ]
             )
         )
     to_delete = db.scalars(query).all()
@@ -150,7 +147,7 @@ async def add_new_entries(
     db: Session,
     to_add: List[RequestApproveBook],
     client: AuthenticatedClient,
-):  
+):
     book_info_by_consumer = group_by(to_add, lambda o: o.consumer)
     try:
         for consumer, entries in book_info_by_consumer.items():
@@ -158,8 +155,7 @@ async def add_new_entries(
             if consumer == "REX":
                 rex_books = await get_rex_books(client)
                 to_keep = get_rex_book_versions(
-                    rex_books,
-                    [b.uuid for b in to_add]
+                    rex_books, [b.uuid for b in to_add]
                 )
             update_versions_by_consumer(db, consumer, entries, to_keep)
         db.commit()
@@ -170,11 +166,13 @@ async def add_new_entries(
 
 def stable_join():
     joined = set()
+
     def inner(query, *tables):
         for table in (t for t in tables if t not in joined):
             query = query.join(table)
             joined.add(table)
         return query
+
     return inner
 
 
@@ -194,9 +192,7 @@ def get_abl_info_database(
             Repository.name == repo_name
         )
     if version:
-        query = join(query, Book, Commit).where(
-            Commit.sha == version
-        )
+        query = join(query, Book, Commit).where(Commit.sha == version)
     if code_version:
         query = join(query, CodeVersion).where(
             CodeVersion.version <= code_version
