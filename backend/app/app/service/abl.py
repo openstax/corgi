@@ -1,21 +1,25 @@
 from typing import List, Dict, Any, Optional
 
-from lxml import etree
-from httpx import AsyncClient, HTTPStatusError
+from httpx import HTTPStatusError
 from sqlalchemy.orm import Session, lazyload
-from sqlalchemy import or_, delete, select, desc, and_
+from sqlalchemy import or_, delete, select, and_
 from app.core.errors import CustomBaseError
-from app.data_models.models import RequestApproveBook, ResponseApprovedBook
+from app.data_models.models import BaseApprovedBook, RequestApproveBook
 from app.core import config
-from app.core.config import GITHUB_ORG
 from app.github import AuthenticatedClient
-from app.db.schema import ApprovedBook, Book, CodeVersion, Commit, Repository, Consumer
-
+from app.db.schema import (
+    ApprovedBook,
+    Book,
+    CodeVersion,
+    Commit,
+    Repository,
+    Consumer
+)
 
 async def get_rex_books(client: AuthenticatedClient):
     try:
         response = await client.get(
-            "https://openstax.org/rex/release.json",
+            config.REX_WEB_RELEASE_URL,
             headers={ "Accept": "application/json" }
         )
         response.raise_for_status()
@@ -28,7 +32,7 @@ async def get_rex_books(client: AuthenticatedClient):
 
 
 def get_rex_book_versions(rex_books: Dict[str, Any], book_uuids: List[str]):
-    rex_book_versions = []
+    rex_book_versions: List[BaseApprovedBook] = []
     for book_uuid in book_uuids:
         if book_uuid not in rex_books:
             continue
@@ -36,7 +40,9 @@ def get_rex_book_versions(rex_books: Dict[str, Any], book_uuids: List[str]):
         version = rex_book.get("defaultVersion", None)
         assert version is not None, \
             f"Could not get defaultVersion for {book_uuid}"
-        rex_book_versions.append({"uuid": book_uuid, "sha": version})
+        rex_book_versions.append(
+            BaseApprovedBook(commit_sha=version, uuid=book_uuid)
+        )
     return rex_book_versions
 
 
@@ -51,31 +57,37 @@ def group_by(arr, key):
 def remove_old_versions(
     db: Session,
     consumer_id: int,
-    to_keep: List[RequestApproveBook] = [],
+    to_add: List[RequestApproveBook],
+    to_keep: List[BaseApprovedBook] = [],
 ):
+    # Default: Remove all previous versions of the books in the set
     query = (
         select(ApprovedBook)
         .options(lazyload("*"))
+        .join(Book)
+        .where(Book.uuid.in_([b.uuid for b in to_add]))
         .where(ApprovedBook.consumer_id == consumer_id)
     )
     if to_keep:
+        # Keep a subset (`~or_` is like `if not any(...)`)
         query = (
-            query.join(Book)
+            query
             .join(Commit)
             .where(
                 ~or_(
                     *[
                         and_(
-                            Book.uuid == version.uuid,
-                            Commit.sha.startswith(version.commit_sha),
+                            Book.uuid == entry.uuid,
+                            Commit.sha.startswith(entry.commit_sha),
                         )
-                        for version in to_keep
+                        for entry in to_keep
                     ]
                 )
             )
         )
     to_delete = db.scalars(query).all()
-    if len(to_delete):
+    # NOTE: If to_delete is empty, the condition will be True (delete all)
+    if to_delete:
         condition = or_(
             *[
                 and_(
@@ -108,13 +120,13 @@ def update_versions_by_consumer(
     db: Session,
     consumer_name: str,
     to_add: List[RequestApproveBook],
-    to_keep: List[RequestApproveBook] = [],
+    to_keep: List[BaseApprovedBook] = [],
 ):
     consumer_id = db.scalars(
         select(Consumer.id).where(Consumer.name == consumer_name)
     ).first()
     if consumer_id is not None:
-        remove_old_versions(db, consumer_id, to_keep)
+        remove_old_versions(db, consumer_id, to_add, to_keep)
     for entry in to_add:
         db_book = db.scalars(
             select(Book)
@@ -136,15 +148,19 @@ def update_versions_by_consumer(
 
 async def add_new_entries(
     db: Session,
-    book_info: List[RequestApproveBook],
+    to_add: List[RequestApproveBook],
     client: AuthenticatedClient,
 ):  
-    book_info_by_consumer = group_by(book_info, lambda o: o.consumer)
+    book_info_by_consumer = group_by(to_add, lambda o: o.consumer)
     try:
         for consumer, entries in book_info_by_consumer.items():
             to_keep = []
             if consumer == "REX":
-                to_keep = []  # Get the versions REX uses
+                rex_books = await get_rex_books(client)
+                to_keep = get_rex_book_versions(
+                    rex_books,
+                    [b.uuid for b in to_add]
+                )
             update_versions_by_consumer(db, consumer, entries, to_keep)
         db.commit()
     except Exception:
