@@ -65,7 +65,7 @@ def crawl_database(session, cls):
                 continue
             if isinstance(value, list):
                 if len(value) < 1:
-                    logging.warn(
+                    logging.warning(
                         f"Could not map relationship for {key} "
                         "(no instances found)"
                     )
