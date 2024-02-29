@@ -3,8 +3,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.service.abl import get_abl_info_database, add_new_entries
 from fastapi import APIRouter
-from app.core.auth import active_user
+from app.core.auth import RequiresRole, active_user
 from app.data_models.models import (
+    Role,
     UserSession,
     RequestApproveBook,
     ResponseApprovedBook,
@@ -26,17 +27,16 @@ async def get_abl_info(
     return get_abl_info_database(db, consumer, repo_name, version, code_version)
 
 
-@router.post("/")
+@router.post("/", dependencies=[Depends(RequiresRole(Role.ADMIN))])
 async def add_to_abl(
     *,
     db: Session = Depends(get_db),
     info: List[RequestApproveBook],
-    user: UserSession = Depends(active_user)
+    user: UserSession = Depends(active_user),
 ):
     # Creates a new ApprovedCommit
-    # Fetches rex-web books.config.json
-    # Removes extraneous ApprovedCommit entries (keeps any version that appears in rex-web and new version)
-    # Creates new ABL
-    # Pushes new ABL
+    # Fetches rex-web release.json
+    # Removes extraneous ApprovedCommit entries
+    #   keeps any version that appears in rex-web and new version
     async with github_client(user) as client:
         return await add_new_entries(db, info, client)
