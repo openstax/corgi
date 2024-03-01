@@ -188,6 +188,93 @@ def mock_login_success(
 
 
 @pytest.fixture
+def mock_session():
+    def inner(result_getter=lambda *_: []):
+        class MockSession:
+            def __init__(self):
+                self.calls = []
+                self.added_items = []
+                self.did_rollback = False
+                self.did_commit = False
+                self.flush_count = 0
+
+            def execute(self, query):
+                self.calls.append(query)
+
+            def scalars(self, query):
+                self.calls.append(query)
+                return MockResult()
+
+            def add(self, item):
+                self.added_items.append(item)
+                self.calls.append(f"INSERT INTO {item.__class__.__name__} ...")
+
+            def flush(self):
+                self.flush_count += 1
+
+            def rollback(self):
+                self.did_rollback = True
+
+            def commit(self):
+                self.did_commit = True
+
+            @property
+            def calls_str(self):
+                return "\n\n".join(str(c) for c in self.calls)
+
+        mock_session = MockSession()
+
+        class MockResult:
+            def all(self):
+                return result_getter(mock_session)
+            
+            def first(self):
+                results = self.all()
+                return (
+                    None 
+                    if results is None or len(results) == 0
+                    else results[0]
+                )
+
+        return mock_session
+    return inner
+
+
+@pytest.fixture
+def mock_http_client():
+    def inner(get={}, post={}):
+        class MockResponse:
+            def __init__(self, expected_result):
+                self.expected_result = expected_result
+            
+            def json(self):
+                return self.expected_result
+            
+            def raise_for_status(self):
+                pass
+
+        class MockClient:
+            def __init__(self):
+                self.calls = []
+
+            async def get(self, url, **kwargs):
+                self.calls.append(
+                    {"type": "get", "kwargs": kwargs, "url": url}
+                )
+                return MockResponse(get.get(url, None))
+
+            async def post(self, url, **kwargs):
+                self.calls.append(
+                    {"type": "post", "kwargs": kwargs, "url": url}
+                )
+                return MockResponse(post.get(url, None))
+
+        return MockClient()
+
+    return inner
+
+
+@pytest.fixture
 def session_cookie(testclient, mock_login_success):
     response = testclient.get(f"/api/auth/login", allow_redirects=False)
     redirect_location = response.headers.get("location")
