@@ -122,8 +122,8 @@ def update_versions_by_consumer(
     consumer_id = db.scalars(
         select(Consumer.id).where(Consumer.name == consumer_name)
     ).first()
-    if consumer_id is not None:
-        remove_old_versions(db, consumer_id, to_add, to_keep)
+    assert consumer_id is not None
+    remove_old_versions(db, consumer_id, to_add, to_keep)
     for entry in to_add:
         db_book = db.scalars(
             select(Book)
@@ -148,6 +148,8 @@ async def add_new_entries(
     to_add: List[RequestApproveBook],
     client: AuthenticatedClient,
 ):
+    if not to_add:  # pragma: no cover
+        raise CustomBaseError("No entries to add")
     book_info_by_consumer = group_by(to_add, lambda o: o.consumer)
     try:
         for consumer, entries in book_info_by_consumer.items():
