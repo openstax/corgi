@@ -536,14 +536,14 @@ files = [
 ]
 
 [package.dependencies]
-anyio = "==3.*"
+anyio = ">=3.0.0,<4.0.0"
 certifi = "*"
 h11 = ">=0.11,<0.13"
-sniffio = "==1.*"
+sniffio = ">=1.0.0,<2.0.0"
 
 [package.extras]
 http2 = ["h2 (>=3,<5)"]
-socks = ["socksio (==1.*)"]
+socks = ["socksio (>=1.0.0,<2.0.0)"]
 
 [[package]]
 name = "httpx"
@@ -564,9 +564,9 @@ sniffio = "*"
 
 [package.extras]
 brotli = ["brotli", "brotlicffi"]
-cli = ["click (==8.*)", "pygments (==2.*)", "rich (>=10,<13)"]
+cli = ["click (>=8.0.0,<9.0.0)", "pygments (>=2.0.0,<3.0.0)", "rich (>=10,<13)"]
 http2 = ["h2 (>=3,<5)"]
-socks = ["socksio (==1.*)"]
+socks = ["socksio (>=1.0.0,<2.0.0)"]
 
 [[package]]
 name = "idna"
@@ -1211,6 +1211,20 @@ pytest = ">=5.0"
 dev = ["pre-commit", "pytest-asyncio", "tox"]
 
 [[package]]
+name = "pytest-snapshot"
+version = "0.9.0"
+description = "A plugin for snapshot testing with pytest."
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "pytest-snapshot-0.9.0.tar.gz", hash = "sha256:c7013c3abc3e860f9feff899f8b4debe3708650d8d8242a61bf2625ff64db7f3"},
+    {file = "pytest_snapshot-0.9.0-py3-none-any.whl", hash = "sha256:4b9fe1c21c868fe53a545e4e3184d36bc1c88946e3f5c1d9dd676962a9b3d4ab"},
+]
+
+[package.dependencies]
+pytest = ">=3.0.0"
+
+[[package]]
 name = "pytest-testrail"
 version = "2.9.0"
 description = "pytest plugin for creating TestRail runs and adding results"
@@ -1421,7 +1435,7 @@ files = [
 ]
 
 [package.dependencies]
-greenlet = {version = "!=0.4.17", markers = "python_version >= \"3\" and (platform_machine == \"aarch64\" or platform_machine == \"ppc64le\" or platform_machine == \"x86_64\" or platform_machine == \"amd64\" or platform_machine == \"AMD64\" or platform_machine == \"win32\" or platform_machine == \"WIN32\")"}
+greenlet = {version = "!=0.4.17", markers = "python_version >= \"3\" and platform_machine == \"aarch64\" or python_version >= \"3\" and platform_machine == \"ppc64le\" or python_version >= \"3\" and platform_machine == \"x86_64\" or python_version >= \"3\" and platform_machine == \"amd64\" or python_version >= \"3\" and platform_machine == \"AMD64\" or python_version >= \"3\" and platform_machine == \"win32\" or python_version >= \"3\" and platform_machine == \"WIN32\""}
 importlib-metadata = {version = "*", markers = "python_version < \"3.8\""}
 
 [package.extras]
@@ -1547,7 +1561,7 @@ h11 = ">=0.8"
 typing-extensions = {version = "*", markers = "python_version < \"3.8\""}
 
 [package.extras]
-standard = ["PyYAML (>=5.1)", "colorama (>=0.4)", "httptools (==0.2.*)", "python-dotenv (>=0.13)", "uvloop (>=0.14.0,!=0.15.0,!=0.15.1)", "watchgod (>=0.6)", "websockets (>=9.1)"]
+standard = ["PyYAML (>=5.1)", "colorama (>=0.4)", "httptools (>=0.2.0,<0.3.0)", "python-dotenv (>=0.13)", "uvloop (>=0.14.0,!=0.15.0,!=0.15.1)", "watchgod (>=0.6)", "websockets (>=9.1)"]
 
 [[package]]
 name = "vcrpy"
