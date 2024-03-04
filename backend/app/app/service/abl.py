@@ -1,4 +1,5 @@
 from typing import List, Dict, Any, Optional
+from itertools import groupby
 
 from httpx import HTTPStatusError
 from sqlalchemy.orm import Session, lazyload
@@ -45,14 +46,6 @@ def get_rex_book_versions(rex_books: Dict[str, Any], book_uuids: List[str]):
             BaseApprovedBook(commit_sha=version, uuid=book_uuid)
         )
     return rex_book_versions
-
-
-def group_by(arr, key):
-    groups = {}
-    for obj in arr:
-        value = key(obj)
-        groups.setdefault(value, []).append(obj)
-    return groups
 
 
 def remove_old_versions(
@@ -150,16 +143,22 @@ async def add_new_entries(
 ):
     if not to_add:  # pragma: no cover
         raise CustomBaseError("No entries to add")
-    book_info_by_consumer = group_by(to_add, lambda o: o.consumer)
+    for uuid, items in groupby(to_add, lambda o: o.uuid):
+        collected = tuple(items)
+        if len(collected) > 1:  # pragma: no cover
+            raise CustomBaseError(
+                f"Found multiple versions for {uuid} - ({collected})"
+            )
+    book_info_by_consumer = groupby(to_add, lambda o: o.consumer)
     try:
-        for consumer, entries in book_info_by_consumer.items():
+        for consumer, entries in book_info_by_consumer:
             to_keep = []
             if consumer == "REX":
                 rex_books = await get_rex_books(client)
                 to_keep = get_rex_book_versions(
                     rex_books, [b.uuid for b in to_add]
                 )
-            update_versions_by_consumer(db, consumer, entries, to_keep)
+            update_versions_by_consumer(db, consumer, list(entries), to_keep)
         db.commit()
     except Exception:
         db.rollback()
