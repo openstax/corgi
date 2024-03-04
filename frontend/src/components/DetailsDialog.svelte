@@ -43,10 +43,13 @@
 <Dialog bind:open bind:fullscreen={isErrorDialog} sheet>
   {#if selectedJob}
     <Header>
-      <Title
-        >Job #{selectedJob.id} [{repoToString(selectedJob.repository)} - {selectedJob
-          .job_type.display_name}]</Title
-      >
+      <Title id="details-title">
+        <div id="details-title-left">Job #{selectedJob.id}</div>
+        <div id="details-title-right">
+          <div>{repoToString(selectedJob.repository)}</div>
+          <div>{selectedJob.job_type.display_name}</div>
+        </div>
+      </Title>
     </Header>
     <Content>
       {#if selectedJob.status.name === "completed"}
@@ -119,6 +122,23 @@
 </Dialog>
 
 <style>
+  :global(#details-title) {
+    display: flex;
+    margin: 20px 0 0 0;
+    align-items: center;
+  }
+
+  #details-title-left {
+    width: 25%;
+  }
+
+  #details-title-right {
+    line-height: 1;
+    font-size: 0.6em;
+    text-align: center;
+    width: 75%;
+  }
+
   .error-line {
     white-space: pre-line;
     line-height: 1.5;
