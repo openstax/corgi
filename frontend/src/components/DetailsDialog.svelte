@@ -6,12 +6,12 @@
   import { abortJob, repeatJob, getErrorMessage } from "../ts/jobs";
   import type { Job } from "../ts/types";
   import ApproveBook from "./ApproveBook.svelte";
-  import { escapeHTML } from "../ts/utils";
+  import { escapeHTML, repoToString } from "../ts/utils";
+  import BuildArtifacts from "./BuildArtifacts.svelte";
   export let selectedJob: Job;
   export let open: boolean;
   let isErrorDialog;
   $: isErrorDialog = selectedJob?.status.name === "failed";
-
 
   function linkToSource(job: Job, msg: string) {
     // Example: ./modules/m59948/index.cnxml:3:1
@@ -43,18 +43,17 @@
 <Dialog bind:open bind:fullscreen={isErrorDialog} sheet>
   {#if selectedJob}
     <Header>
-      <Title>Job #{selectedJob.id}</Title>
+      <Title
+        >Job #{selectedJob.id} [{repoToString(selectedJob.repository)} - {selectedJob
+          .job_type.display_name}]</Title
+      >
     </Header>
     <Content>
       {#if selectedJob.status.name === "completed"}
+        <BuildArtifacts {selectedJob}></BuildArtifacts>
         {#if selectedJob.job_type.name === "git-web-hosting-preview"}
-          <ApproveBook {selectedJob} bind:open />
+          <ApproveBook {selectedJob} bind:open></ApproveBook>
         {/if}
-        {#each selectedJob.artifact_urls as artifact}
-          <a href={artifact.url} target="_blank" rel="noreferrer"
-            >{artifact.slug}</a
-          >
-        {/each}
       {:else if isErrorDialog}
         {#await getErrorMessage(selectedJob.id)}
           <h3>Fetching error</h3>
