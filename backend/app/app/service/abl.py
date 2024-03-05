@@ -7,7 +7,7 @@ from sqlalchemy import or_, delete, select, and_
 from app.core.errors import CustomBaseError
 from app.data_models.models import BaseApprovedBook, RequestApproveBook
 from app.core import config
-from app.github import AuthenticatedClient
+from httpx import AsyncClient
 from app.db.schema import (
     ApprovedBook,
     Book,
@@ -18,7 +18,7 @@ from app.db.schema import (
 )
 
 
-async def get_rex_books(client: AuthenticatedClient):
+async def get_rex_books(client: AsyncClient):
     try:
         response = await client.get(
             config.REX_WEB_RELEASE_URL, headers={"Accept": "application/json"}
@@ -139,7 +139,7 @@ def update_versions_by_consumer(
 async def add_new_entries(
     db: Session,
     to_add: List[RequestApproveBook],
-    client: AuthenticatedClient,
+    client: AsyncClient,
 ):
     if not to_add:  # pragma: no cover
         raise CustomBaseError("No entries to add")
