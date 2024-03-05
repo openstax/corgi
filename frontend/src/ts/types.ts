@@ -64,4 +64,7 @@ export interface ApprovedBook {
 
 export interface ApprovedBookWithDate extends ApprovedBook {
   created_at: string;
+  committed_at: string;
+  repository_name: string;
+  slug: string;
 }

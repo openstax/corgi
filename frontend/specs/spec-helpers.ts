@@ -72,4 +72,6 @@ export const approvedBookWithDateFactory =
     consumer: "REX",
     created_at: Factory.each(getCreatedAt),
     commit_sha: Factory.each((i) => i.toString(16)),
+    committed_at: Factory.each(getCreatedAt),
+    repository_name: Factory.each((i) => `test-${i}`),
   });
