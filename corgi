@@ -123,13 +123,14 @@ replace_readme_section() {
 if [[ "$COMMAND" == "ui-tests" ]]; then
     BASE_URL="$1"
     TOKEN="${2:-fake-token}"
+    TEST="${3:-./tests/ui}"
     IMAGE_TAG=corgi-cli/corgi-ui-tests
     for varname in BASE_URL TOKEN; do
         expect_value "${!varname-}" "ui-tests: $varname is required"
     done
     docker build -t $IMAGE_TAG -f backend/tests.dockerfile backend
-    docker run --rm -it corgi-ui-tests bash -c \
-        "pytest --tb=long --showlocals --base-url=\"$BASE_URL\" --github-token=\"$TOKEN\" -vvv ./tests/ui"
+    docker run --rm -it $IMAGE_TAG bash -c \
+        "pytest --tb=long --showlocals --base-url=\"$BASE_URL\" --github-token=\"$TOKEN\" -vvv $TEST"
 elif [[ "$COMMAND" == "start-dev" ]]; then
     docker compose -f "$dev_stack" up -d
     log "Hint: Remember to setup your GitHub app like in the README"
