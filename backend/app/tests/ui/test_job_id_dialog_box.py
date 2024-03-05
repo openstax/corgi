@@ -79,7 +79,7 @@ def test_job_id_dialog_box_completed_job(chrome_page_slow, corgi_base_url, repo,
     home.fill_repo_field(repo)
     home.fill_book_field(book)
 
-    home.click_docx_job_option()
+    home.click_webview_job_option()
 
     # WHEN: The create new job button is clicked
     home.click_create_new_job_button()
@@ -88,7 +88,7 @@ def test_job_id_dialog_box_completed_job(chrome_page_slow, corgi_base_url, repo,
     home.wait_for_job_created(current_job_id)
     home.wait_for_job_status(JobStatus.COMPLETED)
 
-    if home.queued_job_type == "Docx (git)":
+    if home.queued_job_type == "Web Preview (git)":
 
         home.click_job_id()
 

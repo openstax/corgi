@@ -205,11 +205,11 @@ class HomeCorgi:
 
     @property
     def job_id_artifact_link_is_visible(self):
-        return self.page.is_visible("div.mdc-dialog__content > a")
+        return self.page.is_visible("#build-artifacts-frame > ul > li > a")
 
     @property
     def job_id_artifact_link_locator(self):
-        return self.page.locator("div.mdc-dialog__content > a")
+        return self.page.locator("#build-artifacts-frame > ul > li > a")
 
     def click_job_id_artifact_link(self):
         self.job_id_artifact_link_locator.click()
@@ -332,14 +332,12 @@ class HomeCorgi:
     @property
     def job_type_icon_job_link(self):
         return self.page.locator(
-            "div.mdc-dialog__container > div > div.mdc-dialog__content > a:nth-child(7)"
+            "#build-artifacts-frame > ul > li:nth-child(4) > a"
         )
 
     @property
     def job_type_icon_job_links_are_visible(self):
-        return self.page.locator(
-            "div.mdc-dialog__container > div > div.mdc-dialog__content"
-        )
+        return self.page.locator("#build-artifacts-frame > ul")
 
     def click_job_type_icon_job_link(self):
         self.job_type_icon_job_link.click()
