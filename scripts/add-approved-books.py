@@ -9,7 +9,7 @@ from httpx import AsyncClient
 async def create_entries(client, jobs, code_version):
     assert len(jobs) > 0, "Create some jobs first"
     job = jobs[0]
-    book = job["books"][0]
+    books = job["books"]
     entries = [
         {
             "uuid": book["uuid"],
@@ -17,6 +17,7 @@ async def create_entries(client, jobs, code_version):
             "code_version": code_version,
             "consumer": "REX",
         }
+        for book in books
     ]
     response = await client.post(
         "http://localhost/api/abl/", data=json.dumps(entries)
