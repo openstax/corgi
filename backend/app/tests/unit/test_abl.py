@@ -1,9 +1,6 @@
-from typing import Any
 from app.data_models.models import BaseApprovedBook, RequestApproveBook
-from app.db.schema import ApprovedBook, Book, CodeVersion, Consumer
+from app.db.schema import ApprovedBook, Book, CodeVersion
 from app.core import config
-import re
-
 from app.service.abl import (
     add_new_entries,
     get_abl_info_database,
