@@ -126,17 +126,23 @@
     display: flex;
     margin: 20px 0 0 0;
     align-items: center;
+    width: 100%;
+  }
+
+  :root {
+    --id-width: 30%;
+    --info-width: calc(100% - var(--id-width));
   }
 
   #details-title-left {
-    width: 25%;
+    width: var(--id-width);
   }
 
   #details-title-right {
     line-height: 1;
     font-size: 0.6em;
-    text-align: center;
-    width: 75%;
+    text-align: right;
+    width: var(--info-width);
   }
 
   .error-line {
