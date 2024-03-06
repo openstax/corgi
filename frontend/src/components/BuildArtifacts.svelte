@@ -27,4 +27,8 @@
   #build-artifacts-frame h3:nth-of-type(1) {
     margin-top: 0;
   }
+
+  #build-artifacts-frame > ul {
+    padding: 0 40px;
+  }
 </style>
