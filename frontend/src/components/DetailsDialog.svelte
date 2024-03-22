@@ -5,8 +5,9 @@
   import { Label } from "@smui/common";
   import { abortJob, repeatJob, getErrorMessage } from "../ts/jobs";
   import type { Job } from "../ts/types";
-  import { newABLentry, escapeHTML } from "../ts/utils";
-
+  import ApproveBook from "./ApproveBook.svelte";
+  import { escapeHTML, repoToString } from "../ts/utils";
+  import BuildArtifacts from "./BuildArtifacts.svelte";
   export let selectedJob: Job;
   export let open: boolean;
   let isErrorDialog;
@@ -28,13 +29,13 @@
             "blob",
             job.version,
             `${stem}${ext}#L${lineNum}C${colNum}-L${lineNum}`,
-          ].join("/")
+          ].join("/"),
         );
         link.rel = "noreferrer";
         link.target = "_blank";
         link.textContent = orig;
         return link.outerHTML;
-      }
+      },
     );
   }
 </script>
@@ -42,23 +43,27 @@
 <Dialog bind:open bind:fullscreen={isErrorDialog} sheet>
   {#if selectedJob}
     <Header>
-      <Title>Job #{selectedJob.id}</Title>
+      <Title id="details-title">
+        <div id="details-title-left">Job #{selectedJob.id}</div>
+        <div id="details-title-right">
+          <div>{repoToString(selectedJob.repository)}</div>
+          <div>{selectedJob.job_type.display_name}</div>
+        </div>
+      </Title>
     </Header>
     <Content>
       {#if selectedJob.status.name === "completed"}
-        {#each selectedJob.artifact_urls as artifact}
-          <a href={artifact.url} target="_blank" rel="noreferrer"
-            >{artifact.slug}</a
-          >
-          <br />
-        {/each}
+        <BuildArtifacts {selectedJob}></BuildArtifacts>
+        {#if selectedJob.job_type.name === "git-web-hosting-preview"}
+          <ApproveBook {selectedJob} bind:open></ApproveBook>
+        {/if}
       {:else if isErrorDialog}
         {#await getErrorMessage(selectedJob.id)}
           <h3>Fetching error</h3>
           <CircularProgress style="height: 32px; width: 32px;" indeterminate />
         {:then error_message}
           <h3>Error:</h3>
-          {#each linkToSource(selectedJob, escapeHTML(error_message ?? 'N/A'))
+          {#each linkToSource(selectedJob, escapeHTML(error_message ?? "N/A"))
             .trim()
             .split("\n") as line, i}
             <div
@@ -95,18 +100,6 @@
         >
           <Label>Repeat</Label>
         </Button>
-        {#if selectedJob.status.name == "completed"}
-          <Button
-            id="approve-button"
-            color="secondary"
-            variant="raised"
-            on:click={() => {
-              newABLentry(selectedJob);
-            }}
-          >
-            <Label>Approve</Label>
-          </Button>
-        {/if}
       {/if}
       <Button
         variant="raised"
@@ -114,7 +107,7 @@
         on:click={() => {
           const href = document.location.href.replace(
             document.location.hash,
-            ""
+            "",
           );
           navigator.clipboard.writeText(`${href}#${selectedJob.id}`);
         }}
@@ -129,6 +122,29 @@
 </Dialog>
 
 <style>
+  :global(#details-title) {
+    display: flex;
+    margin: 20px 0 0 0;
+    align-items: center;
+    width: 100%;
+  }
+
+  :root {
+    --id-width: 30%;
+    --info-width: calc(100% - var(--id-width));
+  }
+
+  #details-title-left {
+    width: var(--id-width);
+  }
+
+  #details-title-right {
+    line-height: 1;
+    font-size: 0.6em;
+    text-align: right;
+    width: var(--info-width);
+  }
+
   .error-line {
     white-space: pre-line;
     line-height: 1.5;

@@ -26,11 +26,12 @@
   import IconButton from "@smui/icon-button";
   import { Label } from "@smui/common";
   import Button from "@smui/button";
-  import { repoSummariesStore, jobsStore } from "../ts/stores";
+  import { repoSummariesStore, jobsStore, ABLStore } from "../ts/stores";
 
   import type { Job, JobType } from "../ts/types";
   import DetailsDialog from "./DetailsDialog.svelte";
-  import { SECONDS } from "../ts/time";
+  import { MINUTES, SECONDS } from "../ts/time";
+    import { hasABLEntry } from "../ts/abl";
 
   let statusStyles = {
     queued: "filter-yellow",
@@ -70,7 +71,7 @@
     selectedRepo,
     selectedBook,
     selectedVersion,
-    selectedJobTypes
+    selectedJobTypes,
   ) {
     if (lastJobStartTime + jobStartRateLimitDurationMillis > Date.now()) {
       return;
@@ -82,9 +83,9 @@
           JobTypeId[jobType as number],
           selectedRepo,
           selectedBook,
-          selectedVersion
+          selectedVersion,
         );
-      })
+      }),
     );
     setTimeout(async () => {
       await Promise.all([
@@ -143,18 +144,23 @@
     (entry) =>
       (selectedJobTypes.length === 0 ||
         selectedJobTypes.some((id) =>
-          entry.job_type.display_name.includes(id)
+          entry.job_type.display_name.includes(id),
         )) &&
       (!selectedRepo ||
         repoToString(entry.repository).includes(selectedRepo)) &&
       (!selectedBook ||
-        entry.books.find((item) => item.slug.includes(selectedBook)) != null)
+        entry.books.find((item) => item.slug.includes(selectedBook)) != null),
   );
 
   // Job sorting
   $: sortedRows = filteredRows.sort((a: Job, b: Job) => {
     type ValueTypes =
-      number| string | Status | Repository | ArtifactUrl[] | Book[];
+      | number
+      | string
+      | Status
+      | Repository
+      | ArtifactUrl[]
+      | Book[];
     let aVal: ValueTypes, bVal: ValueTypes;
     [aVal, bVal] = [a[sort], b[sort]][
       sortDirection === "ascending" ? "slice" : "reverse"
@@ -212,7 +218,10 @@
         .forEach(([_, idx]) => onJobsAvailable.splice(idx, 1));
     });
     // Give job fetching priority over repoSummariesStore on page load
-    jobsStore.update().then(() => void repoSummariesStore.update());
+    jobsStore.update().then(() => {
+      void repoSummariesStore.update();
+      void ABLStore.startPolling(1 * MINUTES);
+    });
     jobsStore.startPolling(10 * SECONDS);
     addEventListener("hashchange", handleHash);
     document.addEventListener("visibilitychange", (event) => {
@@ -295,7 +304,8 @@
     <Body>
       {#each slice as item (item.id)}
         <!-- <DetailRow> -->
-        <Row slot="data">
+        {@const isApproved = hasABLEntry($ABLStore, item)}
+        <Row slot="data" class={isApproved ? 'abl' : ''}>
           <Cell>
             <Button
               on:click={() => {
@@ -321,7 +331,7 @@
                     src={mapImage(
                       "job_type",
                       item.job_type.display_name,
-                      "svg"
+                      "svg",
                     )}
                     class="job-type-icon"
                     data-is-complete="true"
@@ -370,7 +380,7 @@
                   ? item.git_ref
                   : `${item.git_ref.slice(0, 16)}...`}@{item.version.slice(
                   0,
-                  7
+                  7,
                 )}
               {:else}
                 {item.version.slice(0, 7)}
@@ -528,6 +538,10 @@
     }
   }
 
+  :global(.abl) {
+    background-color: rgba(0, 255, 128, 0.2) !important;
+  }
+
   .job-status-icon {
     max-height: 40px;
   }
@@ -571,6 +585,7 @@
   .job-type-icon {
     max-height: 40px;
   }
+
   .job-type-icon[data-is-complete="false"] {
     opacity: 0.5;
     filter: grayscale(1);

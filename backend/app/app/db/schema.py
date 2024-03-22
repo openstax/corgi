@@ -85,8 +85,70 @@ class Book(Base):
 
     commit = relationship("Commit", back_populates="books", lazy="joined")
     jobs = relationship("BookJob", back_populates="book")
+    approved_versions = relationship("ApprovedBook", back_populates="book")
     __table_args__ = (sa.UniqueConstraint('uuid', 'commit_id',
                       name='_book_to_commit'),)
+
+
+class CodeVersion(Base):
+    id = sa.Column(sa.Integer, primary_key=True, index=True)
+    version = sa.Column(sa.String, nullable=False)
+    created_at = sa.Column(sa.DateTime, default=datetime.utcnow, index=True)
+    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
+                           onupdate=datetime.utcnow, index=True)
+
+    approved_versions = relationship(
+        "ApprovedBook",
+        back_populates="code_version"
+    )
+
+
+class Consumer(Base):
+    id = sa.Column(sa.Integer, primary_key=True, index=True)
+    name = sa.Column(sa.String, nullable=False)
+    created_at = sa.Column(sa.DateTime, default=datetime.utcnow, index=True)
+    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
+                           onupdate=datetime.utcnow, index=True)
+
+    approved_versions = relationship(
+        "ApprovedBook",
+        back_populates="consumer"
+    )
+
+
+class ApprovedBook(Base):
+    book_id = sa.Column(sa.ForeignKey("book.id"), index=True, primary_key=True)
+    consumer_id = sa.Column(
+        sa.ForeignKey("consumer.id"),
+        nullable=False,
+        index=True,
+        primary_key=True
+    )
+    code_version_id = sa.Column(
+        sa.ForeignKey("code_version.id"),
+        nullable=False,
+        index=True,
+        primary_key=True
+    )
+    created_at = sa.Column(sa.DateTime, default=datetime.utcnow, index=True)
+    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
+                           onupdate=datetime.utcnow, index=True)
+
+    book = relationship(
+        "Book",
+        back_populates="approved_versions",
+        lazy="joined"
+    )
+    consumer = relationship(
+        "Consumer",
+        back_populates="approved_versions",
+        lazy="joined"
+    )
+    code_version = relationship(
+        "CodeVersion",
+        back_populates="approved_versions",
+        lazy="joined"
+    )
 
 
 class User(Base):
@@ -102,11 +164,9 @@ class BookJob(Base):
     book_id = sa.Column(sa.ForeignKey("book.id"), primary_key=True, index=True)
     job_id = sa.Column(sa.ForeignKey("jobs.id"), primary_key=True, index=True)
     artifact_url = sa.Column(sa.String, nullable=True)
-    approved = sa.Column(sa.Boolean, nullable=False, default=False)
 
     job = relationship("Jobs", back_populates="books", lazy="joined")
     book = relationship("Book", back_populates="jobs", lazy="joined")
-
 
 class RepositoryPermission(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)

@@ -38,6 +38,7 @@ class JobTypeBase(BaseModel):
     name: str
     display_name: str
 
+
 # Types:
 # Archive
 # 1: pdf
@@ -66,6 +67,47 @@ class BookBase(BaseModel):
     style: str
 
 
+class BaseApprovedBook(BaseModel):
+    commit_sha: str
+    uuid: str
+    
+
+class RequestApproveBook(BaseApprovedBook):
+    code_version: str
+    consumer: str
+
+
+class ResponseApprovedBook(RequestApproveBook):
+    created_at: datetime
+    committed_at: datetime
+    repository_name: str
+    slug: str
+
+    class Config:
+        class Getter(GetterDict):
+            def get(self, key: str, default: Any) -> Any:
+                if key == "uuid":
+                    return self._obj.book.uuid
+                elif key == "commit_sha":
+                    return self._obj.book.commit.sha
+                elif key == "code_version":
+                    return self._obj.code_version.version
+                elif key == "consumer":
+                    return self._obj.consumer.name
+                elif key == "created_at":
+                    return self._obj.created_at
+                elif key == "committed_at":
+                    return self._obj.book.commit.timestamp
+                elif key == "repository_name":
+                    return self._obj.book.commit.repository.name
+                elif key == "slug":
+                    return self._obj.book.slug
+                return default
+
+        orm_mode = True
+        getter_dict = Getter
+
+
 class Book(BookBase):
     uuid: str
 
@@ -76,18 +118,20 @@ class Book(BookBase):
 class JobGetter(GetterDict):
     def get(self, key: str, default: Any) -> Any:
         # How to get information from child tables
-        if key == 'repository':
+        if key == "repository":
             return self._obj.books[0].book.commit.repository
-        elif key == 'books':
+        elif key == "books":
             return [book_job.book for book_job in self._obj.books]
-        elif key == 'artifact_urls':
+        elif key == "artifact_urls":
             return [
-                ArtifactBase(slug=book_job.book.slug,
-                             url=book_job.artifact_url)
+                ArtifactBase(
+                    slug=book_job.book.slug, url=book_job.artifact_url
+                )
                 for book_job in self._obj.books
             ]
-        elif key == 'version':
+        elif key == "version":
             return self._obj.books[0].book.commit.sha
+        # probably add information about approved versions
         else:
             try:
                 return getattr(self._obj, key)
@@ -145,7 +189,7 @@ class JobBase(BaseModel):
     status_id: str
     job_type_id: str
     version: Optional[str] = None  # sha
-    git_ref: Optional[str] = None # branch, tag, or sha
+    git_ref: Optional[str] = None  # branch, tag, or sha
     worker_version: Optional[str] = None
 
 

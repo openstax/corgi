@@ -1,6 +1,26 @@
 #!/usr/bin/env bash
 
-set -eo pipefail
+if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+    # If the script is sourced, handle aliases and exit early
+    if [[ -z "$PS1_PREV_CORGI" ]]; then
+        here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        # shellcheck disable=SC2139
+        alias corgi="$here/corgi"
+        # shellcheck disable=SC2139
+        alias npm="command npm --prefix \"$here/frontend\""
+        PS1_PREV_CORGI="$PS1"
+        PS1="(corgi) $PS1"
+    else
+        PS1="$PS1_PREV_CORGI"
+        unalias corgi
+        unalias npm
+        unset PS1_PREV_CORGI
+    fi
+    return 0
+else
+    # Script is being executed
+    set -eo pipefail
+fi
 
 log() {
     echo "$@" >&2
@@ -16,24 +36,24 @@ usage() {
 Manage your local corgi stack
 Usage:
 
-    corgi <COMMAND>
+    corgi <COMMAND> [arguments]
 
 The commands are:
     start                       Alias for start-leashed
-    start-dev                   Start corgi in dev mode (requires oauth app, see
-                                README for more details)
+    start-dev                   Start corgi in dev mode (requires oauth app, see README for more details)
     start-leashed               Start corgi in leashed mode (uses mocked GitHub API)
-    create-jobs [TOKEN]         Creates sample jobs with each type and status (token
-                                is required in dev mode)
-    create-erd                  Creates an Entity-relationship diagram (ERD)
-                                using data int he CORGI database
+    create-jobs [TOKEN]         Creates sample jobs with each type and status (token is required in dev mode)
+    create-erd                  Creates an Entity-relationship diagram (ERD) using data int he CORGI database
     build   <STACK_NAME>        Build all images in the stack
     restart <STACK_NAME>        Restart all containers in the stack
-    logs                        See logs (supports same options as docker compose
-                                logs)
-    ui-tests <BASE_URL> <TOKEN> Run UI tests (playwright) on BASE_URL. These can run
-                                without a github token on localhost, but otherwise a
-                                token with correct access level is required (see README)
+    logs                        See logs (supports same options as docker compose logs)
+    ui-tests <BASE_URL> [TOKEN] Run UI tests (playwright) on BASE_URL. These can run without a github token
+                                on localhost, but otherwise a token with correct accesslevel is required (see README).
+                                You may optionally specify a subset of tests to run as the last positional argument.
+    unit-tests-backend          Run unit tests for backend inside a container. Updates snapshots. You may optionally
+                                specify a subset of tests to run as the last positional argument.
+    generate-migration          Shortcut for alembic revision --autogenerate -m (See README for more details)
+    create-approved-books       Create some approved book entries from data in the database
     stop                        Stop corgi
 
 EOF
@@ -103,16 +123,25 @@ replace_readme_section() {
     mv "$tmp_file" "$readme_file"
 }
 
-if [[ "$COMMAND" == "ui-tests" ]]; then
-    BASE_URL="$1"
-    TOKEN="${2:-fake-token}"
+if [[ "$COMMAND" == "ui-tests" || "$COMMAND" == "unit-tests-backend" ]]; then
+    args=()
+    args+=("-vvv")
+    if [[ "$COMMAND" == "ui-tests" ]]; then
+        BASE_URL="$1"
+        TOKEN="${2:-fake-token}"
+        TEST="${3:-./tests/ui}"
+        args+=("--base-url=${BASE_URL:?}")
+        args+=("--github-token=${TOKEN:?}")
+        args+=("${TEST:?}")
+    else
+        TEST="${1:-./tests/unit}"
+        args+=("--snapshot-update")
+        args+=("${TEST:?}")
+    fi
     IMAGE_TAG=corgi-cli/corgi-ui-tests
-    for varname in BASE_URL TOKEN; do
-        expect_value "${!varname-}" "ui-tests: $varname is required"
-    done
     docker build -t $IMAGE_TAG -f backend/tests.dockerfile backend
-    docker run --rm -it corgi-ui-tests bash -c \
-        "pytest --tb=long --showlocals --base-url=\"$BASE_URL\" --github-token=\"$TOKEN\" -vvv ./tests/ui"
+    docker run --rm -it -v "$here/backend/app":/app -w /app $IMAGE_TAG bash -c \
+        "pytest --tb=long --showlocals ${args[*]}"
 elif [[ "$COMMAND" == "start-dev" ]]; then
     docker compose -f "$dev_stack" up -d
     log "Hint: Remember to setup your GitHub app like in the README"
@@ -154,6 +183,12 @@ elif [[ "$COMMAND" == "create-jobs" ]]; then
     token="${1:-fake-token}"
     docker compose -f "$dev_stack" exec -T backend \
         python - "$token" < "$here/scripts/create-jobs.py"
+elif [[ "$COMMAND" == "generate-migration" ]]; then
+    docker compose exec backend alembic revision --autogenerate -m "$1"
+elif [[ "$COMMAND" == "create-approved-books" ]]; then
+    token="${1:-fake-token}"
+    docker compose -f "$dev_stack" exec -T backend \
+        python - "$token" < "$here/scripts/add-approved-books.py"
 else
     usage "Unknown command \"$COMMAND\""
 fi
