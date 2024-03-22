@@ -136,7 +136,7 @@ def update_versions_by_consumer(
             consumer_id=consumer_id,
             code_version_id=db_code_version.id,
         )
-        db.add(db_approved_book)
+        db.merge(db_approved_book)
 
 
 async def add_new_entries(

@@ -47,8 +47,11 @@ The commands are:
     build   <STACK_NAME>        Build all images in the stack
     restart <STACK_NAME>        Restart all containers in the stack
     logs                        See logs (supports same options as docker compose logs)
-    ui-tests <BASE_URL> <TOKEN> Run UI tests (playwright) on BASE_URL. These can run without a github token
-                                on localhost, but otherwise a token with correct accesslevel is required (see README)
+    ui-tests <BASE_URL> [TOKEN] Run UI tests (playwright) on BASE_URL. These can run without a github token
+                                on localhost, but otherwise a token with correct accesslevel is required (see README).
+                                You may optionally specify a subset of tests to run as the last positional argument.
+    unit-tests-backend          Run unit tests for backend inside a container. Updates snapshots. You may optionally
+                                specify a subset of tests to run as the last positional argument.
     generate-migration          Shortcut for alembic revision --autogenerate -m (See README for more details)
     create-approved-books       Create some approved book entries from data in the database
     stop                        Stop corgi
@@ -120,17 +123,25 @@ replace_readme_section() {
     mv "$tmp_file" "$readme_file"
 }
 
-if [[ "$COMMAND" == "ui-tests" ]]; then
-    BASE_URL="$1"
-    TOKEN="${2:-fake-token}"
-    TEST="${3:-./tests/ui}"
+if [[ "$COMMAND" == "ui-tests" || "$COMMAND" == "unit-tests-backend" ]]; then
+    args=()
+    args+=("-vvv")
+    if [[ "$COMMAND" == "ui-tests" ]]; then
+        BASE_URL="$1"
+        TOKEN="${2:-fake-token}"
+        TEST="${3:-./tests/ui}"
+        args+=("--base-url=${BASE_URL:?}")
+        args+=("--github-token=${TOKEN:?}")
+        args+=("${TEST:?}")
+    else
+        TEST="${1:-./tests/unit}"
+        args+=("--snapshot-update")
+        args+=("${TEST:?}")
+    fi
     IMAGE_TAG=corgi-cli/corgi-ui-tests
-    for varname in BASE_URL TOKEN; do
-        expect_value "${!varname-}" "ui-tests: $varname is required"
-    done
     docker build -t $IMAGE_TAG -f backend/tests.dockerfile backend
-    docker run --rm -it $IMAGE_TAG bash -c \
-        "pytest --tb=long --showlocals --base-url=\"$BASE_URL\" --github-token=\"$TOKEN\" -vvv $TEST"
+    docker run --rm -it -v "$here/backend/app":/app -w /app $IMAGE_TAG bash -c \
+        "pytest --tb=long --showlocals ${args[*]}"
 elif [[ "$COMMAND" == "start-dev" ]]; then
     docker compose -f "$dev_stack" up -d
     log "Hint: Remember to setup your GitHub app like in the README"

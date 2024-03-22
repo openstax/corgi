@@ -209,6 +209,12 @@ def mock_session():
                 self.added_items.append(item)
                 self.calls.append(f"INSERT INTO {item.__class__.__name__} ...")
 
+            def merge(self, item):
+                self.added_items.append(item)
+                self.calls.append(
+                    f"INSERT OR UPDATE INTO {item.__class__.__name__} ..."
+                )
+
             def flush(self):
                 self.flush_count += 1
 
