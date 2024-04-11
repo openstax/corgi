@@ -1,5 +1,5 @@
 from app.data_models.models import BaseApprovedBook, RequestApproveBook
-from app.db.schema import ApprovedBook, Book, CodeVersion
+from app.db.schema import ApprovedBook, Book, CodeVersion, Consumer
 from app.core import config
 from app.service.abl import (
     add_new_entries,
@@ -7,6 +7,7 @@ from app.service.abl import (
     get_or_add_code_version,
     get_rex_book_versions,
 )
+
 import pytest
 
 
@@ -59,7 +60,7 @@ def test_get_or_add_code_version(mock_session):
         [
             [
                 RequestApproveBook(
-                    commit_sha="a", uuid="b", code_version="42", consumer="REX"
+                    commit_sha="a", uuid="b", code_version="42"
                 )
             ],
             {},
@@ -67,7 +68,7 @@ def test_get_or_add_code_version(mock_session):
         [
             [
                 RequestApproveBook(
-                    commit_sha="a", uuid="b", code_version="42", consumer="REX"
+                    commit_sha="a", uuid="b", code_version="42"
                 )
             ],
             {"b": {"defaultVersion": "something"}},
@@ -75,10 +76,10 @@ def test_get_or_add_code_version(mock_session):
         [
             [
                 RequestApproveBook(
-                    commit_sha="a", uuid="b", code_version="42", consumer="REX"
+                    commit_sha="a", uuid="b", code_version="42"
                 ),
                 RequestApproveBook(
-                    commit_sha="a", uuid="c", code_version="42", consumer="REX"
+                    commit_sha="a", uuid="c", code_version="42"
                 ),
             ],
             {"b": {"defaultVersion": "b"}, "c": {"defaultVersion": "c"}},
@@ -95,7 +96,7 @@ async def test_add_new_entries_rex(
                 return [1]
             elif " FROM book " in last_call:
                 return [
-                    Book(id=i, uuid=entry.uuid)
+                    Book(id=i, uuid=entry.uuid, slug="test")
                     for i, entry in enumerate(to_add)
                 ]
             elif " FROM approved_book " in last_call:
@@ -113,6 +114,7 @@ async def test_add_new_entries_rex(
     assert "headers" in client.calls[-1]["kwargs"]
     assert not db.did_rollback
     assert db.did_commit
+    # Twice as many because code version is added each time in the test
     assert len(db.added_items) == len(to_add) * 2
     assert isinstance(db.added_items[0], CodeVersion)
     assert isinstance(db.added_items[1], ApprovedBook)

@@ -15,7 +15,6 @@ async def create_entries(client, jobs, code_version):
             "uuid": book["uuid"],
             "commit_sha": job["version"],
             "code_version": code_version,
-            "consumer": "REX",
         }
         for book in books
     ]

@@ -59,7 +59,6 @@ export interface ApprovedBook {
   uuid: string;
   code_version: string;
   commit_sha: string;
-  consumer: string;
 }
 
 export interface ApprovedBookWithDate extends ApprovedBook {
@@ -67,4 +66,5 @@ export interface ApprovedBookWithDate extends ApprovedBook {
   committed_at: string;
   repository_name: string;
   slug: string;
+  consumer: string;
 }

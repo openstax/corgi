@@ -4,13 +4,10 @@ import { handleError } from "./utils";
 import { parseDateTimeAsUTC } from "./utils";
 
 export async function newABLentry(job: Job, codeVersion: string) {
-  const guessConsumer = (b: Book) =>
-    b.slug.match(/-(ancillaries|ancillary)$/) != null ? "ancillary" : "REX";
   const entries = job.books.map((b) => ({
     uuid: b.uuid,
     code_version: codeVersion,
     commit_sha: job.version,
-    consumer: guessConsumer(b),
   }));
   const handleAuthError = () => {
     throw new Error("You do not have permission to add ABL entries.");
