@@ -5,6 +5,7 @@
   import type { Job } from "../ts/types";
   import { getLatestCodeVersionForJob, newABLentry } from "../ts/abl";
   import Button from "@smui/button";
+  import { repoToString } from "../ts/utils";
 
   export let selectedJob: Job;
   export let open;
@@ -54,6 +55,21 @@
         on:click={() => {
           if (selectedCodeVersion === undefined) {
             throw new Error("No code version selected");
+          }
+          const message = [
+            'Are you sure you wish to add the following to the ABL?',
+            '',
+            'Code Version:',
+            `    ${selectedCodeVersion}`,
+            'Repository:',
+            `    ${repoToString(selectedJob.repository)}`,
+            'Commit sha:',
+            `    ${selectedJob.version}`,
+            'Books:',
+            `    ${selectedJob.books.map((b) => b.slug).join(", ")}`,
+          ];
+          if (!confirm(message.join("\n"))) {
+            return;
           }
           loading = true;
           newABLentry(selectedJob, selectedCodeVersion)

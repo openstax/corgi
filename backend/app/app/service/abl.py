@@ -120,7 +120,7 @@ def update_versions_by_consumer(
         raise CustomBaseError(f"Unsupported consumer: {consumer_name}")
     remove_old_versions(db, consumer_id, to_add, to_keep)
     for entry in to_add:
-        db_book = db_books_by_uuid[entry.uuid]
+        db_book = db_books_by_uuid.get(entry.uuid, None)
         if db_book is None:
             raise CustomBaseError(f"Could not find book: {entry.uuid}")
         # insert or get code_version
