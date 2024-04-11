@@ -74,18 +74,18 @@ class BaseApprovedBook(BaseModel):
 
 class RequestApproveBook(BaseApprovedBook):
     code_version: str
-    consumer: str
 
 
-class ResponseApprovedBook(RequestApproveBook):
+class ApprovedBook(RequestApproveBook):
     created_at: datetime
     committed_at: datetime
     repository_name: str
     slug: str
+    consumer: str
 
     class Config:
         class Getter(GetterDict):
-            def get(self, key: str, default: Any) -> Any:
+            def get(self, key: str, default: Any = None) -> Any:
                 if key == "uuid":
                     return self._obj.book.uuid
                 elif key == "commit_sha":
@@ -116,7 +116,7 @@ class Book(BookBase):
 
 
 class JobGetter(GetterDict):
-    def get(self, key: str, default: Any) -> Any:
+    def get(self, key: str, default: Any = None) -> Any:
         # How to get information from child tables
         if key == "repository":
             return self._obj.books[0].book.commit.repository
@@ -140,7 +140,7 @@ class JobGetter(GetterDict):
 
 
 class RepositoryGetter(GetterDict):
-    def get(self, key: str, default: Any) -> Any:
+    def get(self, key: str, default: Any = None) -> Any:
         repository = self._obj
         if key == "books":
             books = set([])

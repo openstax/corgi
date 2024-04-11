@@ -4,19 +4,18 @@ from app.core.auth import RequiresRole
 from app.data_models.models import (
     Role,
     RequestApproveBook,
-    ResponseApprovedBook,
+    ApprovedBook,
 )
 from app.db.utils import get_db
 from app.service.abl import get_abl_info_database, add_new_entries
 from fastapi import APIRouter, Depends
-from fastapi import APIRouter
 from httpx import AsyncClient
 from sqlalchemy.orm import Session
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[ResponseApprovedBook])
+@router.get("/", response_model=List[ApprovedBook])
 async def get_abl_info(
     db: Session = Depends(get_db),
     consumer: Optional[str] = None,
