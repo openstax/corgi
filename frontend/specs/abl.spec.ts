@@ -42,15 +42,13 @@ describe("newABLentry", () => {
         version: "1",
       }),
       code_version: "123",
-      expected: [
-        { uuid: "fake", code_version: "123", commit_sha: "1", consumer: "REX" },
-      ],
+      expected: [{ uuid: "fake", code_version: "123", commit_sha: "1" }],
     },
     {
       job: jobFactory.build({
         books: [
           { uuid: "fake", slug: "fake-book" },
-          { uuid: "fake2", slug: "fake-book-ancillary" },
+          { uuid: "fake2", slug: "fake-book" },
         ],
         version: "1",
       }),
@@ -60,13 +58,11 @@ describe("newABLentry", () => {
           uuid: "fake",
           code_version: "1234",
           commit_sha: "1",
-          consumer: "REX",
         },
         {
           uuid: "fake2",
           code_version: "1234",
           commit_sha: "1",
-          consumer: "ancillary",
         },
       ],
     },

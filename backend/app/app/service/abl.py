@@ -109,6 +109,7 @@ def get_or_add_code_version(
 def update_versions_by_consumer(
     db: Session,
     consumer_name: str,
+    db_books_by_uuid: Dict[str, Book],
     to_add: List[RequestApproveBook],
     to_keep: List[BaseApprovedBook] = [],
 ):
@@ -119,13 +120,7 @@ def update_versions_by_consumer(
         raise CustomBaseError(f"Unsupported consumer: {consumer_name}")
     remove_old_versions(db, consumer_id, to_add, to_keep)
     for entry in to_add:
-        db_book = db.scalars(
-            select(Book)
-            .options(lazyload("*"))
-            .join(Commit)
-            .where(Book.uuid == entry.uuid)
-            .where(Commit.sha == entry.commit_sha)
-        ).first()
+        db_book = db_books_by_uuid[entry.uuid]
         if db_book is None:
             raise CustomBaseError(f"Could not find book: {entry.uuid}")
         # insert or get code_version
@@ -137,6 +132,12 @@ def update_versions_by_consumer(
             code_version_id=db_code_version.id,
         )
         db.merge(db_approved_book)
+
+
+def guess_consumer(book_slug: str) -> str:
+    if book_slug.endswith("-ancillary") or book_slug.endswith("-ancillaries"):
+        return "ancillary"
+    return "REX"
 
 
 async def add_new_entries(
@@ -152,7 +153,27 @@ async def add_new_entries(
             raise CustomBaseError(
                 f"Found multiple versions for {uuid} - ({collected})"
             )
-    book_info_by_consumer = groupby(to_add, lambda o: o.consumer)
+    db_books = db.scalars(
+        select(Book)
+        .options(lazyload("*"))
+        .join(Commit)
+        .where(
+            or_(*[
+                and_(
+                    Book.uuid == entry.uuid,
+                    Commit.sha == entry.commit_sha
+                )
+                for entry in to_add
+            ])
+        )
+    ).all()
+    db_books_by_uuid = {
+        dbb.uuid: dbb
+        for dbb in db_books
+    }
+    book_info_by_consumer = groupby(
+        to_add, lambda entry: guess_consumer(db_books_by_uuid[entry.uuid].slug)
+    )
     try:
         for consumer, entries in book_info_by_consumer:
             to_keep = []
@@ -161,7 +182,9 @@ async def add_new_entries(
                 to_keep = get_rex_book_versions(
                     rex_books, [b.uuid for b in to_add]
                 )
-            update_versions_by_consumer(db, consumer, list(entries), to_keep)
+            update_versions_by_consumer(
+                db, consumer, db_books_by_uuid, list(entries), to_keep
+            )
         db.commit()
     except Exception:
         db.rollback()
