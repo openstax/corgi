@@ -2,8 +2,6 @@ version: '3.7'
 services:
   backend:
     image: 'openstax/corgi-${DOCKER_IMAGE_BACKEND}:${TAG-latest}'
-    env_file:
-      - env-backend.env
     environment:
       - REVISION=${REVISION}
       - TAG=${TAG}
@@ -20,6 +18,7 @@ services:
       - GITHUB_OAUTH_ID=${GITHUB_OAUTH_ID}
       - GITHUB_OAUTH_SECRET=${GITHUB_OAUTH_SECRET}
       - SESSION_SECRET=${SESSION_SECRET}
+      - BACKEND_CORS_ORIGINS=http://localhost, http://localhost:3000
     deploy:
       labels:
         - "traefik.http.services.${STACK_NAME}_backend.loadbalancer.server.port=80"
