@@ -1,7 +1,8 @@
 import re
 
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import declarative_base
 
 
 class CustomBase(object):
