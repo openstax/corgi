@@ -1,4 +1,4 @@
-FROM openstax/ubuntu-20.04:latest
+FROM openstax/python3-poetry:latest
 
 # copy files
 COPY ./app/pyproject.toml /build/pyproject.toml
