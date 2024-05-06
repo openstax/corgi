@@ -1,7 +1,8 @@
-from tests.ui.pages.home import HomeCorgi, JobStatus
+import os
+
 import pytest
 
-import os
+from tests.ui.pages.home import HomeCorgi, JobStatus
 
 
 @pytest.mark.ui
@@ -33,7 +34,6 @@ def test_e2e_docx_jobs(chrome_page_slow, corgi_base_url, repo, book):
     home.wait_for_job_status(JobStatus.COMPLETED)
 
     if home.queued_job_type == "Docx (git)":
-
         with chrome_page_slow.expect_download() as download_info:
             home.click_job_type_icon()
 
@@ -48,4 +48,7 @@ def test_e2e_docx_jobs(chrome_page_slow, corgi_base_url, repo, book):
         assert os.path.getsize("docx.zip") > 0
 
     else:
-        pytest.fail(f"No new job was queued. Last job is at {home.elapsed_time.inner_text()}")
+        pytest.fail(
+            "No new job was queued. Last job is at "
+            + home.elapsed_time.inner_text()
+        )

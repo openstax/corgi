@@ -1,3 +1,5 @@
+# ruff: noqa: E501
+
 import pytest
 from pytest_testrail.plugin import pytestrail
 
@@ -11,7 +13,9 @@ from tests.ui.pages.home import HomeCorgi
     "repo, book, version",
     [("osbooks-astronomy", "astro", "main")],
 )
-def test_incorrect_book_and_version_error_messages(chrome_page, corgi_base_url, repo, book, version):
+def test_incorrect_book_and_version_error_messages(
+    chrome_page, corgi_base_url, repo, book, version
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -29,13 +33,20 @@ def test_incorrect_book_and_version_error_messages(chrome_page, corgi_base_url, 
     home.click_create_new_job_button()
 
     # THEN: A new job is NOT queued and multiple error dialogs appear
-    assert "Error: Book not in repository 'astro'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Book not in repository 'astro'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.fill_version_field("p888p")
 
     home.click_create_new_job_button()
 
-    assert "Error: Book not in repository 'astro'" and "Error: Could not find commit 'p888p'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Book not in repository 'astro'"
+        and "Error: Could not find commit 'p888p'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.click_error_banner_okay_button()
 
@@ -46,7 +57,9 @@ def test_incorrect_book_and_version_error_messages(chrome_page, corgi_base_url, 
     "repo, book, version",
     [("osbooks-astronomy", "astro", "main")],
 )
-def test_incorrect_repo_and_book_error_messages(chrome_page, corgi_base_url, repo, book, version):
+def test_incorrect_repo_and_book_error_messages(
+    chrome_page, corgi_base_url, repo, book, version
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -64,11 +77,18 @@ def test_incorrect_repo_and_book_error_messages(chrome_page, corgi_base_url, rep
     home.click_create_new_job_button()
 
     # THEN: A new job is NOT queued and multiple error dialogs appear
-    assert "Error: Book not in repository 'astro'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Book not in repository 'astro'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.fill_repo_field("osbooks-astron")
 
-    assert "Error: Could not resolve to a Repository with the name 'openstax/osbooks-astron'" and "Error: Book not in repository 'astro'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Could not resolve to a Repository with the name 'openstax/osbooks-astron'"
+        and "Error: Book not in repository 'astro'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.click_error_banner_okay_button()
 
@@ -80,7 +100,9 @@ def test_incorrect_repo_and_book_error_messages(chrome_page, corgi_base_url, rep
     "repo, book, version",
     [("osbooks-astronomy", "astronomy-2e", "p888p")],
 )
-def test_incorrect_repo_and_version_error_messages(chrome_page, corgi_base_url, repo, book, version):
+def test_incorrect_repo_and_version_error_messages(
+    chrome_page, corgi_base_url, repo, book, version
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -98,11 +120,18 @@ def test_incorrect_repo_and_version_error_messages(chrome_page, corgi_base_url, 
     home.click_create_new_job_button()
 
     # THEN: A new job is NOT queued and multiple error dialogs appear
-    assert "Error: Could not find commit 'p888p'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Could not find commit 'p888p'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.fill_repo_field("osbooks-astron")
 
-    assert "Error: Could not resolve to a Repository with the name 'openstax/osbooks-astron'" and "Error: Could not find commit 'p888p'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Could not resolve to a Repository with the name 'openstax/osbooks-astron'"
+        and "Error: Could not find commit 'p888p'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.click_error_banner_okay_button()
 
@@ -113,7 +142,9 @@ def test_incorrect_repo_and_version_error_messages(chrome_page, corgi_base_url, 
     "repo, book, version",
     [("osbooks-astronomy", "astro", "main")],
 )
-def test_incorrect_repo_book_and_version_error_messages(chrome_page, corgi_base_url, repo, book, version):
+def test_incorrect_repo_book_and_version_error_messages(
+    chrome_page, corgi_base_url, repo, book, version
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -133,12 +164,19 @@ def test_incorrect_repo_book_and_version_error_messages(chrome_page, corgi_base_
     home.click_create_new_job_button()
 
     # THEN: A new job is NOT queued and multiple error dialogs appear
-    assert "Error: Book not in repository 'astro'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Book not in repository 'astro'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.fill_version_field("p888p")
     home.fill_repo_field("osbooks-astron")
 
-    assert "Error: Could not resolve to a Repository with the name 'openstax/osbooks-astron'" and "Error: Book not in repository 'astro'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Could not resolve to a Repository with the name 'openstax/osbooks-astron'"
+        and "Error: Book not in repository 'astro'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.click_error_banner_okay_button()
 
@@ -149,7 +187,9 @@ def test_incorrect_repo_book_and_version_error_messages(chrome_page, corgi_base_
     "repo, book, version",
     [("osbooks-astronomy", "astronomy-2e", "p888p")],
 )
-def test_incorrect_repo_and_version_error_messages_no_okay(chrome_page, corgi_base_url, repo, book, version):
+def test_incorrect_repo_and_version_error_messages_no_okay(
+    chrome_page, corgi_base_url, repo, book, version
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -167,15 +207,26 @@ def test_incorrect_repo_and_version_error_messages_no_okay(chrome_page, corgi_ba
     home.click_create_new_job_button()
 
     # THEN: A new job is NOT queued and multiple error dialogs appear
-    assert "Error: Could not find commit 'p888p'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Could not find commit 'p888p'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.fill_repo_field("osbooks-astron")
     home.click_version_field()
 
-    assert "Error: Could not resolve to a Repository with the name 'openstax/osbooks-astron'" and "Error: Could not find commit 'p888p'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Could not resolve to a Repository with the name 'openstax/osbooks-astron'"
+        and "Error: Could not find commit 'p888p'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.click_create_new_job_button()
 
-    assert "Error: Could not resolve to a Repository with the name 'openstax/osbooks-astron'" and "Error: Could not find commit 'p888p'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Could not resolve to a Repository with the name 'openstax/osbooks-astron'"
+        and "Error: Could not find commit 'p888p'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.click_error_banner_okay_button()

@@ -1,3 +1,5 @@
+# ruff: noqa: E501
+
 import pytest
 from pytest_testrail.plugin import pytestrail
 
@@ -11,7 +13,9 @@ from tests.ui.pages.home import HomeCorgi, JobStatus
     "repo, book, version",
     [("osbooks-astronomy", "astronomy-2e", "main")],
 )
-def test_create_new_job_button_stays_enabled(chrome_page, corgi_base_url, repo, book, version):
+def test_create_new_job_button_stays_enabled(
+    chrome_page, corgi_base_url, repo, book, version
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -41,7 +45,9 @@ def test_create_new_job_button_stays_enabled(chrome_page, corgi_base_url, repo, 
     "repo, book, version",
     [("osbooks-astronomy", "astronomy-2e", "")],
 )
-def test_create_new_job_button_enabled_disabled(chrome_page_slow, corgi_base_url, repo, book, version):
+def test_create_new_job_button_enabled_disabled(
+    chrome_page_slow, corgi_base_url, repo, book, version
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -80,7 +86,9 @@ def test_create_new_job_button_enabled_disabled(chrome_page_slow, corgi_base_url
 
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_click_input_fields_only_create_new_job_button_is_disabled(chrome_page, corgi_base_url):
+def test_click_input_fields_only_create_new_job_button_is_disabled(
+    chrome_page, corgi_base_url
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -105,7 +113,9 @@ def test_click_input_fields_only_create_new_job_button_is_disabled(chrome_page, 
     "repo, book",
     [("osbooks-astronomy", "astronomy-2e")],
 )
-def test_click_input_fields_then_fill_create_new_job_button_gets_enabled(chrome_page, corgi_base_url, repo, book):
+def test_click_input_fields_then_fill_create_new_job_button_gets_enabled(
+    chrome_page, corgi_base_url, repo, book
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -136,7 +146,9 @@ def test_click_input_fields_then_fill_create_new_job_button_gets_enabled(chrome_
     "repo, book, version",
     [("osbooks-astronomy", "astronomy-2e", "main")],
 )
-def test_book_field_empty_create_new_job_button_disabled(chrome_page, corgi_base_url, repo, book, version):
+def test_book_field_empty_create_new_job_button_disabled(
+    chrome_page, corgi_base_url, repo, book, version
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -168,7 +180,9 @@ def test_book_field_empty_create_new_job_button_disabled(chrome_page, corgi_base
     "repo, book",
     [("osbooks-astronomy", "astronomy-2e")],
 )
-def test_space_character_create_new_job_button_disabled(chrome_page, corgi_base_url, repo, book):
+def test_space_character_create_new_job_button_disabled(
+    chrome_page, corgi_base_url, repo, book
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded

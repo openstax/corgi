@@ -70,7 +70,7 @@ class BookBase(BaseModel):
 class BaseApprovedBook(BaseModel):
     commit_sha: str
     uuid: str
-    
+
 
 class RequestApproveBook(BaseApprovedBook):
     code_version: str
@@ -86,23 +86,17 @@ class ApprovedBook(RequestApproveBook):
     class Config:
         class Getter(GetterDict):
             def get(self, key: str, default: Any = None) -> Any:
-                if key == "uuid":
-                    return self._obj.book.uuid
-                elif key == "commit_sha":
-                    return self._obj.book.commit.sha
-                elif key == "code_version":
-                    return self._obj.code_version.version
-                elif key == "consumer":
-                    return self._obj.consumer.name
-                elif key == "created_at":
-                    return self._obj.created_at
-                elif key == "committed_at":
-                    return self._obj.book.commit.timestamp
-                elif key == "repository_name":
-                    return self._obj.book.commit.repository.name
-                elif key == "slug":
-                    return self._obj.book.slug
-                return default
+                props = {
+                    "uuid": self._obj.book.uuid,
+                    "commit_sha": self._obj.book.commit.sha,
+                    "code_version": self._obj.code_version.version,
+                    "consumer": self._obj.consumer.name,
+                    "created_at": self._obj.created_at,
+                    "committed_at": self._obj.book.commit.timestamp,
+                    "repository_name": self._obj.book.commit.repository.name,
+                    "slug": self._obj.book.slug,
+                }
+                return props.get(key, default)
 
         orm_mode = True
         getter_dict = Getter
@@ -124,9 +118,7 @@ class JobGetter(GetterDict):
             return [book_job.book for book_job in self._obj.books]
         elif key == "artifact_urls":
             return [
-                ArtifactBase(
-                    slug=book_job.book.slug, url=book_job.artifact_url
-                )
+                ArtifactBase(slug=book_job.book.slug, url=book_job.artifact_url)
                 for book_job in self._obj.books
             ]
         elif key == "version":

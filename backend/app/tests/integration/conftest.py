@@ -1,11 +1,11 @@
 import os
 
+import pytest
 import requests
 
-import pytest
 
-
-# Get values we need to setup the environment from the command line or through env vars
+# Get values we need to setup the environment from the command line or through
+# env vars
 def pytest_addoption(parser):
     group = parser.getgroup("corgi", "corgi")
     group.addoption(
@@ -18,10 +18,7 @@ def pytest_addoption(parser):
         default=os.getenv("TAG", "dev"),
         help="The tag used on the images",
     )
-    parser.addoption(
-        "--revision",
-        default=os.getenv("REVISION", "dev")
-    )
+    parser.addoption("--revision", default=os.getenv("REVISION", "dev"))
 
 
 @pytest.fixture(scope="session")
@@ -65,8 +62,9 @@ def revision(request):
 @pytest.fixture(scope="session")
 def testclient(github_token, api_url):
     with requests.session() as session:
-        response = session.get(f"{api_url}/auth/token-login", 
-                               headers={"Authorization": f"Bearer {github_token}"})
+        response = session.get(
+            f"{api_url}/auth/token-login",
+            headers={"Authorization": f"Bearer {github_token}"},
+        )
         response.raise_for_status()
         yield session
-

@@ -1,17 +1,17 @@
 import base64
-from datetime import datetime
 import json
+from datetime import datetime
 from typing import Any, Dict, List, Tuple
 
+from lxml import etree
+
 from app.core.auth import get_user_role
-from app.core.config import IS_DEV_ENV, GITHUB_ORG
+from app.core.config import GITHUB_ORG, IS_DEV_ENV
 from app.core.errors import CustomBaseError
 from app.data_models.models import UserSession
 from app.github.client import AuthenticatedClient
 from app.github.models import GitHubRepo
-from app.xml_utils import get_attr, xpath_some, parse_xml_doc
-
-from lxml import etree
+from app.xml_utils import get_attr, parse_xml_doc, xpath_some
 
 
 class AccessDeniedError(CustomBaseError):
@@ -24,20 +24,18 @@ class GraphQLError(CustomBaseError):
 
 async def graphql(client: AuthenticatedClient, query: str):
     response = await client.post(
-        "https://api.github.com/graphql", json={"query": query})
+        "https://api.github.com/graphql", json={"query": query}
+    )
     response.raise_for_status()
     payload = response.json()
     if "errors" in payload:  # pragma: no cover
-        raise GraphQLError(", ".join(e["message"]
-                               for e in payload["errors"]))
+        raise GraphQLError(", ".join(e["message"] for e in payload["errors"]))
     return payload
 
 
 async def get_book_repository(
-        client: AuthenticatedClient,
-        repo_name: str,
-        repo_owner: str,
-        version: str) -> Tuple[GitHubRepo, str, datetime, List[Dict[str, Any]]]:
+    client: AuthenticatedClient, repo_name: str, repo_owner: str, version: str
+) -> Tuple[GitHubRepo, str, datetime, List[Dict[str, Any]]]:
     query = f"""
         query {{
             repository(name: "{repo_name}", owner: "{repo_owner}") {{
@@ -61,9 +59,11 @@ async def get_book_repository(
     """
     payload = await graphql(client, query)
     repository = payload["data"]["repository"]
-    repo = GitHubRepo(name=repo_name,
-                      database_id=repository["databaseId"],
-                      viewer_permission=repository["viewerPermission"])
+    repo = GitHubRepo(
+        name=repo_name,
+        database_id=repository["databaseId"],
+        viewer_permission=repository["viewerPermission"],
+    )
     commit = repository["object"]
     if commit is None:  # pragma: no cover
         raise CustomBaseError(f"Could not find commit '{version}'")
@@ -73,16 +73,19 @@ async def get_book_repository(
     books_xml = commit["file"]["object"]["text"]
     meta = parse_xml_doc(books_xml)
 
-    books = [{k: get_attr(el, k) for k in ("slug", "style")}
-             for el in xpath_some(meta, "//*[local-name()='book']")]
+    books = [
+        {k: get_attr(el, k) for k in ("slug", "style")}
+        for el in xpath_some(meta, "//*[local-name()='book']")
+    ]
     return (repo, commit_sha, datetime.fromisoformat(fixed_timestamp), books)
 
 
 async def get_collections(
-        client: AuthenticatedClient,
-        repo_name: str,
-        repo_owner: str,
-        commit_sha: str) -> Dict[str, etree.ElementBase]:
+    client: AuthenticatedClient,
+    repo_name: str,
+    repo_owner: str,
+    commit_sha: str,
+) -> Dict[str, etree.ElementBase]:
     query = f"""
         query {{
             repository(name: "{repo_name}", owner: "{repo_owner}") {{
@@ -108,10 +111,13 @@ async def get_collections(
         }}
     """
     payload = await graphql(client, query)
-    files_entries = (payload["data"]["repository"]["object"]["file"]["object"]
-                     ["entries"])
-    return {entry["name"]: parse_xml_doc(entry["object"]["text"])
-            for entry in files_entries}
+    files_entries = payload["data"]["repository"]["object"]["file"]["object"][
+        "entries"
+    ]
+    return {
+        entry["name"]: parse_xml_doc(entry["object"]["text"])
+        for entry in files_entries
+    }
 
 
 async def push_to_github(
@@ -122,7 +128,7 @@ async def push_to_github(
     repo: str,
     branch: str,
     commit_message: str,
-    file_exists=True
+    file_exists=True,
 ):
     url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
 
@@ -139,24 +145,28 @@ async def push_to_github(
         data = response.json()
         message["sha"] = data["sha"]
 
-        if base64content.decode('utf-8').strip() == data["content"].strip():
+        if base64content.decode("utf-8").strip() == data["content"].strip():
             raise CustomBaseError("No changes to push")
 
-    response = await client.put(url, data=json.dumps(message), headers={
-        **client.headers,
-        "Content-Type": "application/json",
-    })
+    response = await client.put(
+        url,
+        data=json.dumps(message),
+        headers={
+            **client.headers,
+            "Content-Type": "application/json",
+        },
+    )
 
     response.raise_for_status()
 
 
 async def get_user_repositories(
-        client: AuthenticatedClient,
-        search_query: str) -> List[GitHubRepo]:
+    client: AuthenticatedClient, search_query: str
+) -> List[GitHubRepo]:
     query_args = {
         "query": f'"{search_query}"',
         "first": "100",
-        "type": "REPOSITORY"
+        "type": "REPOSITORY",
     }
     query = """
         query {{
@@ -186,8 +196,9 @@ async def get_user_repositories(
             "https://api.github.com/graphql",
             json={
                 "query": query.format(
-                    query_args=','.join(
-                        ':'.join(i) for i in query_args.items()))}
+                    query_args=",".join(":".join(i) for i in query_args.items())
+                )
+            },
         )
         response.raise_for_status()
         payload = response.json()
@@ -241,9 +252,5 @@ async def get_user(client: AuthenticatedClient, token: str) -> UserSession:
     if role is None:
         raise AccessDeniedError("Bad role")
     return UserSession(
-        id=id_,
-        token=token,
-        role=role,
-        avatar_url=avatar_url,
-        name=name
+        id=id_, token=token, role=role, avatar_url=avatar_url, name=name
     )

@@ -26,5 +26,6 @@ class GitHubRepo(BaseModel):
                     ret.append(c.lower())
                 else:
                     ret.append(c)
-            return ''.join(ret)
+            return "".join(ret)
+
         return cls(**{to_snake_case(k): v for k, v in node.items()})

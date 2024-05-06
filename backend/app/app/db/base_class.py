@@ -5,15 +5,15 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import declarative_base
 
 
-class CustomBase(object):
+class CustomBase:
     __allow_unmapped__ = True
 
     # Generate __tablename__ automatically
     @declared_attr
     def __tablename__(cls):
         def convert(name):
-            s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
-            return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+            s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
+            return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
         return convert(cls.__name__)
 

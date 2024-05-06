@@ -1,7 +1,7 @@
-from tests.ui.pages.home import HomeCorgi, JobStatus
 import pytest
-
 from bs4 import BeautifulSoup
+
+from tests.ui.pages.home import HomeCorgi, JobStatus
 
 
 @pytest.mark.ui
@@ -10,7 +10,9 @@ from bs4 import BeautifulSoup
     "repo, book, version",
     [("osbooks-otto-book", "ottó-könyv", "main")],
 )
-def test_e2e_webview_jobs(chrome_page_slow, corgi_base_url, repo, book, version):
+def test_e2e_webview_jobs(
+    chrome_page_slow, corgi_base_url, repo, book, version
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -34,32 +36,36 @@ def test_e2e_webview_jobs(chrome_page_slow, corgi_base_url, repo, book, version)
     home.wait_for_job_status(JobStatus.COMPLETED)
 
     if home.queued_job_type == "Web Preview (git)":
-
         with chrome_page_slow.context.expect_page() as tab:
             home.click_job_type_icon()
 
         new_tab_content = tab.value.content()
         new_tab_url = tab.value.url
 
-        preview_base_url = new_tab_url.split('pages', 1)[0] + 'pages/'
+        preview_base_url = new_tab_url.split("pages", 1)[0] + "pages/"
 
         book_title_mod = book.replace("-", " ")
 
         assert book_title_mod in new_tab_content
 
-        soup = BeautifulSoup(new_tab_content, 'html.parser')
+        soup = BeautifulSoup(new_tab_content, "html.parser")
 
-        for clink in soup.find_all('a', class_='styled__ContentLink-sc-18yti3s-1'):
-            webview_preview_pages = preview_base_url + clink['href']
+        for clink in soup.find_all(
+            "a", class_="styled__ContentLink-sc-18yti3s-1"
+        ):
+            webview_preview_pages = preview_base_url + clink["href"]
 
             tab.value.goto(webview_preview_pages)
 
             new_tab_content = tab.value.content()
-            sopa = BeautifulSoup(new_tab_content, 'html.parser')
+            sopa = BeautifulSoup(new_tab_content, "html.parser")
 
-            for m_content in sopa.find_all('div', id='main-content'):
-                for p_tag in m_content.find_all('p'):
+            for m_content in sopa.find_all("div", id="main-content"):
+                for p_tag in m_content.find_all("p"):
                     assert len(p_tag.text) > 0
 
     else:
-        pytest.fail(f"No new job was queued. Last job is at {home.elapsed_time.inner_text()}")
+        pytest.fail(
+            "No new job was queued. Last job is at "
+            + home.elapsed_time.inner_text()
+        )

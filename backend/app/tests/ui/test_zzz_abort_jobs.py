@@ -1,8 +1,7 @@
-from tests.ui.pages.home import HomeCorgi
-
 import pytest
-
 from bs4 import BeautifulSoup
+
+from tests.ui.pages.home import HomeCorgi
 
 """After all corgi UI tests are completed, all running jobs are aborted"""
 
@@ -17,14 +16,14 @@ def test_zzz_abort_jobs(chrome_page, corgi_base_url):
     home = HomeCorgi(chrome_page)
 
     # THEN: Elements are found
-    sopa = BeautifulSoup(ccont, 'html.parser')
+    sopa = BeautifulSoup(ccont, "html.parser")
 
     rows = []
     job_stats = ["processing", "queued"]
 
-    for table in sopa.find_all('tbody'):
+    for table in sopa.find_all("tbody"):
         for row in table:
-            rows.append(row.find_all_next('tr'))
+            rows.append(row.find_all_next("tr"))
 
     # THEN: Running jobs are aborted
     for i in range(len(rows)):

@@ -1,19 +1,24 @@
 import logging
 from typing import Awaitable
 
-from app.core.auth import set_user_session_cookie
-from app.core.config import IS_DEV_ENV
-from app.core.errors import CustomBaseError
-from app.data_models.models import UserSession
-from app.db.utils import get_db
-from app.github import (AccessDeniedError, authenticate_client, get_user,
-                        github_oauth, sync_user_repositories)
-from app.service.user import user_service
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from httpx import AsyncClient
 from sqlalchemy.orm import Session
 from starlette.datastructures import URL
+
+from app.core.auth import set_user_session_cookie
+from app.core.config import IS_DEV_ENV
+from app.core.errors import CustomBaseError
+from app.db.utils import get_db
+from app.github import (
+    AccessDeniedError,
+    authenticate_client,
+    get_user,
+    github_oauth,
+    sync_user_repositories,
+)
+from app.service.user import user_service
 
 router = APIRouter()
 
@@ -26,16 +31,15 @@ class AuthenticationError(Exception):
 async def handle_auth_errors(thunk: Awaitable):
     try:
         return await thunk
-    except AccessDeniedError:
+    except AccessDeniedError as ade:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Forbidden"
-        )
+            status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden"
+        ) from ade
     except CustomBaseError:
         raise
     except Exception as e:
         logging.error(e)
-        raise AuthenticationError()
+        raise AuthenticationError() from e
 
 
 async def authenticate_token_user(request: Request, token: str, db: Session):
@@ -63,7 +67,8 @@ async def token_login(request: Request, db: Session = Depends(get_db)):
     if access_token is not None:
         token = access_token.split("Bearer ")[1]
         return await handle_auth_errors(
-            authenticate_token_user(request, token, db))
+            authenticate_token_user(request, token, db)
+        )
     else:
         raise CustomBaseError("Missing required token")
 
@@ -85,5 +90,5 @@ async def callback(request: Request, db: Session = Depends(get_db)):
 
     set_user_session_cookie(request, user)
 
-    response = RedirectResponse(url=f"/")
+    response = RedirectResponse(url="/")
     return response

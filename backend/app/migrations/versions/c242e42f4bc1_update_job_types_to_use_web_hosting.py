@@ -5,21 +5,23 @@ Revises: 14c3c7f3115e
 Create Date: 2021-02-26 21:45:55.546275
 
 """
-from alembic import op
+
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = 'c242e42f4bc1'
-down_revision = '14c3c7f3115e'
+revision = "c242e42f4bc1"
+down_revision = "14c3c7f3115e"
 branch_labels = None
 depends_on = None
 
-job_types_table = sa.table('job_types',
-                           sa.column('id', sa.Integer),
-                           sa.column('name', sa.String),
-                           sa.column('created_at', sa.DateTime),
-                           sa.column('updated_at', sa.DateTime)
-                           )
+job_types_table = sa.table(
+    "job_types",
+    sa.column("id", sa.Integer),
+    sa.column("name", sa.String),
+    sa.column("created_at", sa.DateTime),
+    sa.column("updated_at", sa.DateTime),
+)
 
 
 def upgrade():
@@ -33,8 +35,11 @@ def upgrade():
         original_name = result[1]
         new_name = original_name.replace("distribution", "web-hosting")
 
-        update_stmt = job_types_table.update().values(name=new_name).where(
-            job_types_table.c.id == result[0])
+        update_stmt = (
+            job_types_table.update()
+            .values(name=new_name)
+            .where(job_types_table.c.id == result[0])
+        )
 
         bind.execute(update_stmt)
 
@@ -51,7 +56,10 @@ def downgrade():
         original_name = result[1]
         new_name = original_name.replace("web-hosting", "distribution")
 
-        update_stmt = job_types_table.update().values(name=new_name).where(
-            job_types_table.c.id == result[0])
+        update_stmt = (
+            job_types_table.update()
+            .values(name=new_name)
+            .where(job_types_table.c.id == result[0])
+        )
 
         bind.execute(update_stmt)

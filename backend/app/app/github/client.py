@@ -1,8 +1,9 @@
 from contextlib import asynccontextmanager
 from typing import cast
 
-from app.data_models.models import UserSession
 from httpx import AsyncClient
+
+from app.data_models.models import UserSession
 
 
 class AuthenticatedClient(AsyncClient):
@@ -12,7 +13,7 @@ class AuthenticatedClient(AsyncClient):
 def authenticate_client(client: AsyncClient, token: str) -> AuthenticatedClient:
     client.headers = {
         "Authorization": f"Bearer {token}",
-        "Accept": "application/vnd.github+json"
+        "Accept": "application/vnd.github+json",
     }
     return cast(AuthenticatedClient, client)
 

@@ -1,8 +1,7 @@
+import pytest
 from pytest_testrail.plugin import pytestrail
 
 from tests.ui.pages.home import HomeCorgi, JobStatus
-
-import pytest
 
 
 @pytestrail.case("C651147")
@@ -12,7 +11,9 @@ import pytest
     "repo, book, version",
     [("osbooks-otto-book", "ottó-könyv", "main")],
 )
-def test_job_id_dialog_opens_closes(chrome_page_slow, corgi_base_url, repo, book, version):
+def test_job_id_dialog_opens_closes(
+    chrome_page_slow, corgi_base_url, repo, book, version
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -36,7 +37,6 @@ def test_job_id_dialog_opens_closes(chrome_page_slow, corgi_base_url, repo, book
     home.wait_for_job_status(JobStatus.COMPLETED)
 
     if home.queued_job_type == "Web Preview (git)":
-
         if home.job_type_href:
             home.click_job_id()
 
@@ -50,7 +50,10 @@ def test_job_id_dialog_opens_closes(chrome_page_slow, corgi_base_url, repo, book
         assert not home.job_id_dialog_is_visible
 
     else:
-        pytest.fail(f"No new job was queued. Last job is at {home.elapsed_time.inner_text()}")
+        pytest.fail(
+            "No new job was queued. Last job is at "
+            + home.elapsed_time.inner_text()
+        )
 
 
 @pytestrail.case("C655443")

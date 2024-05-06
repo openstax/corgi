@@ -1,9 +1,12 @@
-from tests.ui.pages.home import HomeCorgi, JobStatus
-import pytest
+# ruff: noqa: E501
 
-from urllib.request import urlopen, Request
-from pypdf import PdfReader
 import io
+from urllib.request import Request, urlopen
+
+import pytest
+from pypdf import PdfReader
+
+from tests.ui.pages.home import HomeCorgi, JobStatus
 
 
 @pytest.mark.ui
@@ -36,7 +39,6 @@ def test_e2e_pdf_jobs(chrome_page_slow, corgi_base_url, repo, book, version):
     home.wait_for_job_status(JobStatus.COMPLETED)
 
     if home.queued_job_type == "PDF (git)":
-
         if home.job_type_href:
             home.click_job_id()
 
@@ -93,7 +95,7 @@ def test_e2e_pdf_jobs(chrome_page_slow, corgi_base_url, repo, book, version):
                             else:
                                 pass
 
-                            liszt.append(ptext.split('\n'))
+                            liszt.append(ptext.split("\n"))
 
                 flat_liszt = [item for sublist in liszt for item in sublist]
 
@@ -103,10 +105,14 @@ def test_e2e_pdf_jobs(chrome_page_slow, corgi_base_url, repo, book, version):
                     assert any("Index" in word for word in flat_liszt)
 
                 except AssertionError:
-                    pytest.fail(f"CONTENT, Preface, Chapter Outline or Index is missing in the pdf: {href_pdf_url}")
+                    pytest.fail(
+                        f"CONTENT, Preface, Chapter Outline or Index is missing in the pdf: {href_pdf_url}"
+                    )
 
                 else:
                     pass
 
     else:
-        pytest.fail(f"No new job was queued. Last job is at {home.elapsed_time.inner_text()}")
+        pytest.fail(
+            f"No new job was queued. Last job is at {home.elapsed_time.inner_text()}"
+        )

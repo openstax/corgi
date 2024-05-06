@@ -2,6 +2,7 @@ import json
 from base64 import b64decode
 
 import pytest
+
 from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES
 from app.core.errors import CustomBaseError
 from app.github.api import AccessDeniedError
@@ -9,6 +10,7 @@ from app.github.api import AccessDeniedError
 
 def check_cookie_value(cookie):
     from app.core.auth import Crypto
+
     assert cookie is not None
     assert "session=" in cookie
     assert str(ACCESS_TOKEN_EXPIRE_MINUTES * 60) in cookie
@@ -37,7 +39,6 @@ def check_cookie_value(cookie):
     assert "name" in user_session
 
 
-
 @pytest.mark.unit
 @pytest.mark.nondestructive
 def test_login_success(testclient, mock_login_success):
@@ -49,7 +50,7 @@ def test_login_success(testclient, mock_login_success):
     assert response.status_code == 307
     cookie = response.headers.get("set-cookie")
     check_cookie_value(cookie)
-    
+
 
 @pytest.mark.unit
 @pytest.mark.nondestructive
@@ -57,8 +58,8 @@ def test_login_success_token(testclient, mock_login_success):
     response = testclient.get(
         "/api/auth/token-login",
         allow_redirects=False,
-        headers={
-            "authorization": "Bearer fake-token"})
+        headers={"authorization": "Bearer fake-token"},
+    )
     assert response.status_code == 200
     cookie = response.headers.get("set-cookie")
     check_cookie_value(cookie)
@@ -67,16 +68,12 @@ def test_login_success_token(testclient, mock_login_success):
 @pytest.mark.unit
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
-    "headers",
-    [{},
-     {"Authorization": ""},
-     {"Authorization": "bad-format"}]
+    "headers", [{}, {"Authorization": ""}, {"Authorization": "bad-format"}]
 )
 def test_login_failure_token(testclient, mock_login_success, headers):
     response = testclient.get(
-        f"/api/auth/token-login",
-        allow_redirects=False,
-        headers=headers)
+        "/api/auth/token-login", allow_redirects=False, headers=headers
+    )
     assert response.status_code == 500
 
 
@@ -84,18 +81,22 @@ def test_login_failure_token(testclient, mock_login_success, headers):
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
     "exc,status_code,result",
-    [(AccessDeniedError, 403, "Forbidden"),
-     (CustomBaseError("???"), 500, "???"),
-     (Exception("???"), 307, "/errors/auth-error")]
+    [
+        (AccessDeniedError, 403, "Forbidden"),
+        (CustomBaseError("???"), 500, "???"),
+        (Exception("???"), 307, "/errors/auth-error"),
+    ],
 )
-def test_login_exception(testclient, monkeypatch, exc,
-                         status_code, result):
+def test_login_exception(testclient, monkeypatch, exc, status_code, result):
     def get_mock_authenticate(exc):
         async def mock_authenticate(*_):
             raise exc
+
         return mock_authenticate
-    monkeypatch.setattr("app.api.endpoints.auth.authenticate_user",
-                        get_mock_authenticate(exc))
+
+    monkeypatch.setattr(
+        "app.api.endpoints.auth.authenticate_user", get_mock_authenticate(exc)
+    )
 
     response = testclient.get("/api/auth/callback", allow_redirects=False)
     assert response.status_code == status_code
@@ -110,6 +111,7 @@ def test_login_exception(testclient, monkeypatch, exc,
 def test_login_no_team(monkeypatch, testclient, mock_login_success):
     async def return_no_teams(*_args, **_kwargs):
         return []
+
     monkeypatch.setattr("app.github.api.get_user_teams", return_no_teams)
 
     response = testclient.get("/api/auth/callback", allow_redirects=False)
@@ -121,9 +123,7 @@ def test_login_no_team(monkeypatch, testclient, mock_login_success):
 
 @pytest.mark.unit
 @pytest.mark.nondestructive
-@pytest.mark.parametrize("endpoint", [
-    "/api/jobs/"
-])
+@pytest.mark.parametrize("endpoint", ["/api/jobs/"])
 def test_require_auth(testclient, endpoint):
     response = testclient.get(endpoint, allow_redirects=False)
     assert response.status_code == 401

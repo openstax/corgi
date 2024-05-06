@@ -1,14 +1,14 @@
-from app.data_models.models import BaseApprovedBook, RequestApproveBook
-from app.db.schema import ApprovedBook, Book, CodeVersion, Consumer
+import pytest
+
 from app.core import config
+from app.data_models.models import BaseApprovedBook, RequestApproveBook
+from app.db.schema import ApprovedBook, Book, CodeVersion
 from app.service.abl import (
     add_new_entries,
     get_abl_info_database,
     get_or_add_code_version,
     get_rex_book_versions,
 )
-
-import pytest
 
 
 @pytest.mark.parametrize(
@@ -26,7 +26,7 @@ import pytest
 def test_get_abl(query_args, mock_session, snapshot):
     db = mock_session()
     get_abl_info_database(db, **query_args)
-    snapshot.assert_match(db.calls_str, f"query_get_abl.sql")
+    snapshot.assert_match(db.calls_str, "query_get_abl.sql")
 
 
 def test_get_or_add_code_version(mock_session):
@@ -58,29 +58,17 @@ def test_get_or_add_code_version(mock_session):
     "to_add,to_keep",
     [
         [
-            [
-                RequestApproveBook(
-                    commit_sha="a", uuid="b", code_version="42"
-                )
-            ],
+            [RequestApproveBook(commit_sha="a", uuid="b", code_version="42")],
             {},
         ],
         [
-            [
-                RequestApproveBook(
-                    commit_sha="a", uuid="b", code_version="42"
-                )
-            ],
+            [RequestApproveBook(commit_sha="a", uuid="b", code_version="42")],
             {"b": {"defaultVersion": "something"}},
         ],
         [
             [
-                RequestApproveBook(
-                    commit_sha="a", uuid="b", code_version="42"
-                ),
-                RequestApproveBook(
-                    commit_sha="a", uuid="c", code_version="42"
-                ),
+                RequestApproveBook(commit_sha="a", uuid="b", code_version="42"),
+                RequestApproveBook(commit_sha="a", uuid="c", code_version="42"),
             ],
             {"b": {"defaultVersion": "b"}, "c": {"defaultVersion": "c"}},
         ],
@@ -118,7 +106,7 @@ async def test_add_new_entries_rex(
     assert len(db.added_items) == len(to_add) * 2
     assert isinstance(db.added_items[0], CodeVersion)
     assert isinstance(db.added_items[1], ApprovedBook)
-    snapshot.assert_match(db.calls_str, f"add_new_entries.sql")
+    snapshot.assert_match(db.calls_str, "add_new_entries.sql")
 
 
 @pytest.mark.parametrize(
