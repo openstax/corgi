@@ -27,8 +27,8 @@ def xpath1(tree: etree.ElementBase, xpath: str) -> Optional[etree.ElementBase]:
     """Use this when you expect to get the first result from an xpath"""
     try:
         return tree.xpath(xpath)[0]
-    except IndexError:
-        raise XPathError(xpath)
+    except IndexError as ie:
+        raise XPathError(xpath) from ie
 
 
 def get_attr(element: etree.ElementBase, key: str) -> str:

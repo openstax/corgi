@@ -1,16 +1,16 @@
-from locust import HttpLocust, TaskSet, task, between
+from locust import HttpLocust, TaskSet, between, task
+
 
 class UserBehavior(TaskSet):
-
     def on_start(self):
-        """ on_start is called when a Locust start before any task is scheduled """
+        """on_start is called on Locust start before any task is scheduled"""
         # login(self)
 
     def on_stop(self):
         pass
 
     def login(self):
-        """ login user """
+        """login user"""
         pass
 
     @task(1)
@@ -24,6 +24,7 @@ class UserBehavior(TaskSet):
     @task(1)
     def get_content_servers(self):
         self.client.get("/api/content-servers/")
+
 
 class WebsiteUser(HttpLocust):
     task_set = UserBehavior

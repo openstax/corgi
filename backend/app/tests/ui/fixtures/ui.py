@@ -1,7 +1,6 @@
-from playwright.sync_api import sync_playwright
 import pytest
-
 import requests
+from playwright.sync_api import sync_playwright
 
 
 @pytest.fixture(scope="session")
@@ -9,11 +8,14 @@ def session_cookie(request, api_url):
     config = request.config
 
     github_token = config.getoption("--github-token")
-    assert isinstance(github_token, str) and len(github_token) > 0, \
-        ("Use option --github-token or env var GITHUB_TOKEN to set the"
-         "token to use")
-    response = requests.get(f"{api_url}/auth/token-login",
-                            headers={"Authorization": f"Bearer {github_token}"})
+    assert isinstance(github_token, str) and len(github_token) > 0, (
+        "Use option --github-token or env var GITHUB_TOKEN to set the"
+        "token to use"
+    )
+    response = requests.get(
+        f"{api_url}/auth/token-login",
+        headers={"Authorization": f"Bearer {github_token}"},
+    )
     response.raise_for_status()
 
     session_cookie = response.cookies.get("session", None)
@@ -24,9 +26,7 @@ def session_cookie(request, api_url):
 
 @pytest.fixture(scope="session")
 def additional_headers(session_cookie):
-    return {
-        "Cookie": f"session={session_cookie}"
-    }
+    return {"Cookie": f"session={session_cookie}"}
 
 
 @pytest.fixture

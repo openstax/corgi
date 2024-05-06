@@ -1,20 +1,20 @@
-from typing import List, Dict, Any, Optional
 from itertools import groupby
+from typing import Any, Dict, List, Optional
 
-from httpx import HTTPStatusError
+from httpx import AsyncClient, HTTPStatusError
+from sqlalchemy import and_, delete, or_, select
 from sqlalchemy.orm import Session, lazyload
-from sqlalchemy import or_, delete, select, and_
+
+from app.core import config
 from app.core.errors import CustomBaseError
 from app.data_models.models import BaseApprovedBook, RequestApproveBook
-from app.core import config
-from httpx import AsyncClient
 from app.db.schema import (
     ApprovedBook,
     Book,
     CodeVersion,
     Commit,
-    Repository,
     Consumer,
+    Repository,
 )
 
 
@@ -29,7 +29,7 @@ async def get_rex_books(client: AsyncClient):
     except HTTPStatusError as he:
         raise CustomBaseError(
             f"Failed to fetch rex release: {he.response.status_code}"
-        )
+        ) from he
 
 
 def get_rex_book_versions(rex_books: Dict[str, Any], book_uuids: List[str]):
@@ -158,19 +158,17 @@ async def add_new_entries(
         .options(lazyload("*"))
         .join(Commit)
         .where(
-            or_(*[
-                and_(
-                    Book.uuid == entry.uuid,
-                    Commit.sha == entry.commit_sha
-                )
-                for entry in to_add
-            ])
+            or_(
+                *[
+                    and_(
+                        Book.uuid == entry.uuid, Commit.sha == entry.commit_sha
+                    )
+                    for entry in to_add
+                ]
+            )
         )
     ).all()
-    db_books_by_uuid = {
-        dbb.uuid: dbb
-        for dbb in db_books
-    }
+    db_books_by_uuid = {dbb.uuid: dbb for dbb in db_books}
     book_info_by_consumer = groupby(
         to_add, lambda entry: guess_consumer(db_books_by_uuid[entry.uuid].slug)
     )

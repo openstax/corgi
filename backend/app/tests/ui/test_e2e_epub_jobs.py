@@ -1,13 +1,16 @@
-from tests.ui.pages.home import HomeCorgi, JobStatus
+import os
+
 import pytest
 
-import os
+from tests.ui.pages.home import HomeCorgi, JobStatus
 
 
 @pytest.mark.ui
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
-    "repo", ["osbooks-otto-book"],)
+    "repo",
+    ["osbooks-otto-book"],
+)
 def test_e2e_epub_jobs(chrome_page_slow, corgi_base_url, repo):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
@@ -30,7 +33,6 @@ def test_e2e_epub_jobs(chrome_page_slow, corgi_base_url, repo):
     home.wait_for_job_status(JobStatus.COMPLETED)
 
     if home.queued_job_type == "EPUB (git)":
-
         assert "all" in home.book_title_column.inner_text()
 
         home.click_job_type_icon()
@@ -38,7 +40,6 @@ def test_e2e_epub_jobs(chrome_page_slow, corgi_base_url, repo):
         assert home.job_type_icon_job_links_are_visible
 
         with chrome_page_slow.expect_download() as download_info:
-
             home.click_job_type_icon_job_link()
 
         download = download_info.value
@@ -50,4 +51,7 @@ def test_e2e_epub_jobs(chrome_page_slow, corgi_base_url, repo):
         assert os.path.getsize("epub_doc.zip") > 0
 
     else:
-        pytest.fail(f"No new job was queued. Last job is at {home.elapsed_time.inner_text()}")
+        pytest.fail(
+            "No new job was queued. Last job is at "
+            + home.elapsed_time.inner_text()
+        )

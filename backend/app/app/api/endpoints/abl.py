@@ -1,16 +1,17 @@
 from typing import List, Optional
 
-from app.core.auth import RequiresRole
-from app.data_models.models import (
-    Role,
-    RequestApproveBook,
-    ApprovedBook,
-)
-from app.db.utils import get_db
-from app.service.abl import get_abl_info_database, add_new_entries
 from fastapi import APIRouter, Depends
 from httpx import AsyncClient
 from sqlalchemy.orm import Session
+
+from app.core.auth import RequiresRole
+from app.data_models.models import (
+    ApprovedBook,
+    RequestApproveBook,
+    Role,
+)
+from app.db.utils import get_db
+from app.service.abl import add_new_entries, get_abl_info_database
 
 router = APIRouter()
 
@@ -21,7 +22,7 @@ async def get_abl_info(
     consumer: Optional[str] = None,
     repo_name: Optional[str] = None,
     version: Optional[str] = None,
-    code_version: Optional[str] = None
+    code_version: Optional[str] = None,
 ):
     return get_abl_info_database(db, consumer, repo_name, version, code_version)
 

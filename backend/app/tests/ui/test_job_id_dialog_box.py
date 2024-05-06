@@ -1,8 +1,7 @@
+import pytest
 from pytest_testrail.plugin import pytestrail
 
 from tests.ui.pages.home import HomeCorgi, JobStatus
-
-import pytest
 
 
 @pytestrail.case("C651147")
@@ -12,7 +11,9 @@ import pytest
     "repo, book",
     [("osbooks-otto-book", "ottó-könyv")],
 )
-def test_job_id_dialog_box_aborted_job(chrome_page_slow, corgi_base_url, repo, book):
+def test_job_id_dialog_box_aborted_job(
+    chrome_page_slow, corgi_base_url, repo, book
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -66,7 +67,9 @@ def test_job_id_dialog_box_aborted_job(chrome_page_slow, corgi_base_url, repo, b
     "repo, book",
     [("osbooks-otto-book", "tschüß-grüße")],
 )
-def test_job_id_dialog_box_completed_job(chrome_page_slow, corgi_base_url, repo, book):
+def test_job_id_dialog_box_completed_job(
+    chrome_page_slow, corgi_base_url, repo, book
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -89,7 +92,6 @@ def test_job_id_dialog_box_completed_job(chrome_page_slow, corgi_base_url, repo,
     home.wait_for_job_status(JobStatus.COMPLETED)
 
     if home.queued_job_type == "Web Preview (git)":
-
         home.click_job_id()
 
         assert str(current_job_id) in home.job_id_dialog_title.inner_text()
@@ -105,7 +107,10 @@ def test_job_id_dialog_box_completed_job(chrome_page_slow, corgi_base_url, repo,
         assert not home.job_id_dialog_is_visible
 
     else:
-        pytest.fail(f"No new job was queued. Last job is at {home.elapsed_time.inner_text()}")
+        pytest.fail(
+            "No new job was queued. Last job is at "
+            + home.elapsed_time.inner_text()
+        )
 
 
 @pytestrail.case("C651147")
@@ -115,7 +120,9 @@ def test_job_id_dialog_box_completed_job(chrome_page_slow, corgi_base_url, repo,
     "repo, book, version",
     [("osbooks-failing-test-book", "failing-test-book", "main")],
 )
-def test_job_id_dialog_box_failed_job(chrome_page_slow, corgi_base_url, repo, book, version):
+def test_job_id_dialog_box_failed_job(
+    chrome_page_slow, corgi_base_url, repo, book, version
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -164,4 +171,7 @@ def test_job_id_dialog_box_failed_job(chrome_page_slow, corgi_base_url, repo, bo
         assert not home.job_id_dialog_is_visible
 
     else:
-        pytest.fail(f"No new job was queued. Last job is at {home.elapsed_time.inner_text()}")
+        pytest.fail(
+            "No new job was queued. Last job is at "
+            + home.elapsed_time.inner_text()
+        )

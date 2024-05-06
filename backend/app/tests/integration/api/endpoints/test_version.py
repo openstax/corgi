@@ -3,8 +3,8 @@ import requests
 
 from tests.utils import validate_datetime
 
-
 ENDPOINT = "version"
+
 
 @pytest.mark.integration
 @pytest.mark.nondestructive

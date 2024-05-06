@@ -1,12 +1,11 @@
-
 import logging
 
 import pytest
-from starlette.testclient import TestClient
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.responses import PlainTextResponse
 from starlette.routing import Route
+from starlette.testclient import TestClient
 
 from app.middleware import DBSessionMiddleware
 
@@ -26,6 +25,7 @@ app = Starlette(
     ],
     middleware=[Middleware(DBSessionMiddleware)],
 )
+
 
 @pytest.mark.unit
 @pytest.mark.nondestructive
@@ -49,4 +49,3 @@ def test_db_session_middleware(caplog):
     # THEN: A response 500 code is returned and the exception is logged
     assert response.status_code == 500
     assert "Exception: A CORGI exception has occurred" in caplog.text
-    

@@ -56,13 +56,15 @@ jobs:
       - name: Frontend Unit Tests
         run: |
           set -e
-          docker compose exec frontend npm run test:unit
-          docker compose exec frontend npm run lint
+          docker compose -f docker-compose.stack.dev.yml exec frontend npm run test:unit
+          docker compose -f docker-compose.stack.dev.yml exec frontend npm run lint
 
       - name: Backend Unit Tests
         run: |
           set -e
-          docker compose exec backend pytest -vvv ./tests/unit
+          docker compose -f docker-compose.stack.dev.yml exec backend pytest -vvv ./tests/unit
+          docker compose -f docker-compose.stack.dev.yml exec backend ruff check
+          docker compose -f docker-compose.stack.dev.yml exec backend ruff format --check
 
       - name: Test database
         run: |
@@ -76,6 +78,6 @@ jobs:
           fi
           # Ensure the latest migration works backwards and forwards with 
           # existing job data
-          docker compose exec backend alembic downgrade -1
-          docker compose exec backend alembic upgrade head
+          docker compose -f docker-compose.stack.dev.yml exec backend alembic downgrade -1
+          docker compose -f docker-compose.stack.dev.yml exec backend alembic upgrade head
           ./corgi stop

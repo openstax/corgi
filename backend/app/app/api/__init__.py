@@ -1,12 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.endpoints import (jobs,
-                               abl,
-                               ping,
-                               status,
-                               version,
-                               auth,
-                               github)
+from app.api.endpoints import abl, auth, github, jobs, ping, status, version
 
 api_router = APIRouter()
 api_router.include_router(ping.router, prefix="/ping", tags=["ping"])

@@ -1,5 +1,7 @@
-from time import sleep, time
+# ruff: noqa: E501
+
 from enum import Enum
+from time import sleep, time
 
 
 class JobStatus(str, Enum):
@@ -141,7 +143,9 @@ class HomeCorgi:
 
     @property
     def job_id(self):
-        return self.page.wait_for_selector("tr:nth-child(1) > td:nth-child(1) > button")
+        return self.page.wait_for_selector(
+            "tr:nth-child(1) > td:nth-child(1) > button"
+        )
 
     def click_job_id(self):
         self.job_id.click()
@@ -165,7 +169,9 @@ class HomeCorgi:
 
     @property
     def job_id_dialog_close_button_is_visible(self):
-        return self.page.is_visible("div > div.mdc-dialog__actions :text('close')")
+        return self.page.is_visible(
+            "div > div.mdc-dialog__actions :text('close')"
+        )
 
     def click_job_id_dialog_close_button(self):
         self.job_id_dialog_close_button.click()
@@ -216,7 +222,9 @@ class HomeCorgi:
 
     @property
     def job_id_link_href(self):
-        return self.job_id_artifact_link_locator.get_attribute("href", timeout=690000)
+        return self.job_id_artifact_link_locator.get_attribute(
+            "href", timeout=690000
+        )
 
     @property
     def job_id_dialog_error_message_is_visible(self):
@@ -228,15 +236,15 @@ class HomeCorgi:
 
     @property
     def latest_job_status(self):
-        return self.page.locator("td:nth-child(6) > img >> nth=0").get_attribute(
-            "alt", timeout=690000
-        )
+        return self.page.locator(
+            "td:nth-child(6) > img >> nth=0"
+        ).get_attribute("alt", timeout=690000)
 
     @property
     def latest_job_status_for_aborted(self):
-        return self.page.locator("td:nth-child(6) > img >> nth=0").get_attribute(
-            "alt=aborted", timeout=690000
-        )
+        return self.page.locator(
+            "td:nth-child(6) > img >> nth=0"
+        ).get_attribute("alt=aborted", timeout=690000)
 
     def click_job_id_for_aborted(self):
         _ = self.latest_job_status_for_aborted  # Make sure alt=aborted exists
@@ -250,15 +258,17 @@ class HomeCorgi:
 
     @property
     def get_link_button_locator(self):
-        return self.page.locator("div.mdc-dialog__actions > button :text('Get Link')")
+        return self.page.locator(
+            "div.mdc-dialog__actions > button :text('Get Link')"
+        )
 
     def click_get_link_button(self):
         self.get_link_button_locator.click()
 
     def job_statuses(self, i):
-        return self.page.locator(f"td:nth-child(6) > img >> nth={i}").get_attribute(
-            "alt", timeout=690000
-        )
+        return self.page.locator(
+            f"td:nth-child(6) > img >> nth={i}"
+        ).get_attribute("alt", timeout=690000)
 
     @property
     def elapsed_time(self):
@@ -286,9 +296,9 @@ class HomeCorgi:
 
     @property
     def job_type_href(self):
-        return self.page.locator("tr:nth-child(1) > td:nth-child(2) > a").get_attribute(
-            "href", timeout=690000
-        )
+        return self.page.locator(
+            "tr:nth-child(1) > td:nth-child(2) > a"
+        ).get_attribute("href", timeout=690000)
 
     @property
     def version_sha(self):
@@ -344,7 +354,9 @@ class HomeCorgi:
 
     @property
     def book_title_column(self):
-        return self.page.locator("tbody > tr:nth-child(1) > td:nth-child(4) > span")
+        return self.page.locator(
+            "tbody > tr:nth-child(1) > td:nth-child(4) > span"
+        )
 
     @property
     def book_title_column_shown_tooltip(self):

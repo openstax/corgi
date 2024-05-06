@@ -11,7 +11,7 @@ class DBSessionMiddleware(BaseHTTPMiddleware):
         logging.debug(f"Creating Database session for {request.url}")
         response = Response("Internal server error", status_code=500)
         # https://fastapi.tiangolo.com/tutorial/sql-databases/#create-a-middleware
-        try: 
+        try:
             request.state.db = Session()
             response = await call_next(request)
         # We log the exception because it could be one of many.

@@ -10,10 +10,15 @@ class JobTypes(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     name = sa.Column(sa.String, nullable=False)
     display_name = sa.Column(sa.String, nullable=False)
-    created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
-                           index=True)
-    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
-                           onupdate=datetime.utcnow)
+    created_at = sa.Column(
+        sa.DateTime, nullable=False, default=datetime.utcnow, index=True
+    )
+    updated_at = sa.Column(
+        sa.DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+    )
 
     jobs = relationship("Jobs", back_populates="job_type")
 
@@ -26,10 +31,15 @@ class Jobs(Base):
     git_ref = sa.Column(sa.String)
     worker_version = sa.Column(sa.String)
     error_message = sa.Column(sa.String)
-    created_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
-                           index=True)
-    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
-                           onupdate=datetime.utcnow)
+    created_at = sa.Column(
+        sa.DateTime, nullable=False, default=datetime.utcnow, index=True
+    )
+    updated_at = sa.Column(
+        sa.DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+    )
 
     status = relationship("Status", back_populates="jobs", lazy="joined")
     job_type = relationship("JobTypes", back_populates="jobs", lazy="joined")
@@ -46,8 +56,13 @@ class Status(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     name = sa.Column(sa.String)
     created_at = sa.Column(sa.DateTime, default=datetime.utcnow, index=True)
-    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
-                           onupdate=datetime.utcnow, index=True)
+    updated_at = sa.Column(
+        sa.DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        index=True,
+    )
 
     jobs = relationship("Jobs", back_populates="status")
 
@@ -67,18 +82,22 @@ class Commit(Base):
     sha = sa.Column(sa.String, nullable=False)
     timestamp = sa.Column(sa.DateTime, nullable=False)
 
-    repository = relationship("Repository", back_populates="commits", lazy="joined")
+    repository = relationship(
+        "Repository", back_populates="commits", lazy="joined"
+    )
     books = relationship("Book", back_populates="commit", lazy="joined")
     # We do not need to store a commit more than once
-    __table_args__ = (sa.UniqueConstraint('repository_id', 'sha',
-                      name='_repository_commit'),)
+    __table_args__ = (
+        sa.UniqueConstraint("repository_id", "sha", name="_repository_commit"),
+    )
 
 
 class Book(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     uuid = sa.Column(sa.String(36), index=True, nullable=False)
-    commit_id = sa.Column(sa.Integer, sa.ForeignKey("commit.id"), index=True,
-                          nullable=False)
+    commit_id = sa.Column(
+        sa.Integer, sa.ForeignKey("commit.id"), index=True, nullable=False
+    )
     edition = sa.Column(sa.Integer, nullable=False)
     slug = sa.Column(sa.String, nullable=False)
     style = sa.Column(sa.String, nullable=False)
@@ -86,20 +105,25 @@ class Book(Base):
     commit = relationship("Commit", back_populates="books", lazy="joined")
     jobs = relationship("BookJob", back_populates="book")
     approved_versions = relationship("ApprovedBook", back_populates="book")
-    __table_args__ = (sa.UniqueConstraint('uuid', 'commit_id',
-                      name='_book_to_commit'),)
+    __table_args__ = (
+        sa.UniqueConstraint("uuid", "commit_id", name="_book_to_commit"),
+    )
 
 
 class CodeVersion(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     version = sa.Column(sa.String, nullable=False)
     created_at = sa.Column(sa.DateTime, default=datetime.utcnow, index=True)
-    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
-                           onupdate=datetime.utcnow, index=True)
+    updated_at = sa.Column(
+        sa.DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        index=True,
+    )
 
     approved_versions = relationship(
-        "ApprovedBook",
-        back_populates="code_version"
+        "ApprovedBook", back_populates="code_version"
     )
 
 
@@ -107,13 +131,15 @@ class Consumer(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     name = sa.Column(sa.String, nullable=False)
     created_at = sa.Column(sa.DateTime, default=datetime.utcnow, index=True)
-    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
-                           onupdate=datetime.utcnow, index=True)
-
-    approved_versions = relationship(
-        "ApprovedBook",
-        back_populates="consumer"
+    updated_at = sa.Column(
+        sa.DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        index=True,
     )
+
+    approved_versions = relationship("ApprovedBook", back_populates="consumer")
 
 
 class ApprovedBook(Base):
@@ -122,32 +148,31 @@ class ApprovedBook(Base):
         sa.ForeignKey("consumer.id"),
         nullable=False,
         index=True,
-        primary_key=True
+        primary_key=True,
     )
     code_version_id = sa.Column(
         sa.ForeignKey("code_version.id"),
         nullable=False,
         index=True,
-        primary_key=True
+        primary_key=True,
     )
     created_at = sa.Column(sa.DateTime, default=datetime.utcnow, index=True)
-    updated_at = sa.Column(sa.DateTime, nullable=False, default=datetime.utcnow,
-                           onupdate=datetime.utcnow, index=True)
+    updated_at = sa.Column(
+        sa.DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        index=True,
+    )
 
     book = relationship(
-        "Book",
-        back_populates="approved_versions",
-        lazy="joined"
+        "Book", back_populates="approved_versions", lazy="joined"
     )
     consumer = relationship(
-        "Consumer",
-        back_populates="approved_versions",
-        lazy="joined"
+        "Consumer", back_populates="approved_versions", lazy="joined"
     )
     code_version = relationship(
-        "CodeVersion",
-        back_populates="approved_versions",
-        lazy="joined"
+        "CodeVersion", back_populates="approved_versions", lazy="joined"
     )
 
 
@@ -168,21 +193,25 @@ class BookJob(Base):
     job = relationship("Jobs", back_populates="books", lazy="joined")
     book = relationship("Book", back_populates="jobs", lazy="joined")
 
+
 class RepositoryPermission(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     name = sa.Column(sa.String, nullable=False)
 
-    user_repositories = relationship("UserRepository",
-                                     back_populates="permission")
+    user_repositories = relationship(
+        "UserRepository", back_populates="permission"
+    )
 
 
 class UserRepository(Base):
     user_id = sa.Column(sa.ForeignKey("user.id"), primary_key=True, index=True)
     repository_id = sa.Column(sa.ForeignKey("repository.id"), primary_key=True)
-    permission_id = sa.Column(sa.ForeignKey("repository_permission.id"),
-                              nullable=False, index=True)
+    permission_id = sa.Column(
+        sa.ForeignKey("repository_permission.id"), nullable=False, index=True
+    )
 
     repository = relationship("Repository", back_populates="users")
     user = relationship("User", back_populates="repositories")
-    permission = relationship("RepositoryPermission",
-                              back_populates="user_repositories")
+    permission = relationship(
+        "RepositoryPermission", back_populates="user_repositories"
+    )

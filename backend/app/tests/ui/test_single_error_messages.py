@@ -1,3 +1,5 @@
+# ruff: noqa: E501
+
 import pytest
 from pytest_testrail.plugin import pytestrail
 
@@ -11,7 +13,9 @@ from tests.ui.pages.home import HomeCorgi
     "repo, book, version",
     [("osbooks-astronomy", "astro", "main")],
 )
-def test_single_same_error_message(chrome_page, corgi_base_url, repo, book, version):
+def test_single_same_error_message(
+    chrome_page, corgi_base_url, repo, book, version
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -29,11 +33,17 @@ def test_single_same_error_message(chrome_page, corgi_base_url, repo, book, vers
     home.click_create_new_job_button()
 
     # THEN: Error message dialog appears
-    assert "Error: Book not in repository 'astro'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Book not in repository 'astro'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.click_create_new_job_button()
 
-    assert "Error: Book not in repository 'astro'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Book not in repository 'astro'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.click_error_banner_okay_button()
 
@@ -48,7 +58,9 @@ def test_single_same_error_message(chrome_page, corgi_base_url, repo, book, vers
     "repo_2, book_2, version_2",
     [("osbooks-astronomy", "astronomy-2e", "")],
 )
-def test_single_non_dismissed_error_message(chrome_page, corgi_base_url, repo, book, version, repo_2, book_2, version_2):
+def test_single_non_dismissed_error_message(
+    chrome_page, corgi_base_url, repo, book, version, repo_2, book_2, version_2
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -68,7 +80,10 @@ def test_single_non_dismissed_error_message(chrome_page, corgi_base_url, repo, b
     home.click_create_new_job_button()
 
     # THEN: Error message dialog appears
-    assert "Error: Could not resolve to a Repository with the name 'openstax/osbooks-astron'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Could not resolve to a Repository with the name 'openstax/osbooks-astron'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.fill_repo_field(repo_2)
     home.fill_book_field(book_2)
@@ -76,7 +91,10 @@ def test_single_non_dismissed_error_message(chrome_page, corgi_base_url, repo, b
 
     home.click_create_new_job_button()
 
-    assert "Error: Could not resolve to a Repository with the name 'openstax/osbooks-astron'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Could not resolve to a Repository with the name 'openstax/osbooks-astron'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.click_error_banner_okay_button()
 
@@ -89,7 +107,9 @@ def test_single_non_dismissed_error_message(chrome_page, corgi_base_url, repo, b
     "repo, book, version",
     [("osbooks-astronomy", "astro", "main")],
 )
-def test_incorrect_book_corrected(chrome_page, corgi_base_url, repo, book, version):
+def test_incorrect_book_corrected(
+    chrome_page, corgi_base_url, repo, book, version
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -107,7 +127,10 @@ def test_incorrect_book_corrected(chrome_page, corgi_base_url, repo, book, versi
     home.click_create_new_job_button()
 
     # THEN: Error message dialog appears
-    assert "Error: Book not in repository 'astro'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Book not in repository 'astro'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.click_error_banner_okay_button()
 
@@ -125,7 +148,9 @@ def test_incorrect_book_corrected(chrome_page, corgi_base_url, repo, book, versi
     "repo, book, version",
     [("osbooks-astron", "astronomy-2e", "main")],
 )
-def test_incorrect_repo_corrected(chrome_page, corgi_base_url, repo, book, version):
+def test_incorrect_repo_corrected(
+    chrome_page, corgi_base_url, repo, book, version
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -143,7 +168,10 @@ def test_incorrect_repo_corrected(chrome_page, corgi_base_url, repo, book, versi
     home.click_create_new_job_button()
 
     # THEN: Error message dialog appears
-    assert "Error: Could not resolve to a Repository with the name 'openstax/osbooks-astron'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Could not resolve to a Repository with the name 'openstax/osbooks-astron'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.click_error_banner_okay_button()
 
@@ -161,7 +189,9 @@ def test_incorrect_repo_corrected(chrome_page, corgi_base_url, repo, book, versi
     "repo, book, version",
     [("osbooks-astronomy", "astronomy-2e", "p888p")],
 )
-def test_incorrect_version_corrected(chrome_page, corgi_base_url, repo, book, version):
+def test_incorrect_version_corrected(
+    chrome_page, corgi_base_url, repo, book, version
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -179,7 +209,10 @@ def test_incorrect_version_corrected(chrome_page, corgi_base_url, repo, book, ve
     home.click_create_new_job_button()
 
     # THEN: Error message dialog appears
-    assert "Error: Could not find commit 'p888p'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Could not find commit 'p888p'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.click_error_banner_okay_button()
 
@@ -197,7 +230,9 @@ def test_incorrect_version_corrected(chrome_page, corgi_base_url, repo, book, ve
     "repo, book, version",
     [("//osbooks-astronomy", "astronomy-2e", " ")],
 )
-def test_invalid_repo_error_message(chrome_page, corgi_base_url, repo, book, version):
+def test_invalid_repo_error_message(
+    chrome_page, corgi_base_url, repo, book, version
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -215,7 +250,10 @@ def test_invalid_repo_error_message(chrome_page, corgi_base_url, repo, book, ver
     home.click_create_new_job_button()
 
     # THEN: Error message dialog appears
-    assert "Error: Invalid repository" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Invalid repository"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.click_error_banner_okay_button()
 
@@ -225,7 +263,10 @@ def test_invalid_repo_error_message(chrome_page, corgi_base_url, repo, book, ver
 
     home.click_create_new_job_button()
 
-    assert "Error: Could not resolve to a Repository with the name '/osbooks-astronomy'" in home.error_message_dialog_locator.text_content()
+    assert (
+        "Error: Could not resolve to a Repository with the name '/osbooks-astronomy'"
+        in home.error_message_dialog_locator.text_content()
+    )
 
     home.click_error_banner_okay_button()
 

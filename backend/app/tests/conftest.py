@@ -1,5 +1,7 @@
-import re
+# ruff: noqa: E501
+
 import os
+import re
 
 import pytest
 
@@ -19,7 +21,7 @@ def get_custom_markers():
         "ui: mark tests used for ui tests",
         "unit: mark tests as a unit test",
         "nondestructive: tests using this decorator will run in sensitive environments",
-        "sensitive: the url for environments where destructive tests should not be executed"
+        "sensitive: the url for environments where destructive tests should not be executed",
     )
 
 
@@ -33,38 +35,40 @@ def pytest_addoption(parser):
         action="store_true",
         dest="run_destructive",
         default=False,
-        help="include destructive tests (tests not explicitly marked as \'nondestructive\'). (disabled by default).",
+        help="include destructive tests (tests not explicitly marked as 'nondestructive'). (disabled by default).",
     )
-    parser.addoption(
-        "--github-token",
-        default=os.getenv("GITHUB_TOKEN", None)
+    parser.addoption("--github-token", default=os.getenv("GITHUB_TOKEN", None))
+    group.addoption(
+        "--sensitiveurl",
+        action="store",
+        dest="sensitive_url",
+        default=r"corgi\.ce\.openstax\.org",
+        metavar="str",
+        help="regular expression for identifying sensitive urls.",
     )
-    group.addoption("--sensitiveurl",
-                    action="store",
-                    dest="sensitive_url",
-                    default=r"corgi\.ce\.openstax\.org",
-                    metavar="str",
-                    help="regular expression for identifying sensitive urls.")
 
 
 def pytest_configure(config):
     for marker in get_custom_markers():
         config.addinivalue_line("markers", marker)
 
-    if not config.option.run_destructive:
-        if config.option.markexpr:
-            config.option.markexpr = f"nondestructive and {config.option.markexpr}"
+    if not config.option.run_destructive and config.option.markexpr:
+        config.option.markexpr = f"nondestructive and {config.option.markexpr}"
 
 
 def pytest_runtest_setup(item):
-    sensitive = re.search(item.config.option.sensitive_url, item.config.option.base_url)
-    destructive = 'nondestructive' not in item.keywords
+    sensitive = re.search(
+        item.config.option.sensitive_url, item.config.option.base_url
+    )
+    destructive = "nondestructive" not in item.keywords
 
     if sensitive and destructive:
         # Skip the test with an appropriate message
-        pytest.skip("This test is destructive and the target URL is"
-                    "considered a sensitive environment. If this test"
-                    "is not destructive add the 'nondestructive' marker.")
+        pytest.skip(
+            "This test is destructive and the target URL is"
+            "considered a sensitive environment. If this test"
+            "is not destructive add the 'nondestructive' marker."
+        )
 
 
 @pytest.fixture(scope="session")
@@ -77,7 +81,8 @@ def github_token(request):
     """Return the revision"""
     config = request.config
     github_token = config.getoption("--github-token")
-    assert isinstance(github_token, str) and len(github_token) > 0, \
-           ("Use option --github-token or env var GITHUB_TOKEN to set the"
-            "token to use")
+    assert isinstance(github_token, str) and len(github_token) > 0, (
+        "Use option --github-token or env var GITHUB_TOKEN to set the"
+        "token to use"
+    )
     return github_token

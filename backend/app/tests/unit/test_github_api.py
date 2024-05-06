@@ -1,4 +1,3 @@
-
 import pytest
 from httpx import AsyncClient
 
@@ -8,6 +7,7 @@ from httpx import AsyncClient
 @pytest.mark.asyncio
 async def test_get_user_and_teams(monkeypatch, mock_github_api):
     from app.data_models.models import UserSession
+
     exc = None
     user = None
     teams = None
@@ -28,6 +28,7 @@ async def test_get_user_and_teams(monkeypatch, mock_github_api):
 @pytest.mark.asyncio
 async def test_get_book_repository(monkeypatch, mock_github_api):
     from datetime import datetime
+
     exc = None
     repo = None
     books = None
@@ -35,9 +36,14 @@ async def test_get_book_repository(monkeypatch, mock_github_api):
     commit_sha = None
     try:
         async with AsyncClient() as client:
-            repo, commit_sha, timestamp, books = \
-                await mock_github_api.get_book_repository(
-                    client, "tiny-book", "openstax", "main")
+            (
+                repo,
+                commit_sha,
+                timestamp,
+                books,
+            ) = await mock_github_api.get_book_repository(
+                client, "tiny-book", "openstax", "main"
+            )
     except Exception as e:
         exc = e
     assert exc is None
@@ -58,7 +64,8 @@ async def test_get_book_collections(monkeypatch, mock_github_api):
     try:
         async with AsyncClient() as client:
             collections = await mock_github_api.get_collections(
-                client, "tiny-book", "openstax", "main")
+                client, "tiny-book", "openstax", "main"
+            )
     except Exception as e:
         exc = e
     assert exc is None
@@ -73,12 +80,14 @@ async def test_get_book_collections(monkeypatch, mock_github_api):
 @pytest.mark.asyncio
 async def test_get_user_repositories(monkeypatch, mock_github_api):
     from app.github import GitHubRepo
+
     exc = None
     repos = None
     try:
         async with AsyncClient() as client:
             repos = await mock_github_api.get_user_repositories(
-                client, "org:openstax osbooks in:name is:public")
+                client, "org:openstax osbooks in:name is:public"
+            )
     except Exception as e:
         exc = e
     assert exc is None

@@ -1,20 +1,18 @@
-import os
-from datetime import datetime, timezone
-from shutil import copytree, ignore_patterns
-from subprocess import run, PIPE
-from shlex import split
-from typing import Optional
-from enum import Enum
-from time import time
-import re
 import json
+import os
+import re
+from enum import Enum
 from pathlib import Path
+from shlex import split
+from shutil import copytree, ignore_patterns
+from subprocess import PIPE, run
+from time import time
+from typing import Optional
 
+import httpx
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-import httpx
-
 
 server = FastAPI(title="CORGI Hotdog")
 

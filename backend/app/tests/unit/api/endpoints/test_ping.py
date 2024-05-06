@@ -2,6 +2,7 @@ import pytest
 
 ENDPOINT = "ping"
 
+
 @pytest.mark.unit
 @pytest.mark.nondestructive
 def test_ping_get_request(testclient):

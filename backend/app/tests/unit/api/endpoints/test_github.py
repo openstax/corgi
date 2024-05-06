@@ -5,10 +5,12 @@ from app.data_models.models import RepositorySummary
 
 @pytest.mark.unit
 @pytest.mark.nondestructive
-def test_repositories(monkeypatch, testclient_with_session,
-                      mock_user_service, fake_data):
-    monkeypatch.setattr("app.api.endpoints.github.user_service",
-                        mock_user_service)
+def test_repositories(
+    monkeypatch, testclient_with_session, mock_user_service, fake_data
+):
+    monkeypatch.setattr(
+        "app.api.endpoints.github.user_service", mock_user_service
+    )
     # GIVEN: testclient_with_session - an authenticated client
     # WHEN: the user requests a repository summary
     response = testclient_with_session.get("/api/github/repository-summary")

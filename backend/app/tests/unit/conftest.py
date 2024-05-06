@@ -18,20 +18,24 @@ def pytest_configure(config):
         token = config.getoption("--github-token")
         if token is not None:
             from tests.unit.init_test_data import main
+
             main(token)
         else:
-            raise Exception("--github-token is required when initializing "
-                            "test data")
+            raise Exception(
+                "--github-token is required when initializing " "test data"
+            )
 
 
 @pytest.fixture
 def mock_github_api():
     """Uses vcr to fake responses from GitHub API"""
-    from tests.unit.init_test_data import (mock_get_book_repository,
-                                           mock_get_collections,
-                                           mock_get_user,
-                                           mock_get_user_repositories,
-                                           mock_get_user_teams)
+    from tests.unit.init_test_data import (
+        mock_get_book_repository,
+        mock_get_collections,
+        mock_get_user,
+        mock_get_user_repositories,
+        mock_get_user_teams,
+    )
 
     # Namespace functions in a class purely for ease of use
     class MockGitHubAPI:
@@ -51,30 +55,38 @@ def fake_data():
     from typing import cast
 
     from app.data_models.models import Role, UserSession
-    from app.db.schema import (Book, BookJob, Commit, Jobs, JobTypes,
-                               Repository, Status, User)
+    from app.db.schema import (
+        Book,
+        BookJob,
+        Commit,
+        Jobs,
+        JobTypes,
+        Repository,
+        Status,
+        User,
+    )
 
     now = datetime.now(timezone.utc)
 
     class FakeData:
         AUDIT_DATA = {"created_at": now, "updated_at": now}
         FAKE_REPO = Repository(name="osbooks-fake-book", owner="openstax", id=1)
-        FAKE_COMMIT = Commit(
-            id=1,
-            repository_id=FAKE_REPO.id)
+        FAKE_COMMIT = Commit(id=1, repository_id=FAKE_REPO.id)
         FAKE_BOOK = Book(
             commit_id=FAKE_COMMIT.id,
             slug="test",
             uuid="ooooooo",
             edition=0,
-            style="test")
+            style="test",
+        )
         FAKE_USER = User(id=1, name="Test", avatar_url="/")
         FAKE_SESSION = UserSession(
             id=cast(int, FAKE_USER.id),
             name=cast(str, FAKE_USER.name),
             avatar_url=cast(str, FAKE_USER.avatar_url),
             token="test",
-            role=Role.ADMIN)
+            role=Role.ADMIN,
+        )
         FAKE_JOB = Jobs(
             id=1,
             user_id=FAKE_USER.id,
@@ -82,16 +94,12 @@ def fake_data():
             job_type_id=3,
             worker_version="",
             error_message="",
-            **AUDIT_DATA)
-        FAKE_STATUS = Status(
-            id=1,
-            name="queued",
-            **AUDIT_DATA)
+            **AUDIT_DATA,
+        )
+        FAKE_STATUS = Status(id=1, name="queued", **AUDIT_DATA)
         FAKE_JOB_TYPE = JobTypes(
-            id=3,
-            name="Test",
-            display_name="Test job type",
-            **AUDIT_DATA)
+            id=3, name="Test", display_name="Test job type", **AUDIT_DATA
+        )
         FAKE_BOOK_JOB = BookJob(book_id=FAKE_BOOK.id, job_id=FAKE_JOB.id)
         FAKE_BOOK_JOB.book = FAKE_BOOK
         FAKE_COMMIT.books = [FAKE_BOOK]
@@ -100,12 +108,12 @@ def fake_data():
         FAKE_JOB.status = FAKE_STATUS
         FAKE_JOB.user = FAKE_USER
         FAKE_JOB.job_type = FAKE_JOB_TYPE
+
     return FakeData
 
 
 @pytest.fixture
 def mock_user_service(fake_data):
-
     class MockUserService:
         def upsert_user_repositories(self, db, user, repositories):
             pass
@@ -115,6 +123,7 @@ def mock_user_service(fake_data):
 
         def get_user_repositories(self, db, user):
             return [fake_data.FAKE_REPO]
+
     return MockUserService()
 
 
@@ -130,9 +139,10 @@ def mock_jobs_service(fake_data):
 
         def update(self, db, job, job_in):
             from app.data_models.models import Job
+
             job_model = Job.from_orm(job).dict(exclude_unset=True)
             job_in_dict = job_in.dict(exclude_unset=True)
-            for k in job_in_dict.keys():
+            for k in job_in_dict:
                 if job_in_dict[k] is None:
                     del job_in_dict[k]
             job_model.update(job_in_dict)
@@ -150,6 +160,7 @@ def mock_jobs_service(fake_data):
 
         def get(self, *_args, **_kwargs):
             return fake_data.FAKE_JOB
+
     return MockJobsService()
 
 
@@ -167,24 +178,21 @@ def mock_oauth_redirect(monkeypatch, fake_data):
 
 @pytest.fixture
 def mock_login_success(
-        monkeypatch,
-        mock_user_service,
-        mock_oauth_redirect,
-        mock_github_api):
-
+    monkeypatch, mock_user_service, mock_oauth_redirect, mock_github_api
+):
     async def nop(*_args, **_kwargs):
         pass
 
     monkeypatch.setattr(
-        "app.api.endpoints.auth.get_user",
-        mock_github_api.get_user)
+        "app.api.endpoints.auth.get_user", mock_github_api.get_user
+    )
     monkeypatch.setattr(
-        "app.github.api.get_user_teams",
-        mock_github_api.get_user_teams)
+        "app.github.api.get_user_teams", mock_github_api.get_user_teams
+    )
     monkeypatch.setattr(
-        "app.api.endpoints.auth.user_service", mock_user_service)
-    monkeypatch.setattr(
-        "app.api.endpoints.auth.sync_user_repositories", nop)
+        "app.api.endpoints.auth.user_service", mock_user_service
+    )
+    monkeypatch.setattr("app.api.endpoints.auth.sync_user_repositories", nop)
 
 
 @pytest.fixture
@@ -233,29 +241,33 @@ def mock_session():
         class MockResult:
             def all(self):
                 return result_getter(mock_session)
-            
+
             def first(self):
                 results = self.all()
                 return (
-                    None 
-                    if results is None or len(results) == 0
-                    else results[0]
+                    None if results is None or len(results) == 0 else results[0]
                 )
 
         return mock_session
+
     return inner
 
 
 @pytest.fixture
 def mock_http_client():
-    def inner(get={}, post={}):
+    def inner(get=None, post=None):
+        if get is None:
+            get = {}
+        if post is None:
+            post = {}
+
         class MockResponse:
             def __init__(self, expected_result):
                 self.expected_result = expected_result
-            
+
             def json(self):
                 return self.expected_result
-            
+
             def raise_for_status(self):
                 pass
 
@@ -264,9 +276,7 @@ def mock_http_client():
                 self.calls = []
 
             async def get(self, url, **kwargs):
-                self.calls.append(
-                    {"type": "get", "kwargs": kwargs, "url": url}
-                )
+                self.calls.append({"type": "get", "kwargs": kwargs, "url": url})
                 return MockResponse(get.get(url, None))
 
             async def post(self, url, **kwargs):
@@ -282,7 +292,7 @@ def mock_http_client():
 
 @pytest.fixture
 def session_cookie(testclient, mock_login_success):
-    response = testclient.get(f"/api/auth/login", allow_redirects=False)
+    response = testclient.get("/api/auth/login", allow_redirects=False)
     redirect_location = response.headers.get("location")
     response = testclient.get(redirect_location, allow_redirects=False)
     return response.headers.get("set-cookie")
@@ -291,7 +301,7 @@ def session_cookie(testclient, mock_login_success):
 @pytest.fixture
 def testclient():
     from app.main import server
-    
+
     client = TestClient(server)
     yield client
 

@@ -42,7 +42,9 @@ def test_create_new_job_button_is_disabled(chrome_page, corgi_base_url):
     "repo, book, version",
     [("osbooks-astronomy", "astronomy-2e", "main")],
 )
-def test_create_new_job_button_is_enabled(chrome_page, corgi_base_url, repo, book, version):
+def test_create_new_job_button_is_enabled(
+    chrome_page, corgi_base_url, repo, book, version
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded

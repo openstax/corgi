@@ -1,14 +1,20 @@
 import asyncio
+import shutil
 import sys
 from pathlib import Path
 from typing import cast
-import shutil
 
 import vcr
-from app.github import (AuthenticatedClient, get_book_repository,
-                        get_collections, get_user, get_user_repositories,
-                        get_user_teams)
 from httpx import AsyncClient
+
+from app.github import (
+    AuthenticatedClient,
+    get_book_repository,
+    get_collections,
+    get_user,
+    get_user_repositories,
+    get_user_teams,
+)
 
 
 def apply_key_whitelist(d, whitelist):
@@ -28,18 +34,21 @@ class BaseSanitizer:
         request_headers = d["interactions"][0]["request"]["headers"]
         response_headers = d["interactions"][0]["response"]["headers"]
         for headers, whitelist in (
-                (request_headers, ("host",)),
-                (response_headers, ("content-type", "server"))):
+            (request_headers, ("host",)),
+            (response_headers, ("content-type", "server")),
+        ):
             apply_key_whitelist(headers, whitelist)
 
     def serialize(self, d, *args, **kwargs):
         self.transform(d)
         return self.vcr.serializers[my_vcr.serializer].serialize(
-            d, *args, **kwargs)
+            d, *args, **kwargs
+        )
 
     def deserialize(self, *args, **kwargs):
         return self.vcr.serializers[my_vcr.serializer].deserialize(
-            *args, **kwargs)
+            *args, **kwargs
+        )
 
 
 class UserSanitizer(BaseSanitizer):
@@ -47,6 +56,7 @@ class UserSanitizer(BaseSanitizer):
 
     def transform(self, d):
         import json
+
         super().transform(d)
         body = json.loads(d["interactions"][0]["response"]["content"])
         # Keep exactly what is used by the backend, delete extra data
@@ -71,6 +81,7 @@ async def mock_get_user(client, access_token):
 @my_vcr.use_cassette("get_user_teams.yaml", serializer="base_sanitizer")
 async def mock_get_user_teams(client, user):
     import app.github.api
+
     app.github.api.IS_DEV_ENV = False
     teams = await get_user_teams(client, user)
     app.github.api.IS_DEV_ENV = True
@@ -99,7 +110,8 @@ async def async_main(access_token: str):
         user = await mock_get_user(client, access_token)
         await mock_get_user_teams(client, user.name)
         await mock_get_user_repositories(
-            client, "org:openstax osbooks in:name is:public")
+            client, "org:openstax osbooks in:name is:public"
+        )
         await mock_get_book_repository(client, "tiny-book", "openstax", "main")
         await mock_get_collections(client, "tiny-book", "openstax", "main")
 

@@ -3,6 +3,7 @@ import requests
 
 ENDPOINT = "ping"
 
+
 @pytest.mark.integration
 @pytest.mark.nondestructive
 def test_ping_get_request(api_url):
@@ -13,4 +14,4 @@ def test_ping_get_request(api_url):
     response = requests.get(url)
 
     # THEN: A proper response is returned
-    assert response.json() == {'message': 'pong'}
+    assert response.json() == {"message": "pong"}

@@ -1,5 +1,6 @@
-from tests.ui.pages.home import HomeCorgi, JobStatus
 import pytest
+
+from tests.ui.pages.home import HomeCorgi, JobStatus
 
 
 @pytest.mark.ui
@@ -55,8 +56,8 @@ def test_e2e_webview_jobs_book_optional(chrome_page_slow, corgi_base_url, repo):
 
         assert not home.job_id_dialog_is_visible
 
-        # This escape key press clears the tooltip of job type icon appearing twice
-        # or gets stuck open (as a quirk of the used UI library)
+        # This escape key press clears the tooltip of job type icon appearing
+        # twice or gets stuck open (as a quirk of the used UI library)
         chrome_page_slow.keyboard.press("Escape")
 
         home.book_title_column.hover()
@@ -67,5 +68,6 @@ def test_e2e_webview_jobs_book_optional(chrome_page_slow, corgi_base_url, repo):
 
     else:
         pytest.fail(
-            f"No new job was queued. Last job is at {home.elapsed_time.inner_text()}"
+            "No new job was queued. Last job is at "
+            + home.elapsed_time.inner_text()
         )
