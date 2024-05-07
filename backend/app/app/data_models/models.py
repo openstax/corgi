@@ -85,18 +85,21 @@ class ApprovedBook(RequestApproveBook):
 
     class Config:
         class Getter(GetterDict):
+            getters = {
+                "uuid": lambda self: self._obj.book.uuid,
+                "commit_sha": lambda self: self._obj.book.commit.sha,
+                "code_version": lambda self: self._obj.code_version.version,
+                "consumer": lambda self: self._obj.consumer.name,
+                "created_at": lambda self: self._obj.created_at,
+                "committed_at": lambda self: self._obj.book.commit.timestamp,
+                "repository_name": (
+                    lambda self: self._obj.book.commit.repository.name
+                ),
+                "slug": lambda self: self._obj.book.slug,
+            }
+
             def get(self, key: str, default: Any = None) -> Any:
-                props = {
-                    "uuid": self._obj.book.uuid,
-                    "commit_sha": self._obj.book.commit.sha,
-                    "code_version": self._obj.code_version.version,
-                    "consumer": self._obj.consumer.name,
-                    "created_at": self._obj.created_at,
-                    "committed_at": self._obj.book.commit.timestamp,
-                    "repository_name": self._obj.book.commit.repository.name,
-                    "slug": self._obj.book.slug,
-                }
-                return props.get(key, default)
+                return self.getters.get(key, lambda _: default)(self)
 
         orm_mode = True
         getter_dict = Getter
