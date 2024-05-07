@@ -140,13 +140,13 @@ if [[ "$COMMAND" == "ui-tests" || "$COMMAND" == "unit-tests-backend" ]]; then
     fi
     IMAGE_TAG=corgi-cli/corgi-ui-tests
     docker build -t $IMAGE_TAG -f backend/tests.dockerfile backend
-    docker run --rm -it -v "$here/backend/app":/app -w /app $IMAGE_TAG bash -c \
-        "pytest --tb=long --showlocals ${args[*]}"
+    docker run --rm -it -v "$here/backend/app":/app -w /app $IMAGE_TAG \
+        pytest --tb=long --showlocals "${args[@]}"
 elif [[ "$COMMAND" == "start-dev" ]]; then
-    docker compose -f "$dev_stack" up -d
+    docker compose -f "$dev_stack" up --build --detach
     log "Hint: Remember to setup your GitHub app like in the README"
 elif [[ "$COMMAND" == "start-leashed" || "$COMMAND" == "start" ]]; then
-    docker compose -f "$dev_stack" -f "$leash_stack" up -d
+    docker compose -f "$dev_stack" -f "$leash_stack" up --build --detach
 elif [[ "$COMMAND" == "build" || "$COMMAND" == "restart" ]]; then
     stack_name="$1"
     stacks_allowed=(dev leashed)
@@ -189,6 +189,14 @@ elif [[ "$COMMAND" == "create-approved-books" ]]; then
     token="${1:-fake-token}"
     docker compose -f "$dev_stack" exec -T backend \
         python - "$token" < "$here/scripts/add-approved-books.py"
+elif [[ "$COMMAND" == "lint" ]]; then
+    docker compose -f "$dev_stack" run --rm backend ruff check
+    docker compose -f "$dev_stack" run --rm backend ruff format --check
+    docker compose -f "$dev_stack" run --rm frontend npm run lint
+elif [[ "$COMMAND" == "format" ]]; then
+    docker compose -f "$dev_stack" run --rm backend ruff check --fix
+    docker compose -f "$dev_stack" run --rm backend ruff format
+    docker compose -f "$dev_stack" run --rm frontend npm run format
 else
     usage "Unknown command \"$COMMAND\""
 fi
