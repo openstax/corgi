@@ -8,7 +8,8 @@
     repoToString,
     readableDateTime,
     parseDateTime,
-    isJobComplete
+    isJobComplete,
+    getVersionLink,
   } from "../ts/utils";
   import NewJobForm from "./NewJobForm.svelte";
   import { submitNewJob } from "../ts/jobs";
@@ -32,6 +33,8 @@
   import DetailsDialog from "./DetailsDialog.svelte";
   import { MINUTES, SECONDS } from "../ts/time";
   import { hasABLEntry } from "../ts/abl";
+  import ApprovedBooksDialog from "./ApprovedBooksDialog.svelte";
+  import VersionLink from "./VersionLink.svelte";
 
   let statusStyles = {
     queued: "filter-yellow",
@@ -45,6 +48,7 @@
   let selectedJobTypes = [];
 
   let detailsOpen = false;
+  let ablOpen = false;
   let selectedJob: Job;
 
   let selectedRepo: string;
@@ -107,10 +111,8 @@
     return cssClasses;
   }
 
-  function getVersionLink(job: Job) {
-    return `https://github.com/${repoToString(job.repository, true)}/tree/${
-      job.version
-    }`;
+  function getVersionLinkFromJob(job: Job) {
+    return getVersionLink(job.repository, job.version);
   }
 
   function handleHash() {
@@ -248,6 +250,17 @@
 />
 
 <div>
+  <Button
+    on:click={() => {
+      ablOpen = true;
+    }}
+    data-control-type={"button-show-abl"}
+  >
+    Show ABL
+  </Button>
+</div>
+
+<div>
   <DataTable
     responsive
     sortable
@@ -308,6 +321,7 @@
         <Row slot="data" class={isApproved ? "abl" : ""}>
           <Cell>
             <Button
+              data-control-type={"button-job-id"}
               on:click={() => {
                 selectedJob = item;
                 detailsOpen = true;
@@ -374,18 +388,15 @@
             {/if}
           </Cell>
           <Cell>
-            <a href={getVersionLink(item)} target="_blank" rel="noreferrer">
-              {#if item.git_ref !== item.version}
-                {item.git_ref.length <= 16
-                  ? item.git_ref
-                  : `${item.git_ref.slice(0, 16)}...`}@{item.version.slice(
-                  0,
-                  7,
-                )}
-              {:else}
-                {item.version.slice(0, 7)}
-              {/if}
-            </a>
+            <VersionLink
+              href={getVersionLinkFromJob(item)}
+              text={item.git_ref === item.version
+                ? item.version.slice(0, 7)
+                : (item.git_ref.length <= 16
+                    ? item.git_ref
+                    : `${item.git_ref.slice(0, 16)}...`) +
+                  `@${item.version.slice(0, 7)}`}
+            />
           </Cell>
           <Cell>
             <Wrapper>
@@ -484,6 +495,7 @@
   </DataTable>
 
   <DetailsDialog bind:open={detailsOpen} {selectedJob} />
+  <ApprovedBooksDialog bind:open={ablOpen} />
 </div>
 
 <style>
