@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship
@@ -6,18 +6,25 @@ from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 
 
+def utcnow():
+    return datetime.now(timezone.utc)
+
+
 class JobTypes(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     name = sa.Column(sa.String, nullable=False)
     display_name = sa.Column(sa.String, nullable=False)
     created_at = sa.Column(
-        sa.DateTime, nullable=False, default=datetime.utcnow, index=True
+        sa.DateTime,
+        nullable=False,
+        default=utcnow,
+        index=True,
     )
     updated_at = sa.Column(
         sa.DateTime,
         nullable=False,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        default=utcnow,
+        onupdate=utcnow,
     )
 
     jobs = relationship("Jobs", back_populates="job_type")
@@ -32,13 +39,16 @@ class Jobs(Base):
     worker_version = sa.Column(sa.String)
     error_message = sa.Column(sa.String)
     created_at = sa.Column(
-        sa.DateTime, nullable=False, default=datetime.utcnow, index=True
+        sa.DateTime,
+        nullable=False,
+        default=utcnow,
+        index=True,
     )
     updated_at = sa.Column(
         sa.DateTime,
         nullable=False,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        default=utcnow,
+        onupdate=utcnow,
     )
 
     status = relationship("Status", back_populates="jobs", lazy="joined")
@@ -55,12 +65,12 @@ class Jobs(Base):
 class Status(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     name = sa.Column(sa.String)
-    created_at = sa.Column(sa.DateTime, default=datetime.utcnow, index=True)
+    created_at = sa.Column(sa.DateTime, default=utcnow, index=True)
     updated_at = sa.Column(
         sa.DateTime,
         nullable=False,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        default=utcnow,
+        onupdate=utcnow,
         index=True,
     )
 
@@ -113,12 +123,12 @@ class Book(Base):
 class CodeVersion(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     version = sa.Column(sa.String, nullable=False)
-    created_at = sa.Column(sa.DateTime, default=datetime.utcnow, index=True)
+    created_at = sa.Column(sa.DateTime, default=utcnow, index=True)
     updated_at = sa.Column(
         sa.DateTime,
         nullable=False,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        default=utcnow,
+        onupdate=utcnow,
         index=True,
     )
 
@@ -130,12 +140,12 @@ class CodeVersion(Base):
 class Consumer(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     name = sa.Column(sa.String, nullable=False)
-    created_at = sa.Column(sa.DateTime, default=datetime.utcnow, index=True)
+    created_at = sa.Column(sa.DateTime, default=utcnow, index=True)
     updated_at = sa.Column(
         sa.DateTime,
         nullable=False,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        default=utcnow,
+        onupdate=utcnow,
         index=True,
     )
 
@@ -156,12 +166,12 @@ class ApprovedBook(Base):
         index=True,
         primary_key=True,
     )
-    created_at = sa.Column(sa.DateTime, default=datetime.utcnow, index=True)
+    created_at = sa.Column(sa.DateTime, default=utcnow, index=True)
     updated_at = sa.Column(
         sa.DateTime,
         nullable=False,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        default=utcnow,
+        onupdate=utcnow,
         index=True,
     )
 
