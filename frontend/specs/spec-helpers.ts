@@ -65,13 +65,49 @@ export const jobFactory = Factory.Sync.makeFactory<Job>({
   worker_version: getCodeVersion(),
 });
 
+const uuidGetter = (count: number) => {
+  let uuid = crypto.randomUUID();
+  return (i: number) => {
+    if (i % count === 0) {
+      uuid = crypto.randomUUID();
+    }
+    return uuid;
+  };
+};
+
+const repoGetter = (count: number) => {
+  let repo = "osbooks-test-0";
+  return (i: number) => {
+    if (i % count === 0) {
+      repo = `osbooks-test-${i}`;
+    }
+    return repo;
+  };
+};
+
 export const approvedBookWithDateFactory =
   Factory.Sync.makeFactory<ApprovedBookWithDate>({
-    ...bookFactory.build(),
+    uuid: Factory.each(uuidGetter(3)),
+    slug: "book-slug1",
     code_version: Factory.each((i) => getCodeVersion(i * 1000)),
     consumer: "REX",
     created_at: Factory.each(getCreatedAt),
-    commit_sha: Factory.each((i) => i.toString(16)),
+    commit_sha: Factory.each(() =>
+      Math.round(Math.random() * 100000)
+        .toString(16)
+        .padStart(7, "0"),
+    ),
     committed_at: Factory.each(getCreatedAt),
-    repository_name: Factory.each((i) => `test-${i}`),
+    repository_name: Factory.each(repoGetter(6)),
   });
+
+export function shuffle<T>(arr: T[]): T[] {
+  for (let i = 0; i < arr.length; i++) {
+    let swapIdx = i;
+    while ((swapIdx = Math.round(Math.random() * arr.length)) === i);
+    const a = arr[i];
+    arr[i] = arr[swapIdx];
+    arr[swapIdx] = a;
+  }
+  return arr;
+}
