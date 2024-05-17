@@ -29,6 +29,10 @@ export function repoToString(repo: Repository, fullyQualified = false) {
     : `${repo.owner}/${repo.name}`;
 }
 
+export function getVersionLink(repository: Repository, version: string) {
+  return `https://github.com/${repoToString(repository, true)}/tree/${version}`;
+}
+
 export function filterBooks(
   repositories: RepositorySummary[],
   selectedRepo: string,
@@ -104,4 +108,43 @@ export function calculateAge(job: Job): string {
 // https://stackoverflow.com/a/22706073
 export function escapeHTML(str: string) {
   return new Option(str).innerHTML;
+}
+
+const compareUnk = <T>(a: T, b: T): number => {
+  throw new Error(`Cannot compare ${typeof a} and ${typeof b}`);
+};
+
+export function cmp<T>(
+  a: T,
+  b: T,
+  defaultCompare: (a: T, b: T) => number = compareUnk,
+): number {
+  if (typeof a === "string" && typeof b === "string") {
+    return a.localeCompare(b);
+  } else if (typeof a === "number" && typeof b === "number") {
+    return a - b;
+  } else if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) return a.length - b.length;
+    let n = 0;
+    a.some((v, idx) => (n = cmp(v, b[idx], defaultCompare)) !== 0);
+    return n;
+  } else {
+    return defaultCompare(a, b);
+  }
+}
+
+export function sortBy<T>(
+  arr: T[],
+  keys: { key: keyof T; desc?: boolean }[],
+  customCompare: (a: T[keyof T], b: T[keyof T]) => number = compareUnk,
+): T[] {
+  return arr.sort((a: T, b: T) => {
+    let n = 0;
+    for (const { key, desc } of keys) {
+      n = cmp(a[key], b[key], customCompare);
+      if (desc === true) n *= -1;
+      if (n !== 0) break;
+    }
+    return n;
+  });
 }
