@@ -185,5 +185,5 @@ export async function updateRunningJobs(jobs: Job[]): Promise<Job[]> {
 }
 
 export const ABLStore = new (Pollable(
-  RateLimited(APIStore<ApprovedBookWithDate[]>, 3),
+  RateLimited(APIStore<ApprovedBookWithDate[]>, 2),
 ))(asyncWritable([]), fetchABL);
