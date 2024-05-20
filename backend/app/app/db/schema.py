@@ -10,18 +10,40 @@ def utcnow():
     return datetime.now(timezone.utc)
 
 
+class DateTimeUTC(sa.types.TypeDecorator):
+    impl = sa.DateTime
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        if isinstance(value, datetime):
+            if value.tzinfo is None or value.tzinfo.utcoffset(value) is None:
+                raise TypeError("Timezone is required")
+            # Convert the time to utc (requires timezone), then remove timezone
+            # The timezone is implicitly removed when the datetime is stored
+            value = value.astimezone(timezone.utc).replace(tzinfo=None)
+        return value
+
+    def process_result_value(self, value, dialect):
+        # Since we diligently ensured the datetime is stored with utc offset,
+        # we can safely force the loaded value to have a utc timezone (if it
+        # is a datetime)
+        if isinstance(value, datetime):
+            value = value.replace(tzinfo=timezone.utc)
+        return value
+
+
 class JobTypes(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     name = sa.Column(sa.String, nullable=False)
     display_name = sa.Column(sa.String, nullable=False)
     created_at = sa.Column(
-        sa.DateTime,
+        DateTimeUTC,
         nullable=False,
         default=utcnow,
         index=True,
     )
     updated_at = sa.Column(
-        sa.DateTime,
+        DateTimeUTC,
         nullable=False,
         default=utcnow,
         onupdate=utcnow,
@@ -39,13 +61,13 @@ class Jobs(Base):
     worker_version = sa.Column(sa.String)
     error_message = sa.Column(sa.String)
     created_at = sa.Column(
-        sa.DateTime,
+        DateTimeUTC,
         nullable=False,
         default=utcnow,
         index=True,
     )
     updated_at = sa.Column(
-        sa.DateTime,
+        DateTimeUTC,
         nullable=False,
         default=utcnow,
         onupdate=utcnow,
@@ -65,9 +87,9 @@ class Jobs(Base):
 class Status(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     name = sa.Column(sa.String)
-    created_at = sa.Column(sa.DateTime, default=utcnow, index=True)
+    created_at = sa.Column(DateTimeUTC, default=utcnow, index=True)
     updated_at = sa.Column(
-        sa.DateTime,
+        DateTimeUTC,
         nullable=False,
         default=utcnow,
         onupdate=utcnow,
@@ -90,7 +112,7 @@ class Commit(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     repository_id = sa.Column(sa.Integer, sa.ForeignKey("repository.id"))
     sha = sa.Column(sa.String, nullable=False)
-    timestamp = sa.Column(sa.DateTime, nullable=False)
+    timestamp = sa.Column(DateTimeUTC, nullable=False)
 
     repository = relationship(
         "Repository", back_populates="commits", lazy="joined"
@@ -123,9 +145,9 @@ class Book(Base):
 class CodeVersion(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     version = sa.Column(sa.String, nullable=False)
-    created_at = sa.Column(sa.DateTime, default=utcnow, index=True)
+    created_at = sa.Column(DateTimeUTC, default=utcnow, index=True)
     updated_at = sa.Column(
-        sa.DateTime,
+        DateTimeUTC,
         nullable=False,
         default=utcnow,
         onupdate=utcnow,
@@ -140,9 +162,9 @@ class CodeVersion(Base):
 class Consumer(Base):
     id = sa.Column(sa.Integer, primary_key=True, index=True)
     name = sa.Column(sa.String, nullable=False)
-    created_at = sa.Column(sa.DateTime, default=utcnow, index=True)
+    created_at = sa.Column(DateTimeUTC, default=utcnow, index=True)
     updated_at = sa.Column(
-        sa.DateTime,
+        DateTimeUTC,
         nullable=False,
         default=utcnow,
         onupdate=utcnow,
@@ -166,9 +188,9 @@ class ApprovedBook(Base):
         index=True,
         primary_key=True,
     )
-    created_at = sa.Column(sa.DateTime, default=utcnow, index=True)
+    created_at = sa.Column(DateTimeUTC, default=utcnow, index=True)
     updated_at = sa.Column(
-        sa.DateTime,
+        DateTimeUTC,
         nullable=False,
         default=utcnow,
         onupdate=utcnow,
