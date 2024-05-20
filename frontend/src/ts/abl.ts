@@ -1,7 +1,7 @@
 import { RequireAuth } from "./fetch-utils";
 import type { Job, Book, ApprovedBookWithDate } from "./types";
 import { handleError } from "./utils";
-import { parseDateTimeAsUTC } from "./utils";
+import { parseDateTime } from "./utils";
 
 export async function newABLentry(job: Job, codeVersion: string) {
   const entries = job.books.map((b) => ({
@@ -35,10 +35,7 @@ export function getLatestCodeVersionForBook(
 ) {
   const latestEntry = abl
     .filter((entry) => entry.uuid === book.uuid)
-    .sort(
-      (b, a) =>
-        parseDateTimeAsUTC(a.created_at) - parseDateTimeAsUTC(b.created_at),
-    );
+    .sort((b, a) => parseDateTime(a.created_at) - parseDateTime(b.created_at));
   return latestEntry[0]?.code_version;
 }
 
