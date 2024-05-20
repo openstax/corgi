@@ -1,7 +1,7 @@
 import { expect, describe, it, jest, beforeEach } from "@jest/globals";
 import { submitNewJob, abortJob } from "../src/ts/jobs";
 import * as jobs from "../src/ts/jobs";
-import { repoToString, parseDateTimeAsUTC } from "../src/ts/utils";
+import { repoToString, parseDateTime } from "../src/ts/utils";
 import { jobsStore, updateRunningJobs } from "../src/ts/stores";
 import type { Job } from "../src/ts/types";
 import { jobFactory } from "./spec-helpers";
@@ -99,7 +99,7 @@ describe("updateRunningJobs", () => {
     await updateRunningJobs(jobs);
 
     expect(getJobsMock).toHaveBeenCalledWith(
-      parseDateTimeAsUTC(jobs[1].created_at) / 1000,
+      parseDateTime(jobs[1].created_at) / 1000,
     );
   });
 });

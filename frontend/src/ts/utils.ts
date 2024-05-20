@@ -3,7 +3,7 @@ import { RequireAuth } from "./fetch-utils";
 import { errorStore } from "./stores";
 import { MINUTES, HOURS, DAYS } from "./time";
 
-type Errors = Error;
+interface Errors extends Error {}
 
 export function handleError(e: Errors) {
   errorStore.add(e.toString());
@@ -44,7 +44,7 @@ export function filterBooks(
 }
 
 export function readableDateTime(datetime: string): string {
-  return new Date(parseDateTimeAsUTC(datetime)).toLocaleString();
+  return new Date(parseDateTime(datetime)).toLocaleString();
 }
 
 export function mapImage(folder: string, name: string, type: string): string {
@@ -64,18 +64,13 @@ export function parseDateTimeAddTZ(dateTime: string, tzOffset: string) {
   return Date.parse(dateTime + tzOffset);
 }
 
-export function parseDateTimeAsUTC(dateTime: string) {
-  // The database engine we are using does not seem to support storing timezone.
-  // We store UTC times in the database. Adding the UTC offset here makes
-  // javascript parse the time using UTC timezone instead of local timezone.
-  return parseDateTimeAddTZ(dateTime, "+00:00");
-}
+export const parseDateTime = Date.parse;
 
 export function calculateElapsed(job: Job): string {
   const update_time = isJobComplete(job)
-    ? parseDateTimeAsUTC(job.updated_at)
+    ? parseDateTime(job.updated_at)
     : Date.now();
-  const start_time = parseDateTimeAsUTC(job.created_at);
+  const start_time = parseDateTime(job.created_at);
   const elapsed = (update_time - start_time) / 1000;
   const hours = Math.floor(elapsed / 3600)
     .toString()
@@ -86,7 +81,7 @@ export function calculateElapsed(job: Job): string {
 }
 
 export function calculateAge(job: Job): string {
-  const start_time = parseDateTimeAsUTC(job.created_at);
+  const start_time = parseDateTime(job.created_at);
   const elapsed = Date.now() - start_time;
   const toCheck: Array<[number, string]> = [
     [DAYS, "days"],

@@ -7,8 +7,8 @@
     handleError,
     repoToString,
     readableDateTime,
-    parseDateTimeAsUTC,
-    isJobComplete,
+    parseDateTime,
+    isJobComplete
   } from "../ts/utils";
   import NewJobForm from "./NewJobForm.svelte";
   import { submitNewJob } from "../ts/jobs";
@@ -31,7 +31,7 @@
   import type { Job, JobType } from "../ts/types";
   import DetailsDialog from "./DetailsDialog.svelte";
   import { MINUTES, SECONDS } from "../ts/time";
-    import { hasABLEntry } from "../ts/abl";
+  import { hasABLEntry } from "../ts/abl";
 
   let statusStyles = {
     queued: "filter-yellow",
@@ -100,7 +100,7 @@
     let cssClasses = `job-status-icon ${statusStyles[statusName]}`;
     if (
       statusName === "completed" &&
-      Date.now() - parseDateTimeAsUTC(job.updated_at) < 30 * SECONDS
+      Date.now() - parseDateTime(job.updated_at) < 30 * SECONDS
     ) {
       cssClasses += " bounce";
     }
@@ -305,7 +305,7 @@
       {#each slice as item (item.id)}
         <!-- <DetailRow> -->
         {@const isApproved = hasABLEntry($ABLStore, item)}
-        <Row slot="data" class={isApproved ? 'abl' : ''}>
+        <Row slot="data" class={isApproved ? "abl" : ""}>
           <Cell>
             <Button
               on:click={() => {

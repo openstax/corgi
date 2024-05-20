@@ -2,7 +2,7 @@ import { derived, Readable, writable } from "svelte/store";
 import { getJobs } from "./jobs";
 import { SECONDS } from "./time";
 import type { ApprovedBookWithDate, Job, RepositorySummary } from "./types";
-import { fetchRepoSummaries, isJobComplete, parseDateTimeAsUTC } from "./utils";
+import { fetchRepoSummaries, isJobComplete, parseDateTime } from "./utils";
 import { fetchABL } from "./abl";
 
 type GConstructor<T = object> = new (...args: any[]) => T;
@@ -164,7 +164,7 @@ export async function updateRunningJobs(jobs: Job[]): Promise<Job[]> {
 
   for (let i = jobs.length - 1; i >= 0; i--) {
     const j = jobs[i];
-    if (parseDateTimeAsUTC(j.updated_at) < searchRangeStartTimestamp) {
+    if (parseDateTime(j.updated_at) < searchRangeStartTimestamp) {
       break;
     }
     if (!isJobComplete(j)) {
@@ -176,7 +176,7 @@ export async function updateRunningJobs(jobs: Job[]): Promise<Job[]> {
     oldestRunningJobIndex === -1 ? jobs.length - 1 : oldestRunningJobIndex;
 
   const lastJob = jobs[lastJobIndex];
-  const rangeStart = parseDateTimeAsUTC(lastJob.created_at) / 1000;
+  const rangeStart = parseDateTime(lastJob.created_at) / 1000;
   const newJobs = await getJobs(rangeStart);
   if (newJobs.length === 0) {
     return jobs;
