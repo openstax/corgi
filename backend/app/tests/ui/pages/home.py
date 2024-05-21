@@ -363,3 +363,7 @@ class HomeCorgi:
     @property
     def job_id_approve_frame_code_version_is_visible(self):
         return self.page.is_visible("id=selected-code-version")
+
+    @property
+    def job_id_approve_frame_is_visible(self):
+        return self.page.is_visible("id=approve-book-frame")
