@@ -10,9 +10,7 @@ from tests.ui.pages.home import HomeCorgi, JobStatus
     "repo, version",
     [("osbooks-otto-book", "main")],
 )
-def test_e2e_webview_bundle_jobs_urls(
-    chrome_page_slow, corgi_base_url, repo, version
-):
+def test_e2e_webview_bundle_jobs_urls(chrome_page_slow, corgi_base_url, repo, version):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -39,6 +37,8 @@ def test_e2e_webview_bundle_jobs_urls(
         home.click_job_type_icon()
 
         assert home.job_type_icon_job_links_are_visible
+        assert home.job_id_approve_frame_code_version_is_visible
+        assert home.job_id_dialog_approve_button_is_visible
 
         ccont = chrome_page_slow.content()
 
@@ -55,6 +55,5 @@ def test_e2e_webview_bundle_jobs_urls(
 
     else:
         pytest.fail(
-            "No new job was queued. Last job is at "
-            + home.elapsed_time.inner_text()
+            "No new job was queued. Last job is at " + home.elapsed_time.inner_text()
         )
