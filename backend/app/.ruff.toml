@@ -1,5 +1,16 @@
 line-length = 80
 
+exclude = [
+    ".tox",
+    ".git",
+    ".venv",
+    ".env",
+    "build*.py"
+]
+
+[lint.mccabe]
+max-complexity = 18
+
 [lint]
 select = [
     # pycodestyle
@@ -10,10 +21,13 @@ select = [
     "UP",
     # flake8-bugbear
     "B",
+    # McCabe complexity
+    "C",
     # flake8-simplify
     "SIM",
     # isort
     "I",
+    "W"
 ]
 ignore = ["F401", "B008", "B006", "UP022"]
 fixable = ["ALL"]
