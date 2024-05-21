@@ -21,8 +21,7 @@ def test_e2e_webview_bundle_jobs_urls(
 
     current_job_id = home.next_job_id
 
-    # WHEN: Input fields are filled (not book field) and a job check box is
-    # selected
+    # WHEN: Input fields are filled (not book field) and a job check box is selected
     home.fill_repo_field(repo)
     home.fill_version_field(version)
 
@@ -39,6 +38,8 @@ def test_e2e_webview_bundle_jobs_urls(
         home.click_job_type_icon()
 
         assert home.job_type_icon_job_links_are_visible
+        assert home.job_id_approve_frame_code_version_is_visible
+        assert home.job_id_dialog_approve_button_is_visible
 
         ccont = chrome_page_slow.content()
 

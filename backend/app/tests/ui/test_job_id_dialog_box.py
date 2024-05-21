@@ -98,6 +98,8 @@ def test_job_id_dialog_box_completed_job(
 
         assert home.job_id_dialog_repeat_button_is_visible
         assert home.job_id_dialog_approve_button_is_visible
+        assert home.job_id_approve_frame_code_version_is_visible
+
         assert home.job_id_artifact_link_is_visible
         assert not home.abort_button_is_visible
         assert home.get_link_button_is_visible
