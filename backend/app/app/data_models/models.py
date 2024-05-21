@@ -138,7 +138,7 @@ class RepositoryGetter(GetterDict):
     def get(self, key: str, default: Any = None) -> Any:
         repository = self._obj
         if key == "books":
-            books = set([])
+            books = set()
             for commit in repository.commits:
                 for book in commit.books:
                     books.add(book.slug)

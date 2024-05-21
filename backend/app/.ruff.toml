@@ -32,6 +32,15 @@ select = [
 ignore = ["F401", "B008", "B006", "UP022"]
 fixable = ["ALL"]
 
+[lint.isort]
+known-local-folder = ["app", "tests"]
+section-order = [
+    "standard-library",
+    "third-party",
+    "first-party",
+    "local-folder",
+]
+
 [format]
 quote-style = "double"
 indent-style = "space"
