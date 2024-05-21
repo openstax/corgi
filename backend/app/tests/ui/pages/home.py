@@ -1,5 +1,3 @@
-# ruff: noqa: E501
-
 from enum import Enum
 from time import sleep, time
 

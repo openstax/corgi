@@ -1,5 +1,3 @@
-# ruff: noqa: E501
-
 import io
 from urllib.request import Request, urlopen
 
