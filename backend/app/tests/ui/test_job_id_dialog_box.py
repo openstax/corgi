@@ -11,7 +11,9 @@ from tests.ui.pages.home import HomeCorgi, JobStatus
     "repo, book",
     [("osbooks-otto-book", "ottó-könyv")],
 )
-def test_job_id_dialog_box_aborted_job(chrome_page_slow, corgi_base_url, repo, book):
+def test_job_id_dialog_box_aborted_job(
+    chrome_page_slow, corgi_base_url, repo, book
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -65,7 +67,9 @@ def test_job_id_dialog_box_aborted_job(chrome_page_slow, corgi_base_url, repo, b
     "repo, book",
     [("osbooks-otto-book", "tschüß-grüße")],
 )
-def test_job_id_dialog_box_completed_job(chrome_page_slow, corgi_base_url, repo, book):
+def test_job_id_dialog_box_completed_job(
+    chrome_page_slow, corgi_base_url, repo, book
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -94,10 +98,11 @@ def test_job_id_dialog_box_completed_job(chrome_page_slow, corgi_base_url, repo,
 
         assert home.job_id_dialog_repeat_button_is_visible
         assert home.job_id_dialog_approve_button_is_visible
+        assert home.job_id_approve_frame_code_version_is_visible
+
         assert home.job_id_artifact_link_is_visible
         assert not home.abort_button_is_visible
         assert home.get_link_button_is_visible
-        assert home.job_id_approve_frame_code_version_is_visible
 
         home.click_get_link_button()
 
@@ -105,7 +110,8 @@ def test_job_id_dialog_box_completed_job(chrome_page_slow, corgi_base_url, repo,
 
     else:
         pytest.fail(
-            "No new job was queued. Last job is at " + home.elapsed_time.inner_text()
+            "No new job was queued. Last job is at "
+            + home.elapsed_time.inner_text()
         )
 
 
@@ -168,5 +174,6 @@ def test_job_id_dialog_box_failed_job(
 
     else:
         pytest.fail(
-            "No new job was queued. Last job is at " + home.elapsed_time.inner_text()
+            "No new job was queued. Last job is at "
+            + home.elapsed_time.inner_text()
         )

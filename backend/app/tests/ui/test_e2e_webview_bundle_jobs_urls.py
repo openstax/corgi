@@ -10,7 +10,9 @@ from tests.ui.pages.home import HomeCorgi, JobStatus
     "repo, version",
     [("osbooks-otto-book", "main")],
 )
-def test_e2e_webview_bundle_jobs_urls(chrome_page_slow, corgi_base_url, repo, version):
+def test_e2e_webview_bundle_jobs_urls(
+    chrome_page_slow, corgi_base_url, repo, version
+):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
@@ -19,8 +21,7 @@ def test_e2e_webview_bundle_jobs_urls(chrome_page_slow, corgi_base_url, repo, ve
 
     current_job_id = home.next_job_id
 
-    # WHEN: Input fields are filled (not book field) and a job check box is
-    # selected
+    # WHEN: Input fields are filled (not book field) and a job check box is selected
     home.fill_repo_field(repo)
     home.fill_version_field(version)
 
@@ -55,5 +56,6 @@ def test_e2e_webview_bundle_jobs_urls(chrome_page_slow, corgi_base_url, repo, ve
 
     else:
         pytest.fail(
-            "No new job was queued. Last job is at " + home.elapsed_time.inner_text()
+            "No new job was queued. Last job is at "
+            + home.elapsed_time.inner_text()
         )
