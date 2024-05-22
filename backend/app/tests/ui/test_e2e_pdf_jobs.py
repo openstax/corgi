@@ -40,6 +40,8 @@ def test_e2e_pdf_jobs(chrome_page_slow, corgi_base_url, repo, book, version):
         if home.job_type_href:
             home.click_job_id()
 
+            assert not home.job_id_approve_frame_code_version_is_visible
+
         else:
             raise Exception("Missing URL in job_type_href element")
 
