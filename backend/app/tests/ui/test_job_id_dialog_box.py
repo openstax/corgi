@@ -1,4 +1,5 @@
 import pytest
+from playwright.sync_api import expect
 from pytest_testrail.plugin import pytestrail
 
 from tests.ui.pages.home import HomeCorgi, JobStatus
@@ -56,6 +57,8 @@ def test_job_id_dialog_box_aborted_job(
     assert home.job_id_dialog_repeat_button_is_visible
     assert not home.job_id_dialog_approve_button_is_visible
     assert not home.job_id_artifact_link_is_visible
+
+    assert expect(home.job_type_icon).to_be_disabled
 
     home.click_job_id_dialog_close_button()
 
@@ -163,6 +166,8 @@ def test_job_id_dialog_box_failed_job(
         home.click_job_id_dialog_close_button()
 
         assert not home.job_id_dialog_is_visible
+
+        assert expect(home.job_type_icon).to_be_disabled
 
         home.click_job_id()
         assert home.job_id_dialog_error_message.inner_text() is not None
