@@ -50,6 +50,9 @@ def test_e2e_webview_jobs_book_optional(chrome_page_slow, corgi_base_url, repo):
 
         home.click_job_type_icon()
 
+        assert home.job_id_artifact_link_is_visible
+        assert home.job_id_approve_frame_code_version_is_visible
+
         job_link_text = home.job_type_icon_job_links_are_visible.inner_text()
 
         home.click_job_id_dialog_close_button()
