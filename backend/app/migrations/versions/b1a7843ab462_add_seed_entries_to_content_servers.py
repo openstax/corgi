@@ -6,7 +6,7 @@ Create Date: 2020-12-22 19:11:43.657348
 
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 import sqlalchemy as sa
 from alembic import op
@@ -30,7 +30,7 @@ content_servers_table = sa.table(
 
 def upgrade():
     bind = op.get_bind()
-    utcnow = datetime.utcnow()
+    utcnow = datetime.now(timezone.utc)
     server_data = [
         {
             "name": "production",

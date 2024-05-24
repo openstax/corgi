@@ -6,7 +6,7 @@ Create Date: 2019-10-21 15:52:38.549364
 
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 import sqlalchemy as sa
 from alembic import op
@@ -56,7 +56,7 @@ def upgrade():
         None, "events", "content_servers", ["content_server_id"], ["id"]
     )
 
-    utcnow = datetime.utcnow()
+    utcnow = datetime.now(timezone.utc)
 
     server_data = [
         {

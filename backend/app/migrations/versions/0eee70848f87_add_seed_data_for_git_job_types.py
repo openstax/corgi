@@ -6,7 +6,7 @@ Create Date: 2020-11-05 20:34:27.770606
 
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 import sqlalchemy as sa
 from alembic import op
@@ -29,7 +29,7 @@ jobs_table = sa.table("jobs", sa.column("job_type_id"))
 
 
 def upgrade():
-    utcnow = datetime.utcnow()
+    utcnow = datetime.now(timezone.utc)
     server_data = [
         {
             "id": 3,

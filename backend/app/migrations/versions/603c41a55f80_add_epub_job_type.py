@@ -6,7 +6,7 @@ Create Date: 2023-02-07 19:34:05.500073
 
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 import sqlalchemy as sa
 from alembic import op
@@ -32,7 +32,7 @@ epub_type_id = 6
 
 
 def upgrade():
-    utcnow = datetime.utcnow()
+    utcnow = datetime.now(timezone.utc)
     server_data = [
         {
             "id": epub_type_id,

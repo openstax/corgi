@@ -6,7 +6,7 @@ Create Date: 2021-01-13 23:14:38.997558
 
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 import sqlalchemy as sa
 from alembic import op
@@ -28,7 +28,7 @@ status_table = sa.table(
 
 
 def upgrade():
-    utcnow = datetime.utcnow()
+    utcnow = datetime.now(timezone.utc)
     bind = op.get_bind()
 
     status_data = [
