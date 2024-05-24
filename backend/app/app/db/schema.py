@@ -15,15 +15,15 @@ class DateTimeUTC(sa.types.TypeDecorator):
     cache_ok = True
 
     def process_bind_param(self, value, dialect):
-        # If the value does not have a timezone, it is assumed to be utc
-        if (
-            isinstance(value, datetime)
-            and value.tzinfo is not None
-            and value.tzinfo.utcoffset(value) is not None
+        # Convert values to utc or fail
+        if isinstance(value, datetime) and (
+            value.tzinfo is None or value.tzinfo.utcoffset(value) is None
         ):
-            # Convert the time to utc (requires timezone), then remove timezone
-            # The timezone is implicitly removed when the datetime is stored
-            value = value.astimezone(timezone.utc).replace(tzinfo=None)
+            raise TypeError("tzinfo is required")
+
+        # Convert the time to utc (requires timezone), then remove timezone
+        # The timezone is implicitly removed when the datetime is stored
+        value = value.astimezone(timezone.utc).replace(tzinfo=None)
 
         return value
 
