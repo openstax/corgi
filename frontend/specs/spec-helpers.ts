@@ -1,6 +1,69 @@
 import * as Factory from "factory.ts";
 import type { ApprovedBookWithDate, Book, Job, User } from "../src/ts/types";
-import crypto from "crypto";
+
+// sfc32 credit: https://pracrand.sourceforge.net/
+function sfc32(a: number, b: number, c: number, d: number) {
+  return () => {
+    a |= 0;
+    b |= 0;
+    c |= 0;
+    d |= 0;
+    const t = (((a + b) | 0) + d) | 0;
+    d = (d + 1) | 0;
+    a = b ^ (b >>> 9);
+    b = (c + (c << 3)) | 0;
+    c = (c << 21) | (c >>> 11);
+    c = (c + t) | 0;
+    return (t >>> 0) / 4294967296;
+  };
+}
+
+export const rng = sfc32(1, 2, 3, 4);
+
+export const randBetween = (rng: () => number, lo: number, hi: number) =>
+  rng() * (hi - lo) + lo;
+
+export const toHex = (n: number, padding?: number) =>
+  padding === undefined
+    ? n.toString(16)
+    : n.toString(16).padStart(padding, "0");
+
+export const randHexBetween = (
+  rng: () => number,
+  lo: number,
+  hi: number,
+  padding?: number,
+) => toHex(Math.floor(randBetween(rng, lo, hi)), padding);
+
+// Not a real uuid4 (missing variant bits)
+export const genUuidish = (rng: () => number) =>
+  [
+    randHexBetween(rng, 0x11111111, 0xffffffff, 8),
+    randHexBetween(rng, 0x1111, 0xffff, 4),
+    "4" + randHexBetween(rng, 0x111, 0xfff, 3),
+    randHexBetween(rng, 0x1111, 0xffff, 4),
+    randHexBetween(rng, 0x111111111111, 0xffffffffffff, 12),
+  ].join("-");
+
+const uuidishGetter = (count: number) => {
+  let uuid = genUuidish(rng);
+  return (i: number) => {
+    if (i % count === 0) {
+      uuid = genUuidish(rng);
+    }
+    return uuid;
+  };
+};
+
+const repoGetter = (count: number) => {
+  let repo = "osbooks-test-0";
+  return (i: number) => {
+    if (i % count === 0) {
+      repo = `osbooks-test-${i}`;
+    }
+    return repo;
+  };
+};
 
 // Return datetime in the same format as server
 export const getDateTime = (offset: number = 0) =>
@@ -26,7 +89,7 @@ export const getCodeVersion = (offset: number = 0) => {
 const getCreatedAt = (i: number) => getDateTime(i * 1000);
 
 export const bookFactory = Factory.Sync.makeFactory<Book>({
-  uuid: Factory.each(() => crypto.randomUUID()),
+  uuid: Factory.each(() => uuidishGetter(3)),
   slug: "book-slug1",
   style: "dummy",
 } as unknown as Book);
@@ -65,35 +128,15 @@ export const jobFactory = Factory.Sync.makeFactory<Job>({
   worker_version: getCodeVersion(),
 });
 
-const uuidGetter = (count: number) => {
-  let uuid = crypto.randomUUID();
-  return (i: number) => {
-    if (i % count === 0) {
-      uuid = crypto.randomUUID();
-    }
-    return uuid;
-  };
-};
-
-const repoGetter = (count: number) => {
-  let repo = "osbooks-test-0";
-  return (i: number) => {
-    if (i % count === 0) {
-      repo = `osbooks-test-${i}`;
-    }
-    return repo;
-  };
-};
-
 export const approvedBookWithDateFactory =
   Factory.Sync.makeFactory<ApprovedBookWithDate>({
-    uuid: Factory.each(uuidGetter(3)),
+    uuid: Factory.each(uuidishGetter(3)),
     slug: "book-slug1",
     code_version: Factory.each((i) => getCodeVersion(i * 1000)),
     consumer: "REX",
     created_at: Factory.each(getCreatedAt),
     commit_sha: Factory.each(() =>
-      Math.round(Math.random() * 100000)
+      Math.round(rng() * 100000)
         .toString(16)
         .padStart(7, "0"),
     ),
@@ -104,7 +147,7 @@ export const approvedBookWithDateFactory =
 export function shuffle<T>(arr: T[]): T[] {
   for (let i = 0; i < arr.length; i++) {
     let swapIdx = i;
-    while ((swapIdx = Math.round(Math.random() * arr.length)) === i);
+    while ((swapIdx = Math.round(rng() * arr.length)) === i);
     const a = arr[i];
     arr[i] = arr[swapIdx];
     arr[swapIdx] = a;
