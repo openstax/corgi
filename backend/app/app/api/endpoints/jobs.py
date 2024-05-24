@@ -89,7 +89,7 @@ def list_jobs(
             Job.from_orm(j)
             for j in jobs_service.get_jobs_in_date_range(
                 db,
-                datetime.fromtimestamp(range_start),
+                datetime.fromtimestamp(range_start, timezone.utc),
                 now,
                 order_by=[jobs_service.schema_model.id.asc()],
             )
