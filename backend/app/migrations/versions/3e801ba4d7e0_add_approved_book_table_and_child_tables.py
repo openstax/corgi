@@ -6,7 +6,7 @@ Create Date: 2024-02-26 20:13:21.678327
 
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 import sqlalchemy as sa
 from alembic import op
@@ -18,7 +18,7 @@ branch_labels = None
 depends_on = None
 
 
-utcnow = datetime.utcnow()
+utcnow = datetime.now(timezone.utc)
 consumer_table = sa.table(
     "consumer",
     sa.column("id", sa.Integer),

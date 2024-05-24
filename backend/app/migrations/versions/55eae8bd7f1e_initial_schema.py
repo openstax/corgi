@@ -6,7 +6,7 @@ Create Date: 2019-10-09 20:59:21.799403
 
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 import sqlalchemy as sa
 from alembic import op
@@ -64,7 +64,7 @@ def upgrade():
     )
     op.create_index(op.f("ix_events_id"), "events", ["id"], unique=False)
     # ### end Alembic commands ###
-    utcnow = datetime.utcnow()
+    utcnow = datetime.now(timezone.utc)
 
     status_data = [
         {"name": "queued", "created_at": utcnow, "updated_at": utcnow},

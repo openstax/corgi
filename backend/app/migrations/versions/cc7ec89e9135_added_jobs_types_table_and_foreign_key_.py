@@ -6,7 +6,7 @@ Create Date: 2020-09-08 14:39:19.852731
 
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 import sqlalchemy as sa
 from alembic import op
@@ -42,7 +42,7 @@ def upgrade():
         op.f("ix_jobs_job_type"), "jobs", ["job_type_id"], unique=False
     )
 
-    utcnow = datetime.utcnow()
+    utcnow = datetime.now(timezone.utc)
 
     server_data = [
         {"id": 1, "name": "pdf", "created_at": utcnow, "updated_at": utcnow},
