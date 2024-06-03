@@ -1,5 +1,7 @@
 import os
+from typing import Any
 
+import httpx
 import pytest
 from fastapi.responses import RedirectResponse
 from starlette.testclient import TestClient
@@ -253,39 +255,41 @@ def mock_session():
     return inner
 
 
+class MockAsyncClient(httpx.AsyncClient):
+    responses: list[httpx.Response]
+
+
 @pytest.fixture
 def mock_http_client():
-    def inner(get=None, post=None):
+    def inner(
+        get: dict[httpx.URL, Any] | None = None,
+        post: dict[httpx.URL, Any] | None = None,
+    ) -> MockAsyncClient:
+        responses: list[httpx.Response] = []
         if get is None:
             get = {}
         if post is None:
             post = {}
 
-        class MockResponse:
-            def __init__(self, expected_result):
-                self.expected_result = expected_result
-
-            def json(self):
-                return self.expected_result
-
-            def raise_for_status(self):
-                pass
-
-        class MockClient:
-            def __init__(self):
-                self.calls = []
-
-            async def get(self, url, **kwargs):
-                self.calls.append({"type": "get", "kwargs": kwargs, "url": url})
-                return MockResponse(get.get(url, None))
-
-            async def post(self, url, **kwargs):
-                self.calls.append(
-                    {"type": "post", "kwargs": kwargs, "url": url}
+        def handler(request: httpx.Request):
+            url = request.url
+            planned_response = get.get(url, post.get(url, None))
+            if planned_response is None:
+                response = httpx.Response(404, request=request)
+            elif isinstance(planned_response, httpx.Response):
+                response = planned_response
+            else:
+                response = httpx.Response(
+                    200, json=planned_response, request=request
                 )
-                return MockResponse(post.get(url, None))
+            responses.append(response)
+            return response
 
-        return MockClient()
+        client = MockAsyncClient(
+            mounts={"all://": httpx.MockTransport(handler)}
+        )
+        client.responses = responses
+        return client
 
     return inner
 

@@ -1,3 +1,4 @@
+import re
 from itertools import groupby
 from typing import Any, Dict, List, Optional
 
@@ -18,18 +19,35 @@ from app.db.schema import (
 )
 
 
-async def get_rex_books(client: AsyncClient):
+async def get_rex_release_json(client: AsyncClient):
     try:
         response = await client.get(
             config.REX_WEB_RELEASE_URL, headers={"Accept": "application/json"}
         )
         response.raise_for_status()
         release_json = response.json()
-        return release_json["books"]
+        return release_json
     except HTTPStatusError as he:
         raise CustomBaseError(
             f"Failed to fetch rex release: {he.response.status_code}"
         ) from he
+
+
+async def get_rex_books(client: AsyncClient):
+    release_json = await get_rex_release_json(client)
+    return release_json["books"]
+
+
+async def get_rex_release_version(client: AsyncClient):
+    rex_release = await get_rex_release_json(client)
+    archive_url = rex_release.get("archiveUrl", "").strip()
+    if archive_url == "":
+        raise CustomBaseError("Could not find valid REX archive URL")
+    # Search for: %Y%m%d.%H%M%S
+    version_matches = re.findall(r"\d{8}\.\d{6}", archive_url)
+    if len(version_matches) != 1:
+        raise CustomBaseError("Could not determine REX release version")
+    return version_matches[0]
 
 
 def get_rex_book_versions(rex_books: Dict[str, Any], book_uuids: List[str]):
