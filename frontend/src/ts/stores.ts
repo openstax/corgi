@@ -1,9 +1,9 @@
 import { derived, Readable, writable } from "svelte/store";
 import { getJobs } from "./jobs";
-import { SECONDS } from "./time";
+import { MINUTES, SECONDS } from "./time";
 import type { ApprovedBookWithDate, Job, RepositorySummary } from "./types";
 import { fetchRepoSummaries, isJobComplete, parseDateTime } from "./utils";
-import { fetchABL } from "./abl";
+import { fetchABL, fetchRexReleaseVersion } from "./abl";
 
 type GConstructor<T = object> = new (...args: any[]) => T;
 type Updatable = GConstructor<{ update: () => Promise<void> }>;
@@ -78,7 +78,10 @@ const RateLimited = <T extends Updatable>(Base: T, timeoutSeconds: number) =>
       }
     };
 
-    public updateImmediate = super.update;
+    public updateImmediate = async () => {
+      await super.update();
+      this.nextUpdate = Date.now() + this.timeout;
+    };
 
     public clearLimit() {
       this.nextUpdate = 0;
@@ -187,3 +190,8 @@ export async function updateRunningJobs(jobs: Job[]): Promise<Job[]> {
 export const ABLStore = new (Pollable(
   RateLimited(APIStore<ApprovedBookWithDate[]>, 2),
 ))(asyncWritable([]), fetchABL);
+
+export const REXVersionStore = new (RateLimited(
+  APIStore<string | undefined>,
+  (5 * MINUTES) / SECONDS,
+))(asyncWritable(undefined), fetchRexReleaseVersion);
