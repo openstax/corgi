@@ -91,12 +91,13 @@ describe("newABLentry", () => {
     it(`calls fetch with the correct information -> ${args}`, async () => {
       const { job, code_version: codeVersion, expected } = args;
       await newABLentry(job, codeVersion);
-      const url: string = (fetchSpy.mock.lastCall as any[])[0] as string;
-      const options = (fetchSpy.mock.lastCall as any[])[1];
-      const body = JSON.parse(options.body);
+      const url = fetchSpy.mock.lastCall?.[0];
+      const options = fetchSpy.mock.lastCall?.[1];
+      const body = JSON.parse(options?.body?.toString() ?? "{}");
+      expect(url).toBeDefined();
       expect(errors[0]).toBeUndefined();
-      expect(options.method).toBe("POST");
-      expect(options.headers["Content-Type"]).toBe("application/json");
+      expect(options?.method).toBe("POST");
+      expect(options?.headers?.["Content-Type"]).toBe("application/json");
       expect(url).toBe("/api/abl/");
       expect(body).toStrictEqual(expected);
     });
@@ -191,7 +192,7 @@ describe("fetchABL", () => {
   it("fetches the ABL without error", async () => {
     mockJSONResponse(fetchSpy, []);
     const value = await fetchABL();
-    const url: string = (fetchSpy.mock.lastCall as any[])[0] as string;
+    const url = fetchSpy.mock.lastCall?.[0];
     expect(fetchSpy).toHaveBeenCalledTimes(1);
     expect(errors[0]).toBeUndefined();
     expect(url).toBe("/api/abl/");
@@ -211,7 +212,7 @@ describe("fetchRexReleaseVersion", () => {
   it("fetches the REX release version without error", async () => {
     mockJSONResponse(fetchSpy, { version: "test-version" });
     const version = await fetchRexReleaseVersion();
-    const url: string = (fetchSpy.mock.lastCall as any[])[0] as string;
+    const url = fetchSpy.mock.lastCall?.[0];
     expect(errors[0]).toBeUndefined();
     expect(url).toMatch(/rex-release-version/);
     expect(version).toBe("test-version");

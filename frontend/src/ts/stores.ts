@@ -1,6 +1,6 @@
 import { derived, Readable, writable } from "svelte/store";
 import { getJobs } from "./jobs";
-import { MINUTES, SECONDS } from "./time";
+import { HOURS, SECONDS } from "./time";
 import type { ApprovedBookWithDate, Job, RepositorySummary } from "./types";
 import { fetchRepoSummaries, isJobComplete, parseDateTime } from "./utils";
 import { fetchABL, fetchRexReleaseVersion } from "./abl";
@@ -193,5 +193,5 @@ export const ABLStore = new (Pollable(
 
 export const REXVersionStore = new (RateLimited(
   APIStore<string | undefined>,
-  (5 * MINUTES) / SECONDS,
+  (1 * HOURS) / SECONDS,
 ))(asyncWritable(undefined), fetchRexReleaseVersion);
