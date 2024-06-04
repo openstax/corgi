@@ -1,7 +1,7 @@
 <script lang="ts">
   import SegmentedButton, { Label, Segment } from "@smui/segmented-button";
   import CircularProgress from "@smui/circular-progress";
-  import { ABLStore, REXVersionStore } from "../ts/stores";
+  import { ABLStore } from "../ts/stores";
   import type { Job } from "../ts/types";
   import {
     getLatestCodeVersionForJob,
