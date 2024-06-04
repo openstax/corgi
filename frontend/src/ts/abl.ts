@@ -98,3 +98,14 @@ export async function getRexReleaseVersion(): Promise<string | undefined> {
     : REXVersionStore.update());
   return store.get(REXVersionStore);
 }
+
+export async function getExistingCodeVersion(
+  approvedBooks: ApprovedBookWithDate[],
+  job: Job,
+) {
+  let existingVersion = getLatestCodeVersionForJob(approvedBooks, job);
+  if (existingVersion === undefined) {
+    existingVersion = await getRexReleaseVersion();
+  }
+  return existingVersion;
+}

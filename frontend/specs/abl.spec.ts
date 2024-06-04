@@ -17,8 +17,7 @@ import {
   hasABLEntry,
   newABLentry,
 } from "../src/ts/abl";
-import * as stores from "../src/ts/stores";
-import { errorStore } from "../src/ts/stores";
+import { errorStore, REXVersionStore } from "../src/ts/stores";
 import {
   Fetch,
   approvedBookWithDateFactory,
@@ -236,23 +235,26 @@ describe("fetchRexReleaseVersion", () => {
 });
 
 describe("getRexReleaseVersion", () => {
-  const { REXVersionStore } = stores;
   let updateImmediateSpy: jest.SpiedFunction<() => Promise<void>>;
   let updateSpy: jest.SpiedFunction<() => Promise<void>>;
+  // @ts-expect-error baseStore is protected but the test is made reasonably
+  // more realistic by violating this visibility rule
+  const baseStore = REXVersionStore.baseStore;
+  let originalStoreValue;
+  baseStore.subscribe((v) => (originalStoreValue = v))();
   beforeAll(() => {
     updateImmediateSpy = jest.spyOn(REXVersionStore, "updateImmediate");
     updateSpy = jest.spyOn(REXVersionStore, "update");
   });
   afterAll(() => {
     jest.restoreAllMocks();
+    // Reset store bake to its original value
+    baseStore.set(originalStoreValue);
   });
   beforeEach(() => {
     jest.resetAllMocks();
   });
   it("Calls updateImmediate while value is undefined", async () => {
-    // @ts-expect-error baseStore is protected but the test is made reasonably
-    // more realistic by violating this visibility rule
-    const baseStore = REXVersionStore.baseStore;
     await getRexReleaseVersion();
     expect(updateImmediateSpy).toHaveBeenCalledTimes(1);
     await getRexReleaseVersion();

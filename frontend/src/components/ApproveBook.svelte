@@ -3,11 +3,7 @@
   import CircularProgress from "@smui/circular-progress";
   import { ABLStore } from "../ts/stores";
   import type { Job } from "../ts/types";
-  import {
-    getLatestCodeVersionForJob,
-    getRexReleaseVersion,
-    newABLentry,
-  } from "../ts/abl";
+  import { getExistingCodeVersion, newABLentry } from "../ts/abl";
   import Button from "@smui/button";
   import { Icon } from "@smui/common";
   import { repoToString } from "../ts/utils";
@@ -21,14 +17,18 @@
   let isValidEntry: boolean = false;
 
   const updateChoices = async () => {
-    let existingVersion = getLatestCodeVersionForJob($ABLStore, selectedJob);
-    if (existingVersion === undefined) {
-      existingVersion = await getRexReleaseVersion();
-    }
+    const existingVersion = await getExistingCodeVersion(
+      $ABLStore,
+      selectedJob,
+    );
     if (existingVersion === undefined) {
       choices = [];
     } else {
-      choices = [existingVersion, selectedJob.worker_version];
+      const { worker_version: workerVersion } = selectedJob;
+      choices =
+        workerVersion === existingVersion
+          ? [workerVersion]
+          : [existingVersion, workerVersion];
     }
     // Default to first entry (or undefined)
     selectedCodeVersion = choices[0];
