@@ -138,11 +138,11 @@ class RepositoryGetter(GetterDict):
     def get(self, key: str, default: Any = None) -> Any:
         repository = self._obj
         if key == "books":
-            books = set()
-            for commit in repository.commits:
-                for book in commit.books:
-                    books.add(book.slug)
-            return list(books)
+            commits = repository.commits
+            if len(commits) == 0:
+                return []
+            newest_commit = max(commits, key=lambda c: c.timestamp)
+            return [book.slug for book in newest_commit.books]
         else:
             try:
                 return getattr(self._obj, key)
