@@ -286,7 +286,7 @@ class HomeCorgi:
 
     @property
     def job_type_icon(self):
-        return self.page.locator("tr:nth-child(1) > td:nth-child(2)")
+        return self.page.locator("tr:nth-child(1) > td:nth-child(2)").first
 
     def click_job_type_icon(self):
         _ = self.job_type_href  # Make sure href exists
