@@ -71,10 +71,26 @@ def fake_data():
     class FakeData:
         AUDIT_DATA = {"created_at": now, "updated_at": now}
         FAKE_REPO = Repository(name="osbooks-fake-book", owner="openstax", id=1)
-        FAKE_COMMIT = Commit(id=1, repository_id=FAKE_REPO.id)
+        FAKE_COMMIT = Commit(
+            id=1,
+            repository_id=FAKE_REPO.id,
+            timestamp=datetime.fromisoformat("2024-06-05T17:30:24.311Z"),
+        )
+        FAKE_COMMIT2 = Commit(
+            id=2,
+            repository_id=FAKE_REPO.id,
+            timestamp=datetime.fromisoformat("2024-06-05T17:30:53.909Z"),
+        )
         FAKE_BOOK = Book(
             commit_id=FAKE_COMMIT.id,
             slug="test",
+            uuid="ooooooo",
+            edition=0,
+            style="test",
+        )
+        FAKE_BOOK2 = Book(
+            commit_id=FAKE_COMMIT2.id,
+            slug="test-2",
             uuid="ooooooo",
             edition=0,
             style="test",
@@ -103,7 +119,8 @@ def fake_data():
         FAKE_BOOK_JOB = BookJob(book_id=FAKE_BOOK.id, job_id=FAKE_JOB.id)
         FAKE_BOOK_JOB.book = FAKE_BOOK
         FAKE_COMMIT.books = [FAKE_BOOK]
-        FAKE_REPO.commits = [FAKE_COMMIT]
+        FAKE_COMMIT2.books = [FAKE_BOOK2]
+        FAKE_REPO.commits = [FAKE_COMMIT, FAKE_COMMIT2]
         FAKE_JOB.books = [FAKE_BOOK_JOB]
         FAKE_JOB.status = FAKE_STATUS
         FAKE_JOB.user = FAKE_USER
