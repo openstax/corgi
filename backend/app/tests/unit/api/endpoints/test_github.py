@@ -24,3 +24,4 @@ def test_repositories(
     # the correct information
     first = payload[0]
     assert first == RepositorySummary.from_orm(fake_data.FAKE_REPO)
+    assert first["books"] == [b.slug for b in fake_data.FAKE_COMMIT2.books]
