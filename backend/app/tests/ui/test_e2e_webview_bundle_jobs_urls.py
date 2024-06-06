@@ -48,11 +48,18 @@ def test_e2e_webview_bundle_jobs_urls(
 
         atags = books[0].find_all("a")
 
-        for atag in atags:
-            req = chrome_page_slow.request.get(atag["href"])
+        try:
+            assert len(atags) > 0
 
-            assert req.status == 200
-            assert home.worker_version.inner_text() in req.url
+        except AssertionError as assee:
+            pytest.fail(f"No book links in bundle {repo}: {assee}")
+
+        else:
+            for atag in atags:
+                req = chrome_page_slow.request.get(atag["href"])
+
+                assert req.status == 200
+                assert home.worker_version.inner_text() in req.url
 
     else:
         pytest.fail(
