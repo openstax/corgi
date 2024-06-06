@@ -159,7 +159,7 @@ class HomeCorgi:
 
     @property
     def job_id_dialog_title(self):
-        return self.page.locator("div.mdc-dialog__header")
+        return self.page.locator("div.mdc-dialog__header").first
 
     @property
     def job_id_dialog_close_button(self):
@@ -300,7 +300,7 @@ class HomeCorgi:
 
     @property
     def version_sha(self):
-        return self.page.locator("tr:nth-child(1) > td:nth-child(5)")
+        return self.page.locator("tr:nth-child(1) > td:nth-child(5)").first
 
     @property
     def next_job_id(self):
