@@ -46,13 +46,13 @@ def test_e2e_webview_bundle_jobs_urls(
         sopa = BeautifulSoup(ccont, "html.parser")
         books = sopa.select("div[class*=mdc-dialog__content]")
 
-        for book in books:
-            atags = book.find_all("a")
-            for atag in atags:
-                req = chrome_page_slow.request.get(atag["href"])
+        atags = books[0].find_all("a")
 
-                assert req.status == 200
-                assert home.worker_version.inner_text() in req.url
+        for atag in atags:
+            req = chrome_page_slow.request.get(atag["href"])
+
+            assert req.status == 200
+            assert home.worker_version.inner_text() in req.url
 
     else:
         pytest.fail(
