@@ -46,8 +46,15 @@ def test_e2e_webview_bundle_jobs_urls(
         sopa = BeautifulSoup(ccont, "html.parser")
         books = sopa.select("div[class*=mdc-dialog__content]")
 
-        for book in books:
-            atags = book.find_all("a")
+        atags = books[0].find_all("a")
+
+        try:
+            assert len(atags) > 0
+
+        except AssertionError as assee:
+            pytest.fail(f"No book links in bundle {repo}: {assee}")
+
+        else:
             for atag in atags:
                 req = chrome_page_slow.request.get(atag["href"])
 
