@@ -16,14 +16,14 @@ def test_abort_jobs(chrome_page, corgi_base_url):
     home = HomeCorgi(chrome_page)
 
     # THEN: Elements are found
-    sopa = BeautifulSoup(ccont, "html.parser")
-
     rows = []
     job_stats = ["processing", "queued"]
 
-    for table in sopa.find_all("tbody"):
-        for row in table:
-            rows.append(row.find_all_next("tr"))
+    sopa = BeautifulSoup(ccont, "html.parser")
+    table = sopa.find("tbody")
+
+    for row in table:
+        rows.append(row.find_all("tr"))
 
     # THEN: Running jobs are aborted
     for i in range(len(rows)):
