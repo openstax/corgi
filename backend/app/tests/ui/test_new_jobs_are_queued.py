@@ -73,3 +73,20 @@ def test_version_sha_is_clickable(chrome_page_slow, corgi_base_url):
     new_tab = tab.value
 
     assert home.queued_repo_name.inner_text() in new_tab.url
+
+
+@pytestrail.case("C655443")
+@pytest.mark.ui
+@pytest.mark.nondestructive
+def test_show_abl_link_content(chrome_page_slow, corgi_base_url):
+    # GIVEN: Playwright, chromium and the corgi_base_url
+
+    # WHEN: The Home page is fully loaded
+    chrome_page_slow.goto(corgi_base_url)
+    home = HomeCorgi(chrome_page_slow)
+
+    # THEN: A new job's version sha is clickable
+    home.click_show_abl_link()
+
+    assert home.show_abl_link_title_is_visible
+    assert home.show_abl_link_table_head_is_visible
