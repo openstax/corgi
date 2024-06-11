@@ -85,7 +85,7 @@ def test_show_abl_link_content(chrome_page_slow, corgi_base_url):
     chrome_page_slow.goto(corgi_base_url)
     home = HomeCorgi(chrome_page_slow)
 
-    # THEN: A new job's version sha is clickable
+    # THEN: Show ABL link is clicked
     home.click_show_abl_link()
 
     assert home.show_abl_link_title_is_visible
