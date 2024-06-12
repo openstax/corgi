@@ -19,6 +19,7 @@ def test_home_page_loads(chrome_page, corgi_base_url):
     assert home.job_types_check_boxes
     assert home.jobs_data_table
     assert home.jobs_pagination_box
+    assert home.show_abl_link_is_visible
 
 
 @pytestrail.case("C624693")

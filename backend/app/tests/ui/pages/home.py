@@ -379,3 +379,26 @@ class HomeCorgi:
     @property
     def job_id_approve_frame_is_visible(self):
         return self.page.is_visible("id=approve-book-frame")
+
+    @property
+    def show_abl_link_is_visible(self):
+        return self.page.is_visible(
+            "div:nth-child(2) > div > div:nth-child(5) > button"
+        )
+
+    @property
+    def show_abl_link_locator(self):
+        return self.page.locator(
+            "div:nth-child(2) > div > div:nth-child(5) > button"
+        )
+
+    def click_show_abl_link(self):
+        self.show_abl_link_locator.click()
+
+    @property
+    def show_abl_link_title_is_visible(self):
+        return self.page.is_visible("id=over-fullscreen-title")
+
+    @property
+    def show_abl_link_table_head_is_visible(self):
+        return self.page.is_visible("#abl-table > div > div > table > thead")
