@@ -5,6 +5,13 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[svelte]": {
-    "editor.defaultFormatter": "svelte.svelte-vscode"
-  }
+    "editor.defaultFormatter": "svelte.svelte-vscode",
+    "editor.detectIndentation": false,
+    "editor.tabSize": 2
+  },
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  "ruff.format.args": ["--config", "./backend/app/.ruff.toml"],
+  "ruff.lint.args": ["--config", "./backend/app/.ruff.toml"],
 }

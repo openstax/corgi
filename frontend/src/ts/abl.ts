@@ -1,9 +1,15 @@
 import { RequireAuth } from "./fetch-utils";
+import { REXVersionStore } from "./stores";
 import type { Job, Book, ApprovedBookWithDate } from "./types";
 import { handleError } from "./utils";
 import { parseDateTime } from "./utils";
+import * as store from "svelte/store";
 
-export async function newABLentry(job: Job, codeVersion: string) {
+export async function newABLentry(job: Job, codeVersion: string | undefined) {
+  codeVersion = codeVersion?.trim();
+  if (codeVersion === undefined || codeVersion.length === 0) {
+    throw new Error("Invalid code version");
+  }
   const entries = job.books.map((b) => ({
     uuid: b.uuid,
     code_version: codeVersion,
@@ -60,7 +66,7 @@ export function getLatestCodeVersionForJob(
 }
 
 export async function fetchABL(): Promise<ApprovedBookWithDate[]> {
-  let abl: any;
+  let abl: ApprovedBookWithDate[];
   try {
     abl = await RequireAuth.fetchJson("/api/abl/");
   } catch (error) {
@@ -68,4 +74,38 @@ export async function fetchABL(): Promise<ApprovedBookWithDate[]> {
     abl = [];
   }
   return abl;
+}
+
+export async function fetchRexReleaseVersion(): Promise<string | undefined> {
+  try {
+    const resp = await fetch("/api/abl/rex-release-version");
+    const { version } = await resp.json();
+    if (typeof version !== "string") {
+      throw new Error("Could not get REX release version");
+    }
+    return version;
+  } catch (error) {
+    handleError(error);
+  }
+  return undefined;
+}
+
+export async function getRexReleaseVersion(): Promise<string | undefined> {
+  // If the value is undefined, immediately try to get a new value instead of
+  // allowing the update to be deferred
+  await (store.get(REXVersionStore) === undefined
+    ? REXVersionStore.updateImmediate()
+    : REXVersionStore.update());
+  return store.get(REXVersionStore);
+}
+
+export async function getExistingCodeVersion(
+  approvedBooks: ApprovedBookWithDate[],
+  job: Job,
+) {
+  let existingVersion = getLatestCodeVersionForJob(approvedBooks, job);
+  if (existingVersion === undefined) {
+    existingVersion = await getRexReleaseVersion();
+  }
+  return existingVersion;
 }
