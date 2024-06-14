@@ -1,5 +1,5 @@
 import json
-from base64 import b64encode
+from base64 import b64decode, b64encode
 from datetime import datetime
 from hashlib import sha256
 from typing import cast
@@ -9,7 +9,7 @@ import pytest
 from httpx import AsyncClient
 
 from app.core.errors import CustomBaseError
-from app.github.api import push_to_github
+from app.github.api import make_repo_public, push_to_github
 from app.github.client import AuthenticatedClient
 from app.github.models import GitHubRepo
 from tests.unit.conftest import MockAsyncClient
@@ -176,8 +176,7 @@ async def test_push_to_github(mock_http_client):
 
     # THEN: There is a GET and PUT request; the PUT request has correct data
     assert len(client.responses) == 2
-    assert client.responses[0].request.method == "GET"
-    assert client.responses[1].request.method == "PUT"
+    assert [r.request.method for r in client.responses] == ["GET", "PUT"]
     put_request: httpx.Request = client.responses[1].request
     response_content = put_request.content
     data = json.loads(response_content)
@@ -216,6 +215,22 @@ async def test_push_to_github(mock_http_client):
     assert data.get("sha") is None
     assert data.get("branch") == branch
     assert data.get("message") == commit_message
+
+    client.reset_history()
+    # WHEN: Changes are pushed with a sha
+    await push_to_github(
+        cast(AuthenticatedClient, client),
+        path,
+        content,
+        owner,
+        repo,
+        branch,
+        commit_message,
+        False,
+        sha,
+    )
+    # THEN: Only one request is made
+    assert [r.request.method for r in client.responses] == ["PUT"]
 
     # GIVEN: Changes to non-existing file; an error from github
     client: MockAsyncClient = mock_http_client(
@@ -267,3 +282,106 @@ async def test_push_to_github(mock_http_client):
     request: httpx.Request = client.responses[-1].request
     assert request.method == "GET"
     assert hse.match("404")
+
+
+@pytest.mark.unit
+@pytest.mark.nondestructive
+@pytest.mark.asyncio
+async def test_make_repo_public(mock_http_client):
+    owner = "test_owner"
+    repo = "test_repo"
+    path = ".github/settings.yml"
+    text = b64encode(b"{}").decode()
+    sha = sha256(b"{}").hexdigest()
+    content = {"content": text, "sha": sha}
+    branch = "main"
+    # GIVEN: A repository with a settings yaml file
+    client: MockAsyncClient = mock_http_client(
+        get={
+            "https://api.github.com/repos/"
+            f"{owner}/{repo}/contents/{path}?ref={branch}": content
+        },
+        put={
+            "https://api.github.com/repos/"
+            f"{owner}/{repo}/contents/{path}": "OK"
+        },
+    )
+
+    # WHEN: We attempt to make it public
+    await make_repo_public(client, owner, repo)
+    # THEN: There are 2 requests and the expected data is sent
+    assert [r.request.method for r in client.responses] == ["GET", "PUT"]
+    put_request = client.responses[-1].request
+    data = json.loads(put_request.content)
+    assert (
+        b64decode(data.get("content", "")) == b"repository:\n  private: false\n"
+    )
+    assert data.get("sha") == sha
+    assert data.get("branch") == branch
+
+    # GIVEN: Private is set to true
+    client: MockAsyncClient = mock_http_client(
+        get={
+            "https://api.github.com/repos/"
+            f"{owner}/{repo}/contents/{path}?ref={branch}": content
+            | {"content": b64encode(b"repository:\n  private: true\n").decode()}
+        },
+        put={
+            "https://api.github.com/repos/"
+            f"{owner}/{repo}/contents/{path}": "OK"
+        },
+    )
+    # WHEN: We attempt to make it public
+    await make_repo_public(client, owner, repo)
+    # THEN: It works as if private was not set
+    assert [r.request.method for r in client.responses] == ["GET", "PUT"]
+    put_request = client.responses[-1].request
+    data = json.loads(put_request.content)
+    assert (
+        b64decode(data.get("content", "")) == b"repository:\n  private: false\n"
+    )
+
+    # GIVEN: Missing settings file
+    client: MockAsyncClient = mock_http_client(
+        get={
+            "https://api.github.com/repos/"
+            f"{owner}/{repo}/contents/{path}?ref={branch}": httpx.Response(404)
+        },
+        put={
+            "https://api.github.com/repos/"
+            f"{owner}/{repo}/contents/{path}": httpx.Response(
+                500, text="This should not happen"
+            )
+        },
+    )
+    # WHEN: We attempt to make it public
+    # THEN: An error about missing settings file is raised
+    with pytest.raises(CustomBaseError) as cbe:
+        await make_repo_public(client, owner, repo)
+    assert cbe.match("Could not get settings file")
+
+    # GIVEN: settings file that is already public
+    client: MockAsyncClient = mock_http_client(
+        get={
+            "https://api.github.com/repos/"
+            f"{owner}/{repo}/contents/{path}?ref={branch}": (
+                content
+                | {
+                    "content": b64encode(
+                        b"repository:\n  private: false\n"
+                    ).decode()
+                }
+            )
+        },
+        put={
+            "https://api.github.com/repos/"
+            f"{owner}/{repo}/contents/{path}": httpx.Response(
+                500, text="This should not happen"
+            )
+        },
+    )
+    # WHEN: We attempt to make it public
+    # THEN: An error about repo already being public is raised
+    with pytest.raises(CustomBaseError) as cbe:
+        await make_repo_public(client, owner, repo)
+    assert cbe.match("should already be public")
