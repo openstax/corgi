@@ -10,10 +10,11 @@ interactions:
     method: POST
     uri: https://api.github.com/graphql
   response:
-    content: '{"data":{"organization":{"teams":{"totalCount":4,"edges":[{"node":{"name":"all","description":"Openstax
+    content: '{"data":{"organization":{"teams":{"totalCount":6,"edges":[{"node":{"name":"all","description":"Openstax
       folks"}},{"node":{"name":"ce-tech","description":"The CE Tech team"}},{"node":{"name":"ce-all","description":"Discussion
-      board for the Content Engineering Team"}},{"node":{"name":"ce-be","description":"CE
-      Backend developers"}}]}}}}'
+      board for the Content Engineering Team"}},{"node":{"name":"ce-admins","description":"The
+      GitHub Admin team for Content Engineering repositories"}},{"node":{"name":"all-devs","description":"All
+      OpenStax users"}},{"node":{"name":"ce-be","description":"CE Backend developers"}}]}}}}'
     headers:
       Content-Type:
       - application/json; charset=utf-8
