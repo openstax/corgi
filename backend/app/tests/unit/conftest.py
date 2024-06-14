@@ -1,5 +1,7 @@
 import os
+from typing import Any
 
+import httpx
 import pytest
 from fastapi.responses import RedirectResponse
 from starlette.testclient import TestClient
@@ -270,39 +272,48 @@ def mock_session():
     return inner
 
 
+class MockAsyncClient(httpx.AsyncClient):
+    responses: list[httpx.Response]
+
+    def reset_history(self):
+        while self.responses:
+            self.responses.pop()
+
+
 @pytest.fixture
 def mock_http_client():
-    def inner(get=None, post=None):
-        if get is None:
-            get = {}
-        if post is None:
-            post = {}
+    def inner(
+        **responses_by_method: dict[httpx.URL, httpx.Response | str | dict],
+    ) -> MockAsyncClient:
+        responses: list[httpx.Response] = []
+        responses_by_method = {
+            k.lower(): v for k, v in responses_by_method.items()
+        }
 
-        class MockResponse:
-            def __init__(self, expected_result):
-                self.expected_result = expected_result
-
-            def json(self):
-                return self.expected_result
-
-            def raise_for_status(self):
-                pass
-
-        class MockClient:
-            def __init__(self):
-                self.calls = []
-
-            async def get(self, url, **kwargs):
-                self.calls.append({"type": "get", "kwargs": kwargs, "url": url})
-                return MockResponse(get.get(url, None))
-
-            async def post(self, url, **kwargs):
-                self.calls.append(
-                    {"type": "post", "kwargs": kwargs, "url": url}
+        def handler(request: httpx.Request):
+            url = request.url
+            method = request.method
+            if isinstance(method, bytearray):
+                method = method.decode()
+            planned_response = responses_by_method.get(method.lower(), {}).get(
+                url
+            )
+            if planned_response is None:
+                response = httpx.Response(404, request=request)
+            elif isinstance(planned_response, httpx.Response):
+                response = planned_response
+            else:
+                response = httpx.Response(
+                    200, json=planned_response, request=request
                 )
-                return MockResponse(post.get(url, None))
+            responses.append(response)
+            return response
 
-        return MockClient()
+        client = MockAsyncClient(
+            mounts={"all://": httpx.MockTransport(handler)}
+        )
+        client.responses = responses
+        return client
 
     return inner
 

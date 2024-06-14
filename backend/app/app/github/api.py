@@ -144,7 +144,7 @@ async def push_to_github(
 
     response = await client.put(
         url,
-        data=json.dumps(message),
+        content=json.dumps(message),
         headers={
             **client.headers,
             "Content-Type": "application/json",

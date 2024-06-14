@@ -9,6 +9,7 @@ from app.service.abl import (
     get_or_add_code_version,
     get_rex_book_versions,
 )
+from tests.unit.conftest import MockAsyncClient
 
 
 @pytest.mark.parametrize(
@@ -95,11 +96,11 @@ async def test_add_new_entries_rex(
         return []
 
     db = mock_session(mock_database_logic)
-    client = mock_http_client(
+    client: MockAsyncClient = mock_http_client(
         get={config.REX_WEB_RELEASE_URL: {"books": to_keep}}
     )
     await add_new_entries(db, to_add, client)
-    assert "headers" in client.calls[-1]["kwargs"]
+    assert "authorization" not in client.responses[-1].request.headers
     assert not db.did_rollback
     assert db.did_commit
     # Twice as many because code version is added each time in the test
