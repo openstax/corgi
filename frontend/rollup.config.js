@@ -6,6 +6,7 @@ import terser from "@rollup/plugin-terser";
 import sveltePreprocess from "svelte-preprocess";
 import typescript from "@rollup/plugin-typescript";
 import css from "rollup-plugin-css-only";
+import injectProcessEnv from "rollup-plugin-inject-process-env";
 
 const production = !process.env.ROLLUP_WATCH;
 const hotdog = process.env.DEPLOYED_IN === "hotdog";
@@ -70,6 +71,10 @@ export default {
       sourceMap: !production,
       inlineSources: !production,
     }),
+    injectProcessEnv(
+      { STACK_NAME: process.env.STACK_NAME },
+      { include: "./src/**/*" },
+    ),
 
     // In dev mode, call `npm run start` once
     // the bundle has been generated
