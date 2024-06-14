@@ -39,8 +39,7 @@ async def get_book_repository(
     query = f"""
         query {{
             repository(name: "{repo_name}", owner: "{repo_owner}") {{
-                databaseId
-                viewerPermission
+                {GitHubRepo.graphql_query()}
                 object(expression: "{version}") {{
                     oid
                     ... on Commit {{
@@ -59,11 +58,7 @@ async def get_book_repository(
     """
     payload = await graphql(client, query)
     repository = payload["data"]["repository"]
-    repo = GitHubRepo(
-        name=repo_name,
-        database_id=repository["databaseId"],
-        viewer_permission=repository["viewerPermission"],
-    )
+    repo = GitHubRepo.from_node(repository)
     commit = repository["object"]
     if commit is None:  # pragma: no cover
         raise CustomBaseError(f"Could not find commit '{version}'")
@@ -179,9 +174,7 @@ async def get_user_repositories(
                 edges {{
                     node {{
                         ... on Repository {{
-                            name
-                            databaseId
-                            viewerPermission
+                            {repo_query}
                         }}
                     }}
                 }}
@@ -196,7 +189,10 @@ async def get_user_repositories(
             "https://api.github.com/graphql",
             json={
                 "query": query.format(
-                    query_args=",".join(":".join(i) for i in query_args.items())
+                    query_args=",".join(
+                        ":".join(i) for i in query_args.items()
+                    ),
+                    repo_query=GitHubRepo.graphql_query(),
                 )
             },
         )
