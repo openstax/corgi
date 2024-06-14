@@ -1,5 +1,9 @@
+from datetime import datetime
+
 import pytest
 from httpx import AsyncClient
+
+from app.github.models import GitHubRepo
 
 
 @pytest.mark.unit
@@ -27,8 +31,6 @@ async def test_get_user_and_teams(monkeypatch, mock_github_api):
 @pytest.mark.nondestructive
 @pytest.mark.asyncio
 async def test_get_book_repository(monkeypatch, mock_github_api):
-    from datetime import datetime
-
     exc = None
     repo = None
     books = None
@@ -52,6 +54,11 @@ async def test_get_book_repository(monkeypatch, mock_github_api):
     assert isinstance(commit_sha, str)
     assert isinstance(timestamp, datetime)
     assert isinstance(books, list)
+    assert isinstance(repo, GitHubRepo)
+    assert isinstance(repo.visibility, str)
+    assert datetime.fromisoformat(
+        "2024-06-14T16:26:24.611Z"
+    ) == datetime.fromisoformat("2024-06-14T16:26:24.611+00:00")
     assert len(books) > 0
 
 

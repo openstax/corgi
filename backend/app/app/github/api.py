@@ -64,7 +64,6 @@ async def get_book_repository(
         raise CustomBaseError(f"Could not find commit '{version}'")
     commit_sha = commit["oid"]
     commit_timestamp = commit["committedDate"]
-    fixed_timestamp = f"{commit_timestamp[:-1]}+00:00"
     books_xml = commit["file"]["object"]["text"]
     meta = parse_xml_doc(books_xml)
 
@@ -72,7 +71,7 @@ async def get_book_repository(
         {k: get_attr(el, k) for k in ("slug", "style")}
         for el in xpath_some(meta, "//*[local-name()='book']")
     ]
-    return (repo, commit_sha, datetime.fromisoformat(fixed_timestamp), books)
+    return (repo, commit_sha, datetime.fromisoformat(commit_timestamp), books)
 
 
 async def get_collections(
