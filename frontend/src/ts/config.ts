@@ -4,6 +4,8 @@ interface Env extends Record<string, string | undefined> {}
 
 const PROD_REGEX = /[\s:_-]prod(uction)?$/i;
 
+export const STACK_NAME_KEY = "STACK_NAME";
+
 export class ProcessConfig implements Config {
   private readonly isProd: boolean;
   private readonly featureStates: Record<FeatureName, boolean>;
@@ -20,6 +22,6 @@ export class ProcessConfig implements Config {
   }
 
   static fromEnv(env: Env) {
-    return new ProcessConfig(env.STACK_NAME);
+    return new ProcessConfig(env[STACK_NAME_KEY]);
   }
 }
