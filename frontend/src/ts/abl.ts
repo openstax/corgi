@@ -3,7 +3,11 @@ import type { Job, Book, ApprovedBookWithDate } from "./types";
 import { handleError } from "./utils";
 import { parseDateTime } from "./utils";
 
-export async function newABLentry(job: Job, codeVersion: string) {
+export async function newABLentry(
+  job: Job,
+  codeVersion: string,
+  makeRepoPublic: boolean,
+) {
   const entries = job.books.map((b) => ({
     uuid: b.uuid,
     code_version: codeVersion,
@@ -13,7 +17,12 @@ export async function newABLentry(job: Job, codeVersion: string) {
     throw new Error("You do not have permission to add ABL entries.");
   };
   try {
-    await RequireAuth.sendJson("/api/abl/", entries, { handleAuthError });
+    const payload = {
+      books_to_approve: entries,
+      repository: job.repository,
+      make_repo_public: makeRepoPublic,
+    };
+    await RequireAuth.sendJson("/api/abl/", payload, { handleAuthError });
   } catch (error) {
     handleError(error);
   }
@@ -60,12 +69,14 @@ export function getLatestCodeVersionForJob(
 }
 
 export async function fetchABL(): Promise<ApprovedBookWithDate[]> {
-  let abl: any;
+  let abl: ApprovedBookWithDate[] = [];
   try {
-    abl = await RequireAuth.fetchJson("/api/abl/");
+    const maybeAbl = await RequireAuth.fetchJson("/api/abl/");
+    if (Array.isArray(maybeAbl)) {
+      abl = maybeAbl;
+    }
   } catch (error) {
     handleError(error);
-    abl = [];
   }
   return abl;
 }

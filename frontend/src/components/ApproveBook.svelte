@@ -2,13 +2,15 @@
   import SegmentedButton, { Label, Segment } from "@smui/segmented-button";
   import CircularProgress from "@smui/circular-progress";
   import { ABLStore } from "../ts/stores";
-  import type { Job } from "../ts/types";
+  import { Config, FeatureName, Job } from "../ts/types";
   import { getLatestCodeVersionForJob, newABLentry } from "../ts/abl";
   import Button from "@smui/button";
   import { repoToString } from "../ts/utils";
+  import { isRepoPubic } from "../ts/repository";
 
   export let selectedJob: Job;
-  export let open;
+  export let open: boolean;
+  export let config: Config;
   let selectedCodeVersion;
   let loading = false;
 
@@ -56,23 +58,43 @@
           if (selectedCodeVersion === undefined) {
             throw new Error("No code version selected");
           }
+          let makeRepoPublic = false;
           const message = [
-            'Are you sure you wish to add the following to the ABL?',
-            '',
-            'Code Version:',
+            "Are you sure you wish to add the following to the ABL?",
+            "",
+            "Code Version:",
             `    ${selectedCodeVersion}`,
-            'Repository:',
+            "Repository:",
             `    ${repoToString(selectedJob.repository)}`,
-            'Commit sha:',
+            "Commit sha:",
             `    ${selectedJob.version}`,
-            'Books:',
+            "Books:",
             `    ${selectedJob.books.map((b) => b.slug).join(", ")}`,
-          ];
-          if (!confirm(message.join("\n"))) {
+          ].join("\n");
+          if (!confirm(message)) {
             return;
           }
+          if (
+            config.isFeatureEnabled(FeatureName.makeRepoPublicOnApproval) &&
+            !isRepoPubic(selectedJob.repository)
+          ) {
+            const repoFullName = repoToString(selectedJob.repository);
+            const didConfirm = confirm(
+              `Would you like to make ${repoFullName} public?`,
+            );
+            if (didConfirm) {
+              const response = prompt(
+                `WARNING: You are about to make ${repoFullName} public. ` +
+                  'Enter "public" (without double quotes) to continue.',
+              );
+              if (response !== "public") {
+                return;
+              }
+              makeRepoPublic = true;
+            }
+          }
           loading = true;
-          newABLentry(selectedJob, selectedCodeVersion)
+          newABLentry(selectedJob, selectedCodeVersion, makeRepoPublic)
             .then(() => {
               void ABLStore.update();
               open = false;
