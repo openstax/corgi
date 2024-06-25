@@ -1,17 +1,18 @@
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends
-from httpx import AsyncClient
 from sqlalchemy.orm import Session
 
-from app.core.auth import RequiresRole
+from app.core.auth import RequiresRole, active_user
 from app.data_models.models import (
     ApprovedBook,
-    RequestApproveBook,
+    RequestApproveBooks,
     Role,
+    UserSession,
 )
 from app.db.utils import get_db
-from app.service.abl import add_new_entries, get_abl_info_database
+from app.github.client import github_client
+from app.service.abl import add_to_abl, get_abl_info_database
 
 router = APIRouter()
 
@@ -28,15 +29,16 @@ async def get_abl_info(
 
 
 @router.post("/", dependencies=[Depends(RequiresRole(Role.ADMIN))])
-async def add_to_abl(
+async def add_to_abl_request(
     *,
+    user: UserSession = Depends(active_user),
     db: Session = Depends(get_db),
-    info: List[RequestApproveBook],
+    info: RequestApproveBooks,
 ):
     # Creates a new ApprovedBook
     # Fetches rex-web release.json
     # Removes extraneous ApprovedBook entries for rex-web
     #   keeps any version that appears in rex-web
     # keeps newest version
-    async with AsyncClient() as client:
-        return await add_new_entries(db, info, client)
+    async with github_client(user) as client:
+        return await add_to_abl(client, db, info)

@@ -72,11 +72,22 @@ class BaseApprovedBook(BaseModel):
     uuid: str
 
 
-class RequestApproveBook(BaseApprovedBook):
+class ApprovedBookWithCodeVersion(BaseApprovedBook):
     code_version: str
 
 
-class ApprovedBook(RequestApproveBook):
+class RepositoryBase(BaseModel):
+    name: str
+    owner: str
+
+
+class RequestApproveBooks(BaseModel):
+    books_to_approve: List[ApprovedBookWithCodeVersion]
+    repository: RepositoryBase
+    make_repo_public: bool = False
+
+
+class ApprovedBook(ApprovedBookWithCodeVersion):
     created_at: datetime
     committed_at: datetime
     repository_name: str
@@ -148,11 +159,6 @@ class RepositoryGetter(GetterDict):
                 return getattr(self._obj, key)
             except (AttributeError, KeyError):  # pragma: no cover
                 return default
-
-
-class RepositoryBase(BaseModel):
-    name: str
-    owner: str
 
 
 class Repository(RepositoryBase):
