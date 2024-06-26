@@ -1,14 +1,20 @@
 import { RequireAuth } from "./fetch-utils";
-import type { Repository } from "./types";
+import type { BookRepository, Repository } from "./types";
+import { buildURL } from "./utils";
 
-export async function getBookRepo(repo: Repository, version: string = "main") {
-  const [bookRepo, ref, commitedAt, books] = await RequireAuth.fetchJson(
-    `/api/github/book-repository/${repo.owner}/${repo.name}?version=${version}`,
+export async function getBookRepo(
+  repo: Repository,
+  query?: { version?: string },
+): Promise<BookRepository> {
+  const url = buildURL(
+    `/api/github/book-repository/${repo.owner}/${repo.name}`,
+    query,
   );
+  const [bookRepo, ref, committedAt, books] = await RequireAuth.fetchJson(url);
   return {
     bookRepo,
     ref,
-    commitedAt,
+    committedAt,
     books,
   };
 }
