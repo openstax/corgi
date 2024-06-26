@@ -159,7 +159,10 @@ async def make_repo_public(client: AuthenticatedClient, owner: str, repo: str):
     if repository.get("private") in (None, True):
         repository["private"] = False
     else:
-        raise CustomBaseError(f"{owner}/{repo} should already be public")
+        raise CustomBaseError(
+            f"{owner}/{repo}: repository may already be public or the "
+            "settings.yml file may contain an invalid value for 'private'"
+        )
     serialized = yaml.dump(settings, indent=2)
     await push_to_github(
         client=client,
