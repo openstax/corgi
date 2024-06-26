@@ -1,5 +1,5 @@
 import { expect, describe, it } from "@jest/globals";
-import { sortBy } from "../src/ts/utils";
+import { buildURL, sortBy } from "../src/ts/utils";
 
 describe("sortBy", () => {
   it("Does lexicographic sorting", () => {
@@ -74,5 +74,15 @@ describe("sortBy", () => {
     ]);
     expect(expected).not.toStrictEqual(testData);
     expect(sorted).toStrictEqual(expected);
+  });
+});
+
+describe("buildURL", () => {
+  it("builds urls as expected", () => {
+    expect(buildURL("a")).toBe("/a");
+    expect(buildURL("a", {})).toBe("/a");
+    expect(buildURL("a", { q: "t" })).toBe("/a?q=t");
+    expect(buildURL("a", { q: "test=ing" })).toBe("/a?q=test%3Ding");
+    expect(buildURL("a", { q: "1", r: "2" })).toBe("/a?q=1&r=2");
   });
 });

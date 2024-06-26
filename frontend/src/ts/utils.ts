@@ -148,3 +148,14 @@ export function sortBy<T>(
     return n;
   });
 }
+
+export function buildURL(path: string, query?: Record<string, string>): string {
+  const url = new URL("http://origin-not-used");
+  url.pathname = path;
+  if (query !== undefined) {
+    Object.entries(query).forEach(([k, v]) => {
+      url.searchParams.append(k, v);
+    });
+  }
+  return url.href.slice(url.origin.length);
+}
