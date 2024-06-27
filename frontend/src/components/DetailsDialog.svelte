@@ -4,12 +4,13 @@
   import Button from "@smui/button";
   import { Label } from "@smui/common";
   import { abortJob, repeatJob, getErrorMessage } from "../ts/jobs";
-  import type { Job } from "../ts/types";
+  import type { Config, Job } from "../ts/types";
   import ApproveBook from "./ApproveBook.svelte";
   import { escapeHTML, repoToString } from "../ts/utils";
   import BuildArtifacts from "./BuildArtifacts.svelte";
   export let selectedJob: Job;
   export let open: boolean;
+  export let config: Config;
   let isErrorDialog;
   $: isErrorDialog = selectedJob?.status.name === "failed";
 
@@ -55,7 +56,7 @@
       {#if selectedJob.status.name === "completed"}
         <BuildArtifacts {selectedJob}></BuildArtifacts>
         {#if selectedJob.job_type.name === "git-web-hosting-preview"}
-          <ApproveBook {selectedJob} bind:open></ApproveBook>
+          <ApproveBook {config} {selectedJob} bind:open></ApproveBook>
         {/if}
       {:else if isErrorDialog}
         {#await getErrorMessage(selectedJob.id)}

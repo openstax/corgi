@@ -35,6 +35,8 @@ services:
       - "traefik.enable=true"
     volumes:
       - ./frontend:/app
+    environment:
+      - STACK_NAME=${STACK_NAME}
     ports:
       # This is for the live reloading (maybe add to traefik as a tcp service?)
       - '35729:35729'

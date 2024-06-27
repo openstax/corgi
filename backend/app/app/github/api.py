@@ -2,7 +2,10 @@ import base64
 import json
 from datetime import datetime
 from typing import Any, Dict, List, Tuple
+from urllib.parse import urlencode
 
+import httpx
+import yaml
 from lxml import etree
 
 from app.core.auth import get_user_role
@@ -39,8 +42,7 @@ async def get_book_repository(
     query = f"""
         query {{
             repository(name: "{repo_name}", owner: "{repo_owner}") {{
-                databaseId
-                viewerPermission
+                {GitHubRepo.graphql_query()}
                 object(expression: "{version}") {{
                     oid
                     ... on Commit {{
@@ -59,17 +61,12 @@ async def get_book_repository(
     """
     payload = await graphql(client, query)
     repository = payload["data"]["repository"]
-    repo = GitHubRepo(
-        name=repo_name,
-        database_id=repository["databaseId"],
-        viewer_permission=repository["viewerPermission"],
-    )
+    repo = GitHubRepo.from_node(repository)
     commit = repository["object"]
     if commit is None:  # pragma: no cover
         raise CustomBaseError(f"Could not find commit '{version}'")
     commit_sha = commit["oid"]
     commit_timestamp = commit["committedDate"]
-    fixed_timestamp = f"{commit_timestamp[:-1]}+00:00"
     books_xml = commit["file"]["object"]["text"]
     meta = parse_xml_doc(books_xml)
 
@@ -77,7 +74,7 @@ async def get_book_repository(
         {k: get_attr(el, k) for k in ("slug", "style")}
         for el in xpath_some(meta, "//*[local-name()='book']")
     ]
-    return (repo, commit_sha, datetime.fromisoformat(fixed_timestamp), books)
+    return (repo, commit_sha, datetime.fromisoformat(commit_timestamp), books)
 
 
 async def get_collections(
@@ -120,6 +117,66 @@ async def get_collections(
     }
 
 
+def contents_path(owner: str, repo: str, path: str, version: str | None = None):
+    url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
+    query = {}
+    if version is not None:
+        query["ref"] = version
+    if query:
+        url += f"?{urlencode(query)}"
+    return url
+
+
+async def get_contents(
+    client: AuthenticatedClient, owner: str, repo: str, path: str, version: str
+):
+    response = await client.get(contents_path(owner, repo, path, version))
+    response.raise_for_status()
+    return response.json()
+
+
+async def get_text_contents(
+    client: AuthenticatedClient, owner: str, repo: str, path: str, version: str
+):
+    data = await get_contents(client, owner, repo, path, version)
+    base64content = data["content"]
+    return base64.b64decode(base64content)
+
+
+async def make_repo_public(client: AuthenticatedClient, owner: str, repo: str):
+    branch = "main"
+    path = ".github/settings.yml"
+    commit_message = "Change repository visibility to public"
+    file_exists = True
+    try:
+        contents = await get_contents(client, owner, repo, path, branch)
+        serialized = base64.b64decode(contents["content"]).decode("utf-8")
+    except httpx.HTTPStatusError as hse:
+        # TODO: Maybe use settings from template when it is missing?
+        raise CustomBaseError("Could not get settings file") from hse
+    settings = yaml.load(serialized, yaml.SafeLoader)
+    repository = settings.setdefault("repository", {})
+    if repository.get("private") in (None, True):
+        repository["private"] = False
+    else:
+        raise CustomBaseError(
+            f"{owner}/{repo}: repository may already be public or the "
+            "settings.yml file may contain an invalid value for 'private'"
+        )
+    serialized = yaml.dump(settings, indent=2)
+    await push_to_github(
+        client=client,
+        path=path,
+        content=serialized,
+        owner=owner,
+        repo=repo,
+        branch=branch,
+        commit_message=commit_message,
+        file_exists=file_exists,
+        sha=contents["sha"],
+    )
+
+
 async def push_to_github(
     client: AuthenticatedClient,
     path: str,
@@ -129,9 +186,8 @@ async def push_to_github(
     branch: str,
     commit_message: str,
     file_exists=True,
+    sha: str = "",
 ):
-    url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
-
     base64content = base64.b64encode(content.encode("utf-8"))
     message = {
         "message": commit_message,
@@ -140,17 +196,16 @@ async def push_to_github(
     }
 
     if file_exists:
-        response = await client.get(url + "?ref=" + branch)
-        response.raise_for_status()
-        data = response.json()
-        message["sha"] = data["sha"]
-
-        if base64content.decode("utf-8").strip() == data["content"].strip():
-            raise CustomBaseError("No changes to push")
+        if sha == "":
+            data = await get_contents(client, owner, repo, path, branch)
+            sha = data["sha"]
+            if base64content.decode("utf-8").strip() == data["content"].strip():
+                raise CustomBaseError("No changes to push")
+        message["sha"] = sha
 
     response = await client.put(
-        url,
-        data=json.dumps(message),
+        contents_path(owner, repo, path),
+        content=json.dumps(message),
         headers={
             **client.headers,
             "Content-Type": "application/json",
@@ -179,9 +234,7 @@ async def get_user_repositories(
                 edges {{
                     node {{
                         ... on Repository {{
-                            name
-                            databaseId
-                            viewerPermission
+                            {repo_query}
                         }}
                     }}
                 }}
@@ -196,7 +249,10 @@ async def get_user_repositories(
             "https://api.github.com/graphql",
             json={
                 "query": query.format(
-                    query_args=",".join(":".join(i) for i in query_args.items())
+                    query_args=",".join(
+                        ":".join(i) for i in query_args.items()
+                    ),
+                    repo_query=GitHubRepo.graphql_query(),
                 )
             },
         )

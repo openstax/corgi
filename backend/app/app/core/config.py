@@ -1,4 +1,7 @@
+import json
 import os
+import re
+from typing import Any
 
 # DATABASE SETTINGS
 POSTGRES_SERVER = os.getenv("POSTGRES_SERVER")
@@ -19,7 +22,11 @@ TAG = os.getenv("TAG")
 STACK_NAME = os.getenv("STACK_NAME")
 DEPLOYED_AT = os.getenv("DEPLOYED_AT")
 
-IS_DEV_ENV = STACK_NAME is None or STACK_NAME == "dev"
+IS_PROD = (
+    isinstance(STACK_NAME, str)
+    and re.search(r"[\s:_-]prod(uction)?$", STACK_NAME, re.I) is not None
+)
+IS_DEV_ENV = not IS_PROD
 
 if IS_DEV_ENV:
     from dotenv import load_dotenv
@@ -45,3 +52,6 @@ ADMIN_TEAMS = ("ce-tech", "ce-admins", "content-managers")
 # To encrypt session cookie
 SESSION_SECRET = os.getenv("SESSION_SECRET")
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
+
+# Optional features
+MAKE_REPO_PUBLIC_ON_APPROVAL = IS_PROD

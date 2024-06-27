@@ -9,7 +9,10 @@ FAKE_USER = UserSession(
     id=1, token="fake", role=Role.ADMIN, avatar_url="", name="TestUser"
 )
 FAKE_REPO = GitHubRepo(
-    name="osbooks-fake-book", database_id="1234", viewer_permission="WRITE"
+    name="osbooks-fake-book",
+    database_id="1234",
+    viewer_permission="WRITE",
+    visibility="PUBLIC",
 )
 
 

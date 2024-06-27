@@ -5,9 +5,14 @@ from httpx import AsyncClient, HTTPStatusError
 from sqlalchemy import and_, delete, or_, select
 from sqlalchemy.orm import Session, lazyload
 
+import app.github.api as github_api
 from app.core import config
 from app.core.errors import CustomBaseError
-from app.data_models.models import BaseApprovedBook, RequestApproveBook
+from app.data_models.models import (
+    ApprovedBookWithCodeVersion,
+    BaseApprovedBook,
+    RequestApproveBooks,
+)
 from app.db.schema import (
     ApprovedBook,
     Book,
@@ -16,6 +21,7 @@ from app.db.schema import (
     Consumer,
     Repository,
 )
+from app.github.client import AuthenticatedClient
 
 
 async def get_rex_books(client: AsyncClient):
@@ -51,7 +57,7 @@ def get_rex_book_versions(rex_books: Dict[str, Any], book_uuids: List[str]):
 def remove_old_versions(
     db: Session,
     consumer_id: int,
-    to_add: List[RequestApproveBook],
+    to_add: List[ApprovedBookWithCodeVersion],
     to_keep: List[BaseApprovedBook] = [],
 ):
     # Default: Remove all previous versions of the books in the set
@@ -110,7 +116,7 @@ def update_versions_by_consumer(
     db: Session,
     consumer_name: str,
     db_books_by_uuid: Dict[str, Book],
-    to_add: List[RequestApproveBook],
+    to_add: List[ApprovedBookWithCodeVersion],
     to_keep: List[BaseApprovedBook] = [],
 ):
     consumer_id = db.scalars(
@@ -142,7 +148,7 @@ def guess_consumer(book_slug: str) -> str:
 
 async def add_new_entries(
     db: Session,
-    to_add: List[RequestApproveBook],
+    to_add: List[ApprovedBookWithCodeVersion],
     client: AsyncClient,
 ):
     if not to_add:  # pragma: no cover
@@ -224,3 +230,16 @@ def get_abl_info_database(
         )
 
     return db.scalars(query).all()
+
+
+async def add_to_abl(
+    client: AuthenticatedClient, db: Session, info: RequestApproveBooks
+):
+    if info.make_repo_public:
+        if not config.MAKE_REPO_PUBLIC_ON_APPROVAL:
+            raise CustomBaseError(
+                "ABORT - Cannot make repository public (feature disabled)"
+            )
+        repo = info.repository
+        await github_api.make_repo_public(client, repo.owner, repo.name)
+    return await add_new_entries(db, info.books_to_approve, client)

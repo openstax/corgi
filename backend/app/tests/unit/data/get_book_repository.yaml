@@ -1,7 +1,7 @@
 interactions:
 - request:
     body: '{"query": "\n        query {\n            repository(name: \"tiny-book\",
-      owner: \"openstax\") {\n                databaseId\n                viewerPermission\n                object(expression:
+      owner: \"openstax\") {\n                name\ndatabaseId\nviewerPermission\nvisibility\n                object(expression:
       \"main\") {\n                    oid\n                    ... on Commit {\n                        committedDate\n                        file
       (path: \"META-INF/books.xml\") {\n                            object {\n                                ...
       on Blob {\n                                    text\n                                }\n                            }\n                        }\n                    }\n                }\n            }\n        }\n    "}'
@@ -11,7 +11,7 @@ interactions:
     method: POST
     uri: https://api.github.com/graphql
   response:
-    content: '{"data":{"repository":{"databaseId":359188527,"viewerPermission":"WRITE","object":{"oid":"7bc255e285cc4f53debe59b84281cafa002f90cd","committedDate":"2022-09-15T15:41:52Z","file":{"object":{"text":"<container
+    content: '{"data":{"repository":{"name":"tiny-book","databaseId":359188527,"viewerPermission":"WRITE","visibility":"PUBLIC","object":{"oid":"c49a6ab35327a393ad4368d686ae4535745cfbf3","committedDate":"2023-10-20T21:39:14Z","file":{"object":{"text":"<container
       xmlns=\"https://openstax.org/namespaces/book-container\" version=\"1\">\n    <book
       slug=\"book-slug1\" style=\"dummy\" href=\"../collections/book-slug1.collection.xml\"
       />\n</container>\n"}}}}}}'

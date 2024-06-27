@@ -29,12 +29,15 @@
   import Button from "@smui/button";
   import { repoSummariesStore, jobsStore, ABLStore } from "../ts/stores";
 
-  import type { Job, JobType } from "../ts/types";
+  import type { Config, Job, JobType } from "../ts/types";
   import DetailsDialog from "./DetailsDialog.svelte";
   import { MINUTES, SECONDS } from "../ts/time";
   import { hasABLEntry } from "../ts/abl";
   import ApprovedBooksDialog from "./ApprovedBooksDialog.svelte";
   import VersionLink from "./VersionLink.svelte";
+  import { ProcessConfig } from "../ts/config";
+
+  const config: Config = ProcessConfig.fromEnv(process.env);
 
   let statusStyles = {
     queued: "filter-yellow",
@@ -494,7 +497,7 @@
     </Pagination>
   </DataTable>
 
-  <DetailsDialog bind:open={detailsOpen} {selectedJob} />
+  <DetailsDialog bind:open={detailsOpen} {selectedJob} {config} />
   <ApprovedBooksDialog bind:open={ablOpen} />
 </div>
 

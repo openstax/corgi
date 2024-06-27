@@ -42,7 +42,13 @@ describe("newABLentry", () => {
         version: "1",
       }),
       code_version: "123",
-      expected: [{ uuid: "fake", code_version: "123", commit_sha: "1" }],
+      expected: {
+        books_to_approve: [
+          { code_version: "123", commit_sha: "1", uuid: "fake" },
+        ],
+        repository: { name: "name", owner: "owner" },
+        make_repo_public: false,
+      },
     },
     {
       job: jobFactory.build({
@@ -53,24 +59,31 @@ describe("newABLentry", () => {
         version: "1",
       }),
       code_version: "1234",
-      expected: [
-        {
-          uuid: "fake",
-          code_version: "1234",
-          commit_sha: "1",
+      expected: {
+        books_to_approve: [
+          {
+            uuid: "fake",
+            code_version: "1234",
+            commit_sha: "1",
+          },
+          {
+            uuid: "fake2",
+            code_version: "1234",
+            commit_sha: "1",
+          },
+        ],
+        repository: {
+          name: "name",
+          owner: "owner",
         },
-        {
-          uuid: "fake2",
-          code_version: "1234",
-          commit_sha: "1",
-        },
-      ],
+        make_repo_public: false,
+      },
     },
   ];
   testCases.forEach((args) => {
     it(`calls fetch with the correct information -> ${args}`, async () => {
       const { job, code_version: codeVersion, expected } = args;
-      await newABLentry(job, codeVersion);
+      await newABLentry(job, codeVersion, false);
       const url: string = (mockFetch.mock.lastCall as any[])[0] as string;
       const options = (mockFetch.mock.lastCall as any[])[1];
       const body = JSON.parse(options.body);
@@ -87,7 +100,7 @@ describe("newABLentry", () => {
     window.fetch = jest
       .fn<() => Promise<Response>>()
       .mockResolvedValue({ status: 403 } as unknown as Response);
-    await newABLentry(job, codeVersion);
+    await newABLentry(job, codeVersion, false);
     expect(errors.length).toBe(1);
     expect(errors[0]).toMatch(/do not.+permission.+entries/i);
   });

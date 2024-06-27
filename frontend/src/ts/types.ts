@@ -68,3 +68,24 @@ export interface ApprovedBookWithDate extends ApprovedBook {
   slug: string;
   consumer: string;
 }
+
+export interface BookRepository {
+  bookRepo: {
+    name: string;
+    database_id: string;
+    viewer_permission: string;
+    visibility: string;
+  };
+  ref: string;
+  committedAt: string;
+  books: Array<{ slug: string; style: string }>;
+}
+
+export enum FeatureName {
+  makeRepoPublicOnApproval,
+}
+
+export interface Config {
+  readonly stackName: string | undefined;
+  isFeatureEnabled: (featureName: FeatureName) => boolean;
+}
