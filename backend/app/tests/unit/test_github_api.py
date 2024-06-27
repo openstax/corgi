@@ -381,7 +381,9 @@ async def test_make_repo_public(mock_http_client):
         },
     )
     # WHEN: We attempt to make it public
-    # THEN: An error about repo already being public is raised
+    # THEN: An error about repo already being public or a possible error in
+    # settings.yml is raised
     with pytest.raises(CustomBaseError) as cbe:
         await make_repo_public(client, owner, repo)
-    assert cbe.match("should already be public")
+    assert cbe.match("repository may already be public")
+    assert cbe.match("settings.yml")
