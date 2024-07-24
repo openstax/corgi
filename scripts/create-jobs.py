@@ -24,7 +24,7 @@ async def main():
                 "book": "book-slug1",
                 "worker_version": worker_version,
             }
-            for job_type_id in ((3, 4, 5, 6) * 2)
+            for job_type_id in ((3, 4, 5, 6, 7) * 2)
         ]
         responses = await asyncio.gather(
             *[
@@ -55,8 +55,7 @@ async def main():
                     "Error ./modules/m123/index.cnxml:3:1 "
                     "<!-- here and ./modules/m123/index.cnxml:3:1 <-- here",
                     '<a href="escaped">Should-not-work</a>',
-                    "Error ./collections/book-slug1.collection.xml:3:1 "
-                    "<!-- here",
+                    "Error ./collections/book-slug1.collection.xml:3:1 " "<!-- here",
                     "No link ./media/something.jpg <-- here",
                 )
                 update_args["error_message"] = "\n".join(lines)
@@ -68,9 +67,7 @@ async def main():
                     }
                 ]
             to_update.append(
-                client.put(
-                    f"http://localhost/api/jobs/{job_id}", json=update_args
-                )
+                client.put(f"http://localhost/api/jobs/{job_id}", json=update_args)
             )
         for response in await asyncio.gather(*to_update):
             response.raise_for_status()

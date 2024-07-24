@@ -33,6 +33,7 @@
     { name: "WebView", id: "Web", disabled: false },
     { name: "EPUB", id: "EPUB", disabled: false },
     { name: "Docx", id: "Docx", disabled: false },
+    { name: "PPTX", id: "PPTX", disabled: false },
   ];
 
   function createSearchFunction(
