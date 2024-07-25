@@ -68,6 +68,7 @@
     Web = 4,
     Docx = 5,
     EPUB = 6,
+    PPTX = 7,
   }
 
   // Job creation
