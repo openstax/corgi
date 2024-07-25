@@ -26,7 +26,8 @@ job_types_table = sa.table(
     sa.column("updated_at", sa.DateTime),
 )
 
-jobs_table = sa.table("jobs", sa.column("job_type_id"))
+jobs_table = sa.table("jobs", sa.column("id"), sa.column("job_type_id"))
+book_job_table = sa.table("book_job", sa.column("job_id"))
 
 
 def upgrade():
@@ -48,9 +49,17 @@ def upgrade():
 
 def downgrade():
     bind = op.get_bind()
-    delete_jobs_of_seeded_type = jobs_table.delete().where(
-        jobs_table.c.job_type_id.in_([7])
+    type_id_query = jobs_table.c.job_type_id.in_([7])
+    jobs_to_delete = list(
+        bind.scalars(sa.sql.select(jobs_table.c.id).where(type_id_query))
     )
-    delete_seed = job_types_table.delete().where(job_types_table.c.id.in_([7]))
+    delete_book_jobs_of_seeded_type = book_job_table.delete().where(
+        book_job_table.c.job_id.in_(jobs_to_delete)
+    )
+    bind.execute(delete_book_jobs_of_seeded_type)
+    delete_jobs_of_seeded_type = jobs_table.delete().where(
+        jobs_table.c.id.in_(jobs_to_delete)
+    )
     bind.execute(delete_jobs_of_seeded_type)
+    delete_seed = job_types_table.delete().where(job_types_table.c.id.in_([7]))
     bind.execute(delete_seed)
