@@ -5,11 +5,7 @@
   import Autocomplete from "@smui-extra/autocomplete";
   import Button from "@smui/button";
   import { Label } from "@smui/common";
-  import {
-    filterBooks,
-    handleError,
-    repoToString,
-  } from "../ts/utils";
+  import { filterBooks, handleError, repoToString } from "../ts/utils";
   import type { RepositorySummary } from "../ts/types";
   import { repoSummariesStore } from "../ts/stores";
 
@@ -21,7 +17,7 @@
     selectedRepo: string,
     selectedBook: string,
     selectedVersion: string,
-    selectedJobTypes: string[]
+    selectedJobTypes: string[],
   ) => Promise<void>;
 
   let previousRepo: string | null;
@@ -38,8 +34,8 @@
   function createSearchFunction(
     getOptions: (
       repoSummaries: RepositorySummary[],
-      lowerInput: string
-    ) => string[]
+      lowerInput: string,
+    ) => string[],
   ) {
     return async function (input: string) {
       let options: string[] = [];
@@ -82,7 +78,7 @@
       lowerInput = "";
     }
     const matches = filterBooks(repoSummaries, selectedRepo ?? "").filter(
-      (bookSlug) => bookSlug.toLocaleLowerCase().includes(lowerInput)
+      (bookSlug) => bookSlug.toLocaleLowerCase().includes(lowerInput),
     );
     matches.sort();
     return matches;
@@ -91,7 +87,7 @@
   async function setSelectedRepo(selectedBook) {
     if (selectedRepo) return;
     const repo = repoSummaries.find((r) =>
-      r.books.find((b) => b === selectedBook)
+      r.books.find((b) => b === selectedBook),
     );
     // https://svelte.dev/tutorial/tick
     await tick();
@@ -184,7 +180,7 @@
       selectedRepo ?? "",
       selectedBook ?? "",
       selectedVersion,
-      selectedJobTypes
+      selectedJobTypes,
     );
   }}
 >

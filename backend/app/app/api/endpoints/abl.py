@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from httpx import AsyncClient
 from sqlalchemy.orm import Session
 
+import app.service.abl as abl_service
 from app.core.auth import RequiresRole
 from app.data_models.models import (
     ApprovedBook,
@@ -11,7 +12,6 @@ from app.data_models.models import (
     Role,
 )
 from app.db.utils import get_db
-from app.service.abl import add_new_entries, get_abl_info_database
 
 router = APIRouter()
 
@@ -24,7 +24,9 @@ async def get_abl_info(
     version: Optional[str] = None,
     code_version: Optional[str] = None,
 ):
-    return get_abl_info_database(db, consumer, repo_name, version, code_version)
+    return abl_service.get_abl_info_database(
+        db, consumer, repo_name, version, code_version
+    )
 
 
 @router.post("/", dependencies=[Depends(RequiresRole(Role.ADMIN))])
@@ -39,4 +41,11 @@ async def add_to_abl(
     #   keeps any version that appears in rex-web
     # keeps newest version
     async with AsyncClient() as client:
-        return await add_new_entries(db, info, client)
+        return await abl_service.add_new_entries(db, info, client)
+
+
+@router.get("/rex-release-version")
+async def get_rex_release_version():
+    async with AsyncClient() as client:
+        version = await abl_service.get_rex_release_version(client)
+        return {"version": version}
