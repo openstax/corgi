@@ -106,7 +106,7 @@ class HomeCorgi:
         return self.page.wait_for_selector("id=PPTX-job-option")
 
     def click_pptx_job_option(self):
-        self.pdf_job_option.click()
+        self.pptx_job_option.click()
 
     @property
     def create_new_job_button_is_enabled(self):
