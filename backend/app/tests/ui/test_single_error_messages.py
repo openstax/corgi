@@ -73,6 +73,7 @@ def test_single_non_dismissed_error_message(
     home.click_docx_job_option()
     home.click_pdf_job_option()
     home.click_webview_job_option()
+    home.click_pptx_job_option()
 
     # WHEN: Create new job button is clicked
     home.click_create_new_job_button()
