@@ -3,7 +3,7 @@ import pytest
 from app.core import config
 from app.core.errors import CustomBaseError
 from app.data_models.models import BaseApprovedBook, RequestApproveBook
-from app.db.schema import ApprovedBook, Book, CodeVersion
+from app.db.schema import ApprovedBook, Book, CodeVersion, Commit
 from app.service.abl import (
     add_new_entries,
     get_abl_info_database,
@@ -60,20 +60,53 @@ def test_get_or_add_code_version(mock_session):
 @pytest.mark.parametrize(
     "to_add,to_keep",
     [
-        [
-            [RequestApproveBook(commit_sha="a", uuid="b", code_version="42")],
-            {},
-        ],
-        [
-            [RequestApproveBook(commit_sha="a", uuid="b", code_version="42")],
-            {"b": {"defaultVersion": "something"}},
-        ],
+        # Should delete all with uuid=uuid-book-b because to_keep is empty
         [
             [
-                RequestApproveBook(commit_sha="a", uuid="b", code_version="42"),
-                RequestApproveBook(commit_sha="a", uuid="c", code_version="42"),
+                RequestApproveBook(
+                    commit_sha="commit1", uuid="uuid-book-b", code_version="42"
+                )
             ],
-            {"b": {"defaultVersion": "b"}, "c": {"defaultVersion": "c"}},
+            {},
+        ],
+        # Should delete approved_book2 because added version is new
+        [
+            [
+                RequestApproveBook(
+                    commit_sha="commit-new",
+                    uuid="uuid-book-a",
+                    code_version="42",
+                )
+            ],
+            {"uuid-book-a": {"defaultVersion": "commit1"}},
+        ],
+        # Should delete approved_book1 and approved_book3 because they are
+        # being replaced
+        [
+            [
+                RequestApproveBook(
+                    commit_sha="commit1", uuid="uuid-book-a", code_version="42"
+                ),
+                RequestApproveBook(
+                    commit_sha="commit3", uuid="uuid-book-b", code_version="42"
+                ),
+            ],
+            {
+                "uuid-book-a": {"defaultVersion": "commit1"},
+                "uuid-book-b": {"defaultVersion": "commit3"},
+            },
+        ],
+        # Normal case, remove approved_book2
+        [
+            [
+                RequestApproveBook(
+                    commit_sha="commit4", uuid="uuid-book-a", code_version="42"
+                ),
+            ],
+            {
+                "uuid-book-a": {"defaultVersion": "commit1"},
+                "uuid-book-b": {"defaultVersion": "commit3"},
+            },
         ],
     ],
 )
@@ -81,19 +114,43 @@ async def test_add_new_entries_rex(
     to_add, to_keep, mock_session, mock_http_client, snapshot
 ):
     def mock_database_logic(session_obj):
+        book1 = Book(id=1, uuid="uuid-book-a", slug="test")
+        book2 = Book(id=2, uuid="uuid-book-a", slug="test")
+        book3 = Book(id=3, uuid="uuid-book-b", slug="test2")
+        book1.commit = Commit(id=1, sha="commit1")
+        book2.commit = Commit(id=2, sha="commit2")
+        book3.commit = Commit(id=3, sha="commit3")
+        approved_book1 = ApprovedBook(
+            consumer_id=1, book_id=1, code_version_id=1
+        )
+        approved_book2 = ApprovedBook(
+            consumer_id=1, book_id=2, code_version_id=2
+        )
+        approved_book3 = ApprovedBook(
+            consumer_id=1, book_id=3, code_version_id=3
+        )
+        approved_book1.book = book1
+        approved_book2.book = book2
+        approved_book3.book = book3
         if session_obj.calls:
             last_call = str(session_obj.calls[-1]).replace("\n", "")
             if " FROM consumer " in last_call:
                 return [1]
             elif " FROM book " in last_call:
-                return [
-                    Book(id=i, uuid=entry.uuid, slug="test")
-                    for i, entry in enumerate(to_add)
-                ]
+                return [book1, book2, book3]
             elif " FROM approved_book " in last_call:
-                return [
-                    ApprovedBook(consumer_id=1, book_id=1, code_version_id=1)
+                approved_books = [
+                    approved_book1,
+                    approved_book2,
+                    approved_book3,
                 ]
+                if " WHERE book.uuid IN " in last_call:
+                    params = session_obj.calls[-1].compile().params
+                    uuids = params["uuid_1"]
+                    approved_books = [
+                        ab for ab in approved_books if ab.book.uuid in uuids
+                    ]
+                return approved_books
 
         return []
 
@@ -110,6 +167,7 @@ async def test_add_new_entries_rex(
     assert isinstance(db.added_items[0], CodeVersion)
     assert isinstance(db.added_items[1], ApprovedBook)
     snapshot.assert_match(db.calls_str, "add_new_entries.sql")
+    snapshot.assert_match(db.params_str, "add_new_entries_params.json")
 
 
 @pytest.mark.parametrize(
