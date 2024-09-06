@@ -1,3 +1,4 @@
+import json
 import os
 from typing import Any
 
@@ -254,6 +255,18 @@ def mock_session():
             @property
             def calls_str(self):
                 return "\n\n".join(str(c) for c in self.calls)
+
+            @property
+            def params(self):
+                return [
+                    call.compile().params
+                    for call in self.calls
+                    if not isinstance(call, str)
+                ]
+
+            @property
+            def params_str(self):
+                return json.dumps(self.params, indent=2, ensure_ascii=False)
 
         mock_session = MockSession()
 
