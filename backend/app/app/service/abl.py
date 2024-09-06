@@ -71,28 +71,28 @@ def remove_old_versions(
     to_add: List[RequestApproveBook],
     to_keep: List[BaseApprovedBook] = [],
 ):
-    # Default: Remove all previous versions of the books in the set
+    add_uuid_sha = {(e.uuid, e.commit_sha[:7]) for e in to_add}
+    keep_uuid_sha = {(e.uuid, e.commit_sha[:7]) for e in to_keep}
+    intersection = add_uuid_sha.intersection(keep_uuid_sha)
     query = (
         select(ApprovedBook)
         .options(lazyload("*"))
         .join(Book)
+        .join(Commit)
         .where(Book.uuid.in_([b.uuid for b in to_add]))
         .where(ApprovedBook.consumer_id == consumer_id)
     )
-    if to_keep:
-        # Keep a subset (`~or_` is like `if not any(...)`)
-        query = query.join(Commit).where(
-            ~or_(
-                *[
-                    and_(
-                        Book.uuid == entry.uuid,
-                        Commit.sha.startswith(entry.commit_sha),
-                    )
-                    for entry in to_keep
-                ]
-            )
-        )
-    to_delete = db.scalars(query).all()
+    have = db.scalars(query).all()
+    to_delete = []
+    for record in have:
+        ident = (record.book.uuid, record.book.commit.sha[:7])
+        # Delete entries that exist in both to_add and to_keep
+        # Do not delete existing entries that share a uuid with an intersection
+        if ident in intersection or (
+            ident not in keep_uuid_sha
+            and not any(record.book.uuid == uuid for uuid, _ in intersection)
+        ):
+            to_delete.append(record)
     # NOTE: If to_delete is empty, the condition will be True (delete all)
     if to_delete:
         condition = or_(
