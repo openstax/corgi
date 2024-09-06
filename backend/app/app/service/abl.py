@@ -1,5 +1,4 @@
 import re
-from itertools import groupby
 from typing import Any, Dict, List, Optional
 
 from httpx import AsyncClient, HTTPStatusError
@@ -158,6 +157,13 @@ def guess_consumer(book_slug: str) -> str:
     return "REX"
 
 
+def groupby(items, key):
+    groups = {}
+    for item in items:
+        groups.setdefault(key(item), []).append(item)
+    return groups
+
+
 async def add_new_entries(
     db: Session,
     to_add: List[RequestApproveBook],
@@ -165,11 +171,10 @@ async def add_new_entries(
 ):
     if not to_add:  # pragma: no cover
         raise CustomBaseError("No entries to add")
-    for uuid, items in groupby(to_add, lambda o: o.uuid):
-        collected = tuple(items)
-        if len(collected) > 1:  # pragma: no cover
+    for uuid, items in groupby(to_add, lambda o: o.uuid).items():
+        if len(items) > 1:  # pragma: no cover
             raise CustomBaseError(
-                f"Found multiple versions for {uuid} - ({collected})"
+                f"Found multiple versions for {uuid} - ({items})"
             )
     db_books = db.scalars(
         select(Book)
@@ -191,7 +196,7 @@ async def add_new_entries(
         to_add, lambda entry: guess_consumer(db_books_by_uuid[entry.uuid].slug)
     )
     try:
-        for consumer, entries in book_info_by_consumer:
+        for consumer, entries in book_info_by_consumer.items():
             to_keep = []
             if consumer == "REX":
                 rex_books = await get_rex_books(client)
@@ -199,7 +204,7 @@ async def add_new_entries(
                     rex_books, [b.uuid for b in to_add]
                 )
             update_versions_by_consumer(
-                db, consumer, db_books_by_uuid, list(entries), to_keep
+                db, consumer, db_books_by_uuid, entries, to_keep
             )
         db.commit()
     except Exception:
