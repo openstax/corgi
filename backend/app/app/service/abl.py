@@ -1,5 +1,4 @@
 import re
-from itertools import groupby
 from typing import Any, Dict, List, Optional
 
 from httpx import AsyncClient, HTTPStatusError
@@ -72,28 +71,28 @@ def remove_old_versions(
     to_add: List[RequestApproveBook],
     to_keep: List[BaseApprovedBook] = [],
 ):
-    # Default: Remove all previous versions of the books in the set
+    add_uuid_sha = {(e.uuid, e.commit_sha[:7]) for e in to_add}
+    keep_uuid_sha = {(e.uuid, e.commit_sha[:7]) for e in to_keep}
+    intersection = add_uuid_sha.intersection(keep_uuid_sha)
     query = (
         select(ApprovedBook)
         .options(lazyload("*"))
         .join(Book)
+        .join(Commit)
         .where(Book.uuid.in_([b.uuid for b in to_add]))
         .where(ApprovedBook.consumer_id == consumer_id)
     )
-    if to_keep:
-        # Keep a subset (`~or_` is like `if not any(...)`)
-        query = query.join(Commit).where(
-            ~or_(
-                *[
-                    and_(
-                        Book.uuid == entry.uuid,
-                        Commit.sha.startswith(entry.commit_sha),
-                    )
-                    for entry in to_keep
-                ]
-            )
-        )
-    to_delete = db.scalars(query).all()
+    have = db.scalars(query).all()
+    to_delete = []
+    for record in have:
+        ident = (record.book.uuid, record.book.commit.sha[:7])
+        # Delete entries that exist in both to_add and to_keep
+        # Do not delete existing entries that share a uuid with an intersection
+        if ident in intersection or (
+            ident not in keep_uuid_sha
+            and not any(record.book.uuid == uuid for uuid, _ in intersection)
+        ):
+            to_delete.append(record)
     # NOTE: If to_delete is empty, the condition will be True (delete all)
     if to_delete:
         condition = or_(
@@ -158,6 +157,13 @@ def guess_consumer(book_slug: str) -> str:
     return "REX"
 
 
+def groupby(items, key):
+    groups = {}
+    for item in items:
+        groups.setdefault(key(item), []).append(item)
+    return groups
+
+
 async def add_new_entries(
     db: Session,
     to_add: List[RequestApproveBook],
@@ -165,11 +171,10 @@ async def add_new_entries(
 ):
     if not to_add:  # pragma: no cover
         raise CustomBaseError("No entries to add")
-    for uuid, items in groupby(to_add, lambda o: o.uuid):
-        collected = tuple(items)
-        if len(collected) > 1:  # pragma: no cover
+    for uuid, items in groupby(to_add, lambda o: o.uuid).items():
+        if len(items) > 1:  # pragma: no cover
             raise CustomBaseError(
-                f"Found multiple versions for {uuid} - ({collected})"
+                f"Found multiple versions for {uuid} - ({items})"
             )
     db_books = db.scalars(
         select(Book)
@@ -191,7 +196,7 @@ async def add_new_entries(
         to_add, lambda entry: guess_consumer(db_books_by_uuid[entry.uuid].slug)
     )
     try:
-        for consumer, entries in book_info_by_consumer:
+        for consumer, entries in book_info_by_consumer.items():
             to_keep = []
             if consumer == "REX":
                 rex_books = await get_rex_books(client)
@@ -199,7 +204,7 @@ async def add_new_entries(
                     rex_books, [b.uuid for b in to_add]
                 )
             update_versions_by_consumer(
-                db, consumer, db_books_by_uuid, list(entries), to_keep
+                db, consumer, db_books_by_uuid, entries, to_keep
             )
         db.commit()
     except Exception:

@@ -14,7 +14,7 @@
   $: if (open === true) void ABLStore.update();
   $: sorted = sortBy($ABLStore, [
     { key: "repository_name" },
-    { key: "uuid" },
+    { key: "slug" },
     { key: "consumer" },
     { key: "committed_at", desc: true },
   ]);
