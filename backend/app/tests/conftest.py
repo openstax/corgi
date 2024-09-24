@@ -44,6 +44,7 @@ def pytest_addoption(parser):
         metavar="str",
         help="regular expression for identifying sensitive urls.",
     )
+    parser.addoption("--base-url", default=os.getenv("CORGI_BASE_URL", None))
 
 
 def pytest_configure(config):
@@ -84,3 +85,15 @@ def github_token(request):
         "token to use"
     )
     return github_token
+
+
+@pytest.fixture(scope="session")
+def base_url(request):
+    """Return a base URL for REX used for integration testing"""
+    config = request.config
+    base_url = config.getoption("--base-url") or config.getini("--base-url")
+    assert isinstance(base_url, str) and len(base_url) > 0, (
+        "Use option --base_url or env var CORGI_BASE_URL to set the"
+        "base url to use"
+    )
+    return base_url
