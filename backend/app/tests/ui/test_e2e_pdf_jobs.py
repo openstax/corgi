@@ -62,9 +62,9 @@ def test_e2e_pdf_jobs(chrome_page_slow, corgi_base_url, repo, book, version):
                 assert ".pdf" in href_pdf_url
 
                 r_url = Request(href_pdf_url)
-                pdf_url = urlopen(r_url).read()
+                response = urlopen(r_url)
 
-                io_file = io.BytesIO(pdf_url)
+                io_file = io.BytesIO(response.read())
                 pdf_read = PdfReader(io_file)
 
                 pdf_title = pdf_read.metadata.title
@@ -98,8 +98,6 @@ def test_e2e_pdf_jobs(chrome_page_slow, corgi_base_url, repo, book, version):
                             liszt.append(ptext.split("\n"))
 
                 flat_liszt = [item for sublist in liszt for item in sublist]
-
-                print(flat_liszt)
 
                 try:
                     assert any("Preface" in word for word in flat_liszt)
