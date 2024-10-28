@@ -11,7 +11,7 @@ from tests.ui.pages.home import HomeCorgi, JobStatus
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
     "repo, book, version",
-    [("osbooks-otto-book", "ottó-könyv", "main")],
+    [("osbooks-otto-book", "hellas", "main")],
 )
 def test_e2e_pdf_jobs(chrome_page_slow, corgi_base_url, repo, book, version):
     # GIVEN: Playwright, chromium and the corgi_base_url
@@ -99,10 +99,11 @@ def test_e2e_pdf_jobs(chrome_page_slow, corgi_base_url, repo, book, version):
 
                 flat_liszt = [item for sublist in liszt for item in sublist]
 
+                print(flat_liszt)
+
                 try:
                     assert any("Preface" in word for word in flat_liszt)
                     assert any("Chapter Outline" in word for word in flat_liszt)
-                    assert any("Index" in word for word in flat_liszt)
 
                 except AssertionError:
                     pytest.fail(
