@@ -18,6 +18,7 @@ def pytest_configure(config):
     )
     init_test_data = config.getoption("--init-test-data")
     if init_test_data:
+        os.environ.setdefault("VCR_RECORD", "1")
         token = config.getoption("--github-token")
         if token is not None:
             from tests.unit.init_test_data import main

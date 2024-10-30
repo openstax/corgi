@@ -5,13 +5,15 @@ from httpx import AsyncClient
 from sqlalchemy.orm import Session
 
 import app.service.abl as abl_service
-from app.core.auth import RequiresRole
+from app.core.auth import RequiresRole, active_user
 from app.data_models.models import (
     ApprovedBook,
     RequestApproveBook,
     Role,
+    UserSession,
 )
 from app.db.utils import get_db
+from app.github.client import github_client
 
 router = APIRouter()
 
@@ -45,7 +47,7 @@ async def add_to_abl(
 
 
 @router.get("/rex-release-version")
-async def get_rex_release_version():
-    async with AsyncClient() as client:
+async def get_rex_release_version(user: UserSession = Depends(active_user)):
+    async with github_client(user) as client:
         version = await abl_service.get_rex_release_version(client)
         return {"version": version}

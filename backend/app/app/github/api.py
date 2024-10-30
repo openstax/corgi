@@ -2,6 +2,7 @@ import base64
 import json
 from datetime import datetime
 from typing import Any, Dict, List, Tuple
+from urllib.parse import urlencode
 
 from lxml import etree
 
@@ -118,6 +119,42 @@ async def get_collections(
         entry["name"]: parse_xml_doc(entry["object"]["text"])
         for entry in files_entries
     }
+
+
+def normpath(*parts: str):
+    return tuple(p.strip("/") for p in parts)
+
+
+def build_url(*parts: str, **kwargs: str | None):
+    path = "/".join(("https://api.github.com", *normpath(*parts)))
+    kwargs = {k: v for k, v in kwargs.items() if v}
+    if kwargs:
+        path = "?".join((path, urlencode(kwargs)))
+    return path
+
+
+async def get_file_response(
+    client: AuthenticatedClient,
+    owner: str,
+    repo: str,
+    path: str,
+    ref: str | None = None,
+):
+    url = build_url("repos", owner, repo, "contents", path, ref=ref)
+    response = await client.get(url)
+    response.raise_for_status()
+    return response
+
+
+async def get_file_content(
+    client: AuthenticatedClient,
+    owner: str,
+    repo: str,
+    path: str,
+    ref: str | None = None,
+):
+    payload = (await get_file_response(client, owner, repo, path, ref)).json()
+    return base64.b64decode(payload["content"])
 
 
 async def push_to_github(
