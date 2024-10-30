@@ -17,6 +17,7 @@ from app.db.schema import (
     Repository,
 )
 from app.github.api import get_file_content
+from app.github.client import AuthenticatedClient
 
 
 async def get_rex_release_json(client: AsyncClient):
@@ -38,7 +39,7 @@ async def get_rex_books(client: AsyncClient):
     return release_json["books"]
 
 
-async def get_rex_release_version(client: AsyncClient):
+async def get_rex_release_version(client: AuthenticatedClient):
     owner, repo, path = config.REX_WEB_ARCHIVE_CONFIG.split(":", 2)
     try:
         raw_contents = await get_file_content(client, owner, repo, path)

@@ -2,6 +2,7 @@ from app.github.api import (
     AccessDeniedError,
     get_book_repository,
     get_collections,
+    get_file_content,
     get_user,
     get_user_repositories,
     get_user_role,
