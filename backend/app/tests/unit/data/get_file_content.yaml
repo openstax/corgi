@@ -1,0 +1,18 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      host:
+      - api.github.com
+    method: GET
+    uri: https://api.github.com/repos/openstax/rex-web/contents/src/config.archive-url.json
+  response:
+    content: '{"name":"config.archive-url.json","path":"src/config.archive-url.json","sha":"ddd2befbcff5578dda01dda94cd6c2474999d876","size":95,"url":"https://api.github.com/repos/openstax/rex-web/contents/src/config.archive-url.json?ref=main","html_url":"https://github.com/openstax/rex-web/blob/main/src/config.archive-url.json","git_url":"https://api.github.com/repos/openstax/rex-web/git/blobs/ddd2befbcff5578dda01dda94cd6c2474999d876","download_url":"https://raw.githubusercontent.com/openstax/rex-web/main/src/config.archive-url.json","type":"file","content":"ewogICJSRUFDVF9BUFBfQVJDSElWRSI6ICIyMDI0MDkxMC4xNjEyMjciLAog\nICJSRUFDVF9BUFBfQVJDSElWRV9VUkxfQkFTRSI6ICIvYXBwcy9hcmNoaXZl\nLyIKfQo=\n","encoding":"base64","_links":{"self":"https://api.github.com/repos/openstax/rex-web/contents/src/config.archive-url.json?ref=main","git":"https://api.github.com/repos/openstax/rex-web/git/blobs/ddd2befbcff5578dda01dda94cd6c2474999d876","html":"https://github.com/openstax/rex-web/blob/main/src/config.archive-url.json"}}'
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      Server:
+      - github.com
+    http_version: HTTP/1.1
+    status_code: 200
+version: 1
