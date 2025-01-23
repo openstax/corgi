@@ -11,7 +11,7 @@ from tests.ui.pages.home import HomeCorgi, JobStatus
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
     "repo, book, version",
-    [("osbooks-otto-book", "hellas", "main")],
+    [("osbooks-otto-book", "tschüß-grüße", "main")],
 )
 def test_e2e_pdf_jobs(chrome_page_slow, corgi_base_url, repo, book, version):
     # GIVEN: Playwright, chromium and the corgi_base_url
@@ -69,8 +69,7 @@ def test_e2e_pdf_jobs(chrome_page_slow, corgi_base_url, repo, book, version):
 
                 pdf_title = pdf_read.metadata.title
 
-                book_adjusted = book.replace("-", " ")
-                assert book_adjusted.lower() in pdf_title.lower()
+                assert book.lower() in pdf_title.lower()
 
                 num_pages = len(pdf_read.pages)
 
@@ -80,7 +79,7 @@ def test_e2e_pdf_jobs(chrome_page_slow, corgi_base_url, repo, book, version):
                     pytest.fail(f"No pages in pdf file: {repo}/{book}")
 
                 else:
-                    assert book_adjusted.lower() in pdf_title.lower()
+                    assert book.lower() in pdf_title.lower()
 
                     for no in range(0, num_pages):
                         for ppage in pdf_read.pages:
