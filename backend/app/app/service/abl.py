@@ -1,4 +1,4 @@
-import re
+import json
 from typing import Any, Dict, List, Optional
 
 from httpx import AsyncClient, HTTPStatusError
@@ -16,6 +16,8 @@ from app.db.schema import (
     Consumer,
     Repository,
 )
+from app.github.api import get_file_content
+from app.github.client import AuthenticatedClient
 
 
 async def get_rex_release_json(client: AsyncClient):
@@ -37,16 +39,19 @@ async def get_rex_books(client: AsyncClient):
     return release_json["books"]
 
 
-async def get_rex_release_version(client: AsyncClient):
-    rex_release = await get_rex_release_json(client)
-    archive_url = rex_release.get("archiveUrl", "").strip()
-    if archive_url == "":
-        raise CustomBaseError("Could not find valid REX archive URL")
-    # Search for: %Y%m%d.%H%M%S
-    version_matches = re.findall(r"\d{8}\.\d{6}", archive_url)
-    if len(version_matches) != 1:
-        raise CustomBaseError("Could not determine REX release version")
-    return version_matches[0]
+async def get_rex_release_version(client: AuthenticatedClient):
+    owner, repo, path = config.REX_WEB_ARCHIVE_CONFIG.split(":", 2)
+    try:
+        raw_contents = await get_file_content(client, owner, repo, path)
+    except HTTPStatusError as he:
+        raise CustomBaseError(
+            f"Failed to fetch rex release version: {he.response.status_code}"
+        ) from he
+    contents = json.loads(raw_contents)
+    version = contents.get("REACT_APP_ARCHIVE", "").strip()
+    if not version:
+        raise CustomBaseError("Could not find valid REX version")
+    return version
 
 
 def get_rex_book_versions(rex_books: Dict[str, Any], book_uuids: List[str]):

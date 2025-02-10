@@ -1,3 +1,6 @@
+import base64
+import json
+
 import pytest
 
 from app.core import config
@@ -216,11 +219,16 @@ def test_get_rex_book_versions(rex_books, book_uuids, expected):
 
 @pytest.mark.asyncio
 async def test_get_rex_release_version(mock_http_client):
+    url = "https://api.github.com/repos/openstax/rex-web/contents/src/config.archive-url.json"
+    fake_api_response = {
+        "content": base64.b64encode(
+            json.dumps({"REACT_APP_ARCHIVE": "20240101.000001"}).encode()
+        ).decode()
+    }
+
     # GIVEN: A valid response
     mock_client: MockAsyncClient = mock_http_client(
-        get={
-            config.REX_WEB_RELEASE_URL: {"archiveUrl": "a/b/20240101.000001/c"}
-        }
+        get={url: fake_api_response}
     )
     # WHEN: A request is made
     version = await get_rex_release_version(mock_client)
@@ -231,39 +239,17 @@ async def test_get_rex_release_version(mock_http_client):
     # THEN: The expected version is matched
     assert version == "20240101.000001"
 
-    # GIVEN: An invalid response with zero matches
-    mock_client: MockAsyncClient = mock_http_client(
-        get={config.REX_WEB_RELEASE_URL: {"archiveUrl": "a/b/c"}}
-    )
-    # WHEN: A request is made
-    # THEN: An error is raised
-    with pytest.raises(CustomBaseError) as cbe:
-        await get_rex_release_version(mock_client)
-    assert len(mock_client.responses) == 1
-    assert cbe.match("Could not determine REX release version")
-    # GIVEN: An invalid response with more than one match
+    # GIVEN: An invalid response
     mock_client: MockAsyncClient = mock_http_client(
         get={
-            config.REX_WEB_RELEASE_URL: {
-                "archiveUrl": "a/b/c/20240101.000001/d/12345678.123456"
-            }
+            url: {"content": base64.b64encode(json.dumps({}).encode()).decode()}
         }
     )
     # WHEN: A request is made
     # THEN: An error is raised
     with pytest.raises(CustomBaseError) as cbe:
         await get_rex_release_version(mock_client)
-    assert len(mock_client.responses) == 1
-    assert cbe.match("Could not determine REX release version")
-    # GIVEN: An invalid response
-    mock_client: MockAsyncClient = mock_http_client(
-        get={config.REX_WEB_RELEASE_URL: {}}
-    )
-    # WHEN: A request is made
-    # THEN: An error is raised
-    with pytest.raises(CustomBaseError) as cbe:
-        await get_rex_release_version(mock_client)
-    assert cbe.match("Could not find valid REX archive URL")
+    assert cbe.match("Could not find valid REX version")
     # GIVEN: A no response
     mock_client: MockAsyncClient = mock_http_client()
     # WHEN: A request is made
