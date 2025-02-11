@@ -22,16 +22,20 @@ else
     set -eo pipefail
 fi
 
-log() {
+_die() {
     echo "$@" >&2
-}
-
-die() {
-    log "$@"
     exit 1
 }
 
-usage() {
+_list_commands() {
+    declare -F | awk '$NF !~ /^_/ { print $NF }'
+}
+
+_find_command() {
+    _list_commands | grep -xF "$1"
+}
+
+_usage() {
     cat <<EOF
 Manage your local corgi stack
 Usage:
@@ -39,6 +43,7 @@ Usage:
     corgi <COMMAND> [arguments]
 
 The commands are:
+    start-bare-metal            Start without virtualization
     start                       Alias for start-leashed
     start-dev                   Start corgi in dev mode (requires oauth app, see README for more details)
     start-leashed               Start corgi in leashed mode (uses mocked GitHub API)
@@ -59,30 +64,174 @@ The commands are:
 EOF
 
     if [[ -n "$1" ]]; then
-        log "$@"
+        echo "$@" >&2
     fi
     exit 1
 }
 
-expect_value() {
-  if [[ -z "$1" ]]; then
-    usage "${2:-"Missing required argument"}"
-  fi
+_includes() {
+    local search item
+    search="$1"
+    shift
+    for item in "$@"; do
+        if [[ "$search" == "$item" ]]; then
+            return 0
+        fi
+    done
+    return 1
 }
 
-COMMAND="$1"
-[[ -n "$COMMAND" ]] || usage
-shift
+start-leashed() {
+    docker compose -f "$dev_stack" -f "$leash_stack" up --build --detach
+}
 
+start() {
+    start-leashed
+}
 
-here="$(cd "$(dirname "$0")" && pwd)"
-dev_stack="$here/docker-compose.stack.dev.yml"
-leash_stack="$here/docker-compose.stack.leashed.yml"
-readonly here
-readonly dev_stack
-readonly leash_stack
+start-dev() {
+    docker compose -f "$dev_stack" up --build --detach
+    echo "Hint: Remember to setup your GitHub app like in the README" >&2
+}
+
+docker-run() {
+    local stack_name stacks_allowed extra_args
+    stack_name="$1"
+    shift
+    stacks_allowed=(dev leashed)
+    extra_args=()
+    if ! _includes "$stack_name" "${stacks_allowed[@]}"; then
+        _die "You need to specify which stack to use (${stacks_allowed[*]})"
+    fi
+    if [[ "$stack_name" == "leashed" ]]; then
+        extra_args+=(-f "$leash_stack")
+    fi
+    docker compose -f "$dev_stack" "${extra_args[@]:-}" "$@"
+}
+
+build() {
+    docker-run "$@" build
+}
+
+_tests() {
+    IMAGE_TAG=corgi-cli/corgi-ui-tests
+    docker build -t $IMAGE_TAG -f backend/tests.dockerfile backend
+    docker run --rm -it -v "$here/backend/app":/app -w /app $IMAGE_TAG \
+        pytest --tb=long --showlocals "$@"
+}
+
+ui-tests() {
+    local base_url token test_path
+    base_url="$1"
+    shift
+    token="fake-token"
+    test_path="./tests/ui"
+    while test -n "$1"; do
+        case "$1" in
+            --token)
+                token=$2
+                shift
+            ;;
+            --test-path)
+                test_path="$2"
+                shift
+            ;;
+            *)
+                {
+                    echo "Usage:"
+                    echo "      ui-tests [OPTIONS]"
+                    echo "Options:"
+                    echo "      --token         GitHub token to use for tests"
+                    echo "      --test-path     Path to targeted tests"
+                    echo "Unknown option: $1"
+                } >&2
+                return 1
+            ;;
+        esac
+        shift
+    done
+    _tests --base-url "$base_url" --github-token "$token" "$@" "$test_path"
+}
+
+unit-tests-backend() {
+    test_path="./tests/unit"
+    while test -n "$1"; do
+        case "$1" in
+            --test-path)
+                test_path="$2"
+                shift
+            ;;
+            *)
+                {
+                    echo "Usage:"
+                    echo "      unit-tests-backend [OPTIONS]"
+                    echo "Options:"
+                    echo "      --test-path     Path to targeted tests"
+                    echo "Unknown option: $1"
+                } >&2
+                return 1
+            ;;
+        esac
+        shift
+    done
+    _tests --snapshot-update "$@" "$test_path"
+}
+
+logs() {
+    docker compose -f "$dev_stack" logs "$@"
+}
+
+stop() {
+    docker compose -f "$dev_stack" down "$@"
+}
+
+create-erd() {
+    {
+        cat /dev/stdin <<eof
+This section describes the data model used by CORGI. For more information
+about how to read this diagram, see [Crow's foot notation](https://en.wikipedia.org/wiki/Entity%E2%80%93relationship_model#Crow's_foot_notation).
+eof
+        docker compose -f "$dev_stack" exec -w /app/app -T backend \
+            python - < "$here/scripts/generate-erd.py"
+    } | replace_readme_section "## " "CORGI ERD"
+}
+
+create-jobs() {
+    local token
+    # Should work in dev and leashed mode if token can be passed in
+    token="${1:-fake-token}"
+    docker compose -f "$dev_stack" exec -T backend \
+        python - "$token" < "$here/scripts/create-jobs.py"
+}
+
+generate-migration() {
+    docker compose exec backend alembic revision --autogenerate -m "$1"
+}
+
+create-approved-books() {
+    local token
+    token="${1:-fake-token}"
+    docker compose -f "$dev_stack" exec -T backend \
+        python - "$token" < "$here/scripts/add-approved-books.py"
+}
+
+lint() {
+    docker compose -f "$dev_stack" run --rm backend ruff check
+    docker compose -f "$dev_stack" run --rm backend ruff format --check
+    docker compose -f "$dev_stack" run --rm frontend npm run lint
+}
+
+format() {
+    local -
+    set +e
+    docker compose -f "$dev_stack" run --rm backend ruff check --fix
+    docker compose -f "$dev_stack" run --rm backend ruff format
+    docker compose -f "$dev_stack" run --rm frontend npm run format
+}
 
 replace_readme_section() {
+    local section_prefix section_label full_label tmp_file readme_file \
+        print_section
     section_prefix="${1:?}"
     section_label="${2:?}"
     full_label="${section_prefix}${section_label}"
@@ -123,81 +272,47 @@ replace_readme_section() {
     mv "$tmp_file" "$readme_file"
 }
 
-if [[ "$COMMAND" == "ui-tests" || "$COMMAND" == "unit-tests-backend" ]]; then
-    args=()
-    args+=("-vvv")
-    if [[ "$COMMAND" == "ui-tests" ]]; then
-        BASE_URL="$1"
-        TOKEN="${2:-fake-token}"
-        TEST="${3:-./tests/ui}"
-        args+=("--base-url=${BASE_URL:?}")
-        args+=("--github-token=${TOKEN:?}")
-        args+=("${TEST:?}")
-    else
-        TEST="${1:-./tests/unit}"
-        args+=("--snapshot-update")
-        args+=("${TEST:?}")
-    fi
-    IMAGE_TAG=corgi-cli/corgi-ui-tests
-    docker build -t $IMAGE_TAG -f backend/tests.dockerfile backend
-    docker run --rm -it -v "$here/backend/app":/app -w /app $IMAGE_TAG \
-        pytest --tb=long --showlocals "${args[@]}"
-elif [[ "$COMMAND" == "start-dev" ]]; then
-    docker compose -f "$dev_stack" up --build --detach
-    log "Hint: Remember to setup your GitHub app like in the README"
-elif [[ "$COMMAND" == "start-leashed" || "$COMMAND" == "start" ]]; then
-    docker compose -f "$dev_stack" -f "$leash_stack" up --build --detach
-elif [[ "$COMMAND" == "build" || "$COMMAND" == "restart" ]]; then
-    stack_name="$1"
-    stacks_allowed=(dev leashed)
-    is_stack_allowed=0
-    for stack in "${stacks_allowed[@]}"; do
-        if [[ "$stack_name" == "$stack" ]]; then
-            is_stack_allowed=1
-            break
-        fi
-    done
-    if [[ $is_stack_allowed != 1 ]]; then
-        die "You need to specify which stack to use (${stacks_allowed[*]})"
-    fi
-    if [[ "$stack_name" == "dev" ]]; then
-        docker compose -f "$dev_stack" "$COMMAND"
-    elif [[ "$stack_name" == "leashed" ]]; then
-        docker compose -f "$dev_stack" -f "$leash_stack" "$COMMAND"
-    fi
-elif [[ "$COMMAND" == "logs" ]]; then
-    docker compose -f "$dev_stack" logs "$@"
-elif [[ "$COMMAND" == "stop" ]]; then
-    docker compose -f "$dev_stack" down
-elif [[ "$COMMAND" == "create-erd" ]]; then
-    {
-        cat /dev/stdin <<eof
-This section describes the data model used by CORGI. For more information
-about how to read this diagram, see [Crow's foot notation](https://en.wikipedia.org/wiki/Entity%E2%80%93relationship_model#Crow's_foot_notation).
-eof
-        docker compose -f "$dev_stack" exec -w /app/app -T backend \
-            python - < "$here/scripts/generate-erd.py"
-    } | replace_readme_section "## " "CORGI ERD"
-elif [[ "$COMMAND" == "create-jobs" ]]; then
-    # Should work in dev and leashed mode if token can be passed in
-    token="${1:-fake-token}"
-    docker compose -f "$dev_stack" exec -T backend \
-        python - "$token" < "$here/scripts/create-jobs.py"
-elif [[ "$COMMAND" == "generate-migration" ]]; then
-    docker compose exec backend alembic revision --autogenerate -m "$1"
-elif [[ "$COMMAND" == "create-approved-books" ]]; then
-    token="${1:-fake-token}"
-    docker compose -f "$dev_stack" exec -T backend \
-        python - "$token" < "$here/scripts/add-approved-books.py"
-elif [[ "$COMMAND" == "lint" ]]; then
-    docker compose -f "$dev_stack" run --rm backend ruff check
-    docker compose -f "$dev_stack" run --rm backend ruff format --check
-    docker compose -f "$dev_stack" run --rm frontend npm run lint
-elif [[ "$COMMAND" == "format" ]]; then (
-    set +e
-    docker compose -f "$dev_stack" run --rm backend ruff check --fix
-    docker compose -f "$dev_stack" run --rm backend ruff format
-    docker compose -f "$dev_stack" run --rm frontend npm run format
-) else
-    usage "Unknown command \"$COMMAND\""
+start-bare-metal() {
+    local backend_path docker_path start_path app_path
+    backend_path="$here/backend"
+    app_path="$backend_path/app"
+    docker_path="$backend_path/docker"
+    start_path="$docker_path/start.sh"
+    cd "$app_path"
+    STACK_NAME="${STACK_NAME:?}" \
+    TAG="${TAG:?}" \
+    REVISION="${REVISION:?}" \
+    DEPLOYED_AT="${DEPLOYED_AT:?}" \
+    SESSION_SECRET="${SESSION_SECRET:?}" \
+    GITHUB_API_TOKEN="${GITHUB_API_TOKEN:?}" \
+    GITHUB_OAUTH_ID="${GITHUB_OAUTH_ID:?}" \
+    GITHUB_OAUTH_SECRET="${GITHUB_OAUTH_SECRET:?}" \
+    POSTGRES_SERVER="${POSTGRES_SERVER:?}" \
+    POSTGRES_DB="${POSTGRES_DB:?}" \
+    POSTGRES_PASSWORD="${POSTGRES_PASSWORD:?}" \
+    POSTGRES_USER="${POSTGRES_USER:?}" \
+    PORT="${PORT:-8080}" \
+    MODULE_NAME="${MODULE_NAME:-app.main}" \
+    CALLABLE_NAME="${CALLABLE_NAME:-server}" \
+    GUNICORN_CONF="${GUNICORN_CONF:-$docker_path/gunicorn.conf}" \
+    PRE_START_PATH="${PRE_START_PATH:-$app_path/bin/prestart.sh}" \
+    "$start_path"
+}
+
+here="$(cd "$(dirname "$0")" && pwd)"
+dev_stack="$here/docker-compose.stack.dev.yml"
+leash_stack="$here/docker-compose.stack.leashed.yml"
+readonly here
+readonly dev_stack
+readonly leash_stack
+
+command_name="$1"
+shift
+
+: "${command_name:?}"
+
+if ! _find_command "$command_name" >/dev/null; then
+    _usage "Command not found: $command_name"
 fi
+
+$command_name "$@"
