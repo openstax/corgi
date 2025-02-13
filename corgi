@@ -272,6 +272,12 @@ replace_readme_section() {
     mv "$tmp_file" "$readme_file"
 }
 
+build-frontend() {
+    cd "$here/frontend"
+    npm install
+    npm run build
+}
+
 start-bare-metal() {
     local backend_path docker_path start_path app_path
     backend_path="$here/backend"
