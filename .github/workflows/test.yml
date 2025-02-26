@@ -62,6 +62,15 @@ jobs:
       - name: Backend Unit Tests
         run: |
           set -e
+          # We ignore patch version for this comparison
+          python_version_docker="$(docker compose -f docker-compose.stack.dev.yml exec backend python --version | cut -d' ' -f2 | cut -d. -f-2)"
+          python_version_repo="$(< .python-version)"
+          if [[ "$python_version_repo" != "$python_version_docker" ]]; then
+            echo "Python version mismatch:"
+            echo "Repo:   $python_version_repo"
+            echo "Docker: $python_version_docker"
+            exit 1
+          fi
           docker compose -f docker-compose.stack.dev.yml exec backend pytest -vvv ./tests/unit
           docker compose -f docker-compose.stack.dev.yml exec backend ruff check
           docker compose -f docker-compose.stack.dev.yml exec backend ruff format --check
