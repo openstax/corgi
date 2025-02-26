@@ -284,25 +284,15 @@ start-bare-metal() {
     app_path="$backend_path/app"
     docker_path="$backend_path/docker"
     start_path="$docker_path/start.sh"
+    source "$here/.env"
     cd "$app_path"
-    STACK_NAME="${STACK_NAME:-}" \
-    TAG="${TAG:-}" \
-    REVISION="${REVISION:-}" \
-    DEPLOYED_AT="${DEPLOYED_AT:-}" \
-    SESSION_SECRET="${SESSION_SECRET:-}" \
-    GITHUB_API_TOKEN="${GITHUB_API_TOKEN:-}" \
-    GITHUB_OAUTH_ID="${GITHUB_OAUTH_ID:-}" \
-    GITHUB_OAUTH_SECRET="${GITHUB_OAUTH_SECRET:-}" \
-    POSTGRES_SERVER="${POSTGRES_SERVER:-}" \
-    POSTGRES_DB="${POSTGRES_DB:-}" \
-    POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-}" \
-    POSTGRES_USER="${POSTGRES_USER:-}" \
+    PYTHONPATH="$app_path:$PYTHONPATH" \
     PORT="${PORT:-8080}" \
     MODULE_NAME="${MODULE_NAME:-app.main}" \
     CALLABLE_NAME="${CALLABLE_NAME:-server}" \
     GUNICORN_CONF="${GUNICORN_CONF:-$docker_path/gunicorn.conf}" \
     PRE_START_PATH="${PRE_START_PATH:-$app_path/bin/prestart.sh}" \
-    "$start_path"
+    exec "$start_path"
 }
 
 here="$(cd "$(dirname "$0")" && pwd)"
