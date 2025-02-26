@@ -25,4 +25,7 @@ pip install -U pip
 # Install exact versions from poetry.lock
 pip install -r <(poetry export -f requirements.txt)
 
-echo Done!
+# Required by install_secrets.sh
+pip install yq
+
+echo "Oll Korrect" >&2
