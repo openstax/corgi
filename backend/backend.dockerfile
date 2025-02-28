@@ -53,7 +53,7 @@ ENV PYTHONPATH="/app:$PYTHONPATH"
 COPY ./docker/start.sh /start.sh
 RUN chmod +x /start.sh
 
-COPY ./docker/gunicorn.conf /gunicorn.conf
+COPY ./docker/gunicorn.conf.py /gunicorn.conf.py
 
 COPY ./app /app
 WORKDIR /app
@@ -83,7 +83,7 @@ ENV PYTHONPATH="/app:$PYTHONPATH"
 COPY ./docker/start.sh /start.sh
 RUN chmod +x /start.sh
 
-COPY ./docker/gunicorn.conf /gunicorn.conf
+COPY ./docker/gunicorn.conf.py /gunicorn.conf.py
 
 COPY ./app /app
 WORKDIR /app

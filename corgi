@@ -284,7 +284,7 @@ start-bare-metal() {
     app_path="$backend_path/app"
     docker_path="$backend_path/docker"
     start_path="$docker_path/start.sh"
-    source "$here/.env"
+    source "$repo_root/.env"
     cd "$app_path"
     PYTHONPATH="$app_path:$PYTHONPATH" \
     STACK_NAME="${STACK_NAME:-}" \
@@ -302,17 +302,16 @@ start-bare-metal() {
     PORT="${PORT:-8080}" \
     MODULE_NAME="${MODULE_NAME:-app.main}" \
     CALLABLE_NAME="${CALLABLE_NAME:-server}" \
-    GUNICORN_CONF="${GUNICORN_CONF:-$docker_path/gunicorn.conf}" \
+    GUNICORN_CONF="${GUNICORN_CONF:-$docker_path/gunicorn.conf.py}" \
     PRE_START_PATH="${PRE_START_PATH:-$app_path/bin/prestart.sh}" \
     exec "$start_path"
 }
 
 here="$(cd "$(dirname "$0")" && pwd)"
+repo_root="$here"
 dev_stack="$here/docker-compose.stack.dev.yml"
 leash_stack="$here/docker-compose.stack.leashed.yml"
-readonly here
-readonly dev_stack
-readonly leash_stack
+readonly here repo_root dev_stack leash_stack
 
 command_name="$1"
 shift
