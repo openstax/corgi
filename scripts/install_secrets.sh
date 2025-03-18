@@ -35,8 +35,10 @@ get-secrets() {
 }
 
 get-secrets-env() {
-    local secret_name secret_value fq_secret_names
+    local secret_name secret_value fq_secret_names count expected_count
     fq_secret_names=()
+    count=0
+    expected_count="$#"
 
     for secret_name in "$@"; do
         if starts-with "$secret_name" "/"; then
@@ -49,6 +51,8 @@ get-secrets-env() {
     while IFS=$'\t' read -r secret_name secret_value; do
         # Chop off the namespace and replace remaining slashes with underscore
         # Example: /...namespace/github/api_token -> GITHUB_API_TOKEN
+        : "${secret_name:?}"
+        : "${secret_value:?}"
         echo -n "$secret_name" | \
             awk -v prefix="$SECRETS_NAMESPACE/" '{
                 sub(prefix, "")
@@ -57,7 +61,12 @@ get-secrets-env() {
             }'
         echo -n =
         echo "$secret_value"
+        ((count++))
     done < <(get-secrets "${fq_secret_names[@]}")
+    if ! [[ $count -eq $expected_count ]]; then
+        echo "Expected $expected_count secrets in response, got $count" >&2
+        exit 1
+    fi
 }
 
 if [[ "${DEBUG_STUB_AWS:-0}" -eq 1 ]]; then
