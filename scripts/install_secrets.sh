@@ -61,7 +61,7 @@ get-secrets-env() {
             }'
         echo -n =
         echo "$secret_value"
-        ((count++))
+        count=$((count+1))
     done < <(get-secrets "${fq_secret_names[@]}")
     if ! [[ $count -eq $expected_count ]]; then
         echo "Expected $expected_count secrets in response, got $count" >&2
