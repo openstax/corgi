@@ -1,4 +1,5 @@
-from base64 import b64decode, b64encode
+import binascii
+from base64 import b64decode, b64encode, urlsafe_b64decode, urlsafe_b64encode
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional, cast
 
@@ -15,10 +16,21 @@ from app.data_models.models import Role, UserSession
 COOKIE_NAME = "user"
 
 
+def new_fernet_key(secret: str | None):
+    assert secret is not None, "Expected base64 encoded secret, got None"
+    try:
+        decoded = b64decode(secret)
+    except binascii.Error:
+        decoded = urlsafe_b64decode(secret)
+    assert len(decoded) >= 32, "Secret should be at least 32 bytes long"
+    # Fernet key must be 32 url-safe base64-encoded bytes.
+    return urlsafe_b64encode(decoded[:32])
+
+
 class Crypto:
     """Simple delegate class to simplify to encrypting/decrypting strings"""
 
-    f = Fernet(b64encode(b64decode(cast(str, SESSION_SECRET))[:32]))
+    f = Fernet(new_fernet_key(SESSION_SECRET))
 
     @staticmethod
     def encrypt(msg: str, encoding: str = "utf-8") -> str:
