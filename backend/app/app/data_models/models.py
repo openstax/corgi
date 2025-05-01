@@ -82,6 +82,7 @@ class ApprovedBook(RequestApproveBook):
     repository_name: str
     slug: str
     consumer: str
+    style: str
 
     class Config:
         class Getter(GetterDict):
@@ -96,6 +97,7 @@ class ApprovedBook(RequestApproveBook):
                     lambda self: self._obj.book.commit.repository.name
                 ),
                 "slug": lambda self: self._obj.book.slug,
+                "style": lambda self: self._obj.book.style,
             }
 
             def get(self, key: str, default: Any = None) -> Any:
