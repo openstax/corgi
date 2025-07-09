@@ -181,6 +181,14 @@ async def add_new_entries(
             raise CustomBaseError(
                 f"Found multiple versions for {uuid} - ({items})"
             )
+    to_add = [
+        RequestApproveBook(
+            commit_sha=entry.commit_sha.lower(),
+            uuid=entry.uuid.lower(),
+            code_version=entry.code_version,
+        )
+        for entry in to_add
+    ]
     db_books = db.scalars(
         select(Book)
         .options(lazyload("*"))

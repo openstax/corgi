@@ -77,7 +77,7 @@ def test_get_or_add_code_version(mock_session):
             [
                 RequestApproveBook(
                     commit_sha="commit-new",
-                    uuid="uuid-book-a",
+                    uuid="UuID-BoOk-A",
                     code_version="42",
                 )
             ],
