@@ -1,6 +1,6 @@
 SELECT book.id, book.uuid, book.commit_id, book.edition, book.slug, book.style 
 FROM book JOIN commit ON commit.id = book.commit_id 
-WHERE book.uuid = :uuid_1 AND commit.sha = :sha_1 OR book.uuid = :uuid_2 AND commit.sha = :sha_2
+WHERE lower(book.uuid) = :lower_1 AND lower(commit.sha) = :lower_2 OR lower(book.uuid) = :lower_3 AND lower(commit.sha) = :lower_4
 
 SELECT consumer.id 
 FROM consumer 
@@ -8,7 +8,7 @@ WHERE consumer.name = :name_1
 
 SELECT approved_book.book_id, approved_book.consumer_id, approved_book.code_version_id, approved_book.created_at, approved_book.updated_at 
 FROM approved_book JOIN book ON book.id = approved_book.book_id JOIN commit ON commit.id = book.commit_id 
-WHERE book.uuid IN (__[POSTCOMPILE_uuid_1]) AND approved_book.consumer_id = :consumer_id_1
+WHERE lower(book.uuid) IN (__[POSTCOMPILE_lower_1]) AND approved_book.consumer_id = :consumer_id_1
 
 DELETE FROM approved_book WHERE approved_book.consumer_id = :consumer_id_1 AND approved_book.book_id = :book_id_1 AND approved_book.code_version_id = :code_version_id_1 OR approved_book.consumer_id = :consumer_id_2 AND approved_book.book_id = :book_id_2 AND approved_book.code_version_id = :code_version_id_2
 
