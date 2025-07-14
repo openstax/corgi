@@ -36,7 +36,7 @@ async def get_rex_release_json(client: AsyncClient):
 
 async def get_rex_books(client: AsyncClient):
     release_json = await get_rex_release_json(client)
-    return release_json["books"]
+    return {uuid.lower(): v for uuid, v in release_json["books"].items()}
 
 
 async def get_rex_release_version(client: AuthenticatedClient):
