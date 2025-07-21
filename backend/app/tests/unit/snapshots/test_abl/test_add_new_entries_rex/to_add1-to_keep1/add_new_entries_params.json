@@ -1,13 +1,13 @@
 [
   {
-    "uuid_1": "uuid-book-a",
-    "sha_1": "commit-new"
+    "lower_1": "uuid-book-a",
+    "lower_2": "commit-new"
   },
   {
     "name_1": "REX"
   },
   {
-    "uuid_1": [
+    "lower_1": [
       "uuid-book-a"
     ],
     "consumer_id_1": 1

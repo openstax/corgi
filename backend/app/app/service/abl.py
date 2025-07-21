@@ -2,7 +2,7 @@ import json
 from typing import Any, Dict, List, Optional
 
 from httpx import AsyncClient, HTTPStatusError
-from sqlalchemy import and_, delete, or_, select
+from sqlalchemy import and_, delete, func, or_, select
 from sqlalchemy.orm import Session, lazyload
 
 from app.core import config
@@ -36,7 +36,7 @@ async def get_rex_release_json(client: AsyncClient):
 
 async def get_rex_books(client: AsyncClient):
     release_json = await get_rex_release_json(client)
-    return release_json["books"]
+    return {uuid.lower(): v for uuid, v in release_json["books"].items()}
 
 
 async def get_rex_release_version(client: AuthenticatedClient):
@@ -65,7 +65,7 @@ def get_rex_book_versions(rex_books: Dict[str, Any], book_uuids: List[str]):
             version is not None
         ), f"Could not get defaultVersion for {book_uuid}"
         rex_book_versions.append(
-            BaseApprovedBook(commit_sha=version, uuid=book_uuid)
+            BaseApprovedBook(commit_sha=version.lower(), uuid=book_uuid)
         )
     return rex_book_versions
 
@@ -84,18 +84,20 @@ def remove_old_versions(
         .options(lazyload("*"))
         .join(Book)
         .join(Commit)
-        .where(Book.uuid.in_([b.uuid for b in to_add]))
+        .where(func.lower(Book.uuid).in_([b.uuid for b in to_add]))
         .where(ApprovedBook.consumer_id == consumer_id)
     )
     have = db.scalars(query).all()
     to_delete = []
     for record in have:
-        ident = (record.book.uuid, record.book.commit.sha[:7])
+        record_uuid = record.book.uuid.lower()
+        record_sha = record.book.commit.sha[:7].lower()
+        ident = (record_uuid, record_sha)
         # Delete entries that exist in both to_add and to_keep
         # Do not delete existing entries that share a uuid with an intersection
         if ident in intersection or (
             ident not in keep_uuid_sha
-            and not any(record.book.uuid == uuid for uuid, _ in intersection)
+            and not any(record_uuid == uuid for uuid, _ in intersection)
         ):
             to_delete.append(record)
     # NOTE: If to_delete is empty, the condition will be True (delete all)
@@ -181,6 +183,14 @@ async def add_new_entries(
             raise CustomBaseError(
                 f"Found multiple versions for {uuid} - ({items})"
             )
+    to_add = [
+        RequestApproveBook(
+            commit_sha=entry.commit_sha.lower(),
+            uuid=entry.uuid.lower(),
+            code_version=entry.code_version,
+        )
+        for entry in to_add
+    ]
     db_books = db.scalars(
         select(Book)
         .options(lazyload("*"))
@@ -189,14 +199,15 @@ async def add_new_entries(
             or_(
                 *[
                     and_(
-                        Book.uuid == entry.uuid, Commit.sha == entry.commit_sha
+                        func.lower(Book.uuid) == entry.uuid,
+                        func.lower(Commit.sha) == entry.commit_sha,
                     )
                     for entry in to_add
                 ]
             )
         )
     ).all()
-    db_books_by_uuid = {dbb.uuid: dbb for dbb in db_books}
+    db_books_by_uuid = {dbb.uuid.lower(): dbb for dbb in db_books}
     book_info_by_consumer = groupby(
         to_add, lambda entry: guess_consumer(db_books_by_uuid[entry.uuid].slug)
     )

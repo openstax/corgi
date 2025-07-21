@@ -1,15 +1,15 @@
 [
   {
-    "uuid_1": "uuid-book-a",
-    "sha_1": "commit1",
-    "uuid_2": "uuid-book-b",
-    "sha_2": "commit3"
+    "lower_1": "uuid-book-a",
+    "lower_2": "commit1",
+    "lower_3": "uuid-book-b",
+    "lower_4": "commit3"
   },
   {
     "name_1": "REX"
   },
   {
-    "uuid_1": [
+    "lower_1": [
       "uuid-book-a",
       "uuid-book-b"
     ],

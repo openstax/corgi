@@ -86,8 +86,8 @@ class ApprovedBook(RequestApproveBook):
     class Config:
         class Getter(GetterDict):
             getters = {
-                "uuid": lambda self: self._obj.book.uuid,
-                "commit_sha": lambda self: self._obj.book.commit.sha,
+                "uuid": lambda self: self._obj.book.uuid.lower(),
+                "commit_sha": lambda self: self._obj.book.commit.sha.lower(),
                 "code_version": lambda self: self._obj.code_version.version,
                 "consumer": lambda self: self._obj.consumer.name,
                 "created_at": lambda self: self._obj.created_at,

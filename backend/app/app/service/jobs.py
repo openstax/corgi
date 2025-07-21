@@ -2,6 +2,7 @@ import asyncio
 import logging
 from datetime import datetime
 from typing import Dict, Generator, List, Optional, Union, cast
+from uuid import UUID
 
 from lxml import etree
 from sqlalchemy.exc import IntegrityError
@@ -64,6 +65,10 @@ def add_books_to_commit(
         uuid = xpath1(collection, "//*[local-name()='uuid']")
         if uuid is None or not uuid.text:
             raise CustomBaseError("Could not get uuid from collection xml")
+        try:
+            _ = UUID(uuid.text)
+        except ValueError as ve:
+            raise CustomBaseError(f"Invalid UUID: {uuid.text}") from ve
         # TODO: Edition should be either nullable or in a different table
         db_book = Book(uuid=uuid.text, slug=slug, edition=0, style=style)
         commit.books.append(db_book)

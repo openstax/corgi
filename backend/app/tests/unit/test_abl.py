@@ -67,7 +67,7 @@ def test_get_or_add_code_version(mock_session):
         [
             [
                 RequestApproveBook(
-                    commit_sha="commit1", uuid="uuid-book-b", code_version="42"
+                    commit_sha="commit1", uuid="uuid-boOk-b", code_version="42"
                 )
             ],
             {},
@@ -77,7 +77,7 @@ def test_get_or_add_code_version(mock_session):
             [
                 RequestApproveBook(
                     commit_sha="commit-new",
-                    uuid="uuid-book-a",
+                    uuid="UuID-BoOk-A",
                     code_version="42",
                 )
             ],
@@ -88,10 +88,10 @@ def test_get_or_add_code_version(mock_session):
         [
             [
                 RequestApproveBook(
-                    commit_sha="commit1", uuid="uuid-book-a", code_version="42"
+                    commit_sha="commit1", uuid="uuid-bOok-a", code_version="42"
                 ),
                 RequestApproveBook(
-                    commit_sha="commit3", uuid="uuid-book-b", code_version="42"
+                    commit_sha="commit3", uuid="uuid-book-B", code_version="42"
                 ),
             ],
             {
@@ -103,7 +103,7 @@ def test_get_or_add_code_version(mock_session):
         [
             [
                 RequestApproveBook(
-                    commit_sha="commit4", uuid="uuid-book-a", code_version="42"
+                    commit_sha="commit4", uuid="uuid-book-A", code_version="42"
                 ),
             ],
             {
@@ -117,9 +117,9 @@ async def test_add_new_entries_rex(
     to_add, to_keep, mock_session, mock_http_client, snapshot
 ):
     def mock_database_logic(session_obj):
-        book1 = Book(id=1, uuid="uuid-book-a", slug="test")
+        book1 = Book(id=1, uuid="uuiD-Book-a", slug="test")
         book2 = Book(id=2, uuid="uuid-book-a", slug="test")
-        book3 = Book(id=3, uuid="uuid-book-b", slug="test2")
+        book3 = Book(id=3, uuid="uuid-boOk-b", slug="test2")
         book1.commit = Commit(id=1, sha="commit1")
         book2.commit = Commit(id=2, sha="commit2")
         book3.commit = Commit(id=3, sha="commit3")
@@ -140,18 +140,33 @@ async def test_add_new_entries_rex(
             if " FROM consumer " in last_call:
                 return [1]
             elif " FROM book " in last_call:
-                return [book1, book2, book3]
+                params = session_obj.calls[-1].compile().params
+                # all uuids and shas used in the query
+                lower_params = [
+                    v for k, v in params.items() if k.startswith("lower_")
+                ]
+                # uuids are every other param from 0
+                uuids = lower_params[::2]
+                # shas are every other param from 1
+                # shas = lower_params[1::2]
+                return [
+                    b
+                    for b in (book1, book2, book3)
+                    if any(b.uuid.lower() == uuid for uuid in uuids)
+                ]
             elif " FROM approved_book " in last_call:
                 approved_books = [
                     approved_book1,
                     approved_book2,
                     approved_book3,
                 ]
-                if " WHERE book.uuid IN " in last_call:
+                if " WHERE lower(book.uuid) IN " in last_call:
                     params = session_obj.calls[-1].compile().params
-                    uuids = params["uuid_1"]
+                    uuids = params["lower_1"]
                     approved_books = [
-                        ab for ab in approved_books if ab.book.uuid in uuids
+                        ab
+                        for ab in approved_books
+                        if ab.book.uuid.lower() in uuids
                     ]
                 return approved_books
 

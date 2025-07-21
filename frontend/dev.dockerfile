@@ -1,4 +1,4 @@
-FROM nginx:1.19 AS dev-runner
+FROM nginx:1.29 AS dev-runner
 
 ENV NODE_MAJOR=18
 RUN apt-get update && apt-get install -y build-essential ca-certificates curl gnupg \
