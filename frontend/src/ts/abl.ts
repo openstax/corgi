@@ -68,7 +68,7 @@ export function getLatestCodeVersionForJob(
 export async function fetchABL(): Promise<ApprovedBookWithDate[]> {
   let abl: ApprovedBookWithDate[];
   try {
-    abl = await RequireAuth.fetchJson("/api/abl/");
+    abl = await RequireAuth.fetchJson("/api/abl/?consumer=ANY");
   } catch (error) {
     handleError(error);
     abl = [];
