@@ -159,8 +159,8 @@ def update_versions_by_consumer(
 
 
 def guess_consumer(book_slug: str) -> str:
-    if book_slug.endswith("-ancillary") or book_slug.endswith("-ancillaries"):
-        return "ancillary"
+    if book_slug.startswith("super-"):
+        return "ancillaries"
     return "REX"
 
 
