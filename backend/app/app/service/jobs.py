@@ -228,7 +228,6 @@ class JobsService(ServiceBase):
                         style=style,
                     )
                     book = get_or_add_book(db_session, book)
-                    print("book id:", book.id)
                     add_books_to_job(db_session, job, [book])
                 db_session.flush()
             for book_job in job.books:
