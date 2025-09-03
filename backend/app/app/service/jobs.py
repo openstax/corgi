@@ -2,7 +2,7 @@ import asyncio
 import logging
 from datetime import datetime
 from typing import Dict, Generator, List, Optional, Union, cast
-from uuid import UUID
+from uuid import NAMESPACE_OID, UUID, uuid5
 
 from lxml import etree
 from sqlalchemy.exc import IntegrityError
@@ -73,6 +73,20 @@ def add_books_to_commit(
         db_book = Book(uuid=uuid.text, slug=slug, edition=0, style=style)
         commit.books.append(db_book)
         db.add(db_book)
+
+
+def get_or_add_book(db: Session, book: Book):
+    existing_book = cast(
+        Optional[Book],
+        db.query(Book)
+        .filter(Book.uuid == book.uuid, Book.commit_id == book.commit_id)
+        .first(),
+    )
+    if existing_book is not None:
+        return existing_book
+    db.add(book)
+    db.flush()
+    return book
 
 
 def add_books_to_job(
@@ -190,11 +204,37 @@ class JobsService(ServiceBase):
 
     def update(self, db_session: Session, job: JobSchema, job_in: JobUpdate):
         if isinstance(job_in.artifact_urls, list):
-            book_job_by_book_slug = {b.book.slug: b for b in job.books}
-            for artifact_url in job_in.artifact_urls:
-                book_job_by_book_slug[
-                    artifact_url.slug
-                ].artifact_url = artifact_url.url
+            artifact_url_by_book_slug = {
+                art.slug: art.url for art in job_in.artifact_urls
+            }
+            job_books = {b.book.slug for b in job.books}
+            # books that are created during the build
+            ephemeral_book_slugs = {
+                artifact_url.slug
+                for artifact_url in job_in.artifact_urls
+                if artifact_url.slug not in job_books
+            }
+            if ephemeral_book_slugs:
+                for book_slug in ephemeral_book_slugs:
+                    book_uuid = str(uuid5(NAMESPACE_OID, book_slug))
+                    style = (
+                        "super" if book_slug.startswith("super-") else "unknown"
+                    )
+                    book = Book(
+                        uuid=book_uuid,
+                        commit_id=job.books[0].book.commit_id,
+                        edition=0,
+                        slug=book_slug,
+                        style=style,
+                    )
+                    book = get_or_add_book(db_session, book)
+                    print("book id:", book.id)
+                    add_books_to_job(db_session, job, [book])
+                db_session.flush()
+            for book_job in job.books:
+                artifact_url = artifact_url_by_book_slug.get(book_job.book.slug)
+                if artifact_url:
+                    book_job.artifact_url = artifact_url
         elif job_in.artifact_urls is not None:
             job.books[0].artifact_url = job_in.artifact_urls
         return super().update(db_session, job, job_in, JobUpdate)
