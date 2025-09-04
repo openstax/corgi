@@ -22,6 +22,8 @@
     padding: 10px;
     margin: 10px;
     background-color: rgba(255, 128, 0, 0.25);
+    max-height: 15rem;
+    overflow: scroll;
   }
 
   #build-artifacts-frame h3:nth-of-type(1) {
