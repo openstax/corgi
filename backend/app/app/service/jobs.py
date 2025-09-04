@@ -218,7 +218,9 @@ class JobsService(ServiceBase):
                 for book_slug in ephemeral_book_slugs:
                     book_uuid = str(uuid5(NAMESPACE_OID, book_slug))
                     style = (
-                        "super" if book_slug.startswith("super-") else "unknown"
+                        "super"
+                        if book_slug.startswith("super--")
+                        else "unknown"
                     )
                     book = Book(
                         uuid=book_uuid,
