@@ -194,7 +194,7 @@ describe("fetchABL", () => {
     const url = fetchSpy.mock.lastCall?.[0];
     expect(fetchSpy).toHaveBeenCalledTimes(1);
     expect(errors[0]).toBeUndefined();
-    expect(url).toBe("/api/abl/");
+    expect(url).toBe("/api/abl/?consumer=ANY");
     expect(value).toStrictEqual([]);
   });
   it("sends errors to error store", async () => {
