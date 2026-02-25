@@ -180,6 +180,25 @@ class User(UserBase):
         orm_mode = True
 
 
+class PipelineVersionGetter(GetterDict):
+    def get(self, key: str, default: Any = None) -> Any:
+        if key == "version":
+            return self._obj.code_version.version
+        try:
+            return getattr(self._obj, key)
+        except AttributeError:
+            return default
+
+
+class PipelineVersionItem(BaseModel):
+    position: int
+    version: str
+
+    class Config:
+        orm_mode = True
+        getter_dict = PipelineVersionGetter
+
+
 class JobBase(BaseModel):
     status_id: str
     job_type_id: str

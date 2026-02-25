@@ -161,6 +161,9 @@ class CodeVersion(Base):
     approved_versions = relationship(
         "ApprovedBook", back_populates="code_version"
     )
+    pipeline_versions = relationship(
+        "PipelineVersion", back_populates="code_version"
+    )
 
 
 class Consumer(Base):
@@ -250,4 +253,27 @@ class UserRepository(Base):
     user = relationship("User", back_populates="repositories")
     permission = relationship(
         "RepositoryPermission", back_populates="user_repositories"
+    )
+
+
+class PipelineVersion(Base):
+    code_version_id = sa.Column(
+        sa.ForeignKey("code_version.id"), primary_key=True, index=True
+    )
+    position = sa.Column(sa.Integer, nullable=False, index=True)
+
+    created_at = sa.Column(DateTimeUTC, default=utcnow)
+    updated_at = sa.Column(
+        DateTimeUTC,
+        nullable=False,
+        default=utcnow,
+        onupdate=utcnow,
+    )
+
+    code_version = relationship(
+        "CodeVersion", back_populates="pipeline_versions", lazy="joined"
+    )
+
+    __table_args__ = (
+        sa.UniqueConstraint("position", name="_unique_pipeline_position"),
     )
