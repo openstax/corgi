@@ -270,6 +270,37 @@ The documentation is located in the [Releasing CORGI article](https://openstax.a
 ## Deploying Web Hosting Pipeline
 
 The documentation is located in the [How to Deploy Web Hosting Pipeline article](https://openstax.atlassian.net/wiki/spaces/CE/pages/573538307/Deploying+the+web-hosting+pipeline) in our Confluence Documentation.
+## Managing Webhosting Pipeline Versions
+
+CORGI supports running three concurrent Enki webhosting pipelines simultaneously, each pinned to a different image version. This lets the team roll out a new version gradually while keeping older pipelines running for in-progress content.
+
+### Slots
+
+The three slots are:
+
+| Position | Label   | Purpose                              |
+|----------|---------|--------------------------------------|
+| 0        | Newest  | Latest version — new jobs go here    |
+| 1        | Second  | Previous version — still active      |
+| 2        | Oldest  | Oldest active version                |
+
+### Using the Pipeline Versions dialog
+
+The dialog is accessible from the **Pipeline Versions** button on the CORGI home page (admin login required).
+
+- **Current CORGI Version** — displayed at the top. Shown in green when it already matches the Newest slot, red when it does not.
+- **Slot rows** — each slot shows the currently saved version (greyed out with strikethrough if you have changed it) and a dropdown to pick a new version.
+- **Promote Latest** — sets the Newest slot to the most recent available tag and shifts the previous Newest and Second values down. Disabled when the current CORGI version is already in the Newest slot.
+- **Save Changes** — asks for confirmation, then writes the new slot values to the database. Enabled even when nothing has changed (in which case it is a no-op).
+
+Available tags come from the intersection of Docker Hub and GitHub tags for `openstax/enki`, so only versions that were properly released appear in the dropdowns.
+
+### API
+
+- `GET /api/pipeline-version/` — returns the current slot configuration (unauthenticated). Polled by the Concourse metapipeline to detect version changes.
+- `PUT /api/pipeline-version/` — replaces all slots (admin only). Rejects requests with duplicate version strings.
+- `GET /api/version/tags/openstax::enki` — returns recent available tags (authenticated users). Accepts `count` (max 25) and `pattern` query parameters.
+
 ## Attribution
 
 A lot of the structure and ideas for this service come from Tiangolo's [full-stack-fastapi-postgres](https://github.com/tiangolo/full-stack-fastapi-postgresql) project with additional supporting software and ideas from [authlib](https://docs.authlib.org/en/latest/client/fastapi.html). Thanks Tiangolo and Authlib devs!
@@ -393,6 +424,12 @@ erDiagram
         opt error_message
         str worker_version
     }
+    PipelineVersion {
+        Integer position
+        DateTimeUTC created_at
+        DateTimeUTC updated_at
+        Integer code_version_id
+    }
     Repository {
         int id
         str name
@@ -428,6 +465,7 @@ erDiagram
     JobTypes ||--|{ Jobs : ""
     Status ||--|{ Jobs : ""
     User ||--|{ Jobs : ""
+    CodeVersion ||--|{ PipelineVersion : ""
     Repository ||--|{ UserRepository : ""
     RepositoryPermission ||--|{ UserRepository : ""
     User ||--|{ UserRepository : ""

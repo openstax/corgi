@@ -3,7 +3,8 @@ import logging
 from typing import List, NamedTuple
 
 from db.session import Session
-from db.schema import *
+from db.schema import Jobs, PipelineVersion
+from sqlalchemy import inspect as sa_inspect
 from sqlalchemy.orm import joinedload
 
 
@@ -61,14 +62,34 @@ def crawl_database(session, cls):
         entity = entities_by_name.setdefault(name, Entity(name=name))
         for key, value in o.__dict__.items():
             if key.startswith("_"):
-                logging.info(f'Skipping private field: {key}')
+                logging.info(f"Skipping private field: {key}")
                 continue
             if isinstance(value, list):
                 if len(value) < 1:
-                    logging.warning(
-                        f"Could not map relationship for {key} "
-                        "(no instances found)"
-                    )
+                    # No data to crawl — resolve the target class from the
+                    # mapper and bootstrap a schema-only entity so the
+                    # relationship still appears in the ERD.
+                    try:
+                        target_cls = (
+                            sa_inspect(o.__class__).relationships[key].mapper.class_
+                        )
+                        target_name = target_cls.__name__
+                        if target_name not in entities_by_name:
+                            target_entity = Entity(name=target_name)
+                            for col in sa_inspect(target_cls).columns:
+                                target_entity.fields.append(
+                                    Field(
+                                        name=col.key,
+                                        type=col.type.__class__.__name__,
+                                    )
+                                )
+                            entities_by_name[target_name] = target_entity
+                        entity.self_to_many.append(entities_by_name[target_name])
+                    except KeyError:
+                        logging.warning(
+                            f"Could not map relationship for {key} "
+                            "(no instances found)"
+                        )
                     continue
                 entity.self_to_many.append(new_child(value[0]))
             elif is_model(value):
@@ -79,9 +100,18 @@ def crawl_database(session, cls):
     return entities_by_name
 
 
+ROOT_CLASSES = [Jobs, PipelineVersion]
+
+
 def main():
     with Session() as db:
-        entities = crawl_database(db, Jobs)
+        entities = {}
+        for cls in ROOT_CLASSES:
+            try:
+                for name, entity in crawl_database(db, cls).items():
+                    entities.setdefault(name, entity)
+            except Exception as e:
+                logger.warning(str(e))
 
     relationships = set()
     for name, entity in entities.items():
@@ -99,21 +129,15 @@ def main():
     print("erDiagram")
 
     for entity in sorted(entities.values(), key=lambda e: e.name):
-        print(
-            f"    {entity.name} {{"
-        )
+        print(f"    {entity.name} {{")
         fields = sorted(entity.fields, key=lambda f: (len(f.name), f.name))
-        print("\n".join(
-            f"        {field.type} {field.name}" for field in fields)
-        )
+        print("\n".join(f"        {field.type} {field.name}" for field in fields))
         print("    }")
 
     print(
         "\n".join(
             f'    {relationship.one} ||--|{{ {relationship.many} : ""'
-            for relationship in sorted(
-                relationships, key=lambda r: (r.many, r.one)
-            )
+            for relationship in sorted(relationships, key=lambda r: (r.many, r.one))
         )
     )
     print("```")
