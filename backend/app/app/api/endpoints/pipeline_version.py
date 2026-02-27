@@ -14,6 +14,9 @@ from app.service.abl import get_or_add_code_version
 router = APIRouter()
 
 
+_VERSION_COUNT = 3
+
+
 @router.get("/", response_model=List[PipelineVersionItem])
 def get_pipeline_versions(db: Session = Depends(get_db)):
     return db.scalars(
@@ -31,8 +34,15 @@ def set_pipeline_versions(
     db: Session = Depends(get_db),
     versions: List[PipelineVersionItem],
 ):
+    if len(versions) != _VERSION_COUNT:
+        raise CustomBaseError(
+            f"Expected {_VERSION_COUNT} versions, got {len(versions)}",
+            status_code=400,
+        )
     if len({v.version for v in versions}) != len(versions):
-        raise CustomBaseError("Duplicate version detected")
+        raise CustomBaseError("Duplicate version detected", status_code=400)
+    if {v.position for v in versions} != {0, 1, 2}:
+        raise CustomBaseError("Invalid positional values", status_code=400)
     try:
         db.execute(delete(PipelineVersion))
         for item in versions:
