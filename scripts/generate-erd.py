@@ -11,6 +11,20 @@ from sqlalchemy.orm import joinedload
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("generate-erd")
 
+# Fallback for custom SQLAlchemy types that don't implement python_type
+type_map = {
+    "DateTimeUTC": "datetime",
+}
+
+
+def _sa_type_name(col_type) -> str:
+    """Return a Python type name for a SQLAlchemy column type."""
+    try:
+        return col_type.python_type.__name__
+    except NotImplementedError:
+        sa_name = col_type.__class__.__name__
+        return type_map.get(sa_name, sa_name)
+
 
 @dataclass
 class Field:
@@ -80,7 +94,7 @@ def crawl_database(session, cls):
                                 target_entity.fields.append(
                                     Field(
                                         name=col.key,
-                                        type=col.type.__class__.__name__,
+                                        type=_sa_type_name(col.type),
                                     )
                                 )
                             entities_by_name[target_name] = target_entity

@@ -444,10 +444,10 @@ erDiagram
         str worker_version
     }
     PipelineVersion {
-        Integer position
-        DateTimeUTC created_at
-        DateTimeUTC updated_at
-        Integer code_version_id
+        int position
+        datetime created_at
+        datetime updated_at
+        int code_version_id
     }
     Repository {
         int id
