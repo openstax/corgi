@@ -7,7 +7,7 @@
   import {
     fetchAvailableTags,
     setPipelineVersions,
-  } from "../ts/pipeline_version";
+  } from "../ts/pipeline-version";
   import { handleError } from "../ts/utils";
 
   export let open = false;

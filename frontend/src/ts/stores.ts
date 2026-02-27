@@ -10,7 +10,7 @@ import type {
 } from "./types";
 import { fetchRepoSummaries, isJobComplete, parseDateTime } from "./utils";
 import { fetchABL, fetchRexReleaseVersion } from "./abl";
-import { fetchPipelineVersions, fetchVersion } from "./pipeline_version";
+import { fetchPipelineVersions, fetchVersion } from "./pipeline-version";
 
 type GConstructor<T = object> = new (...args: any[]) => T;
 type Updatable = GConstructor<{ update: () => Promise<void> }>;
