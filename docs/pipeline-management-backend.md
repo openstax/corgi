@@ -84,9 +84,8 @@ Swapping positions between existing rows would violate the unique constraint mid
   - `pattern` — regex filter applied to tag names (default: `^\d+\.\d+$`).
 - **Returns:**
   ```json
-  {"items": ["20260225.221405", "20260223.201034", ...], "count": 5, "current_version": null}
+  {"items": ["20260225.221405", "20260223.201034", ...], "count": 5}
   ```
-  `current_version` is non-null when one of the returned tags matches the deployed version of CORGI itself (from `TAG` config).
 - **Caching:** Results are memoized for 5 minutes via `async_memoize_timed` to avoid hammering the Docker Hub API.
 
 ---
