@@ -18,7 +18,7 @@
   let originalVersions: string[] = ["", "", ""];
   let availableTags: string[] = [];
   let loading = false;
-  $: currentVersion = "20260225.221405"; //$versionStore.tag;
+  $: currentVersion = $versionStore.tag;
 
   $: if (open) void load();
 
