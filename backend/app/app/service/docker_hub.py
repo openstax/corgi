@@ -1,8 +1,3 @@
-import re
-from typing import TypedDict
-
-import httpx
-
 """
 Docker Hub API client using httpx.
 
@@ -16,6 +11,11 @@ how many tags to retrieve, and can optionally provide a regex to filter
 results.
 
 """
+
+import re
+from typing import TypedDict
+
+import httpx
 
 API_BASE = "https://hub.docker.com/v2"
 
