@@ -62,7 +62,7 @@
     const current = $pipelineVersionStore;
     const hasChanges = pendingVersions.some((v, i) => {
       const existing = current.find((c) => c.position === i);
-      return existing?.version !== v;
+      return (existing?.version ?? "") !== v;
     });
     if (!hasChanges) {
       open = false;
