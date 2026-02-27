@@ -305,7 +305,26 @@ Available tags come from the intersection of Docker Hub and GitHub tags for `ope
 
 A lot of the structure and ideas for this service come from Tiangolo's [full-stack-fastapi-postgres](https://github.com/tiangolo/full-stack-fastapi-postgresql) project with additional supporting software and ideas from [authlib](https://docs.authlib.org/en/latest/client/fastapi.html). Thanks Tiangolo and Authlib devs!
 
-## Login with GitHub Personal Access Token (PAT)
+## Authentication and Authorization
+
+### How authentication works
+
+CORGI uses GitHub OAuth for login. After a successful OAuth flow, the backend creates an encrypted session cookie (using [Fernet](https://cryptography.io/en/latest/fernet/) symmetric encryption) that stores the user's GitHub OAuth token and role. The session lasts 8 hours, matching the lifetime of the OAuth token itself, so both expire at the same time.
+
+The `SESSION_SECRET` environment variable is the encryption key. It is randomly generated on each deployment, which automatically invalidates all active sessions on deploy — no explicit logout or session cleanup is needed.
+
+### Roles
+
+Role assignment is based on GitHub team membership, checked at login time:
+
+| Role    | Assigned to                                          | Access                                         |
+|---------|------------------------------------------------------|------------------------------------------------|
+| `ADMIN` | Members of `ce-tech`, `ce-admins`, `content-managers` | All endpoints including admin-only writes     |
+| `USER`  | Everyone else who logs in                            | Read/authenticated endpoints (e.g. tag listing)|
+
+`USER` is the default role for anyone not on an admin team — there is no separate "no access" state for logged-in users.
+
+### Login with GitHub Personal Access Token (PAT)
 For situations where it is difficult or impossible to login with a username and password, there is an alternative way to login with a GitHub PAT. To utilize this functionality:
 
 **Note:** the same restrictions apply to users regardless of login method (i.e. you do not gain additional permissions by logging in with a token).
