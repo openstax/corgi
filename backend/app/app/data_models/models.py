@@ -7,7 +7,7 @@ from pydantic.utils import GetterDict
 
 
 class Role(int, Enum):
-    USER = 1
+    USER = 5000
     ADMIN = 9999
     DEFAULT = USER
 
