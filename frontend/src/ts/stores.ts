@@ -1,9 +1,16 @@
 import { derived, Readable, writable } from "svelte/store";
 import { getJobs } from "./jobs";
 import { HOURS, SECONDS } from "./time";
-import type { ApprovedBookWithDate, Job, RepositorySummary } from "./types";
+import type {
+  ApprovedBookWithDate,
+  Job,
+  PipelineVersionItem,
+  RepositorySummary,
+  Version,
+} from "./types";
 import { fetchRepoSummaries, isJobComplete, parseDateTime } from "./utils";
 import { fetchABL, fetchRexReleaseVersion } from "./abl";
+import { fetchPipelineVersions, fetchVersion } from "./pipeline_version";
 
 type GConstructor<T = object> = new (...args: any[]) => T;
 type Updatable = GConstructor<{ update: () => Promise<void> }>;
@@ -195,3 +202,13 @@ export const REXVersionStore = new (RateLimited(
   APIStore<string | undefined>,
   (1 * HOURS) / SECONDS,
 ))(asyncWritable(undefined), fetchRexReleaseVersion);
+
+export const pipelineVersionStore = new (RateLimited(
+  APIStore<PipelineVersionItem[]>,
+  5,
+))(asyncWritable([]), fetchPipelineVersions);
+
+export const versionStore = new (RateLimited(APIStore<Version>, 5))(
+  asyncWritable({}),
+  fetchVersion,
+);
