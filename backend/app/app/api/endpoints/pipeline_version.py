@@ -5,6 +5,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.core.auth import RequiresRole
+from app.core.errors import CustomBaseError
 from app.data_models.models import PipelineVersionItem, Role
 from app.db.schema import PipelineVersion
 from app.db.utils import get_db
@@ -30,6 +31,8 @@ def set_pipeline_versions(
     db: Session = Depends(get_db),
     versions: List[PipelineVersionItem],
 ):
+    if len({v.version for v in versions}) != len(versions):
+        raise CustomBaseError("Duplicate version detected")
     try:
         db.execute(delete(PipelineVersion))
         for item in versions:
