@@ -21,8 +21,12 @@ def async_memoize_timed(ttl: int, maxsize=25):
         async def inner(*args: P.args, **kwargs: P.kwargs) -> T:
             nonlocal results, idx, pairs
 
+            # The next step in our time-based step function
+            point_in_time = step(int(time()), ttl)
+            # Glue the point_in_time to our args so that the hash changes if
+            # we reach the point in time or any of our arguments change
             new_hash = hash(
-                (step(int(time()), ttl), args, tuple(sorted(kwargs.items())))
+                (point_in_time, args, tuple(sorted(kwargs.items())))
             )
             result = results.get(new_hash, None)
             if result is None:
