@@ -1,9 +1,11 @@
 import base64
 import json
+import re
 from datetime import datetime
 from typing import Any, Dict, List, Tuple
 from urllib.parse import urlencode
 
+from httpx import AsyncClient
 from lxml import etree
 
 from app.core.auth import get_user_role
@@ -291,3 +293,46 @@ async def get_user(client: AuthenticatedClient, token: str) -> UserSession:
     return UserSession(
         id=id_, token=token, role=role, avatar_url=avatar_url, name=name
     )
+
+
+async def get_tags(
+    client: AsyncClient,
+    owner: str,
+    repo: str,
+    count: int,
+    pattern: str | None = None,
+) -> list[str]:
+    """Return up to `count` tag names for a public GitHub repo, newest first.
+
+    Parameters
+    ----------
+    owner:
+        GitHub organization or user name.
+    repo:
+        Repository name.
+    count:
+        Maximum number of matching tags to return.
+    pattern:
+        Optional regex to filter tag names.
+    """
+    tags: list[str] = []
+    page = 1
+    per_page = min(count, 100)
+    while len(tags) < count:
+        url = f"https://api.github.com/repos/{owner}/{repo}/tags"
+        params = {"per_page": per_page, "page": page}
+        response = await client.get(url, params=params)
+        response.raise_for_status()
+        results = response.json()
+        if not results:
+            break
+        for entry in results:
+            name = entry.get("name")
+            if name and (pattern is None or re.match(pattern, name)):
+                tags.append(name)
+            if len(tags) >= count:
+                break
+        if len(results) < per_page:
+            break
+        page += 1
+    return tags[:count]

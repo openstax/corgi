@@ -57,4 +57,6 @@ async def unauthorized_exception_handler(
 
 @server.exception_handler(CustomBaseError)
 async def custom_base_error_handler(_: Request, cbe: CustomBaseError):
-    return JSONResponse(status_code=500, content={"detail": str(cbe)})
+    return JSONResponse(
+        status_code=cbe.status_code, content={"detail": str(cbe)}
+    )

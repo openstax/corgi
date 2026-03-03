@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Checkout git repository 🕝
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Run ShellCheck Scripts
         uses: ludeeus/action-shellcheck@master
@@ -34,9 +34,9 @@ jobs:
         with:
           additional_files: ./corgi
           severity: error
-      
+
       - name: Set up Docker
-        uses: crazy-max/ghaction-setup-docker@v3
+        uses: crazy-max/ghaction-setup-docker@v4
 
       - name: Start stack
         run: |
@@ -85,7 +85,7 @@ jobs:
             echo "ERD did not match commit" >&2
             exit 1
           fi
-          # Ensure the latest migration works backwards and forwards with 
+          # Ensure the latest migration works backwards and forwards with
           # existing job data
           ./corgi compose-do dev exec backend alembic downgrade -1
           ./corgi compose-do dev exec backend alembic upgrade head

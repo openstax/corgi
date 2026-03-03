@@ -1,6 +1,15 @@
 from fastapi import APIRouter
 
-from app.api.endpoints import abl, auth, github, jobs, ping, status, version
+from app.api.endpoints import (
+    abl,
+    auth,
+    github,
+    jobs,
+    ping,
+    pipeline_version,
+    status,
+    version,
+)
 
 api_router = APIRouter()
 api_router.include_router(ping.router, prefix="/ping", tags=["ping"])
@@ -10,3 +19,8 @@ api_router.include_router(status.router, prefix="/status", tags=["status"])
 api_router.include_router(version.router, prefix="/version", tags=["version"])
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
 api_router.include_router(github.router, prefix="/github", tags=["github"])
+api_router.include_router(
+    pipeline_version.router,
+    prefix="/pipeline-version",
+    tags=["pipeline-version"],
+)

@@ -7,7 +7,7 @@ from pydantic.utils import GetterDict
 
 
 class Role(int, Enum):
-    USER = 1
+    USER = 5000
     ADMIN = 9999
     DEFAULT = USER
 
@@ -178,6 +178,25 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
+
+
+class PipelineVersionGetter(GetterDict):
+    def get(self, key: str, default: Any = None) -> Any:
+        if key == "version":
+            return self._obj.code_version.version
+        try:
+            return getattr(self._obj, key)
+        except AttributeError:
+            return default
+
+
+class PipelineVersionItem(BaseModel):
+    position: int
+    version: str
+
+    class Config:
+        orm_mode = True
+        getter_dict = PipelineVersionGetter
 
 
 class JobBase(BaseModel):

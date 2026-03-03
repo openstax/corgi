@@ -55,6 +55,18 @@ export interface RepositorySummary extends Repository {
   books: string[];
 }
 
+export interface PipelineVersionItem {
+  position: number;
+  version: string;
+}
+
+export interface Version {
+  stack_name?: string;
+  tag?: string;
+  revision?: string;
+  deployed_at?: string;
+}
+
 export interface ApprovedBook {
   uuid: string;
   code_version: string;
