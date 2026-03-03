@@ -77,9 +77,7 @@
     loading = true;
     try {
       await setPipelineVersions(
-        pendingVersions
-          .map((version, position) => ({ position, version }))
-          .filter(({ version }) => version !== ""),
+        pendingVersions.map((version, position) => ({ position, version })),
       );
       await pipelineVersionStore.updateImmediate();
       open = false;

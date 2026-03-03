@@ -34,7 +34,7 @@ def set_pipeline_versions(
     db: Session = Depends(get_db),
     versions: List[PipelineVersionItem],
 ):
-    if len(versions) != _VERSION_COUNT:
+    if len([v for v in versions if v.version.strip()]) != _VERSION_COUNT:
         raise CustomBaseError(
             f"Expected {_VERSION_COUNT} versions, got {len(versions)}",
             status_code=400,
