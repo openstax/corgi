@@ -262,7 +262,7 @@ class PipelineVersion(Base):
     )
     position = sa.Column(sa.Integer, nullable=False, index=True)
 
-    created_at = sa.Column(DateTimeUTC, default=utcnow)
+    created_at = sa.Column(DateTimeUTC, nullable=False, default=utcnow)
     updated_at = sa.Column(
         DateTimeUTC,
         nullable=False,

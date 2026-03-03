@@ -22,7 +22,7 @@ def upgrade():
         "pipeline_version",
         sa.Column("code_version_id", sa.Integer(), nullable=False),
         sa.Column("position", sa.Integer(), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
+        sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.Column("updated_at", sa.DateTime(), nullable=False),
         sa.ForeignKeyConstraint(
             ["code_version_id"],
@@ -35,13 +35,13 @@ def upgrade():
         op.f("ix_pipeline_version_code_version_id"),
         "pipeline_version",
         ["code_version_id"],
-        unique=False,
+        unique=True,
     )
     op.create_index(
         op.f("ix_pipeline_version_position"),
         "pipeline_version",
         ["position"],
-        unique=False,
+        unique=True,
     )
     # ### end Alembic commands ###
 
