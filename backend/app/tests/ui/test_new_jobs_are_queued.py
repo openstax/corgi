@@ -85,8 +85,33 @@ def test_show_abl_link_content(chrome_page_slow, corgi_base_url):
     chrome_page_slow.goto(corgi_base_url)
     home = HomeCorgi(chrome_page_slow)
 
-    # THEN: Show ABL link is clicked
-    home.click_show_abl_link()
+    # THEN: Show ABL link is clicked and page opens
+    home.show_abl_link.click()
 
     assert home.show_abl_link_title_is_visible
     assert home.show_abl_link_table_head_is_visible
+
+
+@pytest.mark.ui
+@pytest.mark.nondestructive
+def test_pipeline_versions_link_content(chrome_page_slow, corgi_base_url):
+    # GIVEN: Playwright, chromium and the corgi_base_url
+
+    # WHEN: The Home page is fully loaded
+    chrome_page_slow.goto(corgi_base_url)
+    home = HomeCorgi(chrome_page_slow)
+
+    # THEN: Pipeline Versions link is clicked and page opens
+    home.pipeline_versions_link.click()
+
+    assert home.pipeline_versions_page.is_visible()
+
+    for label in ["Newest", "Second", "Oldest"]:
+        assert label in home.pipeline_versions_codes.inner_text()
+
+    assert home.pipeline_versions_newest_codes.count() > 0
+    assert home.pipeline_versions_second_codes.count() > 0
+    assert home.pipeline_versions_oldest_codes.count() > 0
+
+    assert home.pipeline_versions_promote_latest_link.is_enabled()
+    assert home.pipeline_versions_save_changes_link.is_enabled()

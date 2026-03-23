@@ -388,19 +388,52 @@ class HomeCorgi:
         return self.page.is_visible("id=approve-book-frame")
 
     @property
-    def show_abl_link_is_visible(self):
-        return self.page.is_visible(
-            "div:nth-child(2) > div > div:nth-child(5) > button"
+    def show_abl_link(self):
+        return self.page.locator('[data-control-type="button-show-abl"]')
+
+    @property
+    def pipeline_versions_link(self):
+        return self.page.locator(
+            '[data-control-type="button-pipeline-versions"]'
         )
 
     @property
-    def show_abl_link_locator(self):
+    def pipeline_versions_page(self):
+        return self.page.locator("#pipeline-version-corgi-version")
+
+    @property
+    def pipeline_versions_codes(self):
+        return self.page.locator("#pipeline-version-body")
+
+    @property
+    def pipeline_versions_newest_codes(self):
         return self.page.locator(
-            "div:nth-child(2) > div > div:nth-child(5) > button"
+            '.slot-row:has(.slot-label:text("Newest")) select option'
         )
 
-    def click_show_abl_link(self):
-        self.show_abl_link_locator.click()
+    @property
+    def pipeline_versions_second_codes(self):
+        return self.page.locator(
+            '.slot-row:has(.slot-label:text("Second")) select option'
+        )
+
+    @property
+    def pipeline_versions_oldest_codes(self):
+        return self.page.locator(
+            '.slot-row:has(.slot-label:text("Oldest")) select option'
+        )
+
+    @property
+    def pipeline_versions_promote_latest_link(self):
+        return self.page.locator(
+            'button:has(.mdc-button__label:text("Promote Latest"))'
+        )
+
+    @property
+    def pipeline_versions_save_changes_link(self):
+        return self.page.locator(
+            'button:has(.mdc-button__label:text("Save Changes"))'
+        )
 
     @property
     def show_abl_link_title_is_visible(self):
