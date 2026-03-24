@@ -78,15 +78,46 @@ def test_version_sha_is_clickable(chrome_page_slow, corgi_base_url):
 @pytestrail.case("C655443")
 @pytest.mark.ui
 @pytest.mark.nondestructive
-def test_show_abl_link_content(chrome_page_slow, corgi_base_url):
+def test_show_abl_button_content(chrome_page_slow, corgi_base_url):
     # GIVEN: Playwright, chromium and the corgi_base_url
 
     # WHEN: The Home page is fully loaded
     chrome_page_slow.goto(corgi_base_url)
     home = HomeCorgi(chrome_page_slow)
 
-    # THEN: Show ABL link is clicked
-    home.click_show_abl_link()
+    # THEN: Show ABL button is clicked and page opens
+    home.show_abl_button.click()
 
-    assert home.show_abl_link_title_is_visible
-    assert home.show_abl_link_table_head_is_visible
+    assert home.show_abl_button_title_is_visible
+    assert home.show_abl_button_table_head_is_visible
+
+
+@pytest.mark.ui
+@pytest.mark.nondestructive
+def test_pipeline_versions_button_content(chrome_page_slow, corgi_base_url):
+    # GIVEN: Playwright, chromium and the corgi_base_url
+
+    # WHEN: The Home page is fully loaded
+    chrome_page_slow.goto(corgi_base_url)
+    home = HomeCorgi(chrome_page_slow)
+
+    # THEN: Pipeline Versions button is clicked and page opens
+    home.pipeline_versions_button.click()
+
+    assert home.pipeline_versions_dialog.is_visible()
+
+    for label in ["Newest", "Second", "Oldest"]:
+        assert label in home.pipeline_versions_codes.inner_text()
+
+    assert home.pipeline_versions_newest_codes.count() > 0
+    assert home.pipeline_versions_second_codes.count() > 0
+    assert home.pipeline_versions_oldest_codes.count() > 0
+
+    assert home.pipeline_versions_promote_latest_button.is_enabled()
+    assert home.pipeline_versions_save_changes_button.is_enabled()
+
+    # WHEN: The dialog is closed
+    home.click_pipeline_versions_dialog_close_button()
+
+    # THEN: The dialog is no longer visible
+    assert not home.pipeline_versions_dialog.is_visible()
