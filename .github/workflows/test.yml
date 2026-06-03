@@ -56,8 +56,8 @@ jobs:
       - name: Frontend Unit Tests
         run: |
           set -e
-          ./corgi compose-do dev exec frontend npm run test:unit
-          ./corgi compose-do dev exec frontend npm run lint
+          ./corgi compose-do dev run --rm frontend npm run test:unit
+          ./corgi compose-do dev run --rm frontend npm run lint
 
       - name: Backend Unit Tests
         run: |
