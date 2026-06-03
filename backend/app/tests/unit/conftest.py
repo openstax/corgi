@@ -161,8 +161,8 @@ def mock_jobs_service(fake_data):
         def update(self, db, job, job_in):
             from app.data_models.models import Job
 
-            job_model = Job.from_orm(job).dict(exclude_unset=True)
-            job_in_dict = job_in.dict(exclude_unset=True)
+            job_model = Job.model_validate(job).model_dump(exclude_unset=True)
+            job_in_dict = job_in.model_dump(exclude_unset=True)
             for k in job_in_dict:
                 if job_in_dict[k] is None:
                     del job_in_dict[k]

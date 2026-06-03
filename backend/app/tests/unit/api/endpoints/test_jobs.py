@@ -14,10 +14,10 @@ def test_get_jobs(
 
     response = testclient_with_session.get("/api/jobs")
     assert response.status_code == 200
-    payload = response.json()
+    payload = response.model_dump_json()
     assert len(payload) != 0
     first = payload[0]
-    assert Job(**first) == Job.from_orm(fake_data.FAKE_JOB)
+    assert Job(**first) == Job.model_validate(fake_data.FAKE_JOB)
 
 
 @pytest.mark.unit
@@ -40,10 +40,10 @@ def test_check_jobs_no_query(
 
     response = testclient_with_session.get("/api/jobs/check")
     assert response.status_code == 200
-    payload = response.json()
+    payload = response.model_dump_json()
     assert len(payload) == 1
     first = payload[0]
-    assert JobMin(**first) == JobMin.from_orm(fake_data.FAKE_JOB)
+    assert JobMin(**first) == JobMin.model_validate(fake_data.FAKE_JOB)
 
 
 @pytest.mark.unit
@@ -76,11 +76,11 @@ def test_check_jobs_with_status_id(
         f"/api/jobs/check?status_id={status_id}"
     )
     assert response.status_code == 200
-    payload = response.json()
+    payload = response.model_dump_json()
     assert len(payload) == return_count
     if return_count > 0:
         first = payload[0]
-        assert JobMin(**first) == JobMin.from_orm(fake_data.FAKE_JOB)
+        assert JobMin(**first) == JobMin.model_validate(fake_data.FAKE_JOB)
 
 
 @pytest.mark.unit
@@ -113,11 +113,11 @@ def test_check_jobs_with_job_type(
         f"/api/jobs/check?job_type_id={job_type_id}"
     )
     assert response.status_code == 200
-    payload = response.json()
+    payload = response.model_dump_json()
     assert len(payload) == return_count
     if return_count > 0:
         first = payload[0]
-        assert JobMin(**first) == JobMin.from_orm(fake_data.FAKE_JOB)
+        assert JobMin(**first) == JobMin.model_validate(fake_data.FAKE_JOB)
 
 
 @pytest.mark.unit
@@ -131,10 +131,10 @@ def test_list_job_page(
 
     response = testclient_with_session.get("/api/jobs/pages/1")
     assert response.status_code == 200
-    payload = response.json()
+    payload = response.model_dump_json()
     assert len(payload) == 1
     first = payload[0]
-    assert Job(**first) == Job.from_orm(fake_data.FAKE_JOB)
+    assert Job(**first) == Job.model_validate(fake_data.FAKE_JOB)
 
 
 @pytest.mark.unit
@@ -148,8 +148,8 @@ def test_get_job(
 
     response = testclient_with_session.get("/api/jobs/1")
     assert response.status_code == 200
-    payload = response.json()
-    assert Job(**payload) == Job.from_orm(fake_data.FAKE_JOB)
+    payload = response.model_dump_json()
+    assert Job(**payload) == Job.model_validate(fake_data.FAKE_JOB)
 
 
 @pytest.mark.unit
@@ -180,11 +180,11 @@ def test_create_job(
     )
 
     response = testclient_with_session.post(
-        "/api/jobs/", data=Job.from_orm(fake_data.FAKE_JOB).json()
+        "/api/jobs/", data=Job.model_validate(fake_data.FAKE_JOB).model_dump_json()
     )
     assert response.status_code == 200
-    payload = response.json()
-    assert Job(**payload) == Job.from_orm(fake_data.FAKE_JOB)
+    payload = response.model_dump_json()
+    assert Job(**payload) == Job.model_validate(fake_data.FAKE_JOB)
 
 
 @pytest.mark.unit
@@ -198,8 +198,8 @@ def test_update_job(
 
     response = testclient_with_session.put("/api/jobs/1", json={"status_id": 3})
     assert response.status_code == 200
-    payload = response.json()
-    updated_job = Job.from_orm(fake_data.FAKE_JOB)
+    payload = response.model_dump_json()
+    updated_job = Job.model_validate(fake_data.FAKE_JOB)
     updated_job.status_id = "3"
     assert Job(**payload) == updated_job
 
@@ -229,8 +229,8 @@ def test_update_job_ignore_status_id(
     # WHEN: the status_id is updated
     response = testclient_with_session.put("/api/jobs/1", json={"status_id": 3})
     assert response.status_code == 200
-    payload = response.json()
-    updated_job = Job.from_orm(fake_data.FAKE_JOB)
+    payload = response.model_dump_json()
+    updated_job = Job.model_validate(fake_data.FAKE_JOB)
 
     # THEN: status_id should stay the same
     updated_job.status_id = str(original_status_id)
@@ -265,7 +265,7 @@ def test_get_job_error(
 
     response = testclient_with_session.get("/api/jobs/error/1")
     assert response.status_code == 200
-    payload = response.json()
+    payload = response.model_dump_json()
     assert payload == ""
 
 

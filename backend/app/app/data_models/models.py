@@ -2,8 +2,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, List, Optional, Union
 
-from pydantic import BaseModel
-from pydantic.utils import GetterDict
+from pydantic import BaseModel, ConfigDict, model_validator
 
 
 class Role(int, Enum):
@@ -30,8 +29,7 @@ class StatusBase(BaseModel):
 class Status(StatusBase):
     id: str
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class JobTypeBase(BaseModel):
@@ -51,8 +49,7 @@ class JobTypeBase(BaseModel):
 class JobType(JobTypeBase):
     id: str
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ArtifactBase(BaseModel):
@@ -83,71 +80,29 @@ class ApprovedBook(RequestApproveBook):
     slug: str
     consumer: str
 
-    class Config:
-        class Getter(GetterDict):
-            getters = {
-                "uuid": lambda self: self._obj.book.uuid.lower(),
-                "commit_sha": lambda self: self._obj.book.commit.sha.lower(),
-                "code_version": lambda self: self._obj.code_version.version,
-                "consumer": lambda self: self._obj.consumer.name,
-                "created_at": lambda self: self._obj.created_at,
-                "committed_at": lambda self: self._obj.book.commit.timestamp,
-                "repository_name": (
-                    lambda self: self._obj.book.commit.repository.name
-                ),
-                "slug": lambda self: self._obj.book.slug,
+    model_config = ConfigDict(from_attributes=True)
+
+    @model_validator(mode='before')
+    @classmethod
+    def extract_from_orm(cls, data: Any) -> Any:
+        if hasattr(data, 'book'):  # ORM object
+            return {
+                'uuid': data.book.uuid.lower(),
+                'commit_sha': data.book.commit.sha.lower(),
+                'code_version': data.code_version.version,
+                'consumer': data.consumer.name,
+                'created_at': data.created_at,
+                'committed_at': data.book.commit.timestamp,
+                'repository_name': data.book.commit.repository.name,
+                'slug': data.book.slug,
             }
-
-            def get(self, key: str, default: Any = None) -> Any:
-                return self.getters.get(key, lambda _: default)(self)
-
-        orm_mode = True
-        getter_dict = Getter
+        return data
 
 
 class Book(BookBase):
     uuid: str
 
-    class Config:
-        orm_mode = True
-
-
-class JobGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        # How to get information from child tables
-        if key == "repository":
-            return self._obj.books[0].book.commit.repository
-        elif key == "books":
-            return [book_job.book for book_job in self._obj.books]
-        elif key == "artifact_urls":
-            return [
-                ArtifactBase(slug=book_job.book.slug, url=book_job.artifact_url)
-                for book_job in self._obj.books
-            ]
-        elif key == "version":
-            return self._obj.books[0].book.commit.sha
-        # probably add information about approved versions
-        else:
-            try:
-                return getattr(self._obj, key)
-            except (AttributeError, KeyError):  # pragma: no cover
-                return default
-
-
-class RepositoryGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        repository = self._obj
-        if key == "books":
-            commits = (c for c in repository.commits if len(c.books) > 0)
-            newest = max(commits, key=lambda c: c.timestamp, default=None)
-            if newest is None:
-                return []
-            return [book.slug for book in newest.books]
-        else:
-            try:
-                return getattr(self._obj, key)
-            except (AttributeError, KeyError):  # pragma: no cover
-                return default
+    model_config = ConfigDict(from_attributes=True)
 
 
 class RepositoryBase(BaseModel):
@@ -156,16 +111,27 @@ class RepositoryBase(BaseModel):
 
 
 class Repository(RepositoryBase):
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class RepositorySummary(RepositoryBase):
     books: List[str]
 
-    class Config:
-        orm_mode = True
-        getter_dict = RepositoryGetter
+    model_config = ConfigDict(from_attributes=True)
+
+    @model_validator(mode='before')
+    @classmethod
+    def extract_from_orm(cls, data: Any) -> Any:
+        if hasattr(data, 'commits'):  # ORM object
+            commits = (c for c in data.commits if len(c.books) > 0)
+            newest = max(commits, key=lambda c: c.timestamp, default=None)
+            books = [book.slug for book in newest.books] if newest else []
+            return {
+                'name': data.name,
+                'owner': data.owner,
+                'books': books,
+            }
+        return data
 
 
 class UserBase(BaseModel):
@@ -176,27 +142,24 @@ class UserBase(BaseModel):
 class User(UserBase):
     id: str
 
-    class Config:
-        orm_mode = True
-
-
-class PipelineVersionGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        if key == "version":
-            return self._obj.code_version.version
-        try:
-            return getattr(self._obj, key)
-        except AttributeError:
-            return default
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PipelineVersionItem(BaseModel):
     position: int
     version: str
 
-    class Config:
-        orm_mode = True
-        getter_dict = PipelineVersionGetter
+    model_config = ConfigDict(from_attributes=True)
+
+    @model_validator(mode='before')
+    @classmethod
+    def extract_from_orm(cls, data: Any) -> Any:
+        if hasattr(data, 'code_version'):  # ORM object
+            return {
+                'position': data.position,
+                'version': data.code_version.version,
+            }
+        return data
 
 
 class JobBase(BaseModel):
@@ -224,9 +187,18 @@ class JobMin(BaseModel):
     status_id: str
     job_type_id: str
 
-    class Config:
-        orm_mode = True
-        getter_dict = JobGetter
+    model_config = ConfigDict(from_attributes=True)
+
+    @model_validator(mode='before')
+    @classmethod
+    def extract_from_orm(cls, data: Any) -> Any:
+        if hasattr(data, 'books'):  # ORM object
+            return {
+                'id': data.id,
+                'status_id': data.status_id,
+                'job_type_id': data.job_type_id,
+            }
+        return data
 
 
 class Job(JobBase):
@@ -240,6 +212,29 @@ class Job(JobBase):
     books: List[Book] = []
     artifact_urls: List[ArtifactBase] = []
 
-    class Config:
-        orm_mode = True
-        getter_dict = JobGetter
+    model_config = ConfigDict(from_attributes=True)
+
+    @model_validator(mode='before')
+    @classmethod
+    def extract_from_orm(cls, data: Any) -> Any:
+        if hasattr(data, 'books') and hasattr(data.books, '__iter__'):  # ORM object
+            return {
+                'id': data.id,
+                'created_at': data.created_at,
+                'updated_at': data.updated_at,
+                'status': data.status,
+                'status_id': data.status_id,
+                'job_type_id': data.job_type_id,
+                'git_ref': data.git_ref,
+                'worker_version': data.worker_version,
+                'repository': data.books[0].book.commit.repository if data.books else None,
+                'job_type': data.job_type,
+                'user': data.user,
+                'books': [book_job.book for book_job in data.books],
+                'artifact_urls': [
+                    ArtifactBase(slug=bj.book.slug, url=bj.artifact_url)
+                    for bj in data.books
+                ],
+                'version': data.books[0].book.commit.sha if data.books else None,
+            }
+        return data
