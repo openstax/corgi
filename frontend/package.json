@@ -8,7 +8,7 @@
     "format": "prettier --ignore-path ./.eslintignore --write .",
     "lint": "prettier --ignore-path ./.eslintignore --check .  && eslint . --ext .ts,.tsx",
     "validate": "svelte-check",
-    "test:unit": "npx jest --verbose",
+    "test:unit": "jest --verbose",
     "hotdog": "node ./hotdog/app.js &"
   },
   "devDependencies": {
