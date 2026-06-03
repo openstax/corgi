@@ -180,7 +180,8 @@ def test_create_job(
     )
 
     response = testclient_with_session.post(
-        "/api/jobs/", data=Job.model_validate(fake_data.FAKE_JOB).model_dump_json()
+        "/api/jobs/",
+        data=Job.model_validate(fake_data.FAKE_JOB).model_dump_json(),
     )
     assert response.status_code == 200
     payload = response.model_dump_json()

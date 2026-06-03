@@ -82,19 +82,19 @@ class ApprovedBook(RequestApproveBook):
 
     model_config = ConfigDict(from_attributes=True)
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     @classmethod
     def extract_from_orm(cls, data: Any) -> Any:
-        if hasattr(data, 'book'):  # ORM object
+        if hasattr(data, "book"):  # ORM object
             return {
-                'uuid': data.book.uuid.lower(),
-                'commit_sha': data.book.commit.sha.lower(),
-                'code_version': data.code_version.version,
-                'consumer': data.consumer.name,
-                'created_at': data.created_at,
-                'committed_at': data.book.commit.timestamp,
-                'repository_name': data.book.commit.repository.name,
-                'slug': data.book.slug,
+                "uuid": data.book.uuid.lower(),
+                "commit_sha": data.book.commit.sha.lower(),
+                "code_version": data.code_version.version,
+                "consumer": data.consumer.name,
+                "created_at": data.created_at,
+                "committed_at": data.book.commit.timestamp,
+                "repository_name": data.book.commit.repository.name,
+                "slug": data.book.slug,
             }
         return data
 
@@ -119,17 +119,17 @@ class RepositorySummary(RepositoryBase):
 
     model_config = ConfigDict(from_attributes=True)
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     @classmethod
     def extract_from_orm(cls, data: Any) -> Any:
-        if hasattr(data, 'commits'):  # ORM object
+        if hasattr(data, "commits"):  # ORM object
             commits = (c for c in data.commits if len(c.books) > 0)
             newest = max(commits, key=lambda c: c.timestamp, default=None)
             books = [book.slug for book in newest.books] if newest else []
             return {
-                'name': data.name,
-                'owner': data.owner,
-                'books': books,
+                "name": data.name,
+                "owner": data.owner,
+                "books": books,
             }
         return data
 
@@ -151,13 +151,13 @@ class PipelineVersionItem(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     @classmethod
     def extract_from_orm(cls, data: Any) -> Any:
-        if hasattr(data, 'code_version'):  # ORM object
+        if hasattr(data, "code_version"):  # ORM object
             return {
-                'position': data.position,
-                'version': data.code_version.version,
+                "position": data.position,
+                "version": data.code_version.version,
             }
         return data
 
@@ -189,14 +189,14 @@ class JobMin(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     @classmethod
     def extract_from_orm(cls, data: Any) -> Any:
-        if hasattr(data, 'books'):  # ORM object
+        if hasattr(data, "books"):  # ORM object
             return {
-                'id': data.id,
-                'status_id': data.status_id,
-                'job_type_id': data.job_type_id,
+                "id": data.id,
+                "status_id": data.status_id,
+                "job_type_id": data.job_type_id,
             }
         return data
 
@@ -214,27 +214,33 @@ class Job(JobBase):
 
     model_config = ConfigDict(from_attributes=True)
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     @classmethod
     def extract_from_orm(cls, data: Any) -> Any:
-        if hasattr(data, 'books') and hasattr(data.books, '__iter__'):  # ORM object
+        if hasattr(data, "books") and hasattr(
+            data.books, "__iter__"
+        ):  # ORM object
             return {
-                'id': data.id,
-                'created_at': data.created_at,
-                'updated_at': data.updated_at,
-                'status': data.status,
-                'status_id': data.status_id,
-                'job_type_id': data.job_type_id,
-                'git_ref': data.git_ref,
-                'worker_version': data.worker_version,
-                'repository': data.books[0].book.commit.repository if data.books else None,
-                'job_type': data.job_type,
-                'user': data.user,
-                'books': [book_job.book for book_job in data.books],
-                'artifact_urls': [
+                "id": data.id,
+                "created_at": data.created_at,
+                "updated_at": data.updated_at,
+                "status": data.status,
+                "status_id": data.status_id,
+                "job_type_id": data.job_type_id,
+                "git_ref": data.git_ref,
+                "worker_version": data.worker_version,
+                "repository": data.books[0].book.commit.repository
+                if data.books
+                else None,
+                "job_type": data.job_type,
+                "user": data.user,
+                "books": [book_job.book for book_job in data.books],
+                "artifact_urls": [
                     ArtifactBase(slug=bj.book.slug, url=bj.artifact_url)
                     for bj in data.books
                 ],
-                'version': data.books[0].book.commit.sha if data.books else None,
+                "version": data.books[0].book.commit.sha
+                if data.books
+                else None,
             }
         return data
