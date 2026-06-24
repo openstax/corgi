@@ -1,6 +1,6 @@
 from enum import Enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 
 class RepositoryPermission(int, Enum):
@@ -15,6 +15,11 @@ class GitHubRepo(BaseModel):
     name: str
     database_id: str
     viewer_permission: str
+
+    @field_validator("database_id", mode="before")
+    @classmethod
+    def coerce_database_id(cls, v):
+        return str(v)
 
     @classmethod
     def from_node(cls, node: dict):

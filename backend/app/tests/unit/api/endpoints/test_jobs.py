@@ -14,7 +14,7 @@ def test_get_jobs(
 
     response = testclient_with_session.get("/api/jobs")
     assert response.status_code == 200
-    payload = response.model_dump_json()
+    payload = response.json()
     assert len(payload) != 0
     first = payload[0]
     assert Job(**first) == Job.model_validate(fake_data.FAKE_JOB)
@@ -40,7 +40,7 @@ def test_check_jobs_no_query(
 
     response = testclient_with_session.get("/api/jobs/check")
     assert response.status_code == 200
-    payload = response.model_dump_json()
+    payload = response.json()
     assert len(payload) == 1
     first = payload[0]
     assert JobMin(**first) == JobMin.model_validate(fake_data.FAKE_JOB)
@@ -76,7 +76,7 @@ def test_check_jobs_with_status_id(
         f"/api/jobs/check?status_id={status_id}"
     )
     assert response.status_code == 200
-    payload = response.model_dump_json()
+    payload = response.json()
     assert len(payload) == return_count
     if return_count > 0:
         first = payload[0]
@@ -113,7 +113,7 @@ def test_check_jobs_with_job_type(
         f"/api/jobs/check?job_type_id={job_type_id}"
     )
     assert response.status_code == 200
-    payload = response.model_dump_json()
+    payload = response.json()
     assert len(payload) == return_count
     if return_count > 0:
         first = payload[0]
@@ -131,7 +131,7 @@ def test_list_job_page(
 
     response = testclient_with_session.get("/api/jobs/pages/1")
     assert response.status_code == 200
-    payload = response.model_dump_json()
+    payload = response.json()
     assert len(payload) == 1
     first = payload[0]
     assert Job(**first) == Job.model_validate(fake_data.FAKE_JOB)
@@ -148,7 +148,7 @@ def test_get_job(
 
     response = testclient_with_session.get("/api/jobs/1")
     assert response.status_code == 200
-    payload = response.model_dump_json()
+    payload = response.json()
     assert Job(**payload) == Job.model_validate(fake_data.FAKE_JOB)
 
 
@@ -184,7 +184,7 @@ def test_create_job(
         data=Job.model_validate(fake_data.FAKE_JOB).model_dump_json(),
     )
     assert response.status_code == 200
-    payload = response.model_dump_json()
+    payload = response.json()
     assert Job(**payload) == Job.model_validate(fake_data.FAKE_JOB)
 
 
@@ -199,7 +199,7 @@ def test_update_job(
 
     response = testclient_with_session.put("/api/jobs/1", json={"status_id": 3})
     assert response.status_code == 200
-    payload = response.model_dump_json()
+    payload = response.json()
     updated_job = Job.model_validate(fake_data.FAKE_JOB)
     updated_job.status_id = "3"
     assert Job(**payload) == updated_job
@@ -222,7 +222,8 @@ def test_update_job_ignore_status_id(
     # GIVEN: a job with a status id in range [4, 6]
     def mock_get(*_args, **_kwargs):
         job = fake_data.FAKE_JOB
-        job.status_id = original_status_id
+        # Bypass SQLAlchemy instrumentation to avoid clearing the status relationship
+        job.__dict__["status_id"] = original_status_id
         return job
 
     mock_jobs_service.get = mock_get
@@ -230,7 +231,7 @@ def test_update_job_ignore_status_id(
     # WHEN: the status_id is updated
     response = testclient_with_session.put("/api/jobs/1", json={"status_id": 3})
     assert response.status_code == 200
-    payload = response.model_dump_json()
+    payload = response.json()
     updated_job = Job.model_validate(fake_data.FAKE_JOB)
 
     # THEN: status_id should stay the same
@@ -266,7 +267,7 @@ def test_get_job_error(
 
     response = testclient_with_session.get("/api/jobs/error/1")
     assert response.status_code == 200
-    payload = response.model_dump_json()
+    payload = response.json()
     assert payload == ""
 
 

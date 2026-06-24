@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, List, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 
 class Role(int, Enum):
@@ -31,6 +31,11 @@ class Status(StatusBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+    @field_validator("id", mode="before")
+    @classmethod
+    def coerce_id(cls, v):
+        return str(v)
+
 
 class JobTypeBase(BaseModel):
     name: str
@@ -50,6 +55,11 @@ class JobType(JobTypeBase):
     id: str
 
     model_config = ConfigDict(from_attributes=True)
+
+    @field_validator("id", mode="before")
+    @classmethod
+    def coerce_id(cls, v):
+        return str(v)
 
 
 class ArtifactBase(BaseModel):
@@ -104,6 +114,11 @@ class Book(BookBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+    @field_validator("commit_id", mode="before")
+    @classmethod
+    def coerce_commit_id(cls, v):
+        return str(v)
+
 
 class RepositoryBase(BaseModel):
     name: str
@@ -144,6 +159,11 @@ class User(UserBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+    @field_validator("id", mode="before")
+    @classmethod
+    def coerce_id(cls, v):
+        return str(v)
+
 
 class PipelineVersionItem(BaseModel):
     position: int
@@ -169,6 +189,11 @@ class JobBase(BaseModel):
     git_ref: Optional[str] = None  # branch, tag, or sha
     worker_version: Optional[str] = None
 
+    @field_validator("status_id", "job_type_id", mode="before")
+    @classmethod
+    def coerce_ids(cls, v):
+        return str(v)
+
 
 class JobCreate(JobBase):
     repository: RepositoryBase
@@ -176,7 +201,7 @@ class JobCreate(JobBase):
 
 
 class JobUpdate(BaseModel):
-    status_id: str
+    status_id: Union[int, str]
     artifact_urls: Optional[Union[List[ArtifactBase], str]] = None
     worker_version: Optional[str] = None
     error_message: Optional[str] = None
@@ -194,9 +219,9 @@ class JobMin(BaseModel):
     def extract_from_orm(cls, data: Any) -> Any:
         if hasattr(data, "books"):  # ORM object
             return {
-                "id": data.id,
-                "status_id": data.status_id,
-                "job_type_id": data.job_type_id,
+                "id": str(data.id),
+                "status_id": str(data.status_id),
+                "job_type_id": str(data.job_type_id),
             }
         return data
 
@@ -221,12 +246,12 @@ class Job(JobBase):
             data.books, "__iter__"
         ):  # ORM object
             return {
-                "id": data.id,
+                "id": str(data.id),
                 "created_at": data.created_at,
                 "updated_at": data.updated_at,
                 "status": data.status,
-                "status_id": data.status_id,
-                "job_type_id": data.job_type_id,
+                "status_id": str(data.status_id),
+                "job_type_id": str(data.job_type_id),
                 "git_ref": data.git_ref,
                 "worker_version": data.worker_version,
                 "repository": data.books[0].book.commit.repository

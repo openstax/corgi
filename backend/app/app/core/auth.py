@@ -48,7 +48,7 @@ def set_user_session_cookie(request: Request, user: UserSession):
 
     request.session[COOKIE_NAME] = {
         "exp": expiration.timestamp(),
-        "session": Crypto.encrypt(user.json()),
+        "session": Crypto.encrypt(user.model_dump_json()),
     }
 
 
@@ -74,7 +74,7 @@ def active_user(request: Request) -> UserSession:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Not logged in"
         )
-    return UserSession.parse_raw(Crypto.decrypt(user["session"]))
+    return UserSession.model_validate_json(Crypto.decrypt(user["session"]))
 
 
 class RequiresRole:
