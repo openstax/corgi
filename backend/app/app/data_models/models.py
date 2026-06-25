@@ -254,9 +254,7 @@ class Job(JobBase):
                 "job_type_id": str(data.job_type_id),
                 "git_ref": data.git_ref,
                 "worker_version": data.worker_version,
-                "repository": data.books[0].book.commit.repository
-                if data.books
-                else None,
+                "repository": data.books[0].book.commit.repository,
                 "job_type": data.job_type,
                 "user": data.user,
                 "books": [book_job.book for book_job in data.books],
