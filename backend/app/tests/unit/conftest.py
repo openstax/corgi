@@ -161,11 +161,12 @@ def mock_jobs_service(fake_data):
         def update(self, db, job, job_in):
             from app.data_models.models import Job
 
-            job_model = Job.from_orm(job).dict(exclude_unset=True)
-            job_in_dict = job_in.dict(exclude_unset=True)
-            for k in job_in_dict:
-                if job_in_dict[k] is None:
-                    del job_in_dict[k]
+            job_model = Job.model_validate(job).model_dump(exclude_unset=True)
+            job_in_dict = {
+                k: v
+                for k, v in job_in.model_dump(exclude_unset=True).items()
+                if v is not None
+            }
             job_model.update(job_in_dict)
 
             return job_model
@@ -327,9 +328,9 @@ def mock_http_client():
 
 @pytest.fixture
 def session_cookie(testclient, mock_login_success):
-    response = testclient.get("/api/auth/login", allow_redirects=False)
+    response = testclient.get("/api/auth/login", follow_redirects=False)
     redirect_location = response.headers.get("location")
-    response = testclient.get(redirect_location, allow_redirects=False)
+    response = testclient.get(redirect_location, follow_redirects=False)
     return response.headers.get("set-cookie")
 
 
