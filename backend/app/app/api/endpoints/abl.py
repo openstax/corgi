@@ -28,7 +28,7 @@ async def get_abl_info(
 ):
     if consumer is None:
         consumer = ["REX"]
-    elif consumer == ["ANY"]:
+    elif "ANY" in consumer:
         consumer = None
     return abl_service.get_abl_info_database(
         db, consumer, repo_name, version, code_version
