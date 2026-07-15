@@ -242,7 +242,7 @@ def stable_join():
 
 def get_abl_info_database(
     db: Session,
-    consumer: Optional[str] = None,
+    consumer: Optional[List[str]] = None,
     repo_name: Optional[str] = None,
     version: Optional[str] = None,
     code_version: Optional[str] = None,
@@ -250,7 +250,7 @@ def get_abl_info_database(
     query = select(ApprovedBook).options(lazyload("*"))
     join = stable_join()
     if consumer:
-        query = join(query, Consumer).where(Consumer.name == consumer)
+        query = join(query, Consumer).where(Consumer.name.in_(consumer))
     if repo_name:
         query = join(query, Book, Commit, Repository).where(
             Repository.name == repo_name

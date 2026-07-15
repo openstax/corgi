@@ -21,12 +21,13 @@ from tests.unit.conftest import MockAsyncClient
     ["query_args"],
     [
         [{}],
-        [{"consumer": "test"}],
+        [{"consumer": ["test"]}],
         [{"repo_name": "test"}],
         [{"version": "a"}],
         [{"code_version": "b"}],
-        [{"consumer": "test", "repo_name": "repo-test"}],
-        [{"consumer": "test", "code_version": "repo-test"}],
+        [{"consumer": ["test"], "repo_name": "repo-test"}],
+        [{"consumer": ["test"], "code_version": "repo-test"}],
+        [{"consumer": ["REX", "ancillaries"]}],
     ],
 )
 def test_get_abl(query_args, mock_session, snapshot):
