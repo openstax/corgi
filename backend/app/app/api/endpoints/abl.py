@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from httpx import AsyncClient
 from sqlalchemy.orm import Session
 
@@ -21,14 +21,14 @@ router = APIRouter()
 @router.get("/", response_model=List[ApprovedBook])
 async def get_abl_info(
     db: Session = Depends(get_db),
-    consumer: Optional[str] = None,
+    consumer: Optional[List[str]] = Query(None),
     repo_name: Optional[str] = None,
     version: Optional[str] = None,
     code_version: Optional[str] = None,
 ):
     if consumer is None:
-        consumer = "REX"
-    elif consumer == "ANY":
+        consumer = ["REX"]
+    elif "ANY" in consumer:
         consumer = None
     return abl_service.get_abl_info_database(
         db, consumer, repo_name, version, code_version
