@@ -34,5 +34,5 @@ sphinxcontrib-seqdiag==3.0.0
 sphinxcontrib-serializinghtml==1.1.7
 sphinxcontrib-mermaid==0.9.2
 tornado==6.5.10
-urllib3==2.0.4
+urllib3==2.8.0
 webcolors==1.13
