@@ -23,5 +23,8 @@ def test_repositories(
     # and that fake repo has been converted into the correct model containing
     # the correct information
     first = payload[0]
-    assert first == RepositorySummary.from_orm(fake_data.FAKE_REPO)
+    assert (
+        first
+        == RepositorySummary.model_validate(fake_data.FAKE_REPO).model_dump()
+    )
     assert first["books"] == [b.slug for b in fake_data.FAKE_COMMIT2.books]

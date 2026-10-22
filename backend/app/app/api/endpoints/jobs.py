@@ -43,7 +43,7 @@ def cache(skip_args=0):
 @cache(skip_args=1)
 def get_old_jobs_json(db: Session, start: datetime, end: datetime, _: bool):
     return ",".join(
-        Job.from_orm(j).json()
+        Job.model_validate(j).model_dump_json()
         for j in jobs_service.get_jobs_in_date_range(
             db, start, end, order_by=[jobs_service.schema_model.id.asc()]
         )
@@ -68,7 +68,7 @@ def list_jobs(
         )
         new_jobs = ",".join(
             [
-                Job.from_orm(j).json()
+                Job.model_validate(j).model_dump_json()
                 for j in jobs_service.get_jobs_in_date_range(
                     db,
                     yesterday,
@@ -86,7 +86,7 @@ def list_jobs(
         )
     else:
         return [
-            Job.from_orm(j)
+            Job.model_validate(j)
             for j in jobs_service.get_jobs_in_date_range(
                 db,
                 datetime.fromtimestamp(range_start, timezone.utc),

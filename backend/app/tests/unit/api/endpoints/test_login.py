@@ -42,11 +42,11 @@ def check_cookie_value(cookie):
 @pytest.mark.unit
 @pytest.mark.nondestructive
 def test_login_success(testclient, mock_login_success):
-    response = testclient.get("/api/auth/login", allow_redirects=False)
+    response = testclient.get("/api/auth/login", follow_redirects=False)
     assert response.status_code == 307
     redirect_location = response.headers.get("location")
     assert redirect_location is not None
-    response = testclient.get(redirect_location, allow_redirects=False)
+    response = testclient.get(redirect_location, follow_redirects=False)
     assert response.status_code == 307
     cookie = response.headers.get("set-cookie")
     check_cookie_value(cookie)
@@ -57,7 +57,7 @@ def test_login_success(testclient, mock_login_success):
 def test_login_success_token(testclient, mock_login_success):
     response = testclient.get(
         "/api/auth/token-login",
-        allow_redirects=False,
+        follow_redirects=False,
         headers={"authorization": "Bearer fake-token"},
     )
     assert response.status_code == 200
@@ -72,7 +72,7 @@ def test_login_success_token(testclient, mock_login_success):
 )
 def test_login_failure_token(testclient, mock_login_success, headers):
     response = testclient.get(
-        "/api/auth/token-login", allow_redirects=False, headers=headers
+        "/api/auth/token-login", follow_redirects=False, headers=headers
     )
     assert response.status_code == 500
 
@@ -98,7 +98,7 @@ def test_login_exception(testclient, monkeypatch, exc, status_code, result):
         "app.api.endpoints.auth.authenticate_user", get_mock_authenticate(exc)
     )
 
-    response = testclient.get("/api/auth/callback", allow_redirects=False)
+    response = testclient.get("/api/auth/callback", follow_redirects=False)
     assert response.status_code == status_code
     if response.status_code == 307:
         assert response.headers["location"] == result
@@ -114,7 +114,7 @@ def test_login_no_team(monkeypatch, testclient, mock_login_success):
 
     monkeypatch.setattr("app.github.api.get_user_teams", return_no_teams)
 
-    response = testclient.get("/api/auth/callback", allow_redirects=False)
+    response = testclient.get("/api/auth/callback", follow_redirects=False)
     # Temporarily allow people who are not on an openstax team
     assert response.status_code == 307
     # Do not allow people who are not on an openstax team
@@ -125,5 +125,5 @@ def test_login_no_team(monkeypatch, testclient, mock_login_success):
 @pytest.mark.nondestructive
 @pytest.mark.parametrize("endpoint", ["/api/jobs/"])
 def test_require_auth(testclient, endpoint):
-    response = testclient.get(endpoint, allow_redirects=False)
+    response = testclient.get(endpoint, follow_redirects=False)
     assert response.status_code == 401

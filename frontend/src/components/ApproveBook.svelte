@@ -3,27 +3,44 @@
   import CircularProgress from "@smui/circular-progress";
   import { ABLStore } from "../ts/stores";
   import type { Job } from "../ts/types";
-  import { getLatestCodeVersionForJob, newABLentry } from "../ts/abl";
+  import { getExistingCodeVersion, newABLentry } from "../ts/abl";
   import Button from "@smui/button";
+  import { Icon } from "@smui/common";
   import { repoToString } from "../ts/utils";
 
   export let selectedJob: Job;
-  export let open;
-  let selectedCodeVersion;
+  export let open: boolean;
+
+  let selectedCodeVersion: string | undefined;
   let loading = false;
+  let choices: string[] = [];
+  let isValidEntry: boolean = false;
 
-  let choices: Array<string | undefined>;
+  const updateChoices = async () => {
+    const existingVersion = await getExistingCodeVersion(
+      $ABLStore,
+      selectedJob,
+    );
+    if (existingVersion === undefined) {
+      choices = [];
+    } else {
+      const { worker_version: workerVersion } = selectedJob;
+      choices =
+        workerVersion === existingVersion
+          ? [workerVersion]
+          : [existingVersion, workerVersion];
+    }
+    // Default to first entry (or undefined)
+    selectedCodeVersion = choices[0];
+  };
 
-  $: choices = Array.from(
-    new Set(
-      [
-        getLatestCodeVersionForJob($ABLStore, selectedJob),
-        selectedJob.worker_version,
-      ].filter((e) => e !== undefined),
-    ),
-  );
-  // Default to first entry
-  $: selectedCodeVersion = selectedCodeVersion ?? choices[0];
+  $: if (open === true) {
+    loading = true;
+    updateChoices().finally(() => {
+      loading = false;
+    });
+  }
+  $: isValidEntry = selectedCodeVersion !== undefined;
 </script>
 
 <div id="approve-book-frame">
@@ -35,37 +52,41 @@
     <label id="selected-code-version-label" for="selected-code-version"
       >Selected Minimum Code Version:</label
     >
-    <SegmentedButton
-      id="selected-code-version"
-      segments={choices}
-      let:segment
-      singleSelect
-      bind:selected={selectedCodeVersion}
-    >
-      <Segment {segment}>
-        <Label>{segment}</Label>
-      </Segment>
-    </SegmentedButton>
+    {#if choices.length > 0}
+      <SegmentedButton
+        id="selected-code-version"
+        segments={choices}
+        let:segment
+        singleSelect
+        bind:selected={selectedCodeVersion}
+      >
+        <Segment {segment}>
+          <Label>{segment}</Label>
+        </Segment>
+      </SegmentedButton>
+    {:else}
+      <div style="color: red; display: flex; align-items: center;">
+        <Icon class="material-icons">error</Icon>
+        <div>Could not get options for code version</div>
+      </div>
+    {/if}
     <div id="approve-action-container">
       <Button
         id="approve-button"
         color="secondary"
         variant="raised"
-        disabled={selectedCodeVersion === undefined}
+        disabled={!isValidEntry}
         on:click={() => {
-          if (selectedCodeVersion === undefined) {
-            throw new Error("No code version selected");
-          }
           const message = [
-            'Are you sure you wish to add the following to the ABL?',
-            '',
-            'Code Version:',
+            "Are you sure you wish to add the following to the ABL?",
+            "",
+            "Code Version:",
             `    ${selectedCodeVersion}`,
-            'Repository:',
+            "Repository:",
             `    ${repoToString(selectedJob.repository)}`,
-            'Commit sha:',
+            "Commit sha:",
             `    ${selectedJob.version}`,
-            'Books:',
+            "Books:",
             `    ${selectedJob.books.map((b) => b.slug).join(", ")}`,
           ];
           if (!confirm(message.join("\n"))) {

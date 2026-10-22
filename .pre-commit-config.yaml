@@ -21,4 +21,6 @@ repos:
     hooks:
       - id: check-yaml
       - id: end-of-file-fixer
+        exclude: '^.*snapshots.*$'
       - id: trailing-whitespace
+        exclude: '^.*snapshots.*$'

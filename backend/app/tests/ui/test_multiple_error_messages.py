@@ -25,7 +25,7 @@ def test_incorrect_book_and_version_error_messages(
     home.fill_book_field(book)
     home.fill_version_field(version)
 
-    home.click_webview_job_option()
+    home.click_pptx_job_option()
 
     # WHEN: Create new job button is clicked
     home.click_create_new_job_button()

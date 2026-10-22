@@ -35,3 +35,4 @@ def test_check_boxes_are_visible(chrome_page, corgi_base_url):
     assert home.webview_job_option
     assert home.epub_job_option
     assert home.docx_job_option
+    assert home.pptx_job_option

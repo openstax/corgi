@@ -7,7 +7,7 @@
 <div id="build-artifacts-frame">
   <h3>Build Artifacts</h3>
   <ul>
-    {#each selectedJob.artifact_urls as artifact}
+    {#each selectedJob.artifact_urls.filter(art => art.slug && art.url) as artifact}
       <li>
         <a href={artifact.url} target="_blank" rel="noreferrer"
           >{artifact.slug}</a
@@ -22,6 +22,8 @@
     padding: 10px;
     margin: 10px;
     background-color: rgba(255, 128, 0, 0.25);
+    max-height: 15rem;
+    overflow: scroll;
   }
 
   #build-artifacts-frame h3:nth-of-type(1) {

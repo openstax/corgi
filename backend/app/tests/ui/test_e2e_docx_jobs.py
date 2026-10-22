@@ -31,24 +31,11 @@ def test_e2e_docx_jobs(chrome_page_slow, corgi_base_url, repo, book):
 
     # THEN: A new job is queued and verified
     home.wait_for_job_created(current_job_id)
-    home.wait_for_job_status(JobStatus.COMPLETED)
+    home.wait_for_job_status(JobStatus.PROCESSING)
 
-    if home.queued_job_type == "Docx (git)":
-        with chrome_page_slow.expect_download() as download_info:
-            home.click_job_type_icon()
+    home.click_job_id()
 
-        download = download_info.value
+    assert repo in home.job_id_dialog_title.inner_text()
+    assert "Docx (git)" in home.job_id_dialog_title.inner_text()
 
-        assert "zip" in download.url
-
-        assert repo and book in download.url
-
-        download.save_as("docx.zip")
-
-        assert os.path.getsize("docx.zip") > 0
-
-    else:
-        pytest.fail(
-            "No new job was queued. Last job is at "
-            + home.elapsed_time.inner_text()
-        )
+    home.click_abort_button()

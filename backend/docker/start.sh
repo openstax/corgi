@@ -4,7 +4,7 @@ set -e
 
 MODULE_NAME=${MODULE_NAME:-app.main}
 CALLABLE_NAME=${CALLABLE_NAME:-server}
-GUNICORN_CONF=${GUNICORN_CONF:-/gunicorn.conf}
+GUNICORN_CONF=${GUNICORN_CONF:-/gunicorn.conf.py}
 PRE_START_PATH=${PRE_START_PATH:-/app/bin/prestart.sh}
 
 export APP_MODULE=${APP_MODULE:-"$MODULE_NAME:$CALLABLE_NAME"}

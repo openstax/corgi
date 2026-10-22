@@ -1,4 +1,3 @@
-version: '3.7'
 services:
   proxy:
     image: traefik:v2.10
@@ -35,6 +34,7 @@ services:
       - "traefik.enable=true"
     volumes:
       - ./frontend:/app
+      - /app/node_modules
     ports:
       # This is for the live reloading (maybe add to traefik as a tcp service?)
       - '35729:35729'

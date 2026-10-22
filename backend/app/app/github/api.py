@@ -1,8 +1,11 @@
 import base64
 import json
+import re
 from datetime import datetime
 from typing import Any, Dict, List, Tuple
+from urllib.parse import urlencode
 
+from httpx import AsyncClient
 from lxml import etree
 
 from app.core.auth import get_user_role
@@ -118,6 +121,42 @@ async def get_collections(
         entry["name"]: parse_xml_doc(entry["object"]["text"])
         for entry in files_entries
     }
+
+
+def normpath(*parts: str):
+    return tuple(p.strip("/") for p in parts)
+
+
+def build_url(*parts: str, **kwargs: str | None):
+    path = "/".join(("https://api.github.com", *normpath(*parts)))
+    kwargs = {k: v for k, v in kwargs.items() if v}
+    if kwargs:
+        path = "?".join((path, urlencode(kwargs)))
+    return path
+
+
+async def get_file_response(
+    client: AuthenticatedClient,
+    owner: str,
+    repo: str,
+    path: str,
+    ref: str | None = None,
+):
+    url = build_url("repos", owner, repo, "contents", path, ref=ref)
+    response = await client.get(url)
+    response.raise_for_status()
+    return response
+
+
+async def get_file_content(
+    client: AuthenticatedClient,
+    owner: str,
+    repo: str,
+    path: str,
+    ref: str | None = None,
+):
+    payload = (await get_file_response(client, owner, repo, path, ref)).json()
+    return base64.b64decode(payload["content"])
 
 
 async def push_to_github(
@@ -254,3 +293,46 @@ async def get_user(client: AuthenticatedClient, token: str) -> UserSession:
     return UserSession(
         id=id_, token=token, role=role, avatar_url=avatar_url, name=name
     )
+
+
+async def get_tags(
+    client: AsyncClient,
+    owner: str,
+    repo: str,
+    count: int,
+    pattern: str | None = None,
+) -> list[str]:
+    """Return up to `count` tag names for a public GitHub repo, newest first.
+
+    Parameters
+    ----------
+    owner:
+        GitHub organization or user name.
+    repo:
+        Repository name.
+    count:
+        Maximum number of matching tags to return.
+    pattern:
+        Optional regex to filter tag names.
+    """
+    tags: list[str] = []
+    page = 1
+    per_page = min(count, 100)
+    while len(tags) < count:
+        url = f"https://api.github.com/repos/{owner}/{repo}/tags"
+        params = {"per_page": per_page, "page": page}
+        response = await client.get(url, params=params)
+        response.raise_for_status()
+        results = response.json()
+        if not results:
+            break
+        for entry in results:
+            name = entry.get("name")
+            if name and (pattern is None or re.match(pattern, name)):
+                tags.append(name)
+            if len(tags) >= count:
+                break
+        if len(results) < per_page:
+            break
+        page += 1
+    return tags[:count]

@@ -34,6 +34,7 @@
   import { MINUTES, SECONDS } from "../ts/time";
   import { hasABLEntry } from "../ts/abl";
   import ApprovedBooksDialog from "./ApprovedBooksDialog.svelte";
+  import PipelineVersionDialog from "./PipelineVersionDialog.svelte";
   import VersionLink from "./VersionLink.svelte";
 
   let statusStyles = {
@@ -49,6 +50,7 @@
 
   let detailsOpen = false;
   let ablOpen = false;
+  let pipelineOpen = false;
   let selectedJob: Job;
 
   let selectedRepo: string;
@@ -68,6 +70,7 @@
     Web = 4,
     Docx = 5,
     EPUB = 6,
+    PPTX = 7,
   }
 
   // Job creation
@@ -257,6 +260,14 @@
     data-control-type={"button-show-abl"}
   >
     Show ABL
+  </Button>
+  <Button
+    on:click={() => {
+      pipelineOpen = true;
+    }}
+    data-control-type={"button-pipeline-versions"}
+  >
+    Pipeline Versions
   </Button>
 </div>
 
@@ -496,6 +507,7 @@
 
   <DetailsDialog bind:open={detailsOpen} {selectedJob} />
   <ApprovedBooksDialog bind:open={ablOpen} />
+  <PipelineVersionDialog bind:open={pipelineOpen} />
 </div>
 
 <style>

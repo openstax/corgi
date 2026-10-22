@@ -36,6 +36,11 @@ GITHUB_REPO_PREFIX = os.getenv("GITHUB_REPO_PREFIX", "osbooks")
 REX_WEB_RELEASE_URL = os.getenv(
     "REX_WEB_RELEASE_URL", "https://openstax.org/rex/release.json"
 )
+REX_WEB_ARCHIVE_CONFIG = os.getenv(
+    "REX_WEB_ARCHIVE_CONFIG",
+    # owner:repo:path
+    "openstax:rex-web:src/config.archive-url.json",
+)
 
 # GITHUB OAUTH
 CLIENT_ID = os.getenv("GITHUB_OAUTH_ID")

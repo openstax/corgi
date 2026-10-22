@@ -5,7 +5,7 @@
   import type { ApprovedBookWithDate } from "../ts/types";
   import IconButton from "@smui/icon-button";
   import { getVersionLink, sortBy } from "../ts/utils";
-    import VersionLink from "./VersionLink.svelte";
+  import VersionLink from "./VersionLink.svelte";
 
   let sorted: ApprovedBookWithDate[] = [];
   let slice: ApprovedBookWithDate[] = [];
@@ -14,7 +14,7 @@
   $: if (open === true) void ABLStore.update();
   $: sorted = sortBy($ABLStore, [
     { key: "repository_name" },
-    { key: "uuid" },
+    { key: "slug" },
     { key: "consumer" },
     { key: "committed_at", desc: true },
   ]);

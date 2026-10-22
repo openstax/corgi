@@ -1,5 +1,24 @@
 import * as Factory from "factory.ts";
 import type { ApprovedBookWithDate, Book, Job, User } from "../src/ts/types";
+import type { jest } from "@jest/globals";
+
+export type Fetch = (
+  input: RequestInfo | URL,
+  init?: RequestInit | undefined,
+) => Promise<Response>;
+
+export type FetchMock = jest.SpiedFunction<Fetch> | jest.Mock<Fetch>;
+
+export const mockResponseStatus = (mock: FetchMock, status: number) => {
+  mock.mockResolvedValue({ status } as unknown as Response);
+};
+
+export const mockJSONResponse = <T>(mock: FetchMock, json: T, status = 200) => {
+  mock.mockResolvedValue({
+    status,
+    json: async () => json,
+  } as unknown as Response);
+};
 
 // sfc32 credit: https://pracrand.sourceforge.net/
 function sfc32(a: number, b: number, c: number, d: number) {

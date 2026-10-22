@@ -102,6 +102,13 @@ class HomeCorgi:
         self.docx_job_option.click()
 
     @property
+    def pptx_job_option(self):
+        return self.page.wait_for_selector("id=PPTX-job-option")
+
+    def click_pptx_job_option(self):
+        self.pptx_job_option.click()
+
+    @property
     def create_new_job_button_is_enabled(self):
         return self.page.is_enabled("id=submit-job-button")
 
@@ -381,24 +388,62 @@ class HomeCorgi:
         return self.page.is_visible("id=approve-book-frame")
 
     @property
-    def show_abl_link_is_visible(self):
-        return self.page.is_visible(
-            "div:nth-child(2) > div > div:nth-child(5) > button"
-        )
+    def show_abl_button(self):
+        return self.page.locator('[data-control-type="button-show-abl"]')
 
     @property
-    def show_abl_link_locator(self):
-        return self.page.locator(
-            "div:nth-child(2) > div > div:nth-child(5) > button"
-        )
-
-    def click_show_abl_link(self):
-        self.show_abl_link_locator.click()
-
-    @property
-    def show_abl_link_title_is_visible(self):
+    def show_abl_button_title_is_visible(self):
         return self.page.is_visible("id=over-fullscreen-title")
 
     @property
-    def show_abl_link_table_head_is_visible(self):
+    def show_abl_button_table_head_is_visible(self):
         return self.page.is_visible("#abl-table > div > div > table > thead")
+
+    @property
+    def pipeline_versions_button(self):
+        return self.page.locator(
+            '[data-control-type="button-pipeline-versions"]'
+        )
+
+    @property
+    def pipeline_versions_dialog(self):
+        return self.page.locator("#pipeline-version-corgi-version")
+
+    @property
+    def pipeline_versions_codes(self):
+        return self.page.locator("#pipeline-version-body")
+
+    @property
+    def pipeline_versions_newest_codes(self):
+        return self.page.locator(
+            '.slot-row:has(.slot-label:text("Newest")) select option'
+        )
+
+    @property
+    def pipeline_versions_second_codes(self):
+        return self.page.locator(
+            '.slot-row:has(.slot-label:text("Second")) select option'
+        )
+
+    @property
+    def pipeline_versions_oldest_codes(self):
+        return self.page.locator(
+            '.slot-row:has(.slot-label:text("Oldest")) select option'
+        )
+
+    @property
+    def pipeline_versions_promote_latest_button(self):
+        return self.page.locator(
+            'button:has(.mdc-button__label:text("Promote Latest"))'
+        )
+
+    @property
+    def pipeline_versions_save_changes_button(self):
+        return self.page.locator(
+            'button:has(.mdc-button__label:text("Save Changes"))'
+        )
+
+    def click_pipeline_versions_dialog_close_button(self):
+        self.page.locator(
+            "#pipeline-version-dialog button[data-mdc-dialog-action='close']"
+        ).click()

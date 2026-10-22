@@ -5,7 +5,6 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from httpx import AsyncClient
 from sqlalchemy.orm import Session
-from starlette.datastructures import URL
 
 from app.core.auth import set_user_session_cookie
 from app.core.config import IS_DEV_ENV
@@ -77,7 +76,7 @@ async def token_login(request: Request, db: Session = Depends(get_db)):
 async def login(request: Request):
     redirect_uri = request.url_for("callback")
     if not IS_DEV_ENV:  # pragma: no cover
-        redirect_uri = str(URL(redirect_uri).replace(scheme="https"))
+        redirect_uri = str(redirect_uri.replace(scheme="https"))
     return await github_oauth.authorize_redirect(request, redirect_uri)
 
 

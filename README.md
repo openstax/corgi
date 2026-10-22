@@ -270,11 +270,61 @@ The documentation is located in the [Releasing CORGI article](https://openstax.a
 ## Deploying Web Hosting Pipeline
 
 The documentation is located in the [How to Deploy Web Hosting Pipeline article](https://openstax.atlassian.net/wiki/spaces/CE/pages/573538307/Deploying+the+web-hosting+pipeline) in our Confluence Documentation.
+## Managing Webhosting Pipeline Versions
+
+CORGI supports running three concurrent Enki webhosting pipelines simultaneously, each pinned to a different image version. This lets the team roll out a new version gradually while keeping older pipelines running for in-progress content.
+
+### Slots
+
+The three slots are:
+
+| Position | Label   | Purpose                              |
+|----------|---------|--------------------------------------|
+| 0        | Newest  | Latest version — new jobs go here    |
+| 1        | Second  | Previous version — still active      |
+| 2        | Oldest  | Oldest active version                |
+
+### Using the Pipeline Versions dialog
+
+The dialog is accessible from the **Pipeline Versions** button on the CORGI home page (admin login required).
+
+- **Current CORGI Version** — displayed at the top. Shown in green when it already matches the Newest slot, red when it does not.
+- **Slot rows** — each slot shows the currently saved version (greyed out with strikethrough if you have changed it) and a dropdown to pick a new version.
+- **Promote Latest** — sets the Newest slot to the most recent available tag and shifts the previous Newest and Second values down. Disabled when the current CORGI version is already in the Newest slot.
+- **Save Changes** — asks for confirmation, then writes the new slot values to the database. Enabled even when nothing has changed (in which case it is a no-op).
+
+Available tags come from the intersection of Docker Hub and GitHub tags for `openstax/enki`, so only versions that were properly released appear in the dropdowns.
+
+### API
+
+- `GET /api/pipeline-version/` — returns the current slot configuration (unauthenticated). Polled by the Concourse metapipeline to detect version changes.
+- `PUT /api/pipeline-version/` — replaces all slots (admin only). Rejects requests with duplicate version strings.
+- `GET /api/version/tags/openstax::enki` — returns recent available tags (authenticated users). Accepts `count` (max 25) and `pattern` query parameters.
+
 ## Attribution
 
 A lot of the structure and ideas for this service come from Tiangolo's [full-stack-fastapi-postgres](https://github.com/tiangolo/full-stack-fastapi-postgresql) project with additional supporting software and ideas from [authlib](https://docs.authlib.org/en/latest/client/fastapi.html). Thanks Tiangolo and Authlib devs!
 
-## Login with GitHub Personal Access Token (PAT)
+## Authentication and Authorization
+
+### How authentication works
+
+CORGI uses GitHub OAuth for login. After a successful OAuth flow, the backend creates an encrypted session cookie (using [Fernet](https://cryptography.io/en/latest/fernet/) symmetric encryption) that stores the user's GitHub OAuth token and role. The session lasts 8 hours, matching the lifetime of the OAuth token itself, so both expire at the same time.
+
+The `SESSION_SECRET` environment variable is the encryption key. It is randomly generated on each deployment, which automatically invalidates all active sessions on deploy — no explicit logout or session cleanup is needed.
+
+### Roles
+
+Role assignment is based on GitHub team membership, checked at login time:
+
+| Role    | Assigned to                                          | Access                                         |
+|---------|------------------------------------------------------|------------------------------------------------|
+| `ADMIN` | Members of `ce-tech`, `ce-admins`, `content-managers` | All endpoints including admin-only writes     |
+| `USER`  | Everyone else who logs in                            | Read/authenticated endpoints (e.g. tag listing)|
+
+`USER` is the default role for anyone not on an admin team — there is no separate "no access" state for logged-in users.
+
+### Login with GitHub Personal Access Token (PAT)
 For situations where it is difficult or impossible to login with a username and password, there is an alternative way to login with a GitHub PAT. To utilize this functionality:
 
 **Note:** the same restrictions apply to users regardless of login method (i.e. you do not gain additional permissions by logging in with a token).
@@ -306,43 +356,6 @@ with requests.session() as session:
     jobs = session.get("http://localhost/api/jobs")
     print(jobs.json())
 ```
-
-## Testing Unmerged CORGI & Enki Changes in Concourse
-
-[CORGI Hotdog](https://corgi-hotdog.ce.openstax.org/) is a testing environment for experimenting with changes before they go to staging.
-
-URL: https://corgi-hotdog.ce.openstax.org/
-
-### Use cases for hotdog
-- Catching issues that do not appear on Enki GitHub actions but does error in Concourse
-- Experimenting with changes that would be difficult/tedious to test locally (changes to concourse resource, upload steps, etc.)
-
-### Deploy Porcess
-
-- Two ways to deploy changes
-    - https://corgi-hotdog.ce.openstax.org/hotdog
-        * Enter the ref for one or both repos into the fields (ref can be commit sha or branch name)
-    - There is a script in [ce-scripts](https://github.com/openstax/ce-scripts/blob/c6c2e63d8941392003a4462c8a73e86aa06a598e/bash/hotdog)
-        * Run this script in Enki or CORGI.
-        * You can either specify a ref as an argument to the script or use your current ref by omitting this argument.
-- At this point, the two ways converge and the following occurs
-    - Success message
-    - On concourse, corgi-hotdog, wait for hotdog-head to get new checked out version, this triggers a concourse build pipeline is set in build-deploy-Enki
-        - See api call: `corgi-hotdog.openstax.org/hotdog/head` if you would like more details
-    - Since concourse depends on production Enki tags on dockerhub, there isn’t a way to do concourse + dev Enki tag — except thru hotdog
-    - Hotdog tag on dockerhub: corgi-hotdog rebuild as whatever dev ref you give it, then rebuilds the docker image for Enki.
-        - Rebuild triggered by submitting a new ref.
-    - Wait to build hotdog tag and push to dockerhub. At this point, you can create a job. still have to wait for concourse (steps: corgi-git-pdf & corgi-resource) to fetch the tag. then eventually the job will run.
-- Some additional details are
-    - If you checkout a branch, you will need to checkout the branch again if you want to pull the latest changes from the branch
-    - Jobs run on concourse. See logging & progress details on concourse/CORGI.
-    - In hotdog corgi ui: worker-version tells you what Enki ref it is & a timestamp
-    - Only one corgi-hotdog tag at a time
-
-### Hotdog TODO
-1. Automatically pull changes from branches
-1. Automatically redeploy the stack if python dependencies change (maybe add a field to corgi refs that, when set, will trigger deploy on checkout?)
-1. Consider creating a hybrid of PR pipeline so each PR can have a hotdog stack
 
 ## Generating an ERD
 
@@ -430,6 +443,12 @@ erDiagram
         opt error_message
         str worker_version
     }
+    PipelineVersion {
+        int position
+        datetime created_at
+        datetime updated_at
+        int code_version_id
+    }
     Repository {
         int id
         str name
@@ -465,6 +484,7 @@ erDiagram
     JobTypes ||--|{ Jobs : ""
     Status ||--|{ Jobs : ""
     User ||--|{ Jobs : ""
+    CodeVersion ||--|{ PipelineVersion : ""
     Repository ||--|{ UserRepository : ""
     RepositoryPermission ||--|{ UserRepository : ""
     User ||--|{ UserRepository : ""

@@ -1,17 +1,33 @@
-import { expect, describe, it, jest, beforeEach } from "@jest/globals";
+import {
+  expect,
+  describe,
+  it,
+  jest,
+  beforeEach,
+  beforeAll,
+  afterAll,
+} from "@jest/globals";
 import { submitNewJob, abortJob } from "../src/ts/jobs";
 import * as jobs from "../src/ts/jobs";
 import { repoToString, parseDateTime } from "../src/ts/utils";
 import { jobsStore, updateRunningJobs } from "../src/ts/stores";
 import type { Job } from "../src/ts/types";
-import { jobFactory } from "./spec-helpers";
+import { Fetch, jobFactory, mockResponseStatus } from "./spec-helpers";
 
-let mockFetch;
+const origFetch = window.fetch;
+let fetchSpy: jest.SpiedFunction<Fetch>;
+beforeAll(() => {
+  window.fetch = jest.fn<Fetch>();
+  fetchSpy = jest.spyOn(window, "fetch");
+});
+afterAll(() => {
+  window.fetch = origFetch;
+  jest.restoreAllMocks();
+});
 beforeEach(() => {
-  mockFetch = jest
-    .fn()
-    .mockImplementation(() => Promise.resolve({ status: 200 }));
-  window.fetch = mockFetch as any;
+  // Reset history
+  jest.resetAllMocks();
+  mockResponseStatus(fetchSpy, 200);
 });
 
 describe("submitNewJob", () => {
@@ -23,8 +39,8 @@ describe("submitNewJob", () => {
     it(`calls fetch with the correct information -> ${args}`, () => {
       const [jobTypeId, repo, book, version] = args;
       submitNewJob(jobTypeId, repo, book, version).then(() => {
-        const url: string = (mockFetch.mock.lastCall as any[])[0] as string;
-        const options = (mockFetch.mock.lastCall as any[])[1];
+        const url: string = (fetchSpy.mock.lastCall as any[])[0] as string;
+        const options = (fetchSpy.mock.lastCall as any[])[1];
         const body = JSON.parse(options.body);
         expect(options.method).toBe("POST");
         expect(options.headers["Content-Type"]).toBe("application/json");
@@ -47,8 +63,8 @@ describe("abortJob", () => {
       fn();
     }) as any;
     abortJob(jobId).then(() => {
-      const url: string = (mockFetch.mock.lastCall as any[])[0] as string;
-      const options = (mockFetch.mock.lastCall as any[])[1];
+      const url: string = (fetchSpy.mock.lastCall as any[])[0] as string;
+      const options = (fetchSpy.mock.lastCall as any[])[1];
       const body = JSON.parse(options.body);
       expect(url).toBe(`/api/jobs/${jobId}`);
       expect(options.method).toBe("PUT");

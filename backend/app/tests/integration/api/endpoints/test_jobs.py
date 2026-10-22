@@ -95,3 +95,55 @@ def test_jobs_cru(
 
     # AND: We get the error as a string
     assert error_text == error_text_from_server
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "status_id, job_type_id, version, repo_name, repo_owner, book_name",
+    [
+        ("1", "4", None, "tiny-book", "openstax", "book-slug1"),
+        ("1", "4", None, "tiny-book", "openstax", "book-slug1"),
+    ],
+)
+def test_ephemeral_book(
+    testclient,
+    api_url,
+    status_id,
+    job_type_id,
+    version,
+    repo_owner,
+    repo_name,
+    book_name,
+):
+    # GIVEN: An api url to the jobs endpoint
+    # AND: Data for job is ready to be submitted.
+    data = {
+        "status_id": status_id,
+        "job_type_id": job_type_id,
+        "version": version,
+        "repository": {"name": repo_name, "owner": repo_owner},
+        "book": book_name,
+    }
+
+    # WHEN: A POST request is made to the url with data
+    response = testclient.post(f"{api_url}/{ENDPOINT}/", json=data)
+
+    # THEN: A 200 code is returned
+    assert response.status_code == 200
+    job = response.json()
+    job_id = job["id"]
+
+    # WHEN: A PUT request is made to the url with data
+    # In the first case the book is newly added, it is reused in the second
+    data = {
+        "status_id": "5",
+        "artifact_urls": [
+            {"slug": "super-cool-book", "url": "http://example.com"}
+        ],
+        "worker_version": "dev",
+    }
+    job_update_response = testclient.put(
+        f"{api_url}/{ENDPOINT}/{job_id}", json=data
+    )
+    # THEN: A 200 code is returned
+    assert job_update_response.status_code == 200

@@ -1,5 +1,8 @@
+import json
 import os
+from typing import Any
 
+import httpx
 import pytest
 from fastapi.responses import RedirectResponse
 from starlette.testclient import TestClient
@@ -15,6 +18,7 @@ def pytest_configure(config):
     )
     init_test_data = config.getoption("--init-test-data")
     if init_test_data:
+        os.environ.setdefault("VCR_RECORD", "1")
         token = config.getoption("--github-token")
         if token is not None:
             from tests.unit.init_test_data import main
@@ -157,11 +161,12 @@ def mock_jobs_service(fake_data):
         def update(self, db, job, job_in):
             from app.data_models.models import Job
 
-            job_model = Job.from_orm(job).dict(exclude_unset=True)
-            job_in_dict = job_in.dict(exclude_unset=True)
-            for k in job_in_dict:
-                if job_in_dict[k] is None:
-                    del job_in_dict[k]
+            job_model = Job.model_validate(job).model_dump(exclude_unset=True)
+            job_in_dict = {
+                k: v
+                for k, v in job_in.model_dump(exclude_unset=True).items()
+                if v is not None
+            }
             job_model.update(job_in_dict)
 
             return job_model
@@ -253,6 +258,18 @@ def mock_session():
             def calls_str(self):
                 return "\n\n".join(str(c) for c in self.calls)
 
+            @property
+            def params(self):
+                return [
+                    call.compile().params
+                    for call in self.calls
+                    if not isinstance(call, str)
+                ]
+
+            @property
+            def params_str(self):
+                return json.dumps(self.params, indent=2, ensure_ascii=False)
+
         mock_session = MockSession()
 
         class MockResult:
@@ -270,48 +287,50 @@ def mock_session():
     return inner
 
 
+class MockAsyncClient(httpx.AsyncClient):
+    responses: list[httpx.Response]
+
+
 @pytest.fixture
 def mock_http_client():
-    def inner(get=None, post=None):
+    def inner(
+        get: dict[httpx.URL, Any] | None = None,
+        post: dict[httpx.URL, Any] | None = None,
+    ) -> MockAsyncClient:
+        responses: list[httpx.Response] = []
         if get is None:
             get = {}
         if post is None:
             post = {}
 
-        class MockResponse:
-            def __init__(self, expected_result):
-                self.expected_result = expected_result
-
-            def json(self):
-                return self.expected_result
-
-            def raise_for_status(self):
-                pass
-
-        class MockClient:
-            def __init__(self):
-                self.calls = []
-
-            async def get(self, url, **kwargs):
-                self.calls.append({"type": "get", "kwargs": kwargs, "url": url})
-                return MockResponse(get.get(url, None))
-
-            async def post(self, url, **kwargs):
-                self.calls.append(
-                    {"type": "post", "kwargs": kwargs, "url": url}
+        def handler(request: httpx.Request):
+            url = request.url
+            planned_response = get.get(url, post.get(url, None))
+            if planned_response is None:
+                response = httpx.Response(404, request=request)
+            elif isinstance(planned_response, httpx.Response):
+                response = planned_response
+            else:
+                response = httpx.Response(
+                    200, json=planned_response, request=request
                 )
-                return MockResponse(post.get(url, None))
+            responses.append(response)
+            return response
 
-        return MockClient()
+        client = MockAsyncClient(
+            mounts={"all://": httpx.MockTransport(handler)}
+        )
+        client.responses = responses
+        return client
 
     return inner
 
 
 @pytest.fixture
 def session_cookie(testclient, mock_login_success):
-    response = testclient.get("/api/auth/login", allow_redirects=False)
+    response = testclient.get("/api/auth/login", follow_redirects=False)
     redirect_location = response.headers.get("location")
-    response = testclient.get(redirect_location, allow_redirects=False)
+    response = testclient.get(redirect_location, follow_redirects=False)
     return response.headers.get("set-cookie")
 
 
