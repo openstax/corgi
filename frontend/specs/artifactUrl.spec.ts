@@ -19,6 +19,7 @@ describe("isSafeArtifactUrl", () => {
     "//example.com/artifacts/build-1.zip",
     "/artifacts/build-1.zip",
     "https:///artifacts/build-1.zip",
+    "https:\\example.com/artifacts/build-1.zip",
     "https://user:password@example.com/artifacts/build-1.zip",
     "https://example.com:invalid/artifacts/build-1.zip",
   ])("rejects unsafe or malformed URL %s", (url) => {
