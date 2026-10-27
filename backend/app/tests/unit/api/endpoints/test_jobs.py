@@ -177,7 +177,13 @@ def test_get_job(
 @pytest.mark.nondestructive
 @pytest.mark.parametrize(
     "artifact_url",
-    ["ftp://example.com/artifact.zip", "/relative/artifact.zip"],
+    [
+        "ftp://example.com/artifact.zip",
+        "/relative/artifact.zip",
+        "https://bad host.example/artifact.zip",
+        "https://%zz/artifact.zip",
+        "https://example.com\\evil/artifact.zip",
+    ],
 )
 def test_get_job_hides_legacy_unsafe_artifact_url(
     artifact_url,

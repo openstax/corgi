@@ -1,4 +1,5 @@
 import logging
+import re
 from datetime import datetime
 from enum import Enum
 from typing import Any, List, Optional, Union
@@ -78,6 +79,14 @@ def validate_artifact_url(value: Optional[str]) -> Optional[str]:
         _ = parsed.port
     except ValueError as exc:
         raise ValueError("Artifact URL is invalid") from exc
+    authority = parsed.netloc
+    if (
+        not authority
+        or any(char.isspace() for char in authority)
+        or "\\" in authority
+        or re.search(r"%(?![0-9a-fA-F]{2})", authority)
+    ):
+        raise ValueError("Artifact URL authority is invalid")
     if (
         parsed.scheme.lower() not in {"http", "https"}
         or not parsed.hostname
