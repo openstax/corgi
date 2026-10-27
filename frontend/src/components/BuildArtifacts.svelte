@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Job } from "../ts/types";
+  import { isSafeArtifactUrl } from "../ts/artifactUrl";
 
   export let selectedJob: Job;
 </script>
@@ -7,7 +8,9 @@
 <div id="build-artifacts-frame">
   <h3>Build Artifacts</h3>
   <ul>
-    {#each selectedJob.artifact_urls.filter(art => art.slug && art.url) as artifact}
+    {#each selectedJob.artifact_urls.filter(
+      art => art.slug && isSafeArtifactUrl(art.url),
+    ) as artifact}
       <li>
         <a href={artifact.url} target="_blank" rel="noreferrer"
           >{artifact.slug}</a

@@ -33,9 +33,18 @@
   import DetailsDialog from "./DetailsDialog.svelte";
   import { MINUTES, SECONDS } from "../ts/time";
   import { hasABLEntry } from "../ts/abl";
+  import { isSafeArtifactUrl } from "../ts/artifactUrl";
   import ApprovedBooksDialog from "./ApprovedBooksDialog.svelte";
   import PipelineVersionDialog from "./PipelineVersionDialog.svelte";
   import VersionLink from "./VersionLink.svelte";
+
+  function getJobArtifactHref(item: Job): string | undefined {
+    if (!isJobComplete(item)) return undefined;
+    if (item.books.length !== 1) return `#${item.id}`;
+
+    const artifactUrl = item.artifact_urls[0]?.url;
+    return isSafeArtifactUrl(artifactUrl) ? artifactUrl : undefined;
+  }
 
   let statusStyles = {
     queued: "filter-yellow",
@@ -329,6 +338,7 @@
       {#each slice as item (item.id)}
         <!-- <DetailRow> -->
         {@const isApproved = hasABLEntry($ABLStore, item)}
+        {@const artifactHref = getJobArtifactHref(item)}
         <Row slot="data" class={isApproved ? "abl" : ""}>
           <Cell>
             <Button
@@ -343,11 +353,9 @@
           </Cell>
           <Cell>
             <Wrapper>
-              {#if isJobComplete(item)}
+              {#if artifactHref}
                 <a
-                  href={item.books.length === 1
-                    ? item.artifact_urls[0].url
-                    : `#${item.id}`}
+                  href={artifactHref}
                   target={item.books.length === 1 ? "_blank" : "_self"}
                   rel="noreferrer"
                 >
@@ -367,7 +375,7 @@
                   alt={item.job_type.display_name}
                   src={mapImage("job_type", item.job_type.display_name, "svg")}
                   class="job-type-icon"
-                  data-is-complete="false"
+                  data-is-complete={isJobComplete(item) ? "true" : "false"}
                 />
               {/if}
               <Tooltip>{item.job_type.display_name}</Tooltip>

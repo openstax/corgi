@@ -1,6 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from typing import Any, List, Optional, Union
+from urllib.parse import urlsplit
 
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
@@ -62,9 +63,36 @@ class JobType(JobTypeBase):
         return str(v)
 
 
+def validate_artifact_url(value: Optional[str]) -> Optional[str]:
+    if value is None or value == "":
+        return value
+    if value != value.strip() or any(ord(char) < 0x20 for char in value):
+        raise ValueError(
+            "Artifact URL contains whitespace or control characters"
+        )
+    try:
+        parsed = urlsplit(value)
+        _ = parsed.port
+    except ValueError as exc:
+        raise ValueError("Artifact URL is invalid") from exc
+    if (
+        parsed.scheme.lower() not in {"http", "https"}
+        or not parsed.hostname
+        or parsed.username is not None
+        or parsed.password is not None
+    ):
+        raise ValueError("Artifact URL must be an absolute HTTP or HTTPS URL")
+    return value
+
+
 class ArtifactBase(BaseModel):
     slug: str
     url: Optional[str] = None
+
+    @field_validator("url")
+    @classmethod
+    def validate_url(cls, value):
+        return validate_artifact_url(value)
 
 
 class BookBase(BaseModel):
@@ -205,6 +233,13 @@ class JobUpdate(BaseModel):
     artifact_urls: Optional[Union[List[ArtifactBase], str]] = None
     worker_version: Optional[str] = None
     error_message: Optional[str] = None
+
+    @field_validator("artifact_urls", mode="before")
+    @classmethod
+    def validate_single_artifact_url(cls, value):
+        if isinstance(value, str):
+            return validate_artifact_url(value)
+        return value
 
 
 class JobMin(BaseModel):
