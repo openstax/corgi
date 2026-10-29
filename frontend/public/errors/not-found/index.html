@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 Not Found</title>
+
+    <style>
+      body,
+      html {
+        font-family: Arial, sans-serif;
+      }
+
+      div {
+        text-align: center;
+      }
+
+      #err-img {
+        img {
+          width: 100%;
+        }
+        width: 25%;
+        margin: auto;
+        margin-bottom: 50px;
+      }
+
+      #flavor-text {
+        font-size: large;
+        margin-bottom: 10px;
+        white-space: pre;
+      }
+
+      #error-text {
+        font-size: x-large;
+        margin-bottom: 50px;
+      }
+
+      #link {
+        font-size: x-large;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="err-img">
+      <img src="./corgihat.png" />
+    </div>
+    <div id="flavor-text"></div>
+    <div id="error-text">404 - Not Found</div>
+    <div id="link">
+      <a href="/">Try again</a>
+    </div>
+    <script>
+      (function () {
+        const flavorDiv = document.getElementById("flavor-text");
+        const quotes = [
+          "Have you woken up on the wrong side of the CORGI?",
+          "You've reached a 404. The Corgi has already moved on. Follow the butt.",
+          "This page walked away. Don't blame the Corgi — it's not even the full picture.",
+          "The Corgi is fine. The page is not.",
+          "I ain't never scared (Eastside)\nI ain't never scared (Westside)\nI ain't never scared (Southside)\nI ain't never scared (Backside)",
+        ];
+        const quoteIdx = Math.floor(Math.random() * quotes.length);
+        flavorDiv.innerText = quotes[quoteIdx];
+      })();
+    </script>
+  </body>
+</html>

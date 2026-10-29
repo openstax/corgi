@@ -151,7 +151,11 @@ async def create_job(
         return job
 
 
-@router.put("/{id}", response_model=Job)
+@router.put(
+    "/{id}",
+    response_model=Job,
+    dependencies=[Depends(RequiresRole(Role.USER))],
+)
 def update_job(*, db: Session = Depends(get_db), id: int, job_in: JobUpdate):
     """Update an existing job"""
     job = jobs_service.get(db_session=db, obj_id=id)

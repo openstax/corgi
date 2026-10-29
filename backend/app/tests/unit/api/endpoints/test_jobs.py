@@ -22,6 +22,28 @@ def test_get_jobs(
 
 @pytest.mark.unit
 @pytest.mark.nondestructive
+def test_list_jobs_hides_legacy_unsafe_artifact_url(
+    monkeypatch, testclient_with_session, mock_jobs_service, fake_data, caplog
+):
+    caplog.set_level("DEBUG", logger="app.data_models.models")
+    monkeypatch.setattr(
+        "app.api.endpoints.jobs.jobs_service", mock_jobs_service
+    )
+    fake_data.FAKE_BOOK_JOB.artifact_url = "ftp://example.com/artifact.zip"
+
+    response = testclient_with_session.get("/api/jobs?range_start=0")
+
+    assert response.status_code == 200
+    assert response.json()[0]["artifact_urls"][0]["url"] is None
+    assert (
+        "Omitting invalid stored artifact URL for job 1, book test"
+        in caplog.text
+    )
+    assert "ftp://example.com/artifact.zip" not in caplog.text
+
+
+@pytest.mark.unit
+@pytest.mark.nondestructive
 def test_check_jobs_no_query(
     monkeypatch, testclient_with_session, mock_jobs_service, fake_data
 ):
@@ -154,6 +176,36 @@ def test_get_job(
 
 @pytest.mark.unit
 @pytest.mark.nondestructive
+@pytest.mark.parametrize(
+    "artifact_url",
+    [
+        "ftp://example.com/artifact.zip",
+        "/relative/artifact.zip",
+        "https://bad host.example/artifact.zip",
+        "https://%zz/artifact.zip",
+        "https://example.com\\evil/artifact.zip",
+    ],
+)
+def test_get_job_hides_legacy_unsafe_artifact_url(
+    artifact_url,
+    monkeypatch,
+    testclient_with_session,
+    mock_jobs_service,
+    fake_data,
+):
+    monkeypatch.setattr(
+        "app.api.endpoints.jobs.jobs_service", mock_jobs_service
+    )
+    fake_data.FAKE_BOOK_JOB.artifact_url = artifact_url
+
+    response = testclient_with_session.get("/api/jobs/1")
+
+    assert response.status_code == 200
+    assert response.json()["artifact_urls"][0]["url"] is None
+
+
+@pytest.mark.unit
+@pytest.mark.nondestructive
 def test_get_job_404(
     monkeypatch, testclient_with_session, mock_jobs_service, fake_data
 ):
@@ -254,6 +306,24 @@ def test_update_job_404(
     mock_jobs_service.get = mock_get
     response = testclient_with_session.put("/api/jobs/1", json={"status_id": 3})
     assert response.status_code == 404
+
+
+@pytest.mark.unit
+@pytest.mark.nondestructive
+def test_update_job_requires_login(
+    monkeypatch, testclient, mock_jobs_service, fake_data
+):
+    monkeypatch.setattr(
+        "app.api.endpoints.jobs.jobs_service", mock_jobs_service
+    )
+    original_status_id = fake_data.FAKE_JOB.status_id
+
+    # WHEN: an update is sent without a session
+    response = testclient.put("/api/jobs/1", json={"status_id": 3})
+
+    # THEN: it is rejected and the job is left alone
+    assert response.status_code == 401
+    assert fake_data.FAKE_JOB.status_id == original_status_id
 
 
 @pytest.mark.unit
