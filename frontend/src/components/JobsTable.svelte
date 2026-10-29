@@ -38,12 +38,11 @@
   import PipelineVersionDialog from "./PipelineVersionDialog.svelte";
   import VersionLink from "./VersionLink.svelte";
 
-  function getJobArtifactHref(item: Job): string | undefined {
-    if (!isJobComplete(item)) return undefined;
+  function getJobHref(item: Job): string {
     if (item.books.length !== 1) return `#${item.id}`;
 
     const artifactUrl = item.artifact_urls[0]?.url;
-    return isSafeArtifactUrl(artifactUrl) ? artifactUrl : undefined;
+    return isSafeArtifactUrl(artifactUrl) ? artifactUrl : `/errors/not-found`;
   }
 
   let statusStyles = {
@@ -338,7 +337,6 @@
       {#each slice as item (item.id)}
         <!-- <DetailRow> -->
         {@const isApproved = hasABLEntry($ABLStore, item)}
-        {@const artifactHref = getJobArtifactHref(item)}
         <Row slot="data" class={isApproved ? "abl" : ""}>
           <Cell>
             <Button
@@ -353,9 +351,9 @@
           </Cell>
           <Cell>
             <Wrapper>
-              {#if artifactHref}
+              {#if isJobComplete(item)}
                 <a
-                  href={artifactHref}
+                  href={getJobHref(item)}
                   target={item.books.length === 1 ? "_blank" : "_self"}
                   rel="noreferrer"
                 >
@@ -375,7 +373,7 @@
                   alt={item.job_type.display_name}
                   src={mapImage("job_type", item.job_type.display_name, "svg")}
                   class="job-type-icon"
-                  data-is-complete={isJobComplete(item) ? "true" : "false"}
+                  data-is-complete="false"
                 />
               {/if}
               <Tooltip>{item.job_type.display_name}</Tooltip>

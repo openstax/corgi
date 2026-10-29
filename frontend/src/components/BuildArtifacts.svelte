@@ -8,12 +8,14 @@
 <div id="build-artifacts-frame">
   <h3>Build Artifacts</h3>
   <ul>
-    {#each selectedJob.artifact_urls.filter(
-      art => art.slug && isSafeArtifactUrl(art.url),
-    ) as artifact}
+    {#each selectedJob.artifact_urls.filter((art) => art.slug && art.url) as artifact}
       <li>
-        <a href={artifact.url} target="_blank" rel="noreferrer"
-          >{artifact.slug}</a
+        <a
+          href={isSafeArtifactUrl(artifact.url)
+            ? artifact.url
+            : "/errors/not-found"}
+          target="_blank"
+          rel="noreferrer">{artifact.slug}</a
         >
       </li>
     {/each}
