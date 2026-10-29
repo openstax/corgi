@@ -310,6 +310,24 @@ def test_update_job_404(
 
 @pytest.mark.unit
 @pytest.mark.nondestructive
+def test_update_job_requires_login(
+    monkeypatch, testclient, mock_jobs_service, fake_data
+):
+    monkeypatch.setattr(
+        "app.api.endpoints.jobs.jobs_service", mock_jobs_service
+    )
+    original_status_id = fake_data.FAKE_JOB.status_id
+
+    # WHEN: an update is sent without a session
+    response = testclient.put("/api/jobs/1", json={"status_id": 3})
+
+    # THEN: it is rejected and the job is left alone
+    assert response.status_code == 401
+    assert fake_data.FAKE_JOB.status_id == original_status_id
+
+
+@pytest.mark.unit
+@pytest.mark.nondestructive
 def test_get_job_error(
     monkeypatch, testclient_with_session, mock_jobs_service, fake_data
 ):
