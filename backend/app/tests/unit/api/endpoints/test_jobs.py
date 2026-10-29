@@ -25,6 +25,7 @@ def test_get_jobs(
 def test_list_jobs_hides_legacy_unsafe_artifact_url(
     monkeypatch, testclient_with_session, mock_jobs_service, fake_data, caplog
 ):
+    caplog.set_level("DEBUG", logger="app.data_models.models")
     monkeypatch.setattr(
         "app.api.endpoints.jobs.jobs_service", mock_jobs_service
     )

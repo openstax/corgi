@@ -76,6 +76,7 @@ def validate_artifact_url(value: Optional[str]) -> Optional[str]:
         )
     try:
         parsed = urlsplit(value)
+        # ValueError raised on an invalid or out-of-range port
         _ = parsed.port
     except ValueError as exc:
         raise ValueError("Artifact URL is invalid") from exc
@@ -104,7 +105,7 @@ def safe_artifact_url(
     try:
         return validate_artifact_url(value)
     except ValueError:
-        logger.warning(
+        logger.debug(
             "Omitting invalid stored artifact URL for job %s, book %s",
             job_id,
             book_slug,
