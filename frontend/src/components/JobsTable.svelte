@@ -33,9 +33,17 @@
   import DetailsDialog from "./DetailsDialog.svelte";
   import { MINUTES, SECONDS } from "../ts/time";
   import { hasABLEntry } from "../ts/abl";
+  import { isSafeArtifactUrl } from "../ts/artifactUrl";
   import ApprovedBooksDialog from "./ApprovedBooksDialog.svelte";
   import PipelineVersionDialog from "./PipelineVersionDialog.svelte";
   import VersionLink from "./VersionLink.svelte";
+
+  function getJobHref(item: Job): string {
+    if (item.books.length !== 1) return `#${item.id}`;
+
+    const artifactUrl = item.artifact_urls[0]?.url;
+    return isSafeArtifactUrl(artifactUrl) ? artifactUrl : `/errors/not-found`;
+  }
 
   let statusStyles = {
     queued: "filter-yellow",
@@ -345,9 +353,7 @@
             <Wrapper>
               {#if isJobComplete(item)}
                 <a
-                  href={item.books.length === 1
-                    ? item.artifact_urls[0].url
-                    : `#${item.id}`}
+                  href={getJobHref(item)}
                   target={item.books.length === 1 ? "_blank" : "_self"}
                   rel="noreferrer"
                 >

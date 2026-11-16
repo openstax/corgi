@@ -1,8 +1,13 @@
+import logging
+import re
 from datetime import datetime
 from enum import Enum
 from typing import Any, List, Optional, Union
+from urllib.parse import urlsplit
 
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+
+logger = logging.getLogger(__name__)
 
 
 class Role(int, Enum):
@@ -62,9 +67,60 @@ class JobType(JobTypeBase):
         return str(v)
 
 
+def validate_artifact_url(value: Optional[str]) -> Optional[str]:
+    if value is None or value == "":
+        return value
+    if value != value.strip() or any(ord(char) < 0x20 for char in value):
+        raise ValueError(
+            "Artifact URL contains whitespace or control characters"
+        )
+    try:
+        parsed = urlsplit(value)
+        # ValueError raised on an invalid or out-of-range port
+        _ = parsed.port
+    except ValueError as exc:
+        raise ValueError("Artifact URL is invalid") from exc
+    authority = parsed.netloc
+    if (
+        not authority
+        or any(char.isspace() for char in authority)
+        or "\\" in authority
+        or re.search(r"%(?![0-9a-fA-F]{2})", authority)
+    ):
+        raise ValueError("Artifact URL authority is invalid")
+    if (
+        parsed.scheme.lower() not in {"http", "https"}
+        or not parsed.hostname
+        or parsed.username is not None
+        or parsed.password is not None
+    ):
+        raise ValueError("Artifact URL must be an absolute HTTP or HTTPS URL")
+    return value
+
+
+def safe_artifact_url(
+    value: Optional[str], job_id: int, book_slug: str
+) -> Optional[str]:
+    """Return None for invalid legacy URLs when serializing stored jobs."""
+    try:
+        return validate_artifact_url(value)
+    except ValueError:
+        logger.debug(
+            "Omitting invalid stored artifact URL for job %s, book %s",
+            job_id,
+            book_slug,
+        )
+        return None
+
+
 class ArtifactBase(BaseModel):
     slug: str
     url: Optional[str] = None
+
+    @field_validator("url")
+    @classmethod
+    def validate_url(cls, value):
+        return validate_artifact_url(value)
 
 
 class BookBase(BaseModel):
@@ -206,6 +262,13 @@ class JobUpdate(BaseModel):
     worker_version: Optional[str] = None
     error_message: Optional[str] = None
 
+    @field_validator("artifact_urls", mode="before")
+    @classmethod
+    def validate_single_artifact_url(cls, value):
+        if isinstance(value, str):
+            return validate_artifact_url(value)
+        return value
+
 
 class JobMin(BaseModel):
     id: str
@@ -259,8 +322,13 @@ class Job(JobBase):
                 "user": data.user,
                 "books": [book_job.book for book_job in data.books],
                 "artifact_urls": [
-                    ArtifactBase(slug=bj.book.slug, url=bj.artifact_url)
-                    for bj in data.books
+                    ArtifactBase(
+                        slug=book_job.book.slug,
+                        url=safe_artifact_url(
+                            book_job.artifact_url, data.id, book_job.book.slug
+                        ),
+                    )
+                    for book_job in data.books
                 ],
                 "version": data.books[0].book.commit.sha
                 if data.books
